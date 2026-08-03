@@ -74,18 +74,19 @@ function Ganhos() {
       </div>
 
       <SectionCard title="Evolução" description="Faturamento por dia (últimos dias)">
-        <div className="flex h-40 items-end gap-4">
+        <div className="flex h-48 items-stretch gap-4">
           {dias.map((d) => (
-            <div key={d.label} className="flex flex-1 flex-col items-center gap-2">
-              <span className="num text-xs text-muted-foreground">{brl(d.valor)}</span>
+            <div key={d.label} className="flex h-full flex-1 flex-col justify-end gap-2">
+              <span className="num text-center text-xs text-muted-foreground">{brl(d.valor)}</span>
               <div
                 className="w-full rounded-t-md bg-primary/80"
-                style={{ height: `${(d.valor / max) * 100}%` }}
+                style={{ height: `${Math.max(4, (d.valor / max) * 100)}%` }}
               />
-              <span className="text-xs text-muted-foreground">{d.label}</span>
+              <span className="text-center text-xs text-muted-foreground">{d.label}</span>
             </div>
           ))}
         </div>
+
       </SectionCard>
 
       <SectionCard title="Lançamentos" description="Últimos registros da aba DIA A DIA">
