@@ -28,7 +28,9 @@ function AbastecimentoPage() {
   const litros = abastecimentos.reduce((s, a) => s + a.litros, 0);
   const gasto = abastecimentos.reduce((s, a) => s + a.litros * a.precoLitro, 0);
   const kmPercorridos =
-    abastecimentos[0].odometro - abastecimentos[abastecimentos.length - 1].odometro;
+    (abastecimentos[0]?.odometro ?? 0) -
+    (abastecimentos[abastecimentos.length - 1]?.odometro ?? 0);
+
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
