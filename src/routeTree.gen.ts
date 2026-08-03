@@ -10,33 +10,79 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
+import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as ManutencaoRouteImport } from './routes/manutencao'
+import { Route as RepassesRouteImport } from './routes/repasses'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AbastecimentoRoute = AbastecimentoRouteImport.update({
+  id: '/abastecimento',
+  path: '/abastecimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DespesasRoute = DespesasRouteImport.update({
+  id: '/despesas',
+  path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManutencaoRoute = ManutencaoRouteImport.update({
+  id: '/manutencao',
+  path: '/manutencao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepassesRoute = RepassesRouteImport.update({
+  id: '/repasses',
+  path: '/repasses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/abastecimento': typeof AbastecimentoRoute
+  '/despesas': typeof DespesasRoute
+  '/manutencao': typeof ManutencaoRoute
+  '/repasses': typeof RepassesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/abastecimento': typeof AbastecimentoRoute
+  '/despesas': typeof DespesasRoute
+  '/manutencao': typeof ManutencaoRoute
+  '/repasses': typeof RepassesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/abastecimento': typeof AbastecimentoRoute
+  '/despesas': typeof DespesasRoute
+  '/manutencao': typeof ManutencaoRoute
+  '/repasses': typeof RepassesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/abastecimento' | '/despesas' | '/manutencao' | '/repasses'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/abastecimento' | '/despesas' | '/manutencao' | '/repasses'
+  id:
+    | '__root__'
+    | '/'
+    | '/abastecimento'
+    | '/despesas'
+    | '/manutencao'
+    | '/repasses'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AbastecimentoRoute: typeof AbastecimentoRoute
+  DespesasRoute: typeof DespesasRoute
+  ManutencaoRoute: typeof ManutencaoRoute
+  RepassesRoute: typeof RepassesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +94,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/abastecimento': {
+      id: '/abastecimento'
+      path: '/abastecimento'
+      fullPath: '/abastecimento'
+      preLoaderRoute: typeof AbastecimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/despesas': {
+      id: '/despesas'
+      path: '/despesas'
+      fullPath: '/despesas'
+      preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manutencao': {
+      id: '/manutencao'
+      path: '/manutencao'
+      fullPath: '/manutencao'
+      preLoaderRoute: typeof ManutencaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/repasses': {
+      id: '/repasses'
+      path: '/repasses'
+      fullPath: '/repasses'
+      preLoaderRoute: typeof RepassesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AbastecimentoRoute: AbastecimentoRoute,
+  DespesasRoute: DespesasRoute,
+  ManutencaoRoute: ManutencaoRoute,
+  RepassesRoute: RepassesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
