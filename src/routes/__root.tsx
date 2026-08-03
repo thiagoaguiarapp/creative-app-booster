@@ -80,14 +80,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rota Control — Ganhos e gastos de delivery" },
+      { title: "Ganhos diários — Rota Control" },
       {
         name: "description",
         content:
-          "Painel para entregadores controlarem ganhos diários, abastecimento, despesas, repasses e manutenção da moto.",
+          "Acompanhe corridas, faturamento e valores recebidos das entregas em tempo real.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Ganhos diários — Rota Control" },
+      { name: "twitter:title", content: "Ganhos diários — Rota Control" },
+      { property: "og:description", content: "Acompanhe corridas, faturamento e valores recebidos das entregas em tempo real." },
+      { name: "twitter:description", content: "Acompanhe corridas, faturamento e valores recebidos das entregas em tempo real." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/89e39d90-e248-4bb4-8400-7d11372129ab/id-preview-a565d132--050c271a-9a2e-417d-a594-e8336c2f72c9.lovable.app-1785774593793.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/89e39d90-e248-4bb4-8400-7d11372129ab/id-preview-a565d132--050c271a-9a2e-417d-a594-e8336c2f72c9.lovable.app-1785774593793.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

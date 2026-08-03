@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Ganhos diários — Rota Control" },
       {
         property: "og:description",
-        content: "Acompanhe corridas, faturamento e valores recebidos das entregas.",
+        content: "Acompanhe corridas, faturamento e valores recebidos das entregas em tempo real.",
       },
     ],
   }),
