@@ -1,10 +1,11 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, CalendarClock, Gauge, Wrench } from "lucide-react";
 
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { brl, manutencoes, odometroAtual, statusManutencao } from "@/lib/mock-data";
+import { painelQueryOptions } from "@/lib/painel-query";
+import { brl, statusManutencao } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/manutencao")({
@@ -23,6 +24,15 @@ export const Route = createFileRoute("/manutencao")({
       },
     ],
   }),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(painelQueryOptions());
+  },
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-6 text-sm text-destructive">
+      {error.message}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-6">Nada encontrado.</div>,
   component: ManutencaoPage,
 });
 
@@ -41,22 +51,31 @@ const nivelInfo = {
 } as const;
 
 function ManutencaoPage() {
-  const itens = manutencoes
-    .map((m) => ({ m, s: statusManutencao(m) }))
+  const { data } = useSuspenseQuery(painelQueryOptions());
+  const odometroAtual = data.odometroAtual;
+
+  // Mantém apenas o serviço mais recente de cada tipo por veículo.
+  const ultimos = new Map<string, (typeof data.manutencoes)[number]>();
+  for (const m of data.manutencoes) {
+    const chave = `${m.veiculo}|${m.servico}`.toUpperCase();
+    if (!ultimos.has(chave)) ultimos.set(chave, m);
+  }
+
+  const itens = [...ultimos.values()]
+    .map((m) => ({ m, s: statusManutencao(m, odometroAtual) }))
     .sort((a, b) => a.s.restante - b.s.restante);
 
   const vencidos = itens.filter((i) => i.s.nivel === "vencido").length;
   const atencao = itens.filter((i) => i.s.nivel === "atencao").length;
   const custoPrevisto = itens
     .filter((i) => i.s.nivel !== "ok")
-    .reduce((s, i) => s + i.m.custoEstimado, 0);
+    .reduce((s, i) => s + i.m.valor, 0);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Manutenção"
-        subtitle="Controle por quilometragem, com alerta antes de vencer"
-        action={<Button>Registrar serviço</Button>}
+        subtitle="Controle por quilometragem, com alerta antes de vencer (aba MANUTENCAO)"
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -68,7 +87,7 @@ function ManutencaoPage() {
         <StatCard label="Vencidos" value={String(vencidos)} icon={AlertTriangle} tone="destructive" />
         <StatCard label="Próximos" value={String(atencao)} icon={CalendarClock} tone="warning" />
         <StatCard
-          label="Custo previsto"
+          label="Último custo"
           value={brl(custoPrevisto)}
           hint="Itens vencidos e próximos"
           icon={Wrench}
@@ -83,8 +102,10 @@ function ManutencaoPage() {
               <article key={m.id} className="rounded-lg border border-border bg-background/40 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-display text-lg font-semibold">{m.item}</h3>
-                    <p className="text-xs text-muted-foreground">{m.oficina}</p>
+                    <h3 className="font-display text-lg font-semibold">{m.servico}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {m.veiculo} · {m.data}
+                    </p>
                   </div>
                   <Badge variant="outline" className={info.badge}>
                     {info.label}
@@ -92,7 +113,10 @@ function ManutencaoPage() {
                 </div>
 
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
-                  <div className={cn("h-full rounded-full", info.bar)} style={{ width: `${s.progresso}%` }} />
+                  <div
+                    className={cn("h-full rounded-full", info.bar)}
+                    style={{ width: `${s.progresso}%` }}
+                  />
                 </div>
 
                 <dl className="num mt-3 grid grid-cols-3 gap-2 text-xs">
@@ -109,8 +133,8 @@ function ManutencaoPage() {
                     </dd>
                   </div>
                   <div className="text-right">
-                    <dt className="text-muted-foreground">Custo est.</dt>
-                    <dd className="font-medium">{brl(m.custoEstimado)}</dd>
+                    <dt className="text-muted-foreground">Último custo</dt>
+                    <dd className="font-medium">{brl(m.valor)}</dd>
                   </div>
                 </dl>
               </article>
