@@ -1,10 +1,11 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Droplets, Fuel, Gauge } from "lucide-react";
 
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { abastecimentos, brl } from "@/lib/mock-data";
+import { painelQueryOptions } from "@/lib/painel-query";
+import { brl } from "@/lib/sheets-types";
 
 export const Route = createFileRoute("/abastecimento")({
   head: () => ({
@@ -21,23 +22,32 @@ export const Route = createFileRoute("/abastecimento")({
       },
     ],
   }),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(painelQueryOptions());
+  },
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-6 text-sm text-destructive">
+      {error.message}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-6">Nada encontrado.</div>,
   component: AbastecimentoPage,
 });
 
 function AbastecimentoPage() {
-  const litros = abastecimentos.reduce((s, a) => s + a.litros, 0);
-  const gasto = abastecimentos.reduce((s, a) => s + a.litros * a.precoLitro, 0);
-  const kmPercorridos =
-    (abastecimentos[0]?.odometro ?? 0) -
-    (abastecimentos[abastecimentos.length - 1]?.odometro ?? 0);
+  const { data } = useSuspenseQuery(painelQueryOptions());
+  const abastecimentos = data.abastecimentos;
+  const recentes = abastecimentos.slice(0, 15);
 
+  const litros = abastecimentos.reduce((s, a) => s + a.litros, 0);
+  const gasto = abastecimentos.reduce((s, a) => s + a.valorPago, 0);
+  const kmTotal = abastecimentos.reduce((s, a) => s + a.kmRodado, 0);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Abastecimento"
-        subtitle="Combustível e consumo do veículo"
-        action={<Button>Novo abastecimento</Button>}
+        subtitle="Combustível e consumo do veículo (aba COMBUSTIVE/KM)"
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -45,8 +55,8 @@ function AbastecimentoPage() {
         <StatCard label="Litros abastecidos" value={`${litros.toFixed(1)} L`} icon={Droplets} />
         <StatCard
           label="Consumo médio"
-          value={`${(kmPercorridos / litros).toFixed(1)} km/L`}
-          hint={`${kmPercorridos} km no período`}
+          value={`${litros ? (kmTotal / litros).toFixed(1) : "0,0"} km/L`}
+          hint={`${kmTotal.toLocaleString("pt-BR")} km no período`}
           icon={Gauge}
           tone="warning"
         />
@@ -57,24 +67,26 @@ function AbastecimentoPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
-              <TableHead>Posto</TableHead>
+              <TableHead>Pagamento</TableHead>
               <TableHead className="text-right">Litros</TableHead>
               <TableHead className="text-right">R$/L</TableHead>
               <TableHead className="text-right">Odômetro</TableHead>
+              <TableHead className="text-right">km/L</TableHead>
               <TableHead className="text-right">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {abastecimentos.map((a) => (
+            {recentes.map((a) => (
               <TableRow key={a.id}>
                 <TableCell className="num">{a.data}</TableCell>
-                <TableCell>{a.posto}</TableCell>
-                <TableCell className="num text-right">{a.litros.toFixed(1)}</TableCell>
+                <TableCell>{a.pagamento}</TableCell>
+                <TableCell className="num text-right">{a.litros.toFixed(2)}</TableCell>
                 <TableCell className="num text-right">{brl(a.precoLitro)}</TableCell>
-                <TableCell className="num text-right">{a.odometro.toLocaleString("pt-BR")}</TableCell>
-                <TableCell className="num text-right font-semibold">
-                  {brl(a.litros * a.precoLitro)}
+                <TableCell className="num text-right">
+                  {a.odometro.toLocaleString("pt-BR")}
                 </TableCell>
+                <TableCell className="num text-right">{a.kmPorLitro || "—"}</TableCell>
+                <TableCell className="num text-right font-semibold">{brl(a.valorPago)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

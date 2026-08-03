@@ -1,11 +1,12 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Bike, CircleDollarSign, Gauge, TrendingUp } from "lucide-react";
+import { Bike, CircleDollarSign, TrendingUp, Wallet } from "lucide-react";
 
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { brl, ganhos } from "@/lib/mock-data";
+import { painelQueryOptions } from "@/lib/painel-query";
+import { brl } from "@/lib/sheets-types";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,90 +14,104 @@ export const Route = createFileRoute("/")({
       { title: "Ganhos diários — Rota Control" },
       {
         name: "description",
-        content: "Acompanhe corridas, quilometragem e faturamento diário das entregas.",
+        content: "Acompanhe corridas, faturamento e valores recebidos das entregas em tempo real.",
       },
       { property: "og:title", content: "Ganhos diários — Rota Control" },
       {
         property: "og:description",
-        content: "Acompanhe corridas, quilometragem e faturamento diário das entregas.",
+        content: "Acompanhe corridas, faturamento e valores recebidos das entregas.",
       },
     ],
   }),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(painelQueryOptions());
+  },
+  errorComponent: ({ error }) => (
+    <div role="alert" className="p-6 text-sm text-destructive">
+      {error.message}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-6">Nada encontrado.</div>,
   component: Ganhos,
 });
 
 function Ganhos() {
-  const total = ganhos.reduce((s, g) => s + g.bruto + g.gorjeta, 0);
+  const { data } = useSuspenseQuery(painelQueryOptions());
+  const ganhos = data.ganhos;
+  const recentes = ganhos.slice(0, 12);
+
+  const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
-  const km = ganhos.reduce((s, g) => s + g.km, 0);
-  const max = Math.max(...ganhos.map((g) => g.bruto + g.gorjeta));
+  const recebido = ganhos.reduce((s, g) => s + g.recebido, 0);
+
+  const porDia = new Map<string, { label: string; valor: number }>();
+  for (const g of recentes) {
+    const atual = porDia.get(g.data) ?? { label: g.data, valor: 0 };
+    atual.valor += g.faturamento;
+    porDia.set(g.data, atual);
+  }
+  const dias = [...porDia.values()].slice(0, 7).reverse();
+  const max = Math.max(1, ...dias.map((d) => d.valor));
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Ganhos diários"
-        subtitle="Últimos 5 dias de operação"
-        action={<Button>Registrar ganho</Button>}
+        subtitle={`${ganhos.length} lançamentos vindos da planilha MOTOCA`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturamento" value={brl(total)} icon={CircleDollarSign} tone="success" />
         <StatCard label="Corridas" value={String(corridas)} icon={Bike} />
-        <StatCard label="KM rodados" value={`${km} km`} icon={Gauge} />
+        <StatCard label="Valor recebido" value={brl(recebido)} icon={Wallet} />
         <StatCard
-          label="Ganho por KM"
-          value={brl(total / km)}
-          hint="Média do período"
+          label="Ticket médio"
+          value={brl(corridas ? total / corridas : 0)}
+          hint="Por corrida concluída"
           icon={TrendingUp}
           tone="warning"
         />
       </div>
 
-      <SectionCard title="Evolução" description="Total recebido por dia">
-        <div className="flex h-40 items-end gap-4">
-          {[...ganhos].reverse().map((g) => {
-            const v = g.bruto + g.gorjeta;
-            return (
-              <div key={g.id} className="flex flex-1 flex-col items-center gap-2">
-                <span className="num text-xs text-muted-foreground">{brl(v)}</span>
-                <div
-                  className="w-full rounded-t-md bg-primary/80"
-                  style={{ height: `${(v / max) * 100}%` }}
-                />
-                <span className="text-xs text-muted-foreground">{g.data}</span>
-              </div>
-            );
-          })}
+      <SectionCard title="Evolução" description="Faturamento por dia (últimos dias)">
+        <div className="flex h-48 items-stretch gap-4">
+          {dias.map((d) => (
+            <div key={d.label} className="flex h-full flex-1 flex-col justify-end gap-2">
+              <span className="num text-center text-xs text-muted-foreground">{brl(d.valor)}</span>
+              <div
+                className="w-full rounded-t-md bg-primary/80"
+                style={{ height: `${Math.max(4, (d.valor / max) * 100)}%` }}
+              />
+              <span className="text-center text-xs text-muted-foreground">{d.label}</span>
+            </div>
+          ))}
         </div>
+
       </SectionCard>
 
-      <SectionCard title="Lançamentos">
+      <SectionCard title="Lançamentos" description="Últimos registros da aba DIA A DIA">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
-              <TableHead>Plataforma</TableHead>
-              <TableHead className="text-right">Corridas</TableHead>
-              <TableHead className="text-right">KM</TableHead>
-              <TableHead className="text-right">Bruto</TableHead>
-              <TableHead className="text-right">Gorjeta</TableHead>
-              <TableHead className="text-right">Total</TableHead>
+              <TableHead>App</TableHead>
+              <TableHead className="text-right">Rotas</TableHead>
+              <TableHead className="text-right">Faturamento</TableHead>
+              <TableHead className="text-right">Recebido</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {ganhos.map((g) => (
+            {recentes.map((g) => (
               <TableRow key={g.id}>
                 <TableCell className="num">{g.data}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">{g.plataforma}</Badge>
                 </TableCell>
-                <TableCell className="num text-right">{g.corridas}</TableCell>
-                <TableCell className="num text-right">{g.km}</TableCell>
-                <TableCell className="num text-right">{brl(g.bruto)}</TableCell>
-                <TableCell className="num text-right">{brl(g.gorjeta)}</TableCell>
+                <TableCell className="num text-right">{g.corridas || "—"}</TableCell>
                 <TableCell className="num text-right font-semibold text-success">
-                  {brl(g.bruto + g.gorjeta)}
+                  {brl(g.faturamento)}
                 </TableCell>
+                <TableCell className="num text-right">{brl(g.recebido)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
