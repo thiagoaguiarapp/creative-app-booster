@@ -38,13 +38,40 @@ export const Route = createFileRoute("/repasses")({
   component: RepassesPage,
 });
 
+type Periodo = "atual" | "passado" | "total";
+
+const PERIODOS: { id: Periodo; label: string }[] = [
+  { id: "atual", label: "Mês atual" },
+  { id: "passado", label: "Mês passado" },
+  { id: "total", label: "Total" },
+];
+
+function prefixoMes(offset: number) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function RepassesPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const repasses = data.repasses;
-  const recentes = repasses.slice(0, 15);
+  const [periodo, setPeriodo] = useState<Periodo>("atual");
+
+  const prefixo = periodo === "total" ? null : prefixoMes(periodo === "atual" ? 0 : -1);
+
+  const repasses = useMemo(
+    () => (prefixo ? data.repasses.filter((r) => r.iso.startsWith(prefixo)) : data.repasses),
+    [data.repasses, prefixo],
+  );
+  const ganhos = useMemo(
+    () => (prefixo ? data.ganhos.filter((g) => g.iso.startsWith(prefixo)) : data.ganhos),
+    [data.ganhos, prefixo],
+  );
+
+  const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 15);
 
   const recebido = repasses.reduce((s, r) => s + r.valor, 0);
-  const faturado = data.ganhos.reduce((s, g) => s + g.faturamento, 0);
+  const faturado = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const pendente = Math.max(0, faturado - recebido);
 
   const porApp = Array.from(new Set(repasses.map((r) => r.aplicativo)))
@@ -62,6 +89,19 @@ function RepassesPage() {
         action={<NovoLancamento tipo="repasse" />}
       />
 
+      <div className="flex flex-wrap gap-2">
+        {PERIODOS.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            variant={periodo === p.id ? "default" : "outline"}
+            onClick={() => setPeriodo(p.id)}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturado" value={brl(faturado)} icon={Wallet} />
         <StatCard label="Recebido" value={brl(recebido)} icon={CheckCircle2} tone="success" />
@@ -70,6 +110,7 @@ function RepassesPage() {
       </div>
 
       <SectionCard title="Por aplicativo" description="Total recebido em cada plataforma">
+
         <div className="flex flex-col gap-3">
           {porApp.map((a) => (
             <div key={a.app} className="flex items-center gap-3">
