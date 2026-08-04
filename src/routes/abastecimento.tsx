@@ -149,7 +149,10 @@ function AbastecimentoPage() {
                 <TableCell className="num text-right">
                   {a.odometro.toLocaleString("pt-BR")}
                 </TableCell>
-                <TableCell className="num text-right">{a.kmPorLitro || "—"}</TableCell>
+                <TableCell className="num text-right">
+                  {mediaPorRegistro.get(a.id)?.toFixed(1) ?? "—"}
+                </TableCell>
+
                 <TableCell className="num text-right font-semibold">{brl(a.valorPago)}</TableCell>
                 <TableCell>
                   <AcoesLancamento tipo="abastecimento" registro={a} />
