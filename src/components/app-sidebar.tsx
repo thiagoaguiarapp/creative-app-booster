@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bike, Fuel, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Ganhos diários", url: "/", icon: Bike },
+  { title: "Início", url: "/", icon: Home },
+  { title: "Ganhos diários", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", url: "/despesas", icon: Receipt },
   { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet },
