@@ -114,7 +114,10 @@ function RepassesPage() {
       }
       return item;
     };
-    for (const g of ganhos) pegar(g.plataforma).faturado += g.faturamento;
+    for (const g of ganhos) {
+      if (ehExtra(g.plataforma)) continue;
+      pegar(g.plataforma).faturado += g.faturamento;
+    }
     for (const r of repasses) {
       if (ehExtra(r.aplicativo)) continue;
       pegar(r.aplicativo).recebido += r.valor;
