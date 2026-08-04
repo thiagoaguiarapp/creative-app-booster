@@ -89,14 +89,32 @@ function RepassesPage() {
   const faturado = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const pendente = Math.max(0, faturado - recebidoPlataformas);
 
-  const porApp = Array.from(
-    new Set(repasses.filter((r) => !ehExtra(r.aplicativo)).map((r) => r.aplicativo)),
-  )
-    .map((app) => ({
-      app,
-      valor: repasses.filter((r) => r.aplicativo === app).reduce((s, r) => s + r.valor, 0),
-    }))
-    .sort((a, b) => b.valor - a.valor);
+  const norm = (s: string) => s.trim().toUpperCase().replace(/\s+/g, " ");
+
+  const porApp = useMemo(() => {
+    const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
+    const pegar = (nome: string) => {
+      const chave = norm(nome);
+      let item = mapa.get(chave);
+      if (!item) {
+        item = { app: nome.trim() || "—", faturado: 0, recebido: 0 };
+        mapa.set(chave, item);
+      }
+      return item;
+    };
+    for (const g of ganhos) pegar(g.plataforma).faturado += g.faturamento;
+    for (const r of repasses) {
+      if (ehExtra(r.aplicativo)) continue;
+      pegar(r.aplicativo).recebido += r.valor;
+    }
+    return Array.from(mapa.values())
+      .map((i) => ({ ...i, pendente: i.faturado - i.recebido }))
+      .filter((i) => i.faturado !== 0 || i.recebido !== 0)
+      .sort((a, b) => b.faturado - a.faturado || b.recebido - a.recebido);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ganhos, repasses]);
+
+  const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -128,30 +146,64 @@ function RepassesPage() {
           tone="success"
           hint={`Plataformas ${brl(recebidoPlataformas)}`}
         />
-        <StatCard label="A receber" value={brl(pendente)} icon={Clock} tone="warning" />
+        <StatCard
+          label="A receber"
+          value={brl(pendenteTotal)}
+          icon={Clock}
+          tone="warning"
+          hint="Soma das pendências por plataforma"
+        />
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
         <StatCard label="Gorjetas" value={brl(gorjetas)} icon={HandCoins} tone="success" />
         <StatCard label="Sobra de troco" value={brl(sobraTroco)} icon={Coins} tone="success" />
       </div>
 
-      <SectionCard title="Por aplicativo" description="Total recebido em cada plataforma">
-
-
-        <div className="flex flex-col gap-3">
-          {porApp.map((a) => (
-            <div key={a.app} className="flex items-center gap-3">
-              <span className="w-36 shrink-0 truncate text-sm text-muted-foreground">{a.app}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${recebido ? (a.valor / recebido) * 100 : 0}%` }}
-                />
-              </div>
-              <span className="num w-28 text-right text-sm font-medium">{brl(a.valor)}</span>
-            </div>
-          ))}
-        </div>
+      <SectionCard
+        title="Conciliação por aplicativo"
+        description="Faturado no período x repasses recebidos"
+      >
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Aplicativo</TableHead>
+              <TableHead className="text-right">Faturado</TableHead>
+              <TableHead className="text-right">Recebido</TableHead>
+              <TableHead className="text-right">Falta receber</TableHead>
+              <TableHead className="w-24 text-right">%</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {porApp.map((a) => {
+              const pct = a.faturado > 0 ? Math.round((a.recebido / a.faturado) * 100) : 100;
+              return (
+                <TableRow key={a.app}>
+                  <TableCell className="font-medium">{a.app}</TableCell>
+                  <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
+                  <TableCell className="num text-right text-success">{brl(a.recebido)}</TableCell>
+                  <TableCell
+                    className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
+                  >
+                    {brl(a.pendente)}
+                  </TableCell>
+                  <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
+                </TableRow>
+              );
+            })}
+            <TableRow>
+              <TableCell className="font-semibold">Total</TableCell>
+              <TableCell className="num text-right font-semibold">{brl(faturado)}</TableCell>
+              <TableCell className="num text-right font-semibold text-success">
+                {brl(recebidoPlataformas)}
+              </TableCell>
+              <TableCell className="num text-right font-semibold text-warning">
+                {brl(pendenteTotal)}
+              </TableCell>
+              <TableCell />
+            </TableRow>
+          </TableBody>
+        </Table>
       </SectionCard>
+
 
       <SectionCard title="Últimos repasses">
         <Table>
