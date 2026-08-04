@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
@@ -30,6 +31,11 @@ const AbastecimentoRoute = AbastecimentoRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GanhosDiariosRoute = GanhosDiariosRouteImport.update({
+  id: '/ganhos-diarios',
+  path: '/ganhos-diarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LancamentosRoute = LancamentosRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
+  '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
+  '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
+  '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/despesas'
+    | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
     | '/relatorio'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/despesas'
+    | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
     | '/relatorio'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/despesas'
+    | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
     | '/relatorio'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbastecimentoRoute: typeof AbastecimentoRoute
   DespesasRoute: typeof DespesasRoute
+  GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
   RelatorioRoute: typeof RelatorioRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ganhos-diarios': {
+      id: '/ganhos-diarios'
+      path: '/ganhos-diarios'
+      fullPath: '/ganhos-diarios'
+      preLoaderRoute: typeof GanhosDiariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lancamentos': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
   DespesasRoute: DespesasRoute,
+  GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
   RelatorioRoute: RelatorioRoute,
@@ -187,13 +208,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
