@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Bike, CircleDollarSign, TrendingUp, Wallet } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -36,9 +38,31 @@ export const Route = createFileRoute("/")({
   component: Ganhos,
 });
 
+type Periodo = "atual" | "passado" | "total";
+
+const PERIODOS: { id: Periodo; label: string }[] = [
+  { id: "atual", label: "Mês atual" },
+  { id: "passado", label: "Mês passado" },
+  { id: "total", label: "Total" },
+];
+
+function prefixoMes(offset: number) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function Ganhos() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const ganhos = data.ganhos;
+  const [periodo, setPeriodo] = useState<Periodo>("atual");
+
+  const ganhos = useMemo(() => {
+    if (periodo === "total") return data.ganhos;
+    const p = prefixoMes(periodo === "atual" ? 0 : -1);
+    return data.ganhos.filter((g) => g.iso.startsWith(p));
+  }, [data.ganhos, periodo]);
+
   const recentes = ganhos.slice(0, 12);
 
   const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
@@ -58,9 +82,22 @@ function Ganhos() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Ganhos diários"
-        subtitle={`${ganhos.length} lançamentos vindos da planilha MOTOCA`}
+        subtitle={`${ganhos.length} lançamentos no período`}
         action={<NovoLancamento tipo="ganho" />}
       />
+
+      <div className="flex flex-wrap gap-2">
+        {PERIODOS.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            variant={periodo === p.id ? "default" : "outline"}
+            onClick={() => setPeriodo(p.id)}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturamento" value={brl(total)} icon={CircleDollarSign} tone="success" />
