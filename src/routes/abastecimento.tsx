@@ -1,12 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Droplets, Fuel, Gauge } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { brl } from "@/lib/sheets-types";
+import { brl, type Abastecimento } from "@/lib/sheets-types";
+
 
 export const Route = createFileRoute("/abastecimento")({
   head: () => ({
