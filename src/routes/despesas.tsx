@@ -82,6 +82,19 @@ function DespesasPage() {
         action={<NovoLancamento tipo="despesa" />}
       />
 
+      <div className="flex flex-wrap gap-2">
+        {PERIODOS.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            variant={periodo === p.id ? "default" : "outline"}
+            onClick={() => setPeriodo(p.id)}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Total do período" value={brl(total)} icon={TrendingDown} tone="destructive" />
         <StatCard label="Lançamentos" value={String(despesas.length)} icon={Receipt} />
