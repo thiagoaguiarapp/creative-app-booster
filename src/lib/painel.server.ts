@@ -17,8 +17,32 @@ function withRows(rows: string[][]): { r: string[]; row: number }[] {
   return rows.map((r, i) => ({ r, row: i + 2 }));
 }
 
+let cache: { data: PainelData; at: number } | null = null;
+let emVoo: Promise<PainelData> | null = null;
+const TTL = 60_000;
+
+/** Limpa o cache após gravações para a próxima leitura vir fresca. */
+export function invalidarPainelCache() {
+  cache = null;
+}
+
 export async function loadPainelData(): Promise<PainelData> {
+  if (cache && Date.now() - cache.at < TTL) return cache.data;
+  if (emVoo) return emVoo;
+  emVoo = carregar()
+    .then((d) => {
+      cache = { data: d, at: Date.now() };
+      return d;
+    })
+    .finally(() => {
+      emVoo = null;
+    });
+  return emVoo;
+}
+
+async function carregar(): Promise<PainelData> {
   const [rGanhos, rComb, rDesp, rRep, rManut] = await batchGet(RANGES);
+
 
   const ganhos = withRows(rGanhos ?? [])
     .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
