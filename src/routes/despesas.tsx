@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Receipt, TrendingDown, Wallet } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -36,9 +38,31 @@ export const Route = createFileRoute("/despesas")({
   component: DespesasPage,
 });
 
+type Periodo = "atual" | "passado" | "total";
+
+const PERIODOS: { id: Periodo; label: string }[] = [
+  { id: "atual", label: "Mês atual" },
+  { id: "passado", label: "Mês passado" },
+  { id: "total", label: "Total" },
+];
+
+function prefixoMes(offset: number) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const despesas = data.despesas;
+  const [periodo, setPeriodo] = useState<Periodo>("atual");
+
+  const despesas = useMemo(() => {
+    if (periodo === "total") return data.despesas;
+    const p = prefixoMes(periodo === "atual" ? 0 : -1);
+    return data.despesas.filter((d) => d.iso.startsWith(p));
+  }, [data.despesas, periodo]);
+
   const recentes = despesas.slice(0, 15);
 
   const total = despesas.reduce((s, d) => s + d.valor, 0);
@@ -57,6 +81,19 @@ function DespesasPage() {
         subtitle="Custos operacionais fora do combustível (aba DESPESA)"
         action={<NovoLancamento tipo="despesa" />}
       />
+
+      <div className="flex flex-wrap gap-2">
+        {PERIODOS.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            variant={periodo === p.id ? "default" : "outline"}
+            onClick={() => setPeriodo(p.id)}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Total do período" value={brl(total)} icon={TrendingDown} tone="destructive" />
