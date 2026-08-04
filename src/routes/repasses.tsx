@@ -72,21 +72,33 @@ function RepassesPage() {
 
   const ehExtra = (app: string) => {
     const n = app.trim().toUpperCase();
-    return n.startsWith("GORJETA") || n.startsWith("SOBRA");
+    return n.startsWith("GORJETA") || n.startsWith("SOBRA") || n.startsWith("TROCO") || n.startsWith("CAIXINHA");
+  };
+  const ehGorjeta = (app: string) => {
+    const n = app.trim().toUpperCase();
+    return n.startsWith("GORJETA") || n.startsWith("CAIXINHA");
+  };
+  const ehSobra = (app: string) => {
+    const n = app.trim().toUpperCase();
+    return n.startsWith("SOBRA") || n.startsWith("TROCO");
   };
 
-  const gorjetas = repasses
-    .filter((r) => r.aplicativo.trim().toUpperCase().startsWith("GORJETA"))
-    .reduce((s, r) => s + r.valor, 0);
-  const sobraTroco = repasses
-    .filter((r) => r.aplicativo.trim().toUpperCase().startsWith("SOBRA"))
-    .reduce((s, r) => s + r.valor, 0);
+  const gorjetas =
+    repasses.filter((r) => ehGorjeta(r.aplicativo)).reduce((s, r) => s + r.valor, 0) +
+    ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  const sobraTroco =
+    repasses.filter((r) => ehSobra(r.aplicativo)).reduce((s, r) => s + r.valor, 0) +
+    ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
 
   const recebidoPlataformas = repasses
     .filter((r) => !ehExtra(r.aplicativo))
     .reduce((s, r) => s + r.valor, 0);
   const recebido = recebidoPlataformas + gorjetas + sobraTroco;
-  const faturado = ganhos.reduce((s, g) => s + g.faturamento, 0);
+  const faturado = ganhos
+    .filter((g) => !ehExtra(g.plataforma))
+    .reduce((s, g) => s + g.faturamento, 0);
+  
+
   
 
   const norm = (s: string) => s.trim().toUpperCase().replace(/\s+/g, " ");
