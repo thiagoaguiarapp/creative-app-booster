@@ -77,6 +77,21 @@ function AbastecimentoPage() {
   }, [data.abastecimentos, periodo]);
 
   const recentes = lista.slice(0, 15);
+
+  // km/L por registro: odômetro atual − odômetro do abastecimento anterior ÷ litros
+  const mediaPorRegistro = useMemo(() => {
+    const ordenados = [...data.abastecimentos]
+      .filter((a) => a.odometro > 0)
+      .sort((a, b) => a.odometro - b.odometro);
+    const mapa = new Map<string, number>();
+    for (let i = 1; i < ordenados.length; i++) {
+      const atual = ordenados[i]!;
+      const km = atual.odometro - ordenados[i - 1]!.odometro;
+      if (km > 0 && atual.litros > 0) mapa.set(atual.id, km / atual.litros);
+    }
+    return mapa;
+  }, [data.abastecimentos]);
+
   const litrosTotais = lista.reduce((s, a) => s + a.litros, 0);
   const gasto = lista.reduce((s, a) => s + a.valorPago, 0);
   const { km, media } = consumo(lista);
