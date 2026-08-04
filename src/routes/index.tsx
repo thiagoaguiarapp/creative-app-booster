@@ -55,7 +55,14 @@ function prefixoMes(offset: number) {
 
 function Ganhos() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const ganhos = data.ganhos;
+  const [periodo, setPeriodo] = useState<Periodo>("atual");
+
+  const ganhos = useMemo(() => {
+    if (periodo === "total") return data.ganhos;
+    const p = prefixoMes(periodo === "atual" ? 0 : -1);
+    return data.ganhos.filter((g) => g.iso.startsWith(p));
+  }, [data.ganhos, periodo]);
+
   const recentes = ganhos.slice(0, 12);
 
   const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
