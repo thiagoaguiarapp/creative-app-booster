@@ -38,6 +38,21 @@ export const Route = createFileRoute("/despesas")({
   component: DespesasPage,
 });
 
+type Periodo = "atual" | "passado" | "total";
+
+const PERIODOS: { id: Periodo; label: string }[] = [
+  { id: "atual", label: "Mês atual" },
+  { id: "passado", label: "Mês passado" },
+  { id: "total", label: "Total" },
+];
+
+function prefixoMes(offset: number) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const despesas = data.despesas;
