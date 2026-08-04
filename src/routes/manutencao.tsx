@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, CalendarClock, Gauge, Wrench } from "lucide-react";
 
+import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { painelQueryOptions } from "@/lib/painel-query";
@@ -76,6 +77,7 @@ function ManutencaoPage() {
       <PageHeader
         title="Manutenção"
         subtitle="Controle por quilometragem, com alerta antes de vencer (aba MANUTENCAO)"
+        action={<NovoLancamento tipo="manutencao" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -107,9 +109,12 @@ function ManutencaoPage() {
                       {m.veiculo} · {m.data}
                     </p>
                   </div>
-                  <Badge variant="outline" className={info.badge}>
-                    {info.label}
-                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <Badge variant="outline" className={info.badge}>
+                      {info.label}
+                    </Badge>
+                    <AcoesLancamento tipo="manutencao" registro={m} />
+                  </div>
                 </div>
 
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">

@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2, Clock, Landmark, Wallet } from "lucide-react";
 
+import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -56,6 +57,7 @@ function RepassesPage() {
       <PageHeader
         title="Recebimento / Repasse"
         subtitle="Conciliação dos repasses das plataformas (aba REPASSE)"
+        action={<NovoLancamento tipo="repasse" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -90,6 +92,7 @@ function RepassesPage() {
               <TableHead>Aplicativo</TableHead>
               <TableHead>Forma</TableHead>
               <TableHead className="text-right">Valor recebido</TableHead>
+              <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -102,6 +105,9 @@ function RepassesPage() {
                 <TableCell className="text-muted-foreground">{r.forma}</TableCell>
                 <TableCell className="num text-right font-semibold text-success">
                   {brl(r.valor)}
+                </TableCell>
+                <TableCell>
+                  <AcoesLancamento tipo="repasse" registro={r} />
                 </TableCell>
               </TableRow>
             ))}

@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Droplets, Fuel, Gauge } from "lucide-react";
 
+import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
@@ -48,6 +49,7 @@ function AbastecimentoPage() {
       <PageHeader
         title="Abastecimento"
         subtitle="Combustível e consumo do veículo (aba COMBUSTIVE/KM)"
+        action={<NovoLancamento tipo="abastecimento" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -73,6 +75,7 @@ function AbastecimentoPage() {
               <TableHead className="text-right">Odômetro</TableHead>
               <TableHead className="text-right">km/L</TableHead>
               <TableHead className="text-right">Total</TableHead>
+              <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -87,6 +90,9 @@ function AbastecimentoPage() {
                 </TableCell>
                 <TableCell className="num text-right">{a.kmPorLitro || "—"}</TableCell>
                 <TableCell className="num text-right font-semibold">{brl(a.valorPago)}</TableCell>
+                <TableCell>
+                  <AcoesLancamento tipo="abastecimento" registro={a} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

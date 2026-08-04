@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Bike, CircleDollarSign, TrendingUp, Wallet } from "lucide-react";
 
+import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -58,6 +59,7 @@ function Ganhos() {
       <PageHeader
         title="Ganhos diários"
         subtitle={`${ganhos.length} lançamentos vindos da planilha MOTOCA`}
+        action={<NovoLancamento tipo="ganho" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -98,6 +100,7 @@ function Ganhos() {
               <TableHead className="text-right">Rotas</TableHead>
               <TableHead className="text-right">Faturamento</TableHead>
               <TableHead className="text-right">Recebido</TableHead>
+              <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -112,6 +115,9 @@ function Ganhos() {
                   {brl(g.faturamento)}
                 </TableCell>
                 <TableCell className="num text-right">{brl(g.recebido)}</TableCell>
+                <TableCell>
+                  <AcoesLancamento tipo="ganho" registro={g} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
