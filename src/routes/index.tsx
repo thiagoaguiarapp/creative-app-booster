@@ -82,9 +82,22 @@ function Ganhos() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Ganhos diários"
-        subtitle={`${ganhos.length} lançamentos vindos da planilha MOTOCA`}
+        subtitle={`${ganhos.length} lançamentos no período`}
         action={<NovoLancamento tipo="ganho" />}
       />
+
+      <div className="flex flex-wrap gap-2">
+        {PERIODOS.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            variant={periodo === p.id ? "default" : "outline"}
+            onClick={() => setPeriodo(p.id)}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturamento" value={brl(total)} icon={CircleDollarSign} tone="success" />
