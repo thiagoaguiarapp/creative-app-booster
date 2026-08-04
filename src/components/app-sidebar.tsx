@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bike, Fuel, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Fuel, Receipt, Wallet, Wrench } from "lucide-react";
 
 import {
   Sidebar,
@@ -20,6 +20,7 @@ const items = [
   { title: "Despesas", url: "/despesas", icon: Receipt },
   { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet },
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
+  { title: "Relatório", url: "/relatorio", icon: BarChart3 },
 ];
 
 export function AppSidebar() {

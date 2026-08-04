@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
+import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const ManutencaoRoute = ManutencaoRouteImport.update({
   path: '/manutencao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RelatorioRoute = RelatorioRouteImport.update({
+  id: '/relatorio',
+  path: '/relatorio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RepassesRoute = RepassesRouteImport.update({
   id: '/repasses',
   path: '/repasses',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
   '/manutencao': typeof ManutencaoRoute
+  '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
   '/manutencao': typeof ManutencaoRoute
+  '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
   '/manutencao': typeof ManutencaoRoute
+  '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/abastecimento' | '/despesas' | '/manutencao' | '/repasses'
+  fullPaths:
+    | '/'
+    | '/abastecimento'
+    | '/despesas'
+    | '/manutencao'
+    | '/relatorio'
+    | '/repasses'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/abastecimento' | '/despesas' | '/manutencao' | '/repasses'
+  to:
+    | '/'
+    | '/abastecimento'
+    | '/despesas'
+    | '/manutencao'
+    | '/relatorio'
+    | '/repasses'
   id:
     | '__root__'
     | '/'
     | '/abastecimento'
     | '/despesas'
     | '/manutencao'
+    | '/relatorio'
     | '/repasses'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +104,7 @@ export interface RootRouteChildren {
   AbastecimentoRoute: typeof AbastecimentoRoute
   DespesasRoute: typeof DespesasRoute
   ManutencaoRoute: typeof ManutencaoRoute
+  RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
 }
 
@@ -115,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManutencaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/relatorio': {
+      id: '/relatorio'
+      path: '/relatorio'
+      fullPath: '/relatorio'
+      preLoaderRoute: typeof RelatorioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/repasses': {
       id: '/repasses'
       path: '/repasses'
@@ -130,8 +160,19 @@ const rootRouteChildren: RootRouteChildren = {
   AbastecimentoRoute: AbastecimentoRoute,
   DespesasRoute: DespesasRoute,
   ManutencaoRoute: ManutencaoRoute,
+  RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
