@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Bike, CircleDollarSign, TrendingUp, Wallet } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
