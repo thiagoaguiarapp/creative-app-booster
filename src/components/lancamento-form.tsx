@@ -1,0 +1,190 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CAMPOS, TITULOS, paraInputDate, type Tipo } from "@/lib/entry-schema";
+import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
+
+function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
+  const out: Record<string, string> = {};
+  for (const campo of CAMPOS[tipo]) {
+    const bruto = registro?.[campo.key];
+    if (campo.tipo === "date") {
+      out[campo.key] = registro ? paraInputDate(String(bruto ?? "")) : "";
+    } else if (bruto === undefined || bruto === null) {
+      out[campo.key] = "";
+    } else if (typeof bruto === "number") {
+      out[campo.key] = bruto ? String(bruto) : "";
+    } else {
+      out[campo.key] = String(bruto) === "—" ? "" : String(bruto);
+    }
+  }
+  return out;
+}
+
+function useInvalidarPainel() {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: ["painel"] });
+}
+
+function FormularioDialog({
+  tipo,
+  row,
+  registro,
+  aberto,
+  onOpenChange,
+}: {
+  tipo: Tipo;
+  row?: number;
+  registro?: Record<string, unknown>;
+  aberto: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const [valores, setValores] = useState(() => valoresIniciais(tipo, registro));
+  const salvar = useServerFn(salvarLancamentoFn);
+  const invalidar = useInvalidarPainel();
+
+  const mutation = useMutation({
+    mutationFn: (v: Record<string, string>) =>
+      salvar({ data: row ? { tipo, valores: v, row } : { tipo, valores: v } }),
+    onSuccess: async () => {
+      await invalidar();
+      toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
+      onOpenChange(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    for (const campo of CAMPOS[tipo]) {
+      if (campo.obrigatorio && !valores[campo.key]?.trim()) {
+        toast.error(`Preencha "${campo.label}".`);
+        return;
+      }
+    }
+    mutation.mutate(valores);
+  }
+
+  return (
+    <Dialog open={aberto} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-display uppercase tracking-wide">
+            {row ? "Editar" : "Novo"} {TITULOS[tipo]}
+          </DialogTitle>
+          <DialogDescription>
+            As alterações são gravadas direto na sua planilha do Google Sheets.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={enviar} className="grid gap-4 sm:grid-cols-2">
+          {CAMPOS[tipo].map((campo) => (
+            <div key={campo.key} className="flex flex-col gap-1.5">
+              <Label htmlFor={campo.key}>{campo.label}</Label>
+              <Input
+                id={campo.key}
+                type={campo.tipo === "date" ? "date" : campo.tipo === "text" ? "text" : "number"}
+                step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
+                inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
+                maxLength={campo.tipo === "text" ? 120 : undefined}
+                value={valores[campo.key] ?? ""}
+                onChange={(e) =>
+                  setValores((v) => ({ ...v, [campo.key]: e.target.value }))
+                }
+              />
+            </div>
+          ))}
+
+          <DialogFooter className="sm:col-span-2">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Salvando…" : "Salvar na planilha"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function NovoLancamento({ tipo }: { tipo: Tipo }) {
+  const [aberto, setAberto] = useState(false);
+  return (
+    <>
+      <Button onClick={() => setAberto(true)}>
+        <Plus className="size-4" /> Novo
+      </Button>
+      {aberto && <FormularioDialog tipo={tipo} aberto={aberto} onOpenChange={setAberto} />}
+    </>
+  );
+}
+
+export function AcoesLancamento({
+  tipo,
+  registro,
+}: {
+  tipo: Tipo;
+  registro: Record<string, unknown> & { row: number };
+}) {
+  const [aberto, setAberto] = useState(false);
+  const excluir = useServerFn(excluirLancamentoFn);
+  const invalidar = useInvalidarPainel();
+
+  const remover = useMutation({
+    mutationFn: () => excluir({ data: { tipo, row: registro.row } }),
+    onSuccess: async () => {
+      await invalidar();
+      toast.success("Lançamento excluído da planilha.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div className="flex justify-end gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Editar lançamento"
+        onClick={() => setAberto(true)}
+      >
+        <Pencil className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Excluir lançamento"
+        disabled={remover.isPending}
+        onClick={() => {
+          if (confirm("Excluir este lançamento da planilha?")) remover.mutate();
+        }}
+      >
+        <Trash2 className="size-4 text-destructive" />
+      </Button>
+      {aberto && (
+        <FormularioDialog
+          tipo={tipo}
+          row={registro.row}
+          registro={registro}
+          aberto={aberto}
+          onOpenChange={setAberto}
+        />
+      )}
+    </div>
+  );
+}
