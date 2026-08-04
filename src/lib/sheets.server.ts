@@ -12,18 +12,39 @@ export async function batchGet(ranges: string[]): Promise<string[][][]> {
   const qs = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join("&");
   const url = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values:batchGet?${qs}&valueRenderOption=FORMATTED_VALUE`;
 
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": connectionKey,
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    console.error(`Google Sheets request failed [${res.status}]: ${body}`);
-    throw new Error(`Falha ao ler a planilha [${res.status}]: ${body}`);
+  let res: Response | null = null;
+  for (let tentativa = 0; tentativa < 4; tentativa++) {
+    res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": connectionKey,
+      },
+    });
+    if (res.ok) break;
+    // 429/5xx: espera crescente (0.6s, 1.2s, 2.4s) antes de tentar de novo.
+    if (res.status === 429 || res.status >= 500) {
+      if (tentativa === 3) break;
+      const retryAfter = Number(res.headers.get("retry-after"));
+      const espera = Number.isFinite(retryAfter) && retryAfter > 0
+        ? retryAfter * 1000
+        : 600 * 2 ** tentativa;
+      await new Promise((r) => setTimeout(r, Math.min(espera, 5000)));
+      continue;
+    }
+    break;
   }
+
+  if (!res || !res.ok) {
+    const body = res ? await res.text() : "sem resposta";
+    console.error(`Google Sheets request failed [${res?.status}]: ${body}`);
+    if (res?.status === 429) {
+      throw new Error(
+        "O Google Sheets atingiu o limite de leituras por minuto. Aguarde alguns instantes e recarregue.",
+      );
+    }
+    throw new Error(`Falha ao ler a planilha [${res?.status}]: ${body}`);
+  }
+
 
   const json = (await res.json()) as {
     valueRanges?: { values?: string[][] }[];
