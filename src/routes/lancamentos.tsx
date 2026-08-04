@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ListChecks, Search } from "lucide-react";
+import { ListChecks, Search, TrendingDown, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
@@ -166,8 +166,8 @@ function LancamentosPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Registros" value={String(filtradas.length)} icon={ListChecks} />
-        <StatCard label="Entradas" value={brl(entradas)} tone="success" />
-        <StatCard label="Saídas" value={brl(saidas)} tone="destructive" />
+        <StatCard label="Entradas" value={brl(entradas)} icon={TrendingUp} tone="success" />
+        <StatCard label="Saídas" value={brl(saidas)} icon={TrendingDown} tone="destructive" />
       </div>
 
       <SectionCard title="Filtros">

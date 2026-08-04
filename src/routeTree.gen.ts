@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
@@ -29,6 +30,11 @@ const AbastecimentoRoute = AbastecimentoRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LancamentosRoute = LancamentosRouteImport.update({
+  id: '/lancamentos',
+  path: '/lancamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ManutencaoRoute = ManutencaoRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
+  '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
+  '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/despesas': typeof DespesasRoute
+  '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/despesas'
+    | '/lancamentos'
     | '/manutencao'
     | '/relatorio'
     | '/repasses'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/despesas'
+    | '/lancamentos'
     | '/manutencao'
     | '/relatorio'
     | '/repasses'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/despesas'
+    | '/lancamentos'
     | '/manutencao'
     | '/relatorio'
     | '/repasses'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbastecimentoRoute: typeof AbastecimentoRoute
   DespesasRoute: typeof DespesasRoute
+  LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
   RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lancamentos': {
+      id: '/lancamentos'
+      path: '/lancamentos'
+      fullPath: '/lancamentos'
+      preLoaderRoute: typeof LancamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manutencao': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
   DespesasRoute: DespesasRoute,
+  LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
   RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
@@ -166,3 +187,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
