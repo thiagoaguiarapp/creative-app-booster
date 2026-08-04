@@ -70,11 +70,28 @@ function RepassesPage() {
 
   const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 15);
 
-  const recebido = repasses.reduce((s, r) => s + r.valor, 0);
-  const faturado = ganhos.reduce((s, g) => s + g.faturamento, 0);
-  const pendente = Math.max(0, faturado - recebido);
+  const ehExtra = (app: string) => {
+    const n = app.trim().toUpperCase();
+    return n.startsWith("GORJETA") || n.startsWith("SOBRA");
+  };
 
-  const porApp = Array.from(new Set(repasses.map((r) => r.aplicativo)))
+  const gorjetas = repasses
+    .filter((r) => r.aplicativo.trim().toUpperCase().startsWith("GORJETA"))
+    .reduce((s, r) => s + r.valor, 0);
+  const sobraTroco = repasses
+    .filter((r) => r.aplicativo.trim().toUpperCase().startsWith("SOBRA"))
+    .reduce((s, r) => s + r.valor, 0);
+
+  const recebidoPlataformas = repasses
+    .filter((r) => !ehExtra(r.aplicativo))
+    .reduce((s, r) => s + r.valor, 0);
+  const recebido = recebidoPlataformas + gorjetas + sobraTroco;
+  const faturado = ganhos.reduce((s, g) => s + g.faturamento, 0);
+  const pendente = Math.max(0, faturado - recebidoPlataformas);
+
+  const porApp = Array.from(
+    new Set(repasses.filter((r) => !ehExtra(r.aplicativo)).map((r) => r.aplicativo)),
+  )
     .map((app) => ({
       app,
       valor: repasses.filter((r) => r.aplicativo === app).reduce((s, r) => s + r.valor, 0),
@@ -104,12 +121,21 @@ function RepassesPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturado" value={brl(faturado)} icon={Wallet} />
-        <StatCard label="Recebido" value={brl(recebido)} icon={CheckCircle2} tone="success" />
+        <StatCard
+          label="Recebido"
+          value={brl(recebido)}
+          icon={CheckCircle2}
+          tone="success"
+          hint={`Plataformas ${brl(recebidoPlataformas)}`}
+        />
         <StatCard label="A receber" value={brl(pendente)} icon={Clock} tone="warning" />
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
+        <StatCard label="Gorjetas" value={brl(gorjetas)} icon={HandCoins} tone="success" />
+        <StatCard label="Sobra de troco" value={brl(sobraTroco)} icon={Coins} tone="success" />
       </div>
 
       <SectionCard title="Por aplicativo" description="Total recebido em cada plataforma">
+
 
         <div className="flex flex-col gap-3">
           {porApp.map((a) => (
