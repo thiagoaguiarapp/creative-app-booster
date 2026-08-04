@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Receipt, TrendingDown, Wallet } from "lucide-react";
 
+import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -54,6 +55,7 @@ function DespesasPage() {
       <PageHeader
         title="Despesas"
         subtitle="Custos operacionais fora do combustível (aba DESPESA)"
+        action={<NovoLancamento tipo="despesa" />}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -92,6 +94,7 @@ function DespesasPage() {
               <TableHead>Observação</TableHead>
               <TableHead>Pagamento</TableHead>
               <TableHead className="text-right">Valor</TableHead>
+              <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -105,6 +108,9 @@ function DespesasPage() {
                 <TableCell className="text-muted-foreground">{d.pagamento}</TableCell>
                 <TableCell className="num text-right font-semibold text-destructive">
                   {brl(d.valor)}
+                </TableCell>
+                <TableCell>
+                  <AcoesLancamento tipo="despesa" registro={d} />
                 </TableCell>
               </TableRow>
             ))}
