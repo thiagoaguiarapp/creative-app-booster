@@ -16,7 +16,9 @@ export const salvarLancamentoFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { salvarLancamento } = await import("./painel-write.server");
+    const { invalidarPainelCache } = await import("./painel.server");
     await salvarLancamento(data.tipo, data.valores, data.row);
+    invalidarPainelCache();
     return { ok: true };
   });
 
@@ -24,6 +26,8 @@ export const excluirLancamentoFn = createServerFn({ method: "POST" })
   .inputValidator((input: { tipo: Tipo; row: number }) => input)
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { excluirLancamento } = await import("./painel-write.server");
+    const { invalidarPainelCache } = await import("./painel.server");
     await excluirLancamento(data.tipo, data.row);
+    invalidarPainelCache();
     return { ok: true };
   });
