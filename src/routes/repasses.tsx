@@ -87,7 +87,7 @@ function RepassesPage() {
     .reduce((s, r) => s + r.valor, 0);
   const recebido = recebidoPlataformas + gorjetas + sobraTroco;
   const faturado = ganhos.reduce((s, g) => s + g.faturamento, 0);
-  const pendente = Math.max(0, faturado - recebidoPlataformas);
+  
 
   const norm = (s: string) => s.trim().toUpperCase().replace(/\s+/g, " ");
 
