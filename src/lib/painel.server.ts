@@ -12,13 +12,19 @@ const RANGES = [
 const byIsoDesc = (a: { iso: string }, b: { iso: string }) =>
   b.iso.localeCompare(a.iso);
 
+/** Anexa o número real da linha na planilha (dados começam na linha 2). */
+function withRows(rows: string[][]): { r: string[]; row: number }[] {
+  return rows.map((r, i) => ({ r, row: i + 2 }));
+}
+
 export async function loadPainelData(): Promise<PainelData> {
   const [rGanhos, rComb, rDesp, rRep, rManut] = await batchGet(RANGES);
 
-  const ganhos = (rGanhos ?? [])
-    .filter((r) => !isEmptyRow(r) && txt(r[2]) !== "")
-    .map((r, i) => ({
-      id: txt(r[0]) || `g${i}`,
+  const ganhos = withRows(rGanhos ?? [])
+    .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
+    .map(({ r, row }) => ({
+      id: txt(r[0]) || `g${row}`,
+      row,
       data: txt(r[2]),
       iso: isoDate(r[2]),
       plataforma: txt(r[3]) || "—",
@@ -28,10 +34,11 @@ export async function loadPainelData(): Promise<PainelData> {
     }))
     .sort(byIsoDesc);
 
-  const abastecimentos = (rComb ?? [])
-    .filter((r) => !isEmptyRow(r) && txt(r[2]) !== "")
-    .map((r, i) => ({
-      id: txt(r[0]) || `a${i}`,
+  const abastecimentos = withRows(rComb ?? [])
+    .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
+    .map(({ r, row }) => ({
+      id: txt(r[0]) || `a${row}`,
+      row,
       data: txt(r[2]),
       iso: isoDate(r[2]),
       odometro: num(r[3]),
@@ -45,10 +52,11 @@ export async function loadPainelData(): Promise<PainelData> {
     }))
     .sort(byIsoDesc);
 
-  const despesas = (rDesp ?? [])
-    .filter((r) => !isEmptyRow(r) && txt(r[2]) !== "")
-    .map((r, i) => ({
-      id: txt(r[0]) || `d${i}`,
+  const despesas = withRows(rDesp ?? [])
+    .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
+    .map(({ r, row }) => ({
+      id: txt(r[0]) || `d${row}`,
+      row,
       data: txt(r[2]),
       iso: isoDate(r[2]),
       valor: num(r[3]),
@@ -58,10 +66,11 @@ export async function loadPainelData(): Promise<PainelData> {
     }))
     .sort(byIsoDesc);
 
-  const repasses = (rRep ?? [])
-    .filter((r) => !isEmptyRow(r) && txt(r[1]) !== "")
-    .map((r, i) => ({
-      id: txt(r[0]) || `r${i}`,
+  const repasses = withRows(rRep ?? [])
+    .filter(({ r }) => !isEmptyRow(r) && txt(r[1]) !== "")
+    .map(({ r, row }) => ({
+      id: txt(r[0]) || `r${row}`,
+      row,
       data: txt(r[1]),
       iso: isoDate(r[1]),
       aplicativo: txt(r[2]) || "—",
@@ -70,10 +79,11 @@ export async function loadPainelData(): Promise<PainelData> {
     }))
     .sort(byIsoDesc);
 
-  const manutencoes = (rManut ?? [])
-    .filter((r) => !isEmptyRow(r) && txt(r[3]) !== "")
-    .map((r, i) => ({
-      id: txt(r[0]) || `m${i}`,
+  const manutencoes = withRows(rManut ?? [])
+    .filter(({ r }) => !isEmptyRow(r) && txt(r[3]) !== "")
+    .map(({ r, row }) => ({
+      id: txt(r[0]) || `m${row}`,
+      row,
       veiculo: txt(r[1]) || "—",
       data: txt(r[2]),
       iso: isoDate(r[2]),
