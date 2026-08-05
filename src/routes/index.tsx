@@ -129,7 +129,7 @@ function Home() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
-        title={`${saudacao()}, entregador!`}
+        title={`${saudacao}, entregador!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
         action={<NovoLancamento tipo="ganho" />}
       />
@@ -139,7 +139,16 @@ function Home() {
         <NovoLancamento tipo="abastecimento" />
         <NovoLancamento tipo="despesa" />
         <NovoLancamento tipo="repasse" />
+        <NovoLancamento
+          tipo="repasse"
+          rotulo="Recebi na entrega"
+          variant="outline"
+          icone={HandCoins}
+          titulo="Recebi na entrega (dinheiro / Pix)"
+          iniciais={{ data: hojeInputDate(), forma: "Dinheiro" }}
+        />
       </div>
+
 
       <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
