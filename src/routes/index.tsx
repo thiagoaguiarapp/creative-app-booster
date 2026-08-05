@@ -65,11 +65,13 @@ function ontemIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function saudacao() {
-  const hora = new Date().getHours();
-  if (hora < 12) return "Bom dia";
-  if (hora < 18) return "Boa tarde";
-  return "Boa noite";
+function useSaudacao() {
+  const [texto, setTexto] = useState("Olá");
+  useEffect(() => {
+    const hora = new Date().getHours();
+    setTexto(hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite");
+  }, []);
+  return texto;
 }
 
 type LancamentoHoje =
