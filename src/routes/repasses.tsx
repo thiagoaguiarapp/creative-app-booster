@@ -1,9 +1,18 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Clock, Coins, HandCoins, Landmark, Wallet } from "lucide-react";
+import {
+  Banknote,
+  CheckCircle2,
+  Clock,
+  Coins,
+  HandCoins,
+  Landmark,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
