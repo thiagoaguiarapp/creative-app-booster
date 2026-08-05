@@ -6,7 +6,7 @@ export type Campo = {
   tipo: "text" | "date" | "number" | "money";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
-  sugestoes?: "plataforma";
+  sugestoes?: "plataforma" | "forma";
 };
 
 export const TITULOS: Record<Tipo, string> = {
@@ -44,7 +44,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "valor", label: "Valor recebido (R$)", tipo: "money", obrigatorio: true },
-    { key: "forma", label: "Forma de recebimento", tipo: "text" },
+    { key: "forma", label: "Forma de recebimento", tipo: "text", sugestoes: "forma" },
   ],
   manutencao: [
     { key: "veiculo", label: "Veículo", tipo: "text", obrigatorio: true },
@@ -65,3 +65,13 @@ export function paraInputDate(br: string): string {
   const ano = y!.length === 2 ? `20${y}` : y!;
   return `${ano}-${mo!.padStart(2, "0")}-${d!.padStart(2, "0")}`;
 }
+
+/** formas de recebimento sugeridas no formulário de repasse */
+export const FORMAS_RECEBIMENTO = [
+  "Dinheiro",
+  "Pix",
+  "Repasse do app",
+  "Cartão da maquininha",
+  "Gorjeta",
+  "Sobra de troco",
+];

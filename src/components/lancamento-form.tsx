@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -15,11 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CAMPOS, TITULOS, paraInputDate, type Tipo } from "@/lib/entry-schema";
+import {
+  CAMPOS,
+  FORMAS_RECEBIMENTO,
+  TITULOS,
+  paraInputDate,
+  type Tipo,
+} from "@/lib/entry-schema";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
-function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
+function valoresIniciais(
+  tipo: Tipo,
+  registro?: Record<string, unknown>,
+  iniciais?: Record<string, string>,
+) {
   const out: Record<string, string> = {};
   for (const campo of CAMPOS[tipo]) {
     const bruto = registro?.[campo.key];
@@ -31,6 +41,9 @@ function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
       out[campo.key] = bruto ? String(bruto) : "";
     } else {
       out[campo.key] = String(bruto) === "—" ? "" : String(bruto);
+    }
+    if (!registro && iniciais?.[campo.key] !== undefined) {
+      out[campo.key] = iniciais[campo.key] ?? "";
     }
   }
   return out;
@@ -44,6 +57,16 @@ function usePlataformas(): string[] {
   return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+function useFormas(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const nomes = new Set<string>(FORMAS_RECEBIMENTO);
+  for (const r of data?.repasses ?? []) {
+    const f = r.forma?.trim();
+    if (f && f !== "—") nomes.add(f);
+  }
+  return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
 function useInvalidarPainel() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["painel"] });
@@ -53,18 +76,23 @@ function FormularioDialog({
   tipo,
   row,
   registro,
+  iniciais,
+  titulo,
   aberto,
   onOpenChange,
 }: {
   tipo: Tipo;
   row?: number;
   registro?: Record<string, unknown>;
+  iniciais?: Record<string, string>;
+  titulo?: string;
   aberto: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
-  const [valores, setValores] = useState(() => valoresIniciais(tipo, registro));
+  const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
   const salvar = useServerFn(salvarLancamentoFn);
   const plataformas = usePlataformas();
+  const formas = useFormas();
   const invalidar = useInvalidarPainel();
 
   const mutation = useMutation({
@@ -94,7 +122,7 @@ function FormularioDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display uppercase tracking-wide">
-            {row ? "Editar" : "Novo"} {TITULOS[tipo]}
+            {titulo ?? `${row ? "Editar" : "Novo"} ${TITULOS[tipo]}`}
           </DialogTitle>
           <DialogDescription>
             As alterações são gravadas direto na sua planilha do Google Sheets.
@@ -119,7 +147,7 @@ function FormularioDialog({
               />
               {campo.sugestoes && (
                 <datalist id={`sugestoes-${campo.key}`}>
-                  {plataformas.map((nome) => (
+                  {(campo.sugestoes === "forma" ? formas : plataformas).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}
                 </datalist>
@@ -149,16 +177,53 @@ const ROTULOS_NOVO: Record<Tipo, string> = {
   manutencao: "Nova manutenção",
 };
 
-export function NovoLancamento({ tipo }: { tipo: Tipo }) {
+export function NovoLancamento({
+  tipo,
+  rotulo,
+  iniciais,
+  titulo,
+  variant,
+  size,
+  icone: Icone = Plus,
+  className,
+}: {
+  tipo: Tipo;
+  rotulo?: string;
+  iniciais?: Record<string, string>;
+  titulo?: string;
+  variant?: React.ComponentProps<typeof Button>["variant"];
+  size?: React.ComponentProps<typeof Button>["size"];
+  icone?: LucideIcon;
+  className?: string;
+}) {
   const [aberto, setAberto] = useState(false);
   return (
     <>
-      <Button onClick={() => setAberto(true)}>
-        <Plus className="size-4" /> {ROTULOS_NOVO[tipo]}
+      <Button
+        onClick={() => setAberto(true)}
+        {...(variant ? { variant } : {})}
+        {...(size ? { size } : {})}
+        {...(className ? { className } : {})}
+      >
+        <Icone className="size-4" /> {rotulo ?? ROTULOS_NOVO[tipo]}
       </Button>
-      {aberto && <FormularioDialog tipo={tipo} aberto={aberto} onOpenChange={setAberto} />}
+      {aberto && (
+        <FormularioDialog
+          tipo={tipo}
+          {...(iniciais ? { iniciais } : {})}
+          {...(titulo ? { titulo } : {})}
+          aberto={aberto}
+          onOpenChange={setAberto}
+        />
+      )}
     </>
   );
+}
+
+/** Data de hoje no formato do input date (aaaa-mm-dd). */
+export function hojeInputDate() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function AcoesLancamento({

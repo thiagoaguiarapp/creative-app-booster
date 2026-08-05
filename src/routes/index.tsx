@@ -14,9 +14,9 @@ import {
   Wallet,
   Wrench,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { NovoLancamento } from "@/components/lancamento-form";
+import { NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,11 +65,13 @@ function ontemIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function saudacao() {
-  const hora = new Date().getHours();
-  if (hora < 12) return "Bom dia";
-  if (hora < 18) return "Boa tarde";
-  return "Boa noite";
+function useSaudacao() {
+  const [texto, setTexto] = useState("Olá");
+  useEffect(() => {
+    const hora = new Date().getHours();
+    setTexto(hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite");
+  }, []);
+  return texto;
 }
 
 type LancamentoHoje =
@@ -90,6 +92,7 @@ const atalhos = [
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const saudacao = useSaudacao();
   const hoje = hojeIso();
   const ontem = ontemIso();
 
@@ -126,7 +129,7 @@ function Home() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
-        title={`${saudacao()}, entregador!`}
+        title={`${saudacao}, entregador!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
         action={<NovoLancamento tipo="ganho" />}
       />
@@ -136,7 +139,16 @@ function Home() {
         <NovoLancamento tipo="abastecimento" />
         <NovoLancamento tipo="despesa" />
         <NovoLancamento tipo="repasse" />
+        <NovoLancamento
+          tipo="repasse"
+          rotulo="Recebi na entrega"
+          variant="outline"
+          icone={HandCoins}
+          titulo="Recebi na entrega (dinheiro / Pix)"
+          iniciais={{ data: hojeInputDate(), forma: "Dinheiro" }}
+        />
       </div>
+
 
       <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

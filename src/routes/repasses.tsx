@@ -1,9 +1,18 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Clock, Coins, HandCoins, Landmark, Wallet } from "lucide-react";
+import {
+  Banknote,
+  CheckCircle2,
+  Clock,
+  Coins,
+  HandCoins,
+  Landmark,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -131,6 +140,23 @@ function RepassesPage() {
 
   const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
 
+  const porForma = useMemo(() => {
+    const mapa = new Map<string, { forma: string; valor: number }>();
+    for (const r of repasses) {
+      const nome = (r.forma || "—").trim() || "—";
+      const chave = nome.toUpperCase();
+      const item = mapa.get(chave) ?? { forma: nome, valor: 0 };
+      item.valor += r.valor;
+      mapa.set(chave, item);
+    }
+    return Array.from(mapa.values()).sort((a, b) => b.valor - a.valor);
+  }, [repasses]);
+
+  const somaForma = (teste: (f: string) => boolean) =>
+    repasses.filter((r) => teste((r.forma || "").trim().toUpperCase())).reduce((s, r) => s + r.valor, 0);
+  const emDinheiro = somaForma((f) => f.startsWith("DINHEIRO") || f.startsWith("ESPÉCIE") || f.startsWith("ESPECIE"));
+  const emPix = somaForma((f) => f.startsWith("PIX"));
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
@@ -171,11 +197,25 @@ function RepassesPage() {
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
         <StatCard label="Gorjetas" value={brl(gorjetas)} icon={HandCoins} tone="success" />
         <StatCard label="Sobra de troco" value={brl(sobraTroco)} icon={Coins} tone="success" />
+        <StatCard
+          label="Recebido em dinheiro"
+          value={brl(emDinheiro)}
+          icon={Banknote}
+          tone="success"
+          hint="Entregas pagas na hora"
+        />
+        <StatCard
+          label="Recebido em Pix"
+          value={brl(emPix)}
+          icon={Smartphone}
+          tone="success"
+          hint="Entregas pagas na hora"
+        />
       </div>
 
       <SectionCard
         title="Conciliação por aplicativo"
-        description="Faturado no período x repasses recebidos"
+        description="Faturado no período x recebido (repasse, dinheiro ou Pix na entrega)"
       >
         <Table>
           <TableHeader>
@@ -185,11 +225,15 @@ function RepassesPage() {
               <TableHead className="text-right">Recebido</TableHead>
               <TableHead className="text-right">Falta receber</TableHead>
               <TableHead className="w-24 text-right">%</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-36 text-right">Baixa</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {porApp.map((a) => {
               const pct = a.faturado > 0 ? Math.round((a.recebido / a.faturado) * 100) : 100;
+              const quitado = a.pendente <= 0.009;
+              const parcial = !quitado && a.recebido > 0.009;
               return (
                 <TableRow key={a.app}>
                   <TableCell className="font-medium">{a.app}</TableCell>
@@ -201,6 +245,29 @@ function RepassesPage() {
                     {brl(a.pendente)}
                   </TableCell>
                   <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
+                  <TableCell>
+                    <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
+                      {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {!quitado && (
+                      <NovoLancamento
+                        tipo="repasse"
+                        rotulo="Dar baixa"
+                        variant="outline"
+                        size="sm"
+                        icone={CheckCircle2}
+                        titulo={`Dar baixa — ${a.app}`}
+                        iniciais={{
+                          data: hojeInputDate(),
+                          aplicativo: a.app,
+                          valor: a.pendente.toFixed(2),
+                          forma: "Dinheiro",
+                        }}
+                      />
+                    )}
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -214,9 +281,39 @@ function RepassesPage() {
                 {brl(pendenteTotal)}
               </TableCell>
               <TableCell />
+              <TableCell />
+              <TableCell />
             </TableRow>
           </TableBody>
         </Table>
+      </SectionCard>
+
+      <SectionCard
+        title="Por forma de recebimento"
+        description="Como o dinheiro entrou no período"
+      >
+        {porForma.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum recebimento no período.</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {porForma.map((f) => {
+              const pct = recebido > 0 ? Math.round((f.valor / recebido) * 100) : 0;
+              return (
+                <div key={f.forma} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{f.forma}</span>
+                    <span className="num text-muted-foreground">
+                      {brl(f.valor)} · {pct}%
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted">
+                    <div className="h-2 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </SectionCard>
 
 
