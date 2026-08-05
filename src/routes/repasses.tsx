@@ -131,6 +131,23 @@ function RepassesPage() {
 
   const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
 
+  const porForma = useMemo(() => {
+    const mapa = new Map<string, { forma: string; valor: number }>();
+    for (const r of repasses) {
+      const nome = (r.forma || "—").trim() || "—";
+      const chave = nome.toUpperCase();
+      const item = mapa.get(chave) ?? { forma: nome, valor: 0 };
+      item.valor += r.valor;
+      mapa.set(chave, item);
+    }
+    return Array.from(mapa.values()).sort((a, b) => b.valor - a.valor);
+  }, [repasses]);
+
+  const somaForma = (teste: (f: string) => boolean) =>
+    repasses.filter((r) => teste((r.forma || "").trim().toUpperCase())).reduce((s, r) => s + r.valor, 0);
+  const emDinheiro = somaForma((f) => f.startsWith("DINHEIRO") || f.startsWith("ESPÉCIE") || f.startsWith("ESPECIE"));
+  const emPix = somaForma((f) => f.startsWith("PIX"));
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
