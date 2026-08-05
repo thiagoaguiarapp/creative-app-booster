@@ -147,7 +147,7 @@ function FormularioDialog({
               />
               {campo.sugestoes && (
                 <datalist id={`sugestoes-${campo.key}`}>
-                  {plataformas.map((nome) => (
+                  {(campo.sugestoes === "forma" ? formas : plataformas).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}
                 </datalist>
