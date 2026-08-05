@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CAMPOS, TITULOS, paraInputDate, type Tipo } from "@/lib/entry-schema";
+import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
 function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
@@ -33,6 +34,14 @@ function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
     }
   }
   return out;
+}
+
+function usePlataformas(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const nomes = new Set<string>();
+  for (const g of data?.ganhos ?? []) if (g.plataforma?.trim()) nomes.add(g.plataforma.trim());
+  for (const r of data?.repasses ?? []) if (r.aplicativo?.trim()) nomes.add(r.aplicativo.trim());
+  return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
 function useInvalidarPainel() {
@@ -55,6 +64,7 @@ function FormularioDialog({
 }) {
   const [valores, setValores] = useState(() => valoresIniciais(tipo, registro));
   const salvar = useServerFn(salvarLancamentoFn);
+  const plataformas = usePlataformas();
   const invalidar = useInvalidarPainel();
 
   const mutation = useMutation({
@@ -101,11 +111,19 @@ function FormularioDialog({
                 step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
                 inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
                 maxLength={campo.tipo === "text" ? 120 : undefined}
+                list={campo.sugestoes ? `sugestoes-${campo.key}` : undefined}
                 value={valores[campo.key] ?? ""}
                 onChange={(e) =>
                   setValores((v) => ({ ...v, [campo.key]: e.target.value }))
                 }
               />
+              {campo.sugestoes && (
+                <datalist id={`sugestoes-${campo.key}`}>
+                  {plataformas.map((nome) => (
+                    <option key={nome} value={nome} />
+                  ))}
+                </datalist>
+              )}
             </div>
           ))}
 
