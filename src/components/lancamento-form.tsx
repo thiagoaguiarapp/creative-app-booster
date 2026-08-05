@@ -177,16 +177,53 @@ const ROTULOS_NOVO: Record<Tipo, string> = {
   manutencao: "Nova manutenção",
 };
 
-export function NovoLancamento({ tipo }: { tipo: Tipo }) {
+export function NovoLancamento({
+  tipo,
+  rotulo,
+  iniciais,
+  titulo,
+  variant,
+  size,
+  icone: Icone = Plus,
+  className,
+}: {
+  tipo: Tipo;
+  rotulo?: string;
+  iniciais?: Record<string, string>;
+  titulo?: string;
+  variant?: React.ComponentProps<typeof Button>["variant"];
+  size?: React.ComponentProps<typeof Button>["size"];
+  icone?: LucideIcon;
+  className?: string;
+}) {
   const [aberto, setAberto] = useState(false);
   return (
     <>
-      <Button onClick={() => setAberto(true)}>
-        <Plus className="size-4" /> {ROTULOS_NOVO[tipo]}
+      <Button
+        onClick={() => setAberto(true)}
+        {...(variant ? { variant } : {})}
+        {...(size ? { size } : {})}
+        {...(className ? { className } : {})}
+      >
+        <Icone className="size-4" /> {rotulo ?? ROTULOS_NOVO[tipo]}
       </Button>
-      {aberto && <FormularioDialog tipo={tipo} aberto={aberto} onOpenChange={setAberto} />}
+      {aberto && (
+        <FormularioDialog
+          tipo={tipo}
+          {...(iniciais ? { iniciais } : {})}
+          {...(titulo ? { titulo } : {})}
+          aberto={aberto}
+          onOpenChange={setAberto}
+        />
+      )}
     </>
   );
+}
+
+/** Data de hoje no formato do input date (aaaa-mm-dd). */
+export function hojeInputDate() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export function AcoesLancamento({
