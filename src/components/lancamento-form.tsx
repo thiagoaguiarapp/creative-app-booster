@@ -122,7 +122,7 @@ function FormularioDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display uppercase tracking-wide">
-            {row ? "Editar" : "Novo"} {TITULOS[tipo]}
+            {titulo ?? `${row ? "Editar" : "Novo"} ${TITULOS[tipo]}`}
           </DialogTitle>
           <DialogDescription>
             As alterações são gravadas direto na sua planilha do Google Sheets.
