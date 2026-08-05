@@ -20,7 +20,7 @@ export const TITULOS: Record<Tipo, string> = {
 export const CAMPOS: Record<Tipo, Campo[]> = {
   ganho: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
-    { key: "plataforma", label: "Aplicativo", tipo: "text", obrigatorio: true },
+    { key: "plataforma", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "corridas", label: "Rotas / corridas", tipo: "number" },
     { key: "faturamento", label: "Faturamento (R$)", tipo: "money", obrigatorio: true },
     { key: "recebido", label: "Valor recebido (R$)", tipo: "money" },
@@ -42,7 +42,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   ],
   repasse: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
-    { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true },
+    { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "valor", label: "Valor recebido (R$)", tipo: "money", obrigatorio: true },
     { key: "forma", label: "Forma de recebimento", tipo: "text" },
   ],
