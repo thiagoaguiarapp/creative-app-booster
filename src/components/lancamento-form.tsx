@@ -76,18 +76,23 @@ function FormularioDialog({
   tipo,
   row,
   registro,
+  iniciais,
+  titulo,
   aberto,
   onOpenChange,
 }: {
   tipo: Tipo;
   row?: number;
   registro?: Record<string, unknown>;
+  iniciais?: Record<string, string>;
+  titulo?: string;
   aberto: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
-  const [valores, setValores] = useState(() => valoresIniciais(tipo, registro));
+  const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
   const salvar = useServerFn(salvarLancamentoFn);
   const plataformas = usePlataformas();
+  const formas = useFormas();
   const invalidar = useInvalidarPainel();
 
   const mutation = useMutation({
