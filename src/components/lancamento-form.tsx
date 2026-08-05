@@ -123,12 +123,20 @@ function FormularioDialog({
   );
 }
 
+const ROTULOS_NOVO: Record<Tipo, string> = {
+  ganho: "Novo ganho",
+  abastecimento: "Novo abastecimento",
+  despesa: "Nova despesa",
+  repasse: "Novo repasse",
+  manutencao: "Nova manutenção",
+};
+
 export function NovoLancamento({ tipo }: { tipo: Tipo }) {
   const [aberto, setAberto] = useState(false);
   return (
     <>
       <Button onClick={() => setAberto(true)}>
-        <Plus className="size-4" /> Novo
+        <Plus className="size-4" /> {ROTULOS_NOVO[tipo]}
       </Button>
       {aberto && <FormularioDialog tipo={tipo} aberto={aberto} onOpenChange={setAberto} />}
     </>
