@@ -5,6 +5,8 @@ export type Campo = {
   label: string;
   tipo: "text" | "date" | "number" | "money";
   obrigatorio?: boolean;
+  /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
+  sugestoes?: "plataforma";
 };
 
 export const TITULOS: Record<Tipo, string> = {
