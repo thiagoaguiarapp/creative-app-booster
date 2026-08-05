@@ -15,11 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CAMPOS, TITULOS, paraInputDate, type Tipo } from "@/lib/entry-schema";
+import {
+  CAMPOS,
+  FORMAS_RECEBIMENTO,
+  TITULOS,
+  paraInputDate,
+  type Tipo,
+} from "@/lib/entry-schema";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
-function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
+function valoresIniciais(
+  tipo: Tipo,
+  registro?: Record<string, unknown>,
+  iniciais?: Record<string, string>,
+) {
   const out: Record<string, string> = {};
   for (const campo of CAMPOS[tipo]) {
     const bruto = registro?.[campo.key];
@@ -32,6 +42,9 @@ function valoresIniciais(tipo: Tipo, registro?: Record<string, unknown>) {
     } else {
       out[campo.key] = String(bruto) === "—" ? "" : String(bruto);
     }
+    if (!registro && iniciais?.[campo.key] !== undefined) {
+      out[campo.key] = iniciais[campo.key] ?? "";
+    }
   }
   return out;
 }
@@ -41,6 +54,16 @@ function usePlataformas(): string[] {
   const nomes = new Set<string>();
   for (const g of data?.ganhos ?? []) if (g.plataforma?.trim()) nomes.add(g.plataforma.trim());
   for (const r of data?.repasses ?? []) if (r.aplicativo?.trim()) nomes.add(r.aplicativo.trim());
+  return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function useFormas(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const nomes = new Set<string>(FORMAS_RECEBIMENTO);
+  for (const r of data?.repasses ?? []) {
+    const f = r.forma?.trim();
+    if (f && f !== "—") nomes.add(f);
+  }
   return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
