@@ -92,6 +92,7 @@ const atalhos = [
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const saudacao = useSaudacao();
   const hoje = hojeIso();
   const ontem = ontemIso();
 
