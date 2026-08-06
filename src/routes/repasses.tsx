@@ -66,6 +66,7 @@ function prefixoMes(offset: number) {
 function RepassesPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [aberto, setAberto] = useState<string | null>(null);
 
   const prefixo = periodo === "total" ? null : prefixoMes(periodo === "atual" ? 0 : -1);
 
