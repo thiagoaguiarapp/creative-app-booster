@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   Banknote,
   CheckCircle2,
+  ChevronRight,
   Clock,
   Coins,
   HandCoins,
