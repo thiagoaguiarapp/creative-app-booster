@@ -94,17 +94,21 @@ function RepassesPage() {
     return n.startsWith("SOBRA") || n.startsWith("TROCO");
   };
 
-  const gorjetas =
-    repasses.filter((r) => ehGorjeta(r.aplicativo)).reduce((s, r) => s + r.valor, 0) +
-    ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
-  const sobraTroco =
-    repasses.filter((r) => ehSobra(r.aplicativo)).reduce((s, r) => s + r.valor, 0) +
-    ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  // a mesma gorjeta pode estar lançada nas duas abas (ganho + repasse):
+  // usamos o maior valor entre elas para não contar duas vezes.
+  const gorjetaRepasse = repasses.filter((r) => ehGorjeta(r.aplicativo)).reduce((s, r) => s + r.valor, 0);
+  const gorjetaGanho = ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  const gorjetas = Math.max(gorjetaRepasse, gorjetaGanho);
+
+  const sobraRepasse = repasses.filter((r) => ehSobra(r.aplicativo)).reduce((s, r) => s + r.valor, 0);
+  const sobraGanho = ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  const sobraTroco = Math.max(sobraRepasse, sobraGanho);
 
   const recebidoPlataformas = repasses
     .filter((r) => !ehExtra(r.aplicativo))
     .reduce((s, r) => s + r.valor, 0);
   const recebido = recebidoPlataformas + gorjetas + sobraTroco;
+
   const faturado = ganhos
     .filter((g) => !ehExtra(g.plataforma))
     .reduce((s, g) => s + g.faturamento, 0);
@@ -197,8 +201,21 @@ function RepassesPage() {
           hint="Soma das pendências por plataforma"
         />
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
-        <StatCard label="Gorjetas" value={brl(gorjetas)} icon={HandCoins} tone="success" />
-        <StatCard label="Sobra de troco" value={brl(sobraTroco)} icon={Coins} tone="success" />
+        <StatCard
+          label="Gorjetas"
+          value={brl(gorjetas)}
+          icon={HandCoins}
+          tone="success"
+          hint={`Ganhos ${brl(gorjetaGanho)} · Repasse ${brl(gorjetaRepasse)}`}
+        />
+        <StatCard
+          label="Sobra de troco"
+          value={brl(sobraTroco)}
+          icon={Coins}
+          tone="success"
+          hint={`Ganhos ${brl(sobraGanho)} · Repasse ${brl(sobraRepasse)}`}
+        />
+
         <StatCard
           label="Recebido em dinheiro"
           value={brl(emDinheiro)}
