@@ -234,41 +234,87 @@ function RepassesPage() {
               const pct = a.faturado > 0 ? Math.round((a.recebido / a.faturado) * 100) : 100;
               const quitado = a.pendente <= 0.009;
               const parcial = !quitado && a.recebido > 0.009;
+              const baixas = repasses
+                .filter((r) => norm(r.aplicativo) === norm(a.app))
+                .sort((x, y) => y.iso.localeCompare(x.iso));
+              const expandido = aberto === norm(a.app);
               return (
-                <TableRow key={a.app}>
-                  <TableCell className="font-medium">{a.app}</TableCell>
-                  <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
-                  <TableCell className="num text-right text-success">{brl(a.recebido)}</TableCell>
-                  <TableCell
-                    className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
-                  >
-                    {brl(a.pendente)}
-                  </TableCell>
-                  <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
-                  <TableCell>
-                    <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
-                      {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {!quitado && (
-                      <NovoLancamento
-                        tipo="repasse"
-                        rotulo="Dar baixa"
-                        variant="outline"
-                        size="sm"
-                        icone={CheckCircle2}
-                        titulo={`Dar baixa — ${a.app}`}
-                        iniciais={{
-                          data: hojeInputDate(),
-                          aplicativo: a.app,
-                          valor: a.pendente.toFixed(2),
-                          forma: "Dinheiro",
-                        }}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
+                <>
+                  <TableRow key={a.app}>
+                    <TableCell className="font-medium">
+                      <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-left hover:text-primary"
+                        onClick={() => setAberto(expandido ? null : norm(a.app))}
+                        aria-expanded={expandido}
+                      >
+                        <ChevronRight
+                          className={`size-4 shrink-0 transition-transform ${expandido ? "rotate-90" : ""}`}
+                        />
+                        {a.app}
+                        {baixas.length > 0 && (
+                          <span className="text-xs text-muted-foreground">({baixas.length})</span>
+                        )}
+                      </button>
+                    </TableCell>
+                    <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
+                    <TableCell className="num text-right text-success">{brl(a.recebido)}</TableCell>
+                    <TableCell
+                      className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
+                    >
+                      {brl(a.pendente)}
+                    </TableCell>
+                    <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
+                    <TableCell>
+                      <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
+                        {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {!quitado && (
+                        <NovoLancamento
+                          tipo="repasse"
+                          rotulo="Dar baixa"
+                          variant="outline"
+                          size="sm"
+                          icone={CheckCircle2}
+                          titulo={`Dar baixa — ${a.app}`}
+                          iniciais={{
+                            data: hojeInputDate(),
+                            aplicativo: a.app,
+                            valor: a.pendente.toFixed(2),
+                            forma: "Dinheiro",
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  {expandido && (
+                    <TableRow key={`${a.app}-baixas`} className="bg-muted/30 hover:bg-muted/30">
+                      <TableCell colSpan={7} className="p-0">
+                        {baixas.length === 0 ? (
+                          <p className="px-4 py-3 text-sm text-muted-foreground">
+                            Nenhuma baixa registrada para {a.app} neste período.
+                          </p>
+                        ) : (
+                          <div className="flex flex-col divide-y divide-border">
+                            {baixas.map((r) => (
+                              <div
+                                key={r.id}
+                                className="flex flex-wrap items-center gap-3 px-4 py-2 text-sm"
+                              >
+                                <span className="num w-24 text-muted-foreground">{r.data}</span>
+                                <span className="flex-1 text-muted-foreground">{r.forma}</span>
+                                <span className="num font-semibold text-success">{brl(r.valor)}</span>
+                                <AcoesLancamento tipo="repasse" registro={r} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               );
             })}
             <TableRow>
