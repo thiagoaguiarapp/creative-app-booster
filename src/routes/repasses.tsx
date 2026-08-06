@@ -201,8 +201,21 @@ function RepassesPage() {
           hint="Soma das pendências por plataforma"
         />
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
-        <StatCard label="Gorjetas" value={brl(gorjetas)} icon={HandCoins} tone="success" />
-        <StatCard label="Sobra de troco" value={brl(sobraTroco)} icon={Coins} tone="success" />
+        <StatCard
+          label="Gorjetas"
+          value={brl(gorjetas)}
+          icon={HandCoins}
+          tone="success"
+          hint={`Ganhos ${brl(gorjetaGanho)} · Repasse ${brl(gorjetaRepasse)}`}
+        />
+        <StatCard
+          label="Sobra de troco"
+          value={brl(sobraTroco)}
+          icon={Coins}
+          tone="success"
+          hint={`Ganhos ${brl(sobraGanho)} · Repasse ${brl(sobraRepasse)}`}
+        />
+
         <StatCard
           label="Recebido em dinheiro"
           value={brl(emDinheiro)}
