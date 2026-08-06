@@ -87,17 +87,44 @@ function normaliza(campo: string, valor: string): string {
   return txt(valor);
 }
 
+/** "aaaa-mm-dd" + n meses, ajustando o dia ao último dia do mês quando necessário */
+function somaMeses(iso: string, meses: number): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt(iso));
+  if (!m) return iso;
+  const ano = Number(m[1]);
+  const mes = Number(m[2]) - 1;
+  const dia = Number(m[3]);
+  const ultimoDia = new Date(ano, mes + meses + 1, 0).getDate();
+  const d = new Date(ano, mes + meses, Math.min(dia, ultimoDia));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function montaLinha(
+  mapa: Mapa,
+  valores: Record<string, string>,
+  seq: number,
+): string[] {
+  const linha = Array.from({ length: mapa.largura }, () => "");
+  for (const [campo, col] of Object.entries(mapa.cols)) {
+    if (valores[campo] === undefined) continue;
+    linha[col] = normaliza(campo, valores[campo] ?? "");
+  }
+  linha[mapa.idCol] = String(Date.now() + seq).slice(-8);
+  if (mapa.mesCol != null) linha[mapa.mesCol] = mesDe(valores["data"] ?? "");
+  return linha;
+}
+
 export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
   row?: number,
 ): Promise<void> {
   const mapa = MAPAS[tipo];
-  const entradas = Object.entries(mapa.cols)
-    .filter(([campo]) => valores[campo] !== undefined)
-    .map(([campo, col]) => ({ col, value: normaliza(campo, valores[campo] ?? "") }));
 
   if (row) {
+    const entradas = Object.entries(mapa.cols)
+      .filter(([campo]) => valores[campo] !== undefined)
+      .map(([campo, col]) => ({ col, value: normaliza(campo, valores[campo] ?? "") }));
     if (mapa.mesCol != null && valores["data"]) {
       entradas.push({ col: mapa.mesCol, value: mesDe(valores["data"]) });
     }
@@ -105,11 +132,31 @@ export async function salvarLancamento(
     return;
   }
 
-  const linha = Array.from({ length: mapa.largura }, () => "");
-  for (const e of entradas) linha[e.col] = e.value;
-  linha[mapa.idCol] = String(Date.now()).slice(-8);
-  if (mapa.mesCol != null) linha[mapa.mesCol] = mesDe(valores["data"] ?? "");
-  await appendRow(mapa.sheet, linha);
+  const parcelas = Math.trunc(Number(valores["parcelas"] ?? "1")) || 1;
+  const total = Number(String(valores["valor"] ?? "0").replace(",", "."));
+
+  if (tipo === "despesa" && parcelas > 1 && total > 0) {
+    const base = Math.floor((total / parcelas) * 100) / 100;
+    const resto = Math.round((total - base * parcelas) * 100) / 100;
+    for (let i = 0; i < parcelas; i++) {
+      const valorParcela = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
+      const descricao = `${valores["descricao"] ?? ""}`.trim();
+      const linha = montaLinha(
+        mapa,
+        {
+          ...valores,
+          data: somaMeses(valores["data"] ?? "", i),
+          valor: valorParcela.toFixed(2),
+          descricao: `${descricao ? `${descricao} ` : ""}(${i + 1}/${parcelas})`,
+        },
+        i,
+      );
+      await appendRow(mapa.sheet, linha);
+    }
+    return;
+  }
+
+  await appendRow(mapa.sheet, montaLinha(mapa, valores, 0));
 }
 
 export async function excluirLancamento(tipo: Tipo, row: number): Promise<void> {
