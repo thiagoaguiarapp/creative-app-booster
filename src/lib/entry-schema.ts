@@ -37,8 +37,9 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "categoria", label: "Categoria", tipo: "text", obrigatorio: true },
     { key: "descricao", label: "Observação", tipo: "text" },
-    { key: "valor", label: "Valor (R$)", tipo: "money", obrigatorio: true },
+    { key: "valor", label: "Valor total (R$)", tipo: "money", obrigatorio: true },
     { key: "pagamento", label: "Forma de pagamento", tipo: "text" },
+    { key: "parcelas", label: "Parcelas (1 = à vista)", tipo: "number" },
   ],
   repasse: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
