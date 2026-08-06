@@ -11,7 +11,7 @@ import {
   Smartphone,
   Wallet,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
@@ -241,7 +241,7 @@ function RepassesPage() {
                 .sort((x, y) => y.iso.localeCompare(x.iso));
               const expandido = aberto === norm(a.app);
               return (
-                <>
+                <Fragment key={a.app}>
                   <TableRow key={a.app}>
                     <TableCell className="font-medium">
                       <button
@@ -316,7 +316,7 @@ function RepassesPage() {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               );
             })}
             <TableRow>
