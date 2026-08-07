@@ -192,7 +192,7 @@ function RepassesPage() {
           value={brl(gorjetas)}
           icon={HandCoins}
           tone="success"
-          hint={`Ganhos ${brl(gorjetaGanho)} · Repasse ${brl(gorjetaRepasse)}`}
+          hint="Lançadas em Ganhos diários"
         />
         <StatCard
           label="Sobra de troco"
