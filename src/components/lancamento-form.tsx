@@ -157,6 +157,13 @@ function FormularioDialog({
                   ))}
                 </datalist>
               )}
+              {tipo === "repasse" &&
+                campo.key === "aplicativo" &&
+                ehExtra(valores[campo.key] ?? "") && (
+                  <p className="text-xs text-warning">
+                    Gorjeta e sobra de troco devem ser lançadas em Ganhos diários.
+                  </p>
+                )}
             </div>
           ))}
 
