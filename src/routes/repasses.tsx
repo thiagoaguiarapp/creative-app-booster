@@ -81,33 +81,18 @@ function RepassesPage() {
 
   const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 15);
 
-  const ehExtra = (app: string) => {
-    const n = app.trim().toUpperCase();
-    return n.startsWith("GORJETA") || n.startsWith("SOBRA") || n.startsWith("TROCO") || n.startsWith("CAIXINHA");
-  };
-  const ehGorjeta = (app: string) => {
-    const n = app.trim().toUpperCase();
-    return n.startsWith("GORJETA") || n.startsWith("CAIXINHA");
-  };
-  const ehSobra = (app: string) => {
-    const n = app.trim().toUpperCase();
-    return n.startsWith("SOBRA") || n.startsWith("TROCO");
-  };
+  // regra: gorjeta, caixinha e sobra de troco só contam quando lançadas em Ganhos diários.
+  const gorjetas = ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  const sobraTroco = ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
 
-  // a mesma gorjeta pode estar lançada nas duas abas (ganho + repasse):
-  // usamos o maior valor entre elas para não contar duas vezes.
-  const gorjetaRepasse = repasses.filter((r) => ehGorjeta(r.aplicativo)).reduce((s, r) => s + r.valor, 0);
-  const gorjetaGanho = ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
-  const gorjetas = Math.max(gorjetaRepasse, gorjetaGanho);
-
-  const sobraRepasse = repasses.filter((r) => ehSobra(r.aplicativo)).reduce((s, r) => s + r.valor, 0);
-  const sobraGanho = ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
-  const sobraTroco = Math.max(sobraRepasse, sobraGanho);
+  const extrasNoRepasse = repasses.filter((r) => ehExtra(r.aplicativo));
+  const extrasNoRepasseValor = extrasNoRepasse.reduce((s, r) => s + r.valor, 0);
 
   const recebidoPlataformas = repasses
     .filter((r) => !ehExtra(r.aplicativo))
     .reduce((s, r) => s + r.valor, 0);
   const recebido = recebidoPlataformas + gorjetas + sobraTroco;
+
 
   const faturado = ganhos
     .filter((g) => !ehExtra(g.plataforma))
