@@ -131,8 +131,8 @@ function Home() {
       <PageHeader
         title={`${saudacao}, entregador!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
-        action={<NovoLancamento tipo="ganho" />}
       />
+
 
       <div className="flex flex-wrap gap-2">
         <NovoLancamento tipo="ganho" />
