@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   Banknote,
   CheckCircle2,
   ChevronRight,
@@ -18,6 +19,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
 
@@ -81,33 +83,18 @@ function RepassesPage() {
 
   const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 15);
 
-  const ehExtra = (app: string) => {
-    const n = app.trim().toUpperCase();
-    return n.startsWith("GORJETA") || n.startsWith("SOBRA") || n.startsWith("TROCO") || n.startsWith("CAIXINHA");
-  };
-  const ehGorjeta = (app: string) => {
-    const n = app.trim().toUpperCase();
-    return n.startsWith("GORJETA") || n.startsWith("CAIXINHA");
-  };
-  const ehSobra = (app: string) => {
-    const n = app.trim().toUpperCase();
-    return n.startsWith("SOBRA") || n.startsWith("TROCO");
-  };
+  // regra: gorjeta, caixinha e sobra de troco só contam quando lançadas em Ganhos diários.
+  const gorjetas = ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  const sobraTroco = ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
 
-  // a mesma gorjeta pode estar lançada nas duas abas (ganho + repasse):
-  // usamos o maior valor entre elas para não contar duas vezes.
-  const gorjetaRepasse = repasses.filter((r) => ehGorjeta(r.aplicativo)).reduce((s, r) => s + r.valor, 0);
-  const gorjetaGanho = ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
-  const gorjetas = Math.max(gorjetaRepasse, gorjetaGanho);
-
-  const sobraRepasse = repasses.filter((r) => ehSobra(r.aplicativo)).reduce((s, r) => s + r.valor, 0);
-  const sobraGanho = ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
-  const sobraTroco = Math.max(sobraRepasse, sobraGanho);
+  const extrasNoRepasse = repasses.filter((r) => ehExtra(r.aplicativo));
+  const extrasNoRepasseValor = extrasNoRepasse.reduce((s, r) => s + r.valor, 0);
 
   const recebidoPlataformas = repasses
     .filter((r) => !ehExtra(r.aplicativo))
     .reduce((s, r) => s + r.valor, 0);
   const recebido = recebidoPlataformas + gorjetas + sobraTroco;
+
 
   const faturado = ganhos
     .filter((g) => !ehExtra(g.plataforma))
@@ -184,6 +171,21 @@ function RepassesPage() {
         ))}
       </div>
 
+      {extrasNoRepasse.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          <AlertTriangle className="size-4 shrink-0 text-warning" />
+          <span className="flex-1">
+            {extrasNoRepasse.length} lançamento(s) de gorjeta/sobra de troco ({brl(extrasNoRepasseValor)}) estão
+            nesta aba. O certo agora é lançar em Ganhos diários.
+          </span>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/limpeza">Limpar duplicados</Link>
+          </Button>
+        </div>
+      )}
+
+
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturado" value={brl(faturado)} icon={Wallet} />
         <StatCard
@@ -206,14 +208,14 @@ function RepassesPage() {
           value={brl(gorjetas)}
           icon={HandCoins}
           tone="success"
-          hint={`Ganhos ${brl(gorjetaGanho)} · Repasse ${brl(gorjetaRepasse)}`}
+          hint="Lançadas em Ganhos diários"
         />
         <StatCard
           label="Sobra de troco"
           value={brl(sobraTroco)}
           icon={Coins}
           tone="success"
-          hint={`Ganhos ${brl(sobraGanho)} · Repasse ${brl(sobraRepasse)}`}
+          hint="Lançada em Ganhos diários"
         />
 
         <StatCard

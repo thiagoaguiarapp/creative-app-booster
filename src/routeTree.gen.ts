@@ -14,6 +14,7 @@ import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
+import { Route as LimpezaRouteImport } from './routes/limpeza'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
@@ -43,6 +44,11 @@ const LancamentosRoute = LancamentosRouteImport.update({
   path: '/lancamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LimpezaRoute = LimpezaRouteImport.update({
+  id: '/limpeza',
+  path: '/limpeza',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManutencaoRoute = ManutencaoRouteImport.update({
   id: '/manutencao',
   path: '/manutencao',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/limpeza': typeof LimpezaRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/limpeza': typeof LimpezaRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/limpeza': typeof LimpezaRoute
   '/manutencao': typeof ManutencaoRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
+    | '/limpeza'
     | '/manutencao'
     | '/relatorio'
     | '/repasses'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
+    | '/limpeza'
     | '/manutencao'
     | '/relatorio'
     | '/repasses'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
+    | '/limpeza'
     | '/manutencao'
     | '/relatorio'
     | '/repasses'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   DespesasRoute: typeof DespesasRoute
   GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
+  LimpezaRoute: typeof LimpezaRoute
   ManutencaoRoute: typeof ManutencaoRoute
   RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LancamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/limpeza': {
+      id: '/limpeza'
+      path: '/limpeza'
+      fullPath: '/limpeza'
+      preLoaderRoute: typeof LimpezaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manutencao': {
       id: '/manutencao'
       path: '/manutencao'
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   DespesasRoute: DespesasRoute,
   GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
+  LimpezaRoute: LimpezaRoute,
   ManutencaoRoute: ManutencaoRoute,
   RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
@@ -208,13 +229,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

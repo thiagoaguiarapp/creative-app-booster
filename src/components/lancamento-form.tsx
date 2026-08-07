@@ -22,6 +22,7 @@ import {
   paraInputDate,
   type Tipo,
 } from "@/lib/entry-schema";
+import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
@@ -49,13 +50,17 @@ function valoresIniciais(
   return out;
 }
 
-function usePlataformas(): string[] {
+function usePlataformas(tipo: Tipo): string[] {
   const { data } = useQuery(painelQueryOptions());
   const nomes = new Set<string>();
   for (const g of data?.ganhos ?? []) if (g.plataforma?.trim()) nomes.add(g.plataforma.trim());
   for (const r of data?.repasses ?? []) if (r.aplicativo?.trim()) nomes.add(r.aplicativo.trim());
-  return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  if (tipo === "ganho") for (const e of EXTRAS_SUGERIDOS) nomes.add(e);
+  const lista = Array.from(nomes);
+  const filtrada = tipo === "ganho" ? lista : lista.filter((n) => !ehExtra(n));
+  return filtrada.sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
+
 
 function useFormas(): string[] {
   const { data } = useQuery(painelQueryOptions());
@@ -91,7 +96,7 @@ function FormularioDialog({
 }) {
   const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
   const salvar = useServerFn(salvarLancamentoFn);
-  const plataformas = usePlataformas();
+  const plataformas = usePlataformas(tipo);
   const formas = useFormas();
   const invalidar = useInvalidarPainel();
 
@@ -152,6 +157,13 @@ function FormularioDialog({
                   ))}
                 </datalist>
               )}
+              {tipo === "repasse" &&
+                campo.key === "aplicativo" &&
+                ehExtra(valores[campo.key] ?? "") && (
+                  <p className="text-xs text-warning">
+                    Gorjeta e sobra de troco devem ser lançadas em Ganhos diários.
+                  </p>
+                )}
             </div>
           ))}
 
