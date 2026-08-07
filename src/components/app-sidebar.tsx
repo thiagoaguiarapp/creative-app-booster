@@ -23,6 +23,7 @@ const items = [
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
   { title: "Relatório", url: "/relatorio", icon: BarChart3 },
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },
+  { title: "Limpar duplicados", url: "/limpeza", icon: Eraser },
 ];
 
 export function AppSidebar() {
