@@ -96,7 +96,7 @@ function FormularioDialog({
 }) {
   const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
   const salvar = useServerFn(salvarLancamentoFn);
-  const plataformas = usePlataformas();
+  const plataformas = usePlataformas(tipo);
   const formas = useFormas();
   const invalidar = useInvalidarPainel();
 
