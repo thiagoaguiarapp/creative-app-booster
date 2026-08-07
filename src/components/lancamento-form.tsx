@@ -22,6 +22,7 @@ import {
   paraInputDate,
   type Tipo,
 } from "@/lib/entry-schema";
+import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
