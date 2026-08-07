@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bike, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Eraser, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
 import {
   Sidebar,
