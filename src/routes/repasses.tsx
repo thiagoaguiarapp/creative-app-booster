@@ -199,7 +199,7 @@ function RepassesPage() {
           value={brl(sobraTroco)}
           icon={Coins}
           tone="success"
-          hint={`Ganhos ${brl(sobraGanho)} · Repasse ${brl(sobraRepasse)}`}
+          hint="Lançada em Ganhos diários"
         />
 
         <StatCard
