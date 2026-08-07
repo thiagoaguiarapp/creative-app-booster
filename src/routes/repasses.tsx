@@ -170,6 +170,21 @@ function RepassesPage() {
         ))}
       </div>
 
+      {extrasNoRepasse.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          <AlertTriangle className="size-4 shrink-0 text-warning" />
+          <span className="flex-1">
+            {extrasNoRepasse.length} lançamento(s) de gorjeta/sobra de troco ({brl(extrasNoRepasseValor)}) estão
+            nesta aba. O certo agora é lançar em Ganhos diários.
+          </span>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/limpeza">Limpar duplicados</Link>
+          </Button>
+        </div>
+      )}
+
+
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Faturado" value={brl(faturado)} icon={Wallet} />
         <StatCard
