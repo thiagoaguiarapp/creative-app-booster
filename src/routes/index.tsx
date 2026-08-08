@@ -1,9 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   ArrowRight,
   BarChart3,
   Bike,
+  CalendarClock,
   CircleDollarSign,
   Fuel,
   HandCoins,
@@ -16,15 +18,16 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
+import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { brl } from "@/lib/sheets-types";
-import type { Abastecimento, Despesa, Ganho, Repasse } from "@/lib/sheets-types";
+import { brl, statusManutencao } from "@/lib/sheets-types";
+import type { Abastecimento, Despesa, Ganho, Manutencao, Repasse } from "@/lib/sheets-types";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
