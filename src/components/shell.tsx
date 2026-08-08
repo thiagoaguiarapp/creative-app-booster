@@ -61,13 +61,15 @@ export function SectionCard({
   title,
   description,
   children,
+  className,
 }: {
   title: string;
   description?: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="panel overflow-hidden">
+    <section className={cn("panel overflow-hidden", className)}>
       <header className="border-b border-border px-5 py-4">
         <h2 className="font-display text-lg font-semibold uppercase tracking-wide">{title}</h2>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
