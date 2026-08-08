@@ -163,6 +163,24 @@ function RepassesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.ganhos, data.repasses, prefixo]);
 
+  // saldo acumulado até o fim do período: pagamentos feitos depois já quitam a dívida antiga
+  const acumulado = useMemo(() => {
+    const mapa = new Map<string, number>();
+    const add = (nome: string, v: number) => mapa.set(norm(nome), (mapa.get(norm(nome)) ?? 0) + v);
+    for (const g of data.ganhos) {
+      if (ehExtra(g.plataforma)) continue;
+      if (prefixo && g.iso.slice(0, 7) > prefixo) continue;
+      add(g.plataforma, g.faturamento);
+    }
+    for (const r of data.repasses) {
+      if (ehExtra(r.aplicativo)) continue;
+      if (prefixo && r.iso.slice(0, 7) > prefixo) continue;
+      add(r.aplicativo, -r.valor);
+    }
+    return mapa;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.ganhos, data.repasses, prefixo]);
+
   // conciliação: o que sobrou do recebido no mês abate a pendência antiga do mesmo app
   const conciliacao = useMemo(() => {
     const antMap = new Map(anteriores.map((a) => [norm(a.app), a]));
@@ -174,10 +192,11 @@ function RepassesPage() {
       const faturadoMes = mes?.faturado ?? 0;
       const recebidoMes = mes?.recebido ?? 0;
       const pendenteAnterior = Math.max(0, ant?.pendente ?? 0);
-      const excedente = Math.max(0, recebidoMes - faturadoMes);
-      const abatido = Math.min(excedente, pendenteAnterior);
-      const restanteAnterior = pendenteAnterior - abatido;
       const pendenteMes = Math.max(0, faturadoMes - recebidoMes);
+      // saldo devedor real até o fim do período (já considera pagamentos posteriores)
+      const saldoAcumulado = Math.max(0, acumulado.get(chave) ?? 0);
+      const restanteAnterior = Math.max(0, Math.min(pendenteAnterior, saldoAcumulado - pendenteMes));
+      const abatido = pendenteAnterior - restanteAnterior;
       return {
         app,
         faturadoMes,
@@ -190,7 +209,8 @@ function RepassesPage() {
       };
     }).sort((a, b) => b.total - a.total || b.pendenteAnterior - a.pendenteAnterior);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [porApp, anteriores]);
+  }, [porApp, anteriores, acumulado]);
+
 
   const pendenteAnteriorTotal = conciliacao.reduce((s, a) => s + a.pendenteAnterior, 0);
   const abatidoTotal = conciliacao.reduce((s, a) => s + a.abatido, 0);
