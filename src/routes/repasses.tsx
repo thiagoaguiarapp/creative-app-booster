@@ -379,12 +379,12 @@ function RepassesPage() {
       <SectionCard
         title="Conferência dos lançamentos"
         description="Faturamento e recebimentos agrupados por mês; abra uma linha para localizar a diferença"
-        action={
+      >
+        <div className="mb-3 flex justify-end">
           <Button size="sm" variant="outline" onClick={() => setMostrarConciliados((valor) => !valor)}>
             {mostrarConciliados ? "Somente divergências" : "Mostrar conciliados"}
           </Button>
-        }
-      >
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
