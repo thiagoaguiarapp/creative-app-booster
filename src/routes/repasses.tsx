@@ -21,6 +21,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { criarAuditoriaMensal, normalizarPlataforma, saldosAteMes } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -71,6 +72,8 @@ function RepassesPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
   const [aberto, setAberto] = useState<string | null>(null);
+  const [auditoriaAberta, setAuditoriaAberta] = useState<string | null>(null);
+  const [mostrarConciliados, setMostrarConciliados] = useState(false);
 
   const prefixo = periodo === "total" ? null : prefixoMes(periodo === "atual" ? 0 : -1);
 
@@ -107,7 +110,7 @@ function RepassesPage() {
 
   
 
-  const norm = (s: string) => s.trim().toUpperCase().replace(/\s+/g, " ");
+  const norm = normalizarPlataforma;
 
   const porApp = useMemo(() => {
     const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
@@ -135,68 +138,32 @@ function RepassesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ganhos, repasses]);
 
-  // saldo de meses anteriores ao período selecionado
-  const anteriores = useMemo(() => {
-    if (!prefixo) return [] as { app: string; faturado: number; recebido: number; pendente: number }[];
-    const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
-    const pegar = (nome: string) => {
-      const chave = norm(nome);
-      let item = mapa.get(chave);
-      if (!item) {
-        item = { app: nome.trim() || "—", faturado: 0, recebido: 0 };
-        mapa.set(chave, item);
-      }
-      return item;
-    };
-    for (const g of data.ganhos) {
-      if (ehExtra(g.plataforma) || g.iso.slice(0, 7) >= prefixo) continue;
-      pegar(g.plataforma).faturado += g.faturamento;
-    }
-    for (const r of data.repasses) {
-      if (ehExtra(r.aplicativo) || r.iso.slice(0, 7) >= prefixo) continue;
-      pegar(r.aplicativo).recebido += r.valor;
-    }
-    return Array.from(mapa.values())
-      .map((i) => ({ ...i, pendente: i.faturado - i.recebido }))
-      .filter((i) => Math.abs(i.pendente) > 0.009)
-      .sort((a, b) => b.pendente - a.pendente);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.ganhos, data.repasses, prefixo]);
-
-  // saldo acumulado até o fim do período: pagamentos feitos depois já quitam a dívida antiga
-  const acumulado = useMemo(() => {
-    const mapa = new Map<string, number>();
-    const add = (nome: string, v: number) => mapa.set(norm(nome), (mapa.get(norm(nome)) ?? 0) + v);
-    for (const g of data.ganhos) {
-      if (ehExtra(g.plataforma)) continue;
-      if (prefixo && g.iso.slice(0, 7) > prefixo) continue;
-      add(g.plataforma, g.faturamento);
-    }
-    for (const r of data.repasses) {
-      if (ehExtra(r.aplicativo)) continue;
-      if (prefixo && r.iso.slice(0, 7) > prefixo) continue;
-      add(r.aplicativo, -r.valor);
-    }
-    return mapa;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.ganhos, data.repasses, prefixo]);
+  const auditoria = useMemo(
+    () => criarAuditoriaMensal(data.ganhos, data.repasses),
+    [data.ganhos, data.repasses],
+  );
+  const saldosSelecionados = useMemo(
+    () => (prefixo ? saldosAteMes(auditoria, prefixo) : new Map<string, { app: string; saldo: number }>()),
+    [auditoria, prefixo],
+  );
 
   // conciliação: o que sobrou do recebido no mês abate a pendência antiga do mesmo app
   const conciliacao = useMemo(() => {
-    const antMap = new Map(anteriores.map((a) => [norm(a.app), a]));
-    const chaves = new Set([...porApp.map((a) => norm(a.app)), ...antMap.keys()]);
+    const chaves = new Set([...porApp.map((a) => norm(a.app)), ...saldosSelecionados.keys()]);
     return Array.from(chaves).map((chave) => {
       const mes = porApp.find((a) => norm(a.app) === chave);
-      const ant = antMap.get(chave);
-      const app = mes?.app ?? ant?.app ?? "—";
+      const acumulado = saldosSelecionados.get(chave);
+      const app = mes?.app ?? acumulado?.app ?? "—";
       const faturadoMes = mes?.faturado ?? 0;
       const recebidoMes = mes?.recebido ?? 0;
-      const pendenteAnterior = Math.max(0, ant?.pendente ?? 0);
       const pendenteMes = Math.max(0, faturadoMes - recebidoMes);
-      // saldo devedor real até o fim do período (já considera pagamentos posteriores)
-      const saldoAcumulado = Math.max(0, acumulado.get(chave) ?? 0);
-      const restanteAnterior = Math.max(0, Math.min(pendenteAnterior, saldoAcumulado - pendenteMes));
-      const abatido = pendenteAnterior - restanteAnterior;
+      const saldoAcumulado = Math.max(0, acumulado?.saldo ?? 0);
+      const restanteAnterior = Math.max(0, saldoAcumulado - pendenteMes);
+      const historicoAntes = auditoria
+        .filter((item) => item.mes < (prefixo ?? "") && norm(item.app) === chave)
+        .at(0);
+      const pendenteAnterior = Math.max(0, historicoAntes?.saldoAcumulado ?? 0);
+      const abatido = Math.max(0, pendenteAnterior - restanteAnterior);
       return {
         app,
         faturadoMes,
@@ -209,15 +176,20 @@ function RepassesPage() {
       };
     }).sort((a, b) => b.total - a.total || b.pendenteAnterior - a.pendenteAnterior);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [porApp, anteriores, acumulado]);
+  }, [porApp, saldosSelecionados, auditoria, prefixo]);
 
 
   const pendenteAnteriorTotal = conciliacao.reduce((s, a) => s + a.pendenteAnterior, 0);
   const abatidoTotal = conciliacao.reduce((s, a) => s + a.abatido, 0);
   const restanteAnteriorTotal = conciliacao.reduce((s, a) => s + a.restanteAnterior, 0);
 
-  const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
+  const pendenteTotal = conciliacao.reduce((s, a) => s + a.pendenteMes, 0);
   const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
+
+  const auditoriaVisivel = auditoria.filter((item) => {
+    if (prefixo && item.mes > prefixo) return false;
+    return mostrarConciliados || Math.abs(item.diferenca) > 0.009 || item.suspeitas.length > 0;
+  });
 
 
   const porForma = useMemo(() => {
@@ -339,7 +311,7 @@ function RepassesPage() {
         />
       </div>
 
-      {prefixo && conciliacao.some((c) => c.pendenteAnterior > 0.009) && (
+      {prefixo && conciliacao.some((c) => c.restanteAnterior > 0.009) && (
         <SectionCard
           title="A receber de meses anteriores"
           description="Pendências antigas por aplicativo e o quanto já foi abatido com o recebido deste período"
@@ -356,7 +328,7 @@ function RepassesPage() {
             </TableHeader>
             <TableBody>
               {conciliacao
-                .filter((c) => c.pendenteAnterior > 0.009)
+                .filter((c) => c.restanteAnterior > 0.009)
                 .map((c) => (
                   <TableRow key={`ant-${c.app}`}>
                     <TableCell className="font-medium">{c.app}</TableCell>
@@ -403,6 +375,103 @@ function RepassesPage() {
           </p>
         </SectionCard>
       )}
+
+      <SectionCard
+        title="Conferência dos lançamentos"
+        description="Faturamento e recebimentos agrupados por mês; abra uma linha para localizar a diferença"
+      >
+        <div className="mb-3 flex justify-end">
+          <Button size="sm" variant="outline" onClick={() => setMostrarConciliados((valor) => !valor)}>
+            {mostrarConciliados ? "Somente divergências" : "Mostrar conciliados"}
+          </Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mês / Aplicativo</TableHead>
+              <TableHead className="text-right">Faturado</TableHead>
+              <TableHead className="text-right">Recebido</TableHead>
+              <TableHead className="text-right">Diferença do mês</TableHead>
+              <TableHead className="text-right">Saldo acumulado</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {auditoriaVisivel.map((item) => {
+              const expandido = auditoriaAberta === item.chave;
+              const conciliado = Math.abs(item.diferenca) <= 0.009;
+              return (
+                <Fragment key={item.chave}>
+                  <TableRow>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto justify-start px-0 font-medium"
+                        onClick={() => setAuditoriaAberta(expandido ? null : item.chave)}
+                        aria-expanded={expandido}
+                      >
+                        <ChevronRight className={`size-4 ${expandido ? "rotate-90" : ""}`} />
+                        {item.mes.split("-").reverse().join("/")} · {item.app}
+                      </Button>
+                    </TableCell>
+                    <TableCell className="num text-right">{brl(item.faturado)}</TableCell>
+                    <TableCell className="num text-right text-success">{brl(item.recebido)}</TableCell>
+                    <TableCell className={`num text-right font-semibold ${item.diferenca > 0.009 ? "text-warning" : "text-primary"}`}>
+                      {brl(item.diferenca)}
+                    </TableCell>
+                    <TableCell className="num text-right">{brl(item.saldoAcumulado)}</TableCell>
+                    <TableCell>
+                      <Badge variant={item.suspeitas.length ? "destructive" : conciliado ? "default" : "outline"}>
+                        {item.suspeitas.length ? "Conferir" : conciliado ? "Conciliado" : "Divergente"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                  {expandido && (
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                      <TableCell colSpan={6} className="p-4">
+                        {item.suspeitas.map((aviso) => (
+                          <p key={aviso} className="mb-3 flex items-center gap-2 text-sm text-warning">
+                            <AlertTriangle className="size-4" /> {aviso}
+                          </p>
+                        ))}
+                        <div className="grid gap-5 lg:grid-cols-2">
+                          <div>
+                            <p className="mb-2 text-sm font-semibold">Faturamentos ({item.ganhos.length})</p>
+                            {item.ganhos.map((ganho) => (
+                              <div key={ganho.id} className="flex items-center gap-3 border-t py-2 text-sm">
+                                <span className="num text-muted-foreground">{ganho.data}</span>
+                                <span className="text-xs text-muted-foreground">linha {ganho.row}</span>
+                                <span className="num ml-auto font-semibold">{brl(ganho.faturamento)}</span>
+                                <AcoesLancamento tipo="ganho" registro={ganho} />
+                              </div>
+                            ))}
+                            {item.ganhos.length === 0 && <p className="text-sm text-muted-foreground">Nenhum faturamento.</p>}
+                          </div>
+                          <div>
+                            <p className="mb-2 text-sm font-semibold">Recebimentos ({item.repasses.length})</p>
+                            {item.repasses.map((repasse) => (
+                              <div key={`${repasse.id}-${repasse.row}`} className="flex items-center gap-3 border-t py-2 text-sm">
+                                <span className="num text-muted-foreground">{repasse.data}</span>
+                                <span className="text-xs text-muted-foreground">linha {repasse.row}</span>
+                                <span className="truncate text-muted-foreground">{repasse.forma}</span>
+                                <span className="num ml-auto font-semibold text-success">{brl(repasse.valor)}</span>
+                                <AcoesLancamento tipo="repasse" registro={repasse} />
+                              </div>
+                            ))}
+                            {item.repasses.length === 0 && <p className="text-sm text-muted-foreground">Nenhum recebimento.</p>}
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </SectionCard>
 
 
       <SectionCard
