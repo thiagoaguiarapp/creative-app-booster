@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, Bike, Eraser, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
+import logoAsset from "@/assets/logo.png.asset.json";
+
 import {
   Sidebar,
   SidebarContent,
@@ -35,9 +37,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-2">
-          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-            <Bike className="size-4" />
-          </span>
+          <img
+            src={logoAsset.url}
+            alt="Rota Control"
+            className="size-8 shrink-0 rounded-md bg-sidebar-primary object-cover"
+          />
           {!collapsed && (
             <div className="leading-tight">
               <p className="font-display text-base font-semibold uppercase tracking-wide">
