@@ -23,6 +23,7 @@ import {
   type Tipo,
 } from "@/lib/entry-schema";
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
+import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
