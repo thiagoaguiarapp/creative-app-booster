@@ -23,6 +23,7 @@ import {
   type Tipo,
 } from "@/lib/entry-schema";
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
+import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
@@ -43,9 +44,11 @@ function valoresIniciais(
     } else {
       out[campo.key] = String(bruto) === "—" ? "" : String(bruto);
     }
-    if (!registro && iniciais?.[campo.key] !== undefined) {
-      out[campo.key] = iniciais[campo.key] ?? "";
+    const inicial = iniciais?.[campo.key];
+    if (inicial !== undefined && (!registro || inicial.trim() !== "")) {
+      out[campo.key] = inicial;
     }
+
   }
   return out;
 }
@@ -95,17 +98,58 @@ function FormularioDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
+  const [seguinte, setSeguinte] = useState<{
+    row?: number;
+    registro?: Record<string, unknown>;
+    iniciais: Record<string, string>;
+    titulo: string;
+  } | null>(null);
   const salvar = useServerFn(salvarLancamentoFn);
   const plataformas = usePlataformas(tipo);
   const formas = useFormas();
   const invalidar = useInvalidarPainel();
+  const { data: painel } = useQuery(painelQueryOptions());
+
+  const existente =
+    tipo === "manutencao" && !row
+      ? acharManutencaoAtiva(
+          painel?.manutencoes ?? [],
+          valores["servico"] ?? "",
+          valores["veiculo"] ?? "",
+        )
+      : undefined;
 
   const mutation = useMutation({
     mutationFn: (v: Record<string, string>) =>
       salvar({ data: row ? { tipo, valores: v, row } : { tipo, valores: v } }),
-    onSuccess: async () => {
+    onSuccess: async (_r, v) => {
       await invalidar();
       toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
+      if (tipo === "despesa" && !row && ehCategoriaManutencao(v["categoria"] ?? "")) {
+        const servico = (v["descricao"] ?? "").trim() || (v["categoria"] ?? "").trim();
+        const ativa = acharManutencaoAtiva(painel?.manutencoes ?? [], servico);
+        const base: Record<string, string> = {
+          data: v["data"] ?? "",
+          servico,
+          valor: v["valor"] ?? "",
+        };
+        setSeguinte(
+          ativa
+            ? {
+                row: ativa.row,
+                registro: ativa as unknown as Record<string, unknown>,
+                iniciais: base,
+                titulo: "Atualizar manutenção existente",
+              }
+            : { iniciais: base, titulo: "Registrar manutenção do serviço" },
+        );
+        toast.info(
+          ativa
+            ? "Esse serviço já está em manutenção — atualize o km e a validade."
+            : "Complete o registro na tela de manutenção.",
+        );
+        return;
+      }
       onOpenChange(false);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -121,6 +165,26 @@ function FormularioDialog({
     }
     mutation.mutate(valores);
   }
+
+  if (seguinte) {
+    return (
+      <FormularioDialog
+        tipo="manutencao"
+        {...(seguinte.row ? { row: seguinte.row } : {})}
+        {...(seguinte.registro ? { registro: seguinte.registro } : {})}
+        iniciais={seguinte.iniciais}
+        titulo={seguinte.titulo}
+        aberto
+        onOpenChange={(v) => {
+          if (!v) {
+            setSeguinte(null);
+            onOpenChange(false);
+          }
+        }}
+      />
+    );
+  }
+
 
   return (
     <Dialog open={aberto} onOpenChange={onOpenChange}>
@@ -166,6 +230,33 @@ function FormularioDialog({
                 )}
             </div>
           ))}
+
+          {existente && (
+            <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-xs sm:col-span-2">
+              <p className="text-warning">
+                Já existe manutenção ativa de “{existente.servico}”
+                {existente.veiculo ? ` (${existente.veiculo})` : ""} em {existente.data}, km{" "}
+                {existente.kmTroca.toLocaleString("pt-BR")}.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() =>
+                  setSeguinte({
+                    row: existente.row,
+                    registro: existente as unknown as Record<string, unknown>,
+                    iniciais: valores,
+                    titulo: "Atualizar manutenção existente",
+                  })
+                }
+              >
+                Atualizar a manutenção existente
+              </Button>
+            </div>
+          )}
+
 
           <DialogFooter className="sm:col-span-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
