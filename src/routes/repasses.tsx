@@ -309,6 +309,72 @@ function RepassesPage() {
         />
       </div>
 
+      {prefixo && conciliacao.some((c) => c.pendenteAnterior > 0.009) && (
+        <SectionCard
+          title="A receber de meses anteriores"
+          description="Pendências antigas por aplicativo e o quanto já foi abatido com o recebido deste período"
+        >
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Aplicativo</TableHead>
+                <TableHead className="text-right">Pendente antigo</TableHead>
+                <TableHead className="text-right">Abatido agora</TableHead>
+                <TableHead className="text-right">Ainda falta</TableHead>
+                <TableHead className="w-36 text-right">Baixa</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {conciliacao
+                .filter((c) => c.pendenteAnterior > 0.009)
+                .map((c) => (
+                  <TableRow key={`ant-${c.app}`}>
+                    <TableCell className="font-medium">{c.app}</TableCell>
+                    <TableCell className="num text-right">{brl(c.pendenteAnterior)}</TableCell>
+                    <TableCell className="num text-right text-success">
+                      {c.abatido > 0.009 ? brl(c.abatido) : "—"}
+                    </TableCell>
+                    <TableCell className="num text-right font-semibold text-warning">
+                      {brl(c.restanteAnterior)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {c.restanteAnterior > 0.009 && (
+                        <NovoLancamento
+                          tipo="repasse"
+                          rotulo="Dar baixa"
+                          size="sm"
+                          icone={CheckCircle2}
+                          titulo={`Baixa de mês anterior — ${c.app}`}
+                          iniciais={{
+                            data: hojeInputDate(),
+                            aplicativo: c.app,
+                            valor: c.restanteAnterior.toFixed(2),
+                            forma: "Repasse do app",
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              <TableRow>
+                <TableCell className="font-semibold">Total</TableCell>
+                <TableCell className="num text-right font-semibold">{brl(pendenteAnteriorTotal)}</TableCell>
+                <TableCell className="num text-right font-semibold text-success">{brl(abatidoTotal)}</TableCell>
+                <TableCell className="num text-right font-semibold text-warning">
+                  {brl(restanteAnteriorTotal)}
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            </TableBody>
+          </Table>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Quando o app paga o mês passado junto com o atual, o valor recebido a mais no período abate
+            automaticamente a dívida antiga. A receber no total: <strong>{brl(aReceberGeral)}</strong>.
+          </p>
+        </SectionCard>
+      )}
+
+
       <SectionCard
         title="Conciliação por aplicativo"
         description="Faturado no período x recebido (repasse, dinheiro ou Pix na entrega)"
