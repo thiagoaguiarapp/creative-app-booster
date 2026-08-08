@@ -185,13 +185,8 @@ function RepassesPage() {
   const pendenteTotal = conciliacao.reduce((s, a) => s + a.pendenteMes, 0);
   const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
 
-  const auditoriaVisivel = auditoria.filter((item) => {
-    if (prefixo && item.mes > prefixo) return false;
-    return mostrarConciliados || Math.abs(item.diferenca) > 0.009 || item.suspeitas.length > 0;
-  });
-
-
   const porForma = useMemo(() => {
+
     const mapa = new Map<string, { forma: string; valor: number }>();
     for (const r of repasses) {
       if (ehExtra(r.aplicativo)) continue;
