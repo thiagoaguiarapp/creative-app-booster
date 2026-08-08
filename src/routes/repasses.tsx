@@ -267,8 +267,9 @@ function RepassesPage() {
           value={brl(recebido)}
           icon={CheckCircle2}
           tone="success"
-          hint={`Plataformas ${brl(recebidoPlataformas)}`}
+          hint={`Depósito ${brl(emDeposito)} · dinheiro/Pix ${brl(emDinheiro + emPix)}`}
         />
+
         <StatCard
           label="A receber (mês)"
           value={brl(pendenteTotal)}
