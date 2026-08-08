@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, Bike, Eraser, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
+import logoAsset from "@/assets/logo.png.asset.json";
+
 import {
   Sidebar,
   SidebarContent,
