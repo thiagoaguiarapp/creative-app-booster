@@ -43,9 +43,11 @@ function valoresIniciais(
     } else {
       out[campo.key] = String(bruto) === "—" ? "" : String(bruto);
     }
-    if (!registro && iniciais?.[campo.key] !== undefined) {
-      out[campo.key] = iniciais[campo.key] ?? "";
+    const inicial = iniciais?.[campo.key];
+    if (inicial !== undefined && (!registro || inicial.trim() !== "")) {
+      out[campo.key] = inicial;
     }
+
   }
   return out;
 }
