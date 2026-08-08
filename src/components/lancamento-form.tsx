@@ -182,12 +182,13 @@ function FormularioDialog({
 }
 
 const ROTULOS_NOVO: Record<Tipo, string> = {
-  ganho: "Novo ganho",
-  abastecimento: "Novo abastecimento",
-  despesa: "Nova despesa",
-  repasse: "Novo repasse",
-  manutencao: "Nova manutenção",
+  ganho: "Lançar ganho",
+  abastecimento: "Lançar abastecimento",
+  despesa: "Lançar despesa",
+  repasse: "Lançar repasse",
+  manutencao: "Lançar manutenção",
 };
+
 
 export function NovoLancamento({
   tipo,
