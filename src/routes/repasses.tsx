@@ -95,7 +95,9 @@ function RepassesPage() {
   const recebidoPlataformas = repasses
     .filter((r) => !ehExtra(r.aplicativo))
     .reduce((s, r) => s + r.valor, 0);
-  const recebido = recebidoPlataformas + gorjetas + sobraTroco;
+  // "Recebido" compara com "Faturado", que não inclui extras — extras ficam em cards próprios.
+  const recebido = recebidoPlataformas;
+
 
 
   const faturado = ganhos
@@ -215,8 +217,11 @@ function RepassesPage() {
     repasses
       .filter((r) => !ehExtra(r.aplicativo) && teste((r.forma || "").trim().toUpperCase()))
       .reduce((s, r) => s + r.valor, 0);
-  const emDinheiro = somaForma((f) => f.startsWith("DINHEIRO") || f.startsWith("ESPÉCIE") || f.startsWith("ESPECIE"));
-  const emPix = somaForma((f) => f.startsWith("PIX"));
+  // a forma vem como "IFOOD DINHEIRO", "99 PIX", "99 DEPOSITO" — comparar por conteúdo, não por início.
+  const emDinheiro = somaForma((f) => f.includes("DINHEIRO") || f.includes("ESPÉCIE") || f.includes("ESPECIE"));
+  const emPix = somaForma((f) => f.includes("PIX"));
+  const emDeposito = somaForma((f) => f.includes("DEPOSITO") || f.includes("DEPÓSITO") || f.includes("REPASSE"));
+
 
 
   return (
@@ -262,8 +267,9 @@ function RepassesPage() {
           value={brl(recebido)}
           icon={CheckCircle2}
           tone="success"
-          hint={`Plataformas ${brl(recebidoPlataformas)}`}
+          hint={`Depósito ${brl(emDeposito)} · dinheiro/Pix ${brl(emDinheiro + emPix)}`}
         />
+
         <StatCard
           label="A receber (mês)"
           value={brl(pendenteTotal)}
