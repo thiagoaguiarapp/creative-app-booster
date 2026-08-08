@@ -100,7 +100,6 @@ function AbastecimentoPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Abastecimento"
-        subtitle="Combustível e consumo do veículo (aba COMBUSTIVE/KM)"
         action={<NovoLancamento tipo="abastecimento" />}
       />
 
