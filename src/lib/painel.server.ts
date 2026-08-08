@@ -1,25 +1,32 @@
+import { dataBr, isoDate, num, selectAll, txt, type Linha } from "./db.server";
 import type { PainelData } from "./sheets-types";
-import { batchGet, isEmptyRow, isoDate, num, txt } from "./sheets.server";
 
-const RANGES = [
-  "DIA A DIA!A2:G20000",
-  "COMBUSTIVE/KM!A2:N2000",
-  "DESPESA!A2:G5000",
-  "REPASSE!A2:E20000",
-  "MANUTENCAO!A2:I2000",
-];
+export const TABELAS = {
+  ganho: "DIARIO",
+  abastecimento: "CONTROLE COMBUSTIVEL",
+  despesa: "DESPESAS",
+  repasse: "REPASSE",
+  manutencao: "MANUTENCAO",
+} as const;
 
 const byIsoDesc = (a: { iso: string }, b: { iso: string }) =>
   b.iso.localeCompare(a.iso);
 
-/** Anexa o número real da linha na planilha (dados começam na linha 2). */
-function withRows(rows: string[][]): { r: string[]; row: number }[] {
-  return rows.map((r, i) => ({ r, row: i + 2 }));
+/** lê a primeira coluna existente entre os nomes informados */
+function campo(linha: Linha, ...nomes: string[]): unknown {
+  for (const n of nomes) {
+    if (linha[n] !== undefined && linha[n] !== null && txt(linha[n]) !== "") {
+      return linha[n];
+    }
+  }
+  return undefined;
 }
+
+const idDe = (linha: Linha) => Number(linha["ID"] ?? 0);
 
 let cache: { data: PainelData; at: number } | null = null;
 let emVoo: Promise<PainelData> | null = null;
-const TTL = 60_000;
+const TTL = 30_000;
 
 /** Limpa o cache após gravações para a próxima leitura vir fresca. */
 export function invalidarPainelCache() {
@@ -36,9 +43,8 @@ export async function loadPainelData(): Promise<PainelData> {
       return d;
     })
     .catch((err) => {
-      // Limite de leituras / falha temporária: devolve o último dado bom.
       if (anterior) {
-        cache = { data: anterior.data, at: Date.now() - TTL + 15_000 };
+        cache = { data: anterior.data, at: Date.now() - TTL + 10_000 };
         return anterior.data;
       }
       throw err;
@@ -49,83 +55,91 @@ export async function loadPainelData(): Promise<PainelData> {
   return emVoo;
 }
 
-
 async function carregar(): Promise<PainelData> {
-  const [rGanhos, rComb, rDesp, rRep, rManut] = await batchGet(RANGES);
+  const [rGanhos, rComb, rDesp, rRep, rManut] = await Promise.all([
+    selectAll(TABELAS.ganho),
+    selectAll(TABELAS.abastecimento),
+    selectAll(TABELAS.despesa),
+    selectAll(TABELAS.repasse),
+    selectAll(TABELAS.manutencao),
+  ]);
 
-
-  const ganhos = withRows(rGanhos ?? [])
-    .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
-    .map(({ r, row }) => ({
-      id: txt(r[0]) || `g${row}`,
-      row,
-      data: txt(r[2]),
-      iso: isoDate(r[2]),
-      plataforma: txt(r[3]) || "—",
-      corridas: num(r[5]),
-      faturamento: num(r[4]),
-      recebido: num(r[6]),
+  const ganhos = rGanhos
+    .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
+    .map((l) => ({
+      id: String(idDe(l)),
+      row: idDe(l),
+      data: dataBr(campo(l, "DATA", "Data")),
+      iso: isoDate(campo(l, "DATA", "Data")),
+      plataforma: txt(campo(l, "APP", "APLICATIVO", "PLATAFORMA")) || "—",
+      corridas: num(campo(l, "ROTAS CONCLUIDAS", "CORRIDAS")),
+      faturamento: num(campo(l, "FATURAMENTO")),
+      recebido: num(campo(l, "RECEBIDO", "VALOR RECEBIDO")),
     }))
     .sort(byIsoDesc);
 
-  const abastecimentos = withRows(rComb ?? [])
-    .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
-    .map(({ r, row }) => ({
-      id: txt(r[0]) || `a${row}`,
-      row,
-      data: txt(r[2]),
-      iso: isoDate(r[2]),
-      odometro: num(r[3]),
-      litros: num(r[4]),
-      precoLitro: num(r[5]),
-      kmRodado: num(r[8]),
-      kmPorLitro: num(r[10]),
-      custoKm: num(r[11]),
-      valorPago: num(r[12]),
-      pagamento: txt(r[13]) || "—",
+  const abastecimentos = rComb
+    .filter((l) => txt(campo(l, "Data", "DATA")) !== "")
+    .map((l) => {
+      const litros = num(campo(l, "Volume abastecido", "LITROS"));
+      const kmRodado = num(campo(l, "KM RODADO"));
+      return {
+        id: String(idDe(l)),
+        row: idDe(l),
+        data: dataBr(campo(l, "Data", "DATA")),
+        iso: isoDate(campo(l, "Data", "DATA")),
+        odometro: num(campo(l, "Odômetro total", "ODOMETRO")),
+        litros,
+        precoLitro: num(campo(l, "Preço do Litro", "PRECO LITRO")),
+        kmRodado,
+        kmPorLitro: num(campo(l, "km/l")) || (litros ? kmRodado / litros : 0),
+        custoKm: num(campo(l, "Custo do km")),
+        valorPago: num(campo(l, "VALOR PAGO", "VALOR")),
+        pagamento: txt(campo(l, "CONDIÇÃO PAGAMENTO", "CONDICAO PAGAMENTO")) || "—",
+      };
+    })
+    .sort(byIsoDesc);
+
+  const despesas = rDesp
+    .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
+    .map((l) => ({
+      id: String(idDe(l)),
+      row: idDe(l),
+      data: dataBr(campo(l, "DATA", "Data")),
+      iso: isoDate(campo(l, "DATA", "Data")),
+      valor: num(campo(l, "VALOR")),
+      categoria: txt(campo(l, "TIPO DE GASTO", "CATEGORIA")) || "Outros",
+      descricao: txt(campo(l, "OBS", "OBSERVAÇÃO", "DESCRICAO")),
+      pagamento: txt(campo(l, "CONDIÇÃO DE PAGAMENTO", "CONDICAO DE PAGAMENTO")) || "—",
     }))
     .sort(byIsoDesc);
 
-  const despesas = withRows(rDesp ?? [])
-    .filter(({ r }) => !isEmptyRow(r) && txt(r[2]) !== "")
-    .map(({ r, row }) => ({
-      id: txt(r[0]) || `d${row}`,
-      row,
-      data: txt(r[2]),
-      iso: isoDate(r[2]),
-      valor: num(r[3]),
-      categoria: txt(r[4]) || "Outros",
-      descricao: txt(r[5]),
-      pagamento: txt(r[6]) || "—",
+  const repasses = rRep
+    .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
+    .map((l) => ({
+      id: String(idDe(l)),
+      row: idDe(l),
+      data: dataBr(campo(l, "DATA", "Data")),
+      iso: isoDate(campo(l, "DATA", "Data")),
+      aplicativo: txt(campo(l, "APLICATIVO", "APP")) || "—",
+      valor: num(campo(l, "VALOR RECEBIDO", "VALOR")),
+      forma: txt(campo(l, "FORMA RECEBIMENTO", "FORMA")) || "—",
     }))
     .sort(byIsoDesc);
 
-  const repasses = withRows(rRep ?? [])
-    .filter(({ r }) => !isEmptyRow(r) && txt(r[1]) !== "")
-    .map(({ r, row }) => ({
-      id: txt(r[0]) || `r${row}`,
-      row,
-      data: txt(r[1]),
-      iso: isoDate(r[1]),
-      aplicativo: txt(r[2]) || "—",
-      valor: num(r[3]),
-      forma: txt(r[4]) || "—",
-    }))
-    .sort(byIsoDesc);
-
-  const manutencoes = withRows(rManut ?? [])
-    .filter(({ r }) => !isEmptyRow(r) && txt(r[3]) !== "")
-    .map(({ r, row }) => ({
-      id: txt(r[0]) || `m${row}`,
-      row,
-      veiculo: txt(r[1]) || "—",
-      data: txt(r[2]),
-      iso: isoDate(r[2]),
-      servico: txt(r[3]),
-      kmTroca: num(r[4]),
-      validadeKm: num(r[5]),
-      valor: num(r[6]),
-      observacao: txt(r[7]),
+  const manutencoes = rManut
+    .filter((l) => txt(campo(l, "SERVIÇO", "SERVICO")) !== "")
+    .map((l) => ({
+      id: String(idDe(l)),
+      row: idDe(l),
+      veiculo: txt(campo(l, "VEICULO", "VEÍCULO")) || "—",
+      data: dataBr(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
+      iso: isoDate(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
+      servico: txt(campo(l, "SERVIÇO", "SERVICO")),
+      kmTroca: num(campo(l, "KM TROCA")),
+      validadeKm: num(campo(l, "VALIDADE (KM)", "VALIDADE KM")),
+      valor: num(campo(l, "VALOR GASTO", "VALOR")),
+      observacao: txt(campo(l, "OBSERVAÇÃO", "OBSERVACAO", "OBS")),
     }))
     .sort(byIsoDesc);
 
