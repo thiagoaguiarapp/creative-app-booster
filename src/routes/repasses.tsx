@@ -8,6 +8,8 @@ import {
   Clock,
   Coins,
   HandCoins,
+  History,
+
   Landmark,
   Smartphone,
   Wallet,
