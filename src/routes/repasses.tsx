@@ -95,7 +95,9 @@ function RepassesPage() {
   const recebidoPlataformas = repasses
     .filter((r) => !ehExtra(r.aplicativo))
     .reduce((s, r) => s + r.valor, 0);
-  const recebido = recebidoPlataformas + gorjetas + sobraTroco;
+  // "Recebido" compara com "Faturado", que não inclui extras — extras ficam em cards próprios.
+  const recebido = recebidoPlataformas;
+
 
 
   const faturado = ganhos
