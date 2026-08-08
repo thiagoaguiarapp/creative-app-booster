@@ -231,6 +231,33 @@ function FormularioDialog({
             </div>
           ))}
 
+          {existente && (
+            <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-xs sm:col-span-2">
+              <p className="text-warning">
+                Já existe manutenção ativa de “{existente.servico}”
+                {existente.veiculo ? ` (${existente.veiculo})` : ""} em {existente.data}, km{" "}
+                {existente.kmTroca.toLocaleString("pt-BR")}.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() =>
+                  setSeguinte({
+                    row: existente.row,
+                    registro: existente as unknown as Record<string, unknown>,
+                    iniciais: valores,
+                    titulo: "Atualizar manutenção existente",
+                  })
+                }
+              >
+                Atualizar a manutenção existente
+              </Button>
+            </div>
+          )}
+
+
           <DialogFooter className="sm:col-span-2">
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancelar
