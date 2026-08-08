@@ -201,6 +201,7 @@ function RepassesPage() {
   const porForma = useMemo(() => {
     const mapa = new Map<string, { forma: string; valor: number }>();
     for (const r of repasses) {
+      if (ehExtra(r.aplicativo)) continue;
       const nome = (r.forma || "—").trim() || "—";
       const chave = nome.toUpperCase();
       const item = mapa.get(chave) ?? { forma: nome, valor: 0 };
@@ -211,9 +212,12 @@ function RepassesPage() {
   }, [repasses]);
 
   const somaForma = (teste: (f: string) => boolean) =>
-    repasses.filter((r) => teste((r.forma || "").trim().toUpperCase())).reduce((s, r) => s + r.valor, 0);
+    repasses
+      .filter((r) => !ehExtra(r.aplicativo) && teste((r.forma || "").trim().toUpperCase()))
+      .reduce((s, r) => s + r.valor, 0);
   const emDinheiro = somaForma((f) => f.startsWith("DINHEIRO") || f.startsWith("ESPÉCIE") || f.startsWith("ESPECIE"));
   const emPix = somaForma((f) => f.startsWith("PIX"));
+
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
