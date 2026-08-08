@@ -218,7 +218,7 @@ function Home() {
 
 
       <div className="flex flex-wrap gap-2">
-        <NovoLancamento tipo="ganho" />
+        <NovoLancamento tipo="ganho" rotulo="Lançar ganho diário" />
         <NovoLancamento tipo="abastecimento" />
         <NovoLancamento tipo="despesa" />
         <NovoLancamento tipo="repasse" />
