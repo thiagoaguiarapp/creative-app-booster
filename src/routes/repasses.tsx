@@ -131,7 +131,70 @@ function RepassesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ganhos, repasses]);
 
+  // saldo de meses anteriores ao período selecionado
+  const anteriores = useMemo(() => {
+    if (!prefixo) return [] as { app: string; faturado: number; recebido: number; pendente: number }[];
+    const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
+    const pegar = (nome: string) => {
+      const chave = norm(nome);
+      let item = mapa.get(chave);
+      if (!item) {
+        item = { app: nome.trim() || "—", faturado: 0, recebido: 0 };
+        mapa.set(chave, item);
+      }
+      return item;
+    };
+    for (const g of data.ganhos) {
+      if (ehExtra(g.plataforma) || g.iso.slice(0, 7) >= prefixo) continue;
+      pegar(g.plataforma).faturado += g.faturamento;
+    }
+    for (const r of data.repasses) {
+      if (ehExtra(r.aplicativo) || r.iso.slice(0, 7) >= prefixo) continue;
+      pegar(r.aplicativo).recebido += r.valor;
+    }
+    return Array.from(mapa.values())
+      .map((i) => ({ ...i, pendente: i.faturado - i.recebido }))
+      .filter((i) => Math.abs(i.pendente) > 0.009)
+      .sort((a, b) => b.pendente - a.pendente);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.ganhos, data.repasses, prefixo]);
+
+  // conciliação: o que sobrou do recebido no mês abate a pendência antiga do mesmo app
+  const conciliacao = useMemo(() => {
+    const antMap = new Map(anteriores.map((a) => [norm(a.app), a]));
+    const chaves = new Set([...porApp.map((a) => norm(a.app)), ...antMap.keys()]);
+    return Array.from(chaves).map((chave) => {
+      const mes = porApp.find((a) => norm(a.app) === chave);
+      const ant = antMap.get(chave);
+      const app = mes?.app ?? ant?.app ?? "—";
+      const faturadoMes = mes?.faturado ?? 0;
+      const recebidoMes = mes?.recebido ?? 0;
+      const pendenteAnterior = Math.max(0, ant?.pendente ?? 0);
+      const excedente = Math.max(0, recebidoMes - faturadoMes);
+      const abatido = Math.min(excedente, pendenteAnterior);
+      const restanteAnterior = pendenteAnterior - abatido;
+      const pendenteMes = Math.max(0, faturadoMes - recebidoMes);
+      return {
+        app,
+        faturadoMes,
+        recebidoMes,
+        pendenteAnterior,
+        abatido,
+        restanteAnterior,
+        pendenteMes,
+        total: pendenteMes + restanteAnterior,
+      };
+    }).sort((a, b) => b.total - a.total || b.pendenteAnterior - a.pendenteAnterior);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [porApp, anteriores]);
+
+  const pendenteAnteriorTotal = conciliacao.reduce((s, a) => s + a.pendenteAnterior, 0);
+  const abatidoTotal = conciliacao.reduce((s, a) => s + a.abatido, 0);
+  const restanteAnteriorTotal = conciliacao.reduce((s, a) => s + a.restanteAnterior, 0);
+
   const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
+  const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
+
 
   const porForma = useMemo(() => {
     const mapa = new Map<string, { forma: string; valor: number }>();
