@@ -163,7 +163,7 @@ function RepassesPage() {
         .filter((item) => item.mes < (prefixo ?? "") && norm(item.app) === chave)
         .at(0);
       const pendenteAnterior = Math.max(0, historicoAntes?.saldoAcumulado ?? 0);
-      const abatido = pendenteAnterior - restanteAnterior;
+      const abatido = Math.max(0, pendenteAnterior - restanteAnterior);
       return {
         app,
         faturadoMes,
