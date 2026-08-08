@@ -259,13 +259,23 @@ function RepassesPage() {
           hint={`Plataformas ${brl(recebidoPlataformas)}`}
         />
         <StatCard
-          label="A receber"
+          label="A receber (mês)"
           value={brl(pendenteTotal)}
           icon={Clock}
           tone="warning"
-          hint="Soma das pendências por plataforma"
+          hint="Pendências do período selecionado"
         />
+        {prefixo && (
+          <StatCard
+            label="A receber (meses anteriores)"
+            value={brl(restanteAnteriorTotal)}
+            icon={History}
+            tone="warning"
+            hint={`Antigo ${brl(pendenteAnteriorTotal)} · abatido ${brl(abatidoTotal)} · geral ${brl(aReceberGeral)}`}
+          />
+        )}
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
+
         <StatCard
           label="Gorjetas"
           value={brl(gorjetas)}
