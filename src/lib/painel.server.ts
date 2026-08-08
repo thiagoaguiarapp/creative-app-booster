@@ -29,16 +29,26 @@ export function invalidarPainelCache() {
 export async function loadPainelData(): Promise<PainelData> {
   if (cache && Date.now() - cache.at < TTL) return cache.data;
   if (emVoo) return emVoo;
+  const anterior = cache;
   emVoo = carregar()
     .then((d) => {
       cache = { data: d, at: Date.now() };
       return d;
+    })
+    .catch((err) => {
+      // Limite de leituras / falha temporária: devolve o último dado bom.
+      if (anterior) {
+        cache = { data: anterior.data, at: Date.now() - TTL + 15_000 };
+        return anterior.data;
+      }
+      throw err;
     })
     .finally(() => {
       emVoo = null;
     });
   return emVoo;
 }
+
 
 async function carregar(): Promise<PainelData> {
   const [rGanhos, rComb, rDesp, rRep, rManut] = await batchGet(RANGES);
