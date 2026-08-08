@@ -129,12 +129,92 @@ function Home() {
       .slice(0, 5);
   }, [ganhosHoje, abastHoje, despesasHoje, data.repasses, hoje]);
 
+  const manutencoesAviso = useMemo(() => {
+    const ultimos = new Map<string, Manutencao>();
+    for (const m of data.manutencoes) {
+      const chave = `${m.veiculo}|${m.servico}`.toUpperCase();
+      if (!ultimos.has(chave)) ultimos.set(chave, m);
+    }
+    return [...ultimos.values()]
+      .map((m) => ({ m, s: statusManutencao(m, data.odometroAtual) }))
+      .filter((i) => i.s.nivel !== "ok")
+      .sort((a, b) => a.s.restante - b.s.restante);
+  }, [data.manutencoes, data.odometroAtual]);
+
+  const vencidas = manutencoesAviso.filter((i) => i.s.nivel === "vencido");
+  const proximas = manutencoesAviso.filter((i) => i.s.nivel === "atencao");
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title={`${saudacao}, entregador!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
       />
+
+      {manutencoesAviso.length > 0 && (
+        <SectionCard
+          title="Manutenção"
+          description={
+            vencidas.length > 0
+              ? `${vencidas.length} item${vencidas.length === 1 ? "" : "s"} vencido${vencidas.length === 1 ? "" : "s"} e ${proximas.length} próximo${proximas.length === 1 ? "" : "s"}`
+              : `${proximas.length} manutenção${proximas.length === 1 ? "" : "s"} próxima${proximas.length === 1 ? "" : "s"} de vencer`
+          }
+          className="border-warning/30 bg-warning/5"
+        >
+          <div className="grid gap-3 md:grid-cols-2">
+            {manutencoesAviso.map(({ m, s }) => {
+              const vencido = s.nivel === "vencido";
+              return (
+                <div
+                  key={m.id}
+                  className={cn(
+                    "flex items-center justify-between rounded-lg border p-3",
+                    vencido
+                      ? "border-destructive/40 bg-destructive/10"
+                      : "border-warning/40 bg-warning/10"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center rounded-full",
+                        vencido ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
+                      )}
+                    >
+                      {vencido ? <AlertTriangle className="size-4" /> : <CalendarClock className="size-4" />}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{m.servico}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {m.veiculo} · Troca em {m.kmTroca.toLocaleString("pt-BR")} km
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold num">
+                      {vencido ? "Vencido" : "A vencer"}
+                    </p>
+                    <p className="text-xs text-muted-foreground num">
+                      {Math.abs(s.restante).toLocaleString("pt-BR")} km
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-3 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Odômetro atual: <span className="num font-medium text-foreground">{data.odometroAtual.toLocaleString("pt-BR")} km</span>
+            </p>
+            <Button variant="outline" size="sm" className="text-xs" asChild>
+              <Link to="/manutencao">
+                Ver manutenção <Wrench className="ml-1 size-3" />
+              </Link>
+            </Button>
+          </div>
+        </SectionCard>
+      )}
+
 
 
       <div className="flex flex-wrap gap-2">
