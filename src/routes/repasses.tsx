@@ -73,7 +73,6 @@ function RepassesPage() {
   const [periodo, setPeriodo] = useState<Periodo>("atual");
   const [aberto, setAberto] = useState<string | null>(null);
 
-
   const prefixo = periodo === "total" ? null : prefixoMes(periodo === "atual" ? 0 : -1);
 
   const repasses = useMemo(
@@ -369,104 +368,6 @@ function RepassesPage() {
           </p>
         </SectionCard>
       )}
-
-      <SectionCard
-        title="Conferência dos lançamentos"
-        description="Faturamento e recebimentos agrupados por mês; abra uma linha para localizar a diferença"
-      >
-        <div className="mb-3 flex justify-end">
-          <Button size="sm" variant="outline" onClick={() => setMostrarConciliados((valor) => !valor)}>
-            {mostrarConciliados ? "Somente divergências" : "Mostrar conciliados"}
-          </Button>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Mês / Aplicativo</TableHead>
-              <TableHead className="text-right">Faturado</TableHead>
-              <TableHead className="text-right">Recebido</TableHead>
-              <TableHead className="text-right">Diferença do mês</TableHead>
-              <TableHead className="text-right">Saldo acumulado</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {auditoriaVisivel.map((item) => {
-              const expandido = auditoriaAberta === item.chave;
-              const conciliado = Math.abs(item.diferenca) <= 0.009;
-              return (
-                <Fragment key={item.chave}>
-                  <TableRow>
-                    <TableCell>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-auto justify-start px-0 font-medium"
-                        onClick={() => setAuditoriaAberta(expandido ? null : item.chave)}
-                        aria-expanded={expandido}
-                      >
-                        <ChevronRight className={`size-4 ${expandido ? "rotate-90" : ""}`} />
-                        {item.mes.split("-").reverse().join("/")} · {item.app}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="num text-right">{brl(item.faturado)}</TableCell>
-                    <TableCell className="num text-right text-success">{brl(item.recebido)}</TableCell>
-                    <TableCell className={`num text-right font-semibold ${item.diferenca > 0.009 ? "text-warning" : "text-primary"}`}>
-                      {brl(item.diferenca)}
-                    </TableCell>
-                    <TableCell className="num text-right">{brl(item.saldoAcumulado)}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.suspeitas.length ? "destructive" : conciliado ? "default" : "outline"}>
-                        {item.suspeitas.length ? "Conferir" : conciliado ? "Conciliado" : "Divergente"}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                  {expandido && (
-                    <TableRow className="bg-muted/30 hover:bg-muted/30">
-                      <TableCell colSpan={6} className="p-4">
-                        {item.suspeitas.map((aviso) => (
-                          <p key={aviso} className="mb-3 flex items-center gap-2 text-sm text-warning">
-                            <AlertTriangle className="size-4" /> {aviso}
-                          </p>
-                        ))}
-                        <div className="grid gap-5 lg:grid-cols-2">
-                          <div>
-                            <p className="mb-2 text-sm font-semibold">Faturamentos ({item.ganhos.length})</p>
-                            {item.ganhos.map((ganho) => (
-                              <div key={ganho.id} className="flex items-center gap-3 border-t py-2 text-sm">
-                                <span className="num text-muted-foreground">{ganho.data}</span>
-                                <span className="text-xs text-muted-foreground">linha {ganho.row}</span>
-                                <span className="num ml-auto font-semibold">{brl(ganho.faturamento)}</span>
-                                <AcoesLancamento tipo="ganho" registro={ganho} />
-                              </div>
-                            ))}
-                            {item.ganhos.length === 0 && <p className="text-sm text-muted-foreground">Nenhum faturamento.</p>}
-                          </div>
-                          <div>
-                            <p className="mb-2 text-sm font-semibold">Recebimentos ({item.repasses.length})</p>
-                            {item.repasses.map((repasse) => (
-                              <div key={`${repasse.id}-${repasse.row}`} className="flex items-center gap-3 border-t py-2 text-sm">
-                                <span className="num text-muted-foreground">{repasse.data}</span>
-                                <span className="text-xs text-muted-foreground">linha {repasse.row}</span>
-                                <span className="truncate text-muted-foreground">{repasse.forma}</span>
-                                <span className="num ml-auto font-semibold text-success">{brl(repasse.valor)}</span>
-                                <AcoesLancamento tipo="repasse" registro={repasse} />
-                              </div>
-                            ))}
-                            {item.repasses.length === 0 && <p className="text-sm text-muted-foreground">Nenhum recebimento.</p>}
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </Fragment>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </SectionCard>
-
 
       <SectionCard
         title="Conciliação por aplicativo"
