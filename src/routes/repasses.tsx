@@ -217,8 +217,11 @@ function RepassesPage() {
     repasses
       .filter((r) => !ehExtra(r.aplicativo) && teste((r.forma || "").trim().toUpperCase()))
       .reduce((s, r) => s + r.valor, 0);
-  const emDinheiro = somaForma((f) => f.startsWith("DINHEIRO") || f.startsWith("ESPÉCIE") || f.startsWith("ESPECIE"));
-  const emPix = somaForma((f) => f.startsWith("PIX"));
+  // a forma vem como "IFOOD DINHEIRO", "99 PIX", "99 DEPOSITO" — comparar por conteúdo, não por início.
+  const emDinheiro = somaForma((f) => f.includes("DINHEIRO") || f.includes("ESPÉCIE") || f.includes("ESPECIE"));
+  const emPix = somaForma((f) => f.includes("PIX"));
+  const emDeposito = somaForma((f) => f.includes("DEPOSITO") || f.includes("DEPÓSITO") || f.includes("REPASSE"));
+
 
 
   return (
