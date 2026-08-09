@@ -118,6 +118,23 @@ function FormularioDialog({
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
+  const litros = numeroBr(valores["litros"]);
+  const precoLitro = numeroBr(valores["precoLitro"]);
+  const comDesconto = (valores["temDesconto"] ?? "") === "Sim";
+  const descontoTotal = comDesconto
+    ? Math.max(numeroBr(valores["desconto"]), litros * numeroBr(valores["descontoLitro"]))
+    : 0;
+  const totalCalculado = Math.max(0, litros * precoLitro - descontoTotal);
+
+  useEffect(() => {
+    if (tipo !== "abastecimento") return;
+    if (litros <= 0 || precoLitro <= 0) return;
+    const alvo = totalCalculado.toFixed(2);
+    setValores((v) => (v["valorPago"] === alvo ? v : { ...v, valorPago: alvo }));
+  }, [tipo, litros, precoLitro, totalCalculado]);
+
+
+
   const existente =
     tipo === "manutencao" && !row
       ? acharManutencaoAtiva(
