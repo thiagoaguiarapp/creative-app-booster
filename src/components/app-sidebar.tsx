@@ -1,9 +1,10 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
+import { PremiumDialog } from "@/components/premium-dialog";
 import { sairFn } from "@/lib/auth.functions";
 
 import {
