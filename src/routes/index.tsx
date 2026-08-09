@@ -7,27 +7,35 @@ import {
   Bike,
   CalendarClock,
   CircleDollarSign,
+  Edit3,
   Fuel,
   HandCoins,
   ListChecks,
   Receipt,
+  Target,
   TrendingDown,
   TrendingUp,
   Wallet,
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getMetaSemanalFn, salvarMetaSemanalFn } from "@/lib/metas.functions";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl, statusManutencao } from "@/lib/sheets-types";
 import type { Abastecimento, Despesa, Ganho, Manutencao, Repasse } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/")({
   head: () => ({
