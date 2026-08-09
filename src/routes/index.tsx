@@ -2,31 +2,23 @@ import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
-  ArrowRight,
-  BarChart3,
-  Bike,
   CalendarClock,
   CircleDollarSign,
   Edit3,
-  Fuel,
   HandCoins,
-  ListChecks,
-  Receipt,
   Target,
   TrendingDown,
   TrendingUp,
-  Wallet,
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AdBanner } from "@/components/ad-banner";
-import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
+import { NovoLancamentoRapido } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -107,16 +99,6 @@ type LancamentoHoje =
   | { tipo: "despesa"; data: Despesa }
   | { tipo: "repasse"; data: Repasse };
 
-const atalhos = [
-  { title: "Ganhos diários", url: "/ganhos-diarios", icon: Bike, desc: "Corridas e faturamento" },
-  { title: "Abastecimento", url: "/abastecimento", icon: Fuel, desc: "Consumo e km/L" },
-  { title: "Despesas", url: "/despesas", icon: Receipt, desc: "Custos operacionais" },
-  { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet, desc: "Conciliação por app" },
-  { title: "Manutenção", url: "/manutencao", icon: Wrench, desc: "Troca e revisão" },
-  { title: "Relatório", url: "/relatorio", icon: BarChart3, desc: "Análise por período" },
-  { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks, desc: "Consulta e edição" },
-];
-
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const { data: metaSemanal } = useSuspenseQuery(metaQueryOptions());
@@ -146,13 +128,13 @@ function Home() {
   const corridasHoje = ganhosHoje.reduce((s, g) => s + g.corridas, 0);
   const corridasOntem = ganhosOntem.reduce((s, g) => s + g.corridas, 0);
   const despesasTotal = despesasHoje.reduce((s, d) => s + d.valor, 0);
-  const litrosHoje = abastHoje.reduce((s, a) => s + a.litros, 0);
   const abastValorHoje = abastHoje.reduce((s, a) => s + a.valorPago, 0);
+
+  const custosHoje = despesasTotal + abastValorHoje;
+  const lucroHoje = faturamentoHoje - custosHoje;
 
   const variacaoFaturamento =
     faturamentoOntem > 0 ? ((faturamentoHoje - faturamentoOntem) / faturamentoOntem) * 100 : null;
-  const variacaoCorridas =
-    corridasOntem > 0 ? ((corridasHoje - corridasOntem) / corridasOntem) * 100 : null;
 
   const recentes = useMemo(() => {
     const todos: LancamentoHoje[] = [
@@ -182,7 +164,7 @@ function Home() {
   const proximas = manutencoesAviso.filter((i) => i.s.nivel === "atencao");
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex max-w-5xl flex-col gap-8 py-2">
       <PageHeader
         title={`${saudacao}, ${(primeiroNome || "entregador").toUpperCase()}!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
@@ -251,113 +233,64 @@ function Home() {
           </div>
         </SectionCard>
       )}
+      <div className="flex justify-center sm:justify-start">
+        <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto" />
+      </div>
 
-
-
-      <div className="flex flex-wrap gap-2">
-        <NovoLancamento tipo="ganho" rotulo="Lançar ganho diário" />
-        <NovoLancamento tipo="abastecimento" />
-        <NovoLancamento tipo="despesa" />
-        <NovoLancamento tipo="repasse" />
-        <NovoLancamento
-          tipo="repasse"
-          rotulo="Recebi na entrega"
-          variant="outline"
-          icone={HandCoins}
-          titulo="Recebi na entrega (dinheiro / Pix)"
-          iniciais={{ data: hojeInputDate(), forma: "Dinheiro" }}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <CardMetaSemanal
+          faturamento={faturamentoSemana}
+          meta={metaSemanal}
+          inicio={inicioSemana}
+          fim={fimSemana}
+        />
+        <StatCard
+          label="Faturamento hoje"
+          value={brl(faturamentoHoje)}
+          hint={
+            variacaoFaturamento !== null
+              ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem`
+              : "Sem dados de ontem"
+          }
+          icon={CircleDollarSign}
+          tone="success"
+        />
+        <StatCard
+          label="Lucro líquido hoje"
+          value={brl(lucroHoje)}
+          hint={`${corridasHoje} corrida${corridasHoje === 1 ? "" : "s"} · ${brl(custosHoje)} em custos`}
+          icon={lucroHoje >= 0 ? TrendingUp : TrendingDown}
+          tone={lucroHoje >= 0 ? "success" : "warning"}
         />
       </div>
 
-
-      <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <CardMetaSemanal
-            faturamento={faturamentoSemana}
-            meta={metaSemanal}
-            inicio={inicioSemana}
-            fim={fimSemana}
-          />
-          <StatCard
-            label="Faturamento hoje"
-            value={brl(faturamentoHoje)}
-            hint={variacaoFaturamento !== null ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem` : "Sem dados de ontem"}
-            icon={CircleDollarSign}
-            tone="success"
-          />
-          <StatCard
-            label="Corridas"
-            value={String(corridasHoje)}
-            hint={variacaoCorridas !== null ? `${variacaoCorridas >= 0 ? "+" : ""}${variacaoCorridas.toFixed(0)}% vs ontem` : "Sem dados de ontem"}
-            icon={Bike}
-          />
-          <StatCard
-            label="Despesas"
-            value={brl(despesasTotal)}
-            hint={`${despesasHoje.length} lançamento${despesasHoje.length === 1 ? "" : "s"}`}
-            icon={TrendingDown}
-            tone="warning"
-          />
-          <StatCard
-            label="Abastecimento"
-            value={`${litrosHoje.toFixed(2)} L`}
-            hint={abastHoje.length ? brl(abastValorHoje) : "Sem abastecimento hoje"}
-            icon={Fuel}
-          />
-        </div>
+      <SectionCard title="Últimos lançamentos de hoje" description="Atividades registradas hoje">
+        {recentes.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum lançamento hoje.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentes.map((item) => (
+                <TableRow key={`${item.tipo}-${item.data.id}`}>
+                  <TableCell>
+                    <Badge variant="outline">{labelTipo(item.tipo)}</Badge>
+                  </TableCell>
+                  <TableCell className="text-sm">{descricaoLancamento(item)}</TableCell>
+                  <TableCell className="num text-right font-medium">{valorLancamento(item)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </SectionCard>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <SectionCard title="Últimos lançamentos de hoje" description="Atividades registradas hoje">
-          {recentes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum lançamento hoje.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentes.map((item) => (
-                  <TableRow key={`${item.tipo}-${item.data.id}`}>
-                    <TableCell>
-                      <Badge variant="outline">{labelTipo(item.tipo)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{descricaoLancamento(item)}</TableCell>
-                    <TableCell className="num text-right font-medium">{valorLancamento(item)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </SectionCard>
-
-        <SectionCard title="Acesso rápido" description="Navegue entre as áreas do app">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {atalhos.map((item) => (
-              <Card key={item.url} className="group transition-colors hover:bg-accent/40">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                    <item.icon className="size-4 text-primary" />
-                    {item.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                  <Button variant="link" size="sm" className="h-auto px-0 py-1 text-xs" asChild>
-                    <Link to={item.url}>
-                      Acessar <ArrowRight className="ml-1 size-3" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </SectionCard>
-      </div>
 
       <AdBanner />
     </div>
