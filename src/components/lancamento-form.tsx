@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, type LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,11 @@ function valoresIniciais(
 
   }
   return out;
+}
+
+function numeroBr(valor: string | undefined): number {
+  const n = Number(String(valor ?? "").replace(/[^\d,.-]/g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : 0;
 }
 
 function usePlataformas(tipo: Tipo): string[] {
