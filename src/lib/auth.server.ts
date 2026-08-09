@@ -27,9 +27,11 @@ export type Usuario = {
 
 type Tokens = { access_token?: string; refresh_token?: string };
 
+// sameSite "none" é necessário porque o app roda dentro de um iframe (preview),
+// onde cookies "lax" não são enviados ao servidor.
 const opcoesCookie = {
   httpOnly: true,
-  sameSite: "lax" as const,
+  sameSite: "none" as const,
   secure: true,
   path: "/",
   maxAge: 60 * 60 * 24 * 30,
