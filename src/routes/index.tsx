@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -7,27 +7,42 @@ import {
   Bike,
   CalendarClock,
   CircleDollarSign,
+  Edit3,
   Fuel,
   HandCoins,
   ListChecks,
   Receipt,
+  Target,
   TrendingDown,
   TrendingUp,
   Wallet,
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getMetaSemanalFn, salvarMetaSemanalFn } from "@/lib/metas.functions";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl, statusManutencao } from "@/lib/sheets-types";
 import type { Abastecimento, Despesa, Ganho, Manutencao, Repasse } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+
+export const metaQueryOptions = () =>
+  queryOptions({
+    queryKey: ["meta-semanal"],
+    queryFn: () => getMetaSemanalFn(),
+    staleTime: 60_000,
+  });
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,6 +63,7 @@ export const Route = createFileRoute("/")({
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(painelQueryOptions());
+    context.queryClient.ensureQueryData(metaQueryOptions());
   },
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
@@ -66,6 +82,13 @@ function ontemIso() {
   const d = new Date();
   d.setDate(d.getDate() - 1);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function semanaAtualIso(): [string, string] {
+  const hoje = new Date();
+  const inicio = startOfWeek(hoje, { weekStartsOn: 1 });
+  const fim = endOfWeek(hoje, { weekStartsOn: 1 });
+  return [formatISO(inicio, { representation: "date" }), formatISO(fim, { representation: "date" })];
 }
 
 function useSaudacao() {
@@ -95,6 +118,7 @@ const atalhos = [
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const { data: metaSemanal } = useSuspenseQuery(metaQueryOptions());
   const { usuario } = Route.useRouteContext();
   const saudacao = useSaudacao();
   const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
@@ -105,6 +129,16 @@ function Home() {
   const ganhosOntem = useMemo(() => data.ganhos.filter((g) => g.iso === ontem), [data.ganhos, ontem]);
   const abastHoje = useMemo(() => data.abastecimentos.filter((a) => a.iso === hoje), [data.abastecimentos, hoje]);
   const despesasHoje = useMemo(() => data.despesas.filter((d) => d.iso === hoje), [data.despesas, hoje]);
+
+  const [inicioSemana, fimSemana] = semanaAtualIso();
+  const ganhosSemana = useMemo(
+    () => data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= fimSemana),
+    [data.ganhos, inicioSemana, fimSemana],
+  );
+  const faturamentoSemana = ganhosSemana.reduce((s, g) => s + g.faturamento, 0);
+  const metaDefinida = metaSemanal && metaSemanal > 0;
+  const progressoMeta = metaDefinida ? Math.min(100, (faturamentoSemana / metaSemanal) * 100) : 0;
+  const faltanteMeta = metaDefinida ? Math.max(0, metaSemanal - faturamentoSemana) : 0;
 
   const faturamentoHoje = ganhosHoje.reduce((s, g) => s + g.faturamento, 0);
   const faturamentoOntem = ganhosOntem.reduce((s, g) => s + g.faturamento, 0);
@@ -236,9 +270,15 @@ function Home() {
 
 
       <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <CardMetaSemanal
+            faturamento={faturamentoSemana}
+            meta={metaSemanal}
+            inicio={inicioSemana}
+            fim={fimSemana}
+          />
           <StatCard
-            label="Faturamento"
+            label="Faturamento hoje"
             value={brl(faturamentoHoje)}
             hint={variacaoFaturamento !== null ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem` : "Sem dados de ontem"}
             icon={CircleDollarSign}
@@ -317,6 +357,103 @@ function Home() {
           </div>
         </SectionCard>
       </div>
+    </div>
+  );
+}
+
+function CardMetaSemanal({
+  faturamento,
+  meta,
+  inicio,
+  fim,
+}: {
+  faturamento: number;
+  meta: number;
+  inicio: string;
+  fim: string;
+}) {
+  const [editando, setEditando] = useState(false);
+  const [valor, setValor] = useState(String(meta > 0 ? meta : ""));
+  const salvar = useServerFn(salvarMetaSemanalFn);
+  const queryClient = useQueryClient();
+
+  const metaDefinida = meta > 0;
+  const progresso = metaDefinida ? Math.min(100, (faturamento / meta) * 100) : 0;
+  const faltante = metaDefinida ? Math.max(0, meta - faturamento) : 0;
+
+  async function handleSalvar() {
+    const num = Number(valor.replace(/\./g, "").replace(",", "."));
+    if (!Number.isFinite(num) || num < 0) {
+      toast.error("Informe um valor válido.");
+      return;
+    }
+    try {
+      await salvar({ data: { valor: num } });
+      await queryClient.invalidateQueries({ queryKey: ["meta-semanal"] });
+      toast.success("Meta semanal salva.");
+      setEditando(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar meta.");
+    }
+  }
+
+  return (
+    <div className="panel p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          Meta semanal
+        </p>
+        <Target className="size-4 text-primary" />
+      </div>
+      <p className={cn("num mt-3 font-display text-3xl font-semibold", metaDefinida ? "text-primary" : "text-muted-foreground")}>
+        {brl(faturamento)}
+      </p>
+      {metaDefinida && (
+        <div className="mt-3">
+          <Progress value={progresso} />
+          <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+            <span>Meta: {brl(meta)}</span>
+            <span>{faltante > 0 ? `${brl(faltante)} restantes` : "Meta atingida!"}</span>
+          </div>
+        </div>
+      )}
+      {!metaDefinida && !editando && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Sem meta para {inicio.slice(8, 10)}/{inicio.slice(5, 7)} a {fim.slice(8, 10)}/{fim.slice(5, 7)}.
+        </p>
+      )}
+      {editando ? (
+        <div className="mt-3 flex items-center gap-2">
+          <Input
+            value={valor}
+            onChange={(e) => setValor(e.target.value)}
+            placeholder="R$ 0,00"
+            className="h-8 text-sm"
+            autoFocus
+          />
+          <Button size="sm" className="h-8 text-xs" onClick={handleSalvar}>
+            Salvar
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 text-xs"
+            onClick={() => setEditando(false)}
+          >
+            Cancelar
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="link"
+          size="sm"
+          className="mt-2 h-auto px-0 py-1 text-xs"
+          onClick={() => setEditando(true)}
+        >
+          <Edit3 className="mr-1 size-3" />
+          {metaDefinida ? "Editar meta" : "Definir meta"}
+        </Button>
+      )}
     </div>
   );
 }
