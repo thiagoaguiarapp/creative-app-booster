@@ -13,12 +13,12 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:flex-wrap sm:justify-between">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <h1 className="truncate font-display text-2xl font-semibold uppercase tracking-wide sm:text-3xl">
+        <h1 className="truncate font-display text-xl font-semibold uppercase tracking-wide sm:text-3xl">
           {title}
         </h1>
-        {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm sm:mt-1">{subtitle}</p>}
       </div>
       <div className="shrink-0">{action}</div>
     </div>
