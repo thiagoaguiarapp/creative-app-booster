@@ -37,6 +37,13 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
+export const metaQueryOptions = () =>
+  queryOptions({
+    queryKey: ["meta-semanal"],
+    queryFn: () => getMetaSemanalFn(),
+    staleTime: 60_000,
+  });
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -56,6 +63,7 @@ export const Route = createFileRoute("/")({
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(painelQueryOptions());
+    context.queryClient.ensureQueryData(metaQueryOptions());
   },
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
