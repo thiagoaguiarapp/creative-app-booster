@@ -1,22 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import type { Meta } from "./metas.server";
-
 export const getMetaSemanalFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<Meta | null> => {
+  async (): Promise<number> => {
     const { exigirUsuario } = await import("./auth.server");
-    const { buscarMeta } = await import("./metas.server");
     const usuario = await exigirUsuario();
-    return buscarMeta(usuario.id, "semanal");
+    return usuario.metaSemanal;
   },
 );
 
 export const salvarMetaSemanalFn = createServerFn({ method: "POST" })
   .inputValidator((input: { valor: number }) => input)
-  .handler(async ({ data }): Promise<Meta> => {
-    const { exigirUsuario } = await import("./auth.server");
-    const { salvarMeta } = await import("./metas.server");
-    const usuario = await exigirUsuario();
+  .handler(async ({ data }): Promise<number> => {
+    const { salvarMetaSemanal } = await import("./auth.server");
     const valor = Math.max(0, Number(data.valor) || 0);
-    return salvarMeta(usuario.id, "semanal", valor);
+    return salvarMetaSemanal(valor);
   });
