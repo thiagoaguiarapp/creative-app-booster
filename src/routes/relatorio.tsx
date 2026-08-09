@@ -245,14 +245,14 @@ function RelatorioPage() {
         </div>
       </SectionCard>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
         <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
         <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
         <StatCard label="Recebido" value={brl(r.recebido)} hint="Repasses das plataformas" icon={Wallet} />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
         <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
         <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
