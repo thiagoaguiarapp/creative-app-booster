@@ -1,47 +1,46 @@
-import { ExternalLink, Sparkles } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useRouteContext } from "@tanstack/react-router";
 
+import { ADSENSE_CLIENT, ADSENSE_SLOT_PADRAO, carregarAdSense } from "@/lib/adsense";
+
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+  }
+}
+
 /**
- * Banner de anúncio (placeholder responsivo).
- * Não é renderizado para usuários Premium.
+ * Bloco de anúncio do Google AdSense.
+ * Não é carregado nem renderizado para usuários Premium.
  */
-export function AdBanner({ slot = "rodape" }: { slot?: string }) {
+export function AdBanner({ slot = ADSENSE_SLOT_PADRAO }: { slot?: string }) {
   const context = useRouteContext({ from: "__root__" });
   const isPremium = context.usuario?.isPremium ?? false;
+  const empurrado = useRef(false);
+
+  useEffect(() => {
+    if (isPremium || empurrado.current) return;
+    empurrado.current = true;
+    carregarAdSense();
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch {
+      // AdSense indisponível (bloqueador de anúncios ou ambiente de preview)
+    }
+  }, [isPremium]);
+
   if (isPremium) return null;
 
   return (
-    <aside
-      aria-label="Anúncio"
-      data-ad-slot={slot}
-      className="mt-6 overflow-hidden rounded-xl border border-dashed border-border bg-muted/40"
-    >
-      <a
-        href="https://lovable.dev"
-        target="_blank"
-        rel="noopener noreferrer sponsored"
-        className="flex flex-col items-center gap-2 px-4 py-6 text-center transition-colors hover:bg-accent/40 sm:flex-row sm:justify-between sm:text-left"
-      >
-        <div className="flex items-center gap-3">
-          <span className="rounded-md bg-primary/10 p-2 text-primary">
-            <Sparkles className="size-5" />
-          </span>
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Publicidade
-            </p>
-            <p className="text-sm font-medium text-foreground">
-              Espaço reservado para anúncios do parceiro
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Assine o Premium para navegar sem anúncios.
-            </p>
-          </div>
-        </div>
-        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-          Saiba mais <ExternalLink className="size-3" />
-        </span>
-      </a>
+    <aside aria-label="Anúncio" className="mt-6">
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </aside>
   );
 }
