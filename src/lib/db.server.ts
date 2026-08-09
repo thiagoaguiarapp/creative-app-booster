@@ -97,8 +97,12 @@ async function proximoId(tabela: string): Promise<number> {
   return Number(linhas?.[0]?.ID ?? 0) + 1;
 }
 
-export async function inserir(tabela: string, dados: Linha): Promise<void> {
-  const corpo = await filtrar(tabela, { ...dados, ID: await proximoId(tabela) });
+export async function inserir(tabela: string, dados: Linha, userId?: string): Promise<void> {
+  const corpo = await filtrar(tabela, {
+    ...dados,
+    ...(userId ? { [COLUNA_USUARIO]: userId } : {}),
+    ID: await proximoId(tabela),
+  });
   const res = await fetch(`${base()}/${encodeURIComponent(tabela)}`, {
     method: "POST",
     headers: headers({ Prefer: "return=minimal" }),
@@ -107,11 +111,16 @@ export async function inserir(tabela: string, dados: Linha): Promise<void> {
   await ok(res, "gravar");
 }
 
-export async function atualizar(tabela: string, id: number, dados: Linha): Promise<void> {
+export async function atualizar(
+  tabela: string,
+  id: number,
+  dados: Linha,
+  userId?: string,
+): Promise<void> {
   const corpo = await filtrar(tabela, dados);
   if (Object.keys(corpo).length === 0) return;
   const res = await fetch(
-    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}`,
+    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}${await filtroDono(tabela, userId)}`,
     {
       method: "PATCH",
       headers: headers({ Prefer: "return=minimal" }),
@@ -121,13 +130,17 @@ export async function atualizar(tabela: string, id: number, dados: Linha): Promi
   await ok(res, "atualizar");
 }
 
-export async function remover(tabela: string, id: number): Promise<void> {
-  const res = await fetch(`${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}`, {
-    method: "DELETE",
-    headers: headers({ Prefer: "return=minimal" }),
-  });
+export async function remover(tabela: string, id: number, userId?: string): Promise<void> {
+  const res = await fetch(
+    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}${await filtroDono(tabela, userId)}`,
+    {
+      method: "DELETE",
+      headers: headers({ Prefer: "return=minimal" }),
+    },
+  );
   await ok(res, "excluir");
 }
+
 
 /* ---------- conversões ---------- */
 
