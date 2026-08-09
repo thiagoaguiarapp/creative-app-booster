@@ -29,12 +29,23 @@ async function ok(res: Response, acao: string): Promise<unknown> {
 
 export type Linha = Record<string, unknown>;
 
-export async function selectAll(tabela: string): Promise<Linha[]> {
+export const COLUNA_USUARIO = "USER_ID";
+
+/** Filtro de dono: só aplicado quando a tabela tem a coluna USER_ID. */
+async function filtroDono(tabela: string, userId?: string): Promise<string> {
+  if (!userId) return "";
+  const colunas = await colunasDe(tabela);
+  if (!colunas.includes(COLUNA_USUARIO)) return "";
+  return `&${COLUNA_USUARIO}=eq.${encodeURIComponent(userId)}`;
+}
+
+export async function selectAll(tabela: string, userId?: string): Promise<Linha[]> {
   const paginas: Linha[] = [];
   const tamanho = 1000;
+  const dono = await filtroDono(tabela, userId);
   for (let inicio = 0; ; inicio += tamanho) {
     const res = await fetch(
-      `${base()}/${encodeURIComponent(tabela)}?select=*&order=ID.asc`,
+      `${base()}/${encodeURIComponent(tabela)}?select=*&order=ID.asc${dono}`,
       { headers: headers({ Range: `${inicio}-${inicio + tamanho - 1}` }) },
     );
     const lote = (await ok(res, "ler")) as Linha[] | null;
@@ -44,6 +55,7 @@ export async function selectAll(tabela: string): Promise<Linha[]> {
   }
   return paginas;
 }
+
 
 /** Colunas realmente existentes em cada tabela (lidas do schema do banco). */
 let colunasCache: Record<string, string[]> | null = null;
