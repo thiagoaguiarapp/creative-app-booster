@@ -16,7 +16,14 @@ function anon(): string {
   return k;
 }
 
-export type Usuario = { id: string; email: string; nome: string; telefone: string; metaSemanal: number };
+export type Usuario = {
+  id: string;
+  email: string;
+  nome: string;
+  telefone: string;
+  metaSemanal: number;
+  isPremium: boolean;
+};
 
 type Tokens = { access_token?: string; refresh_token?: string };
 
