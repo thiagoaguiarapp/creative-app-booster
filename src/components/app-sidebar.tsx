@@ -33,10 +33,14 @@ const items = [
   { title: "Limpar duplicados", url: "/limpeza", icon: Eraser },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ email }: { email?: string }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+  const router = useRouter();
+  const sair = useServerFn(sairFn);
+  const [saindo, setSaindo] = useState(false);
+
 
   return (
     <Sidebar collapsible="icon">
