@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, type LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,11 @@ function valoresIniciais(
   return out;
 }
 
+function numeroBr(valor: string | undefined): number {
+  const n = Number(String(valor ?? "").replace(/[^\d,.-]/g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : 0;
+}
+
 function usePlataformas(tipo: Tipo): string[] {
   const { data } = useQuery(painelQueryOptions());
   const nomes = new Set<string>();
@@ -117,6 +122,23 @@ function FormularioDialog({
   const formas = useFormas();
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
+
+  const litros = numeroBr(valores["litros"]);
+  const precoLitro = numeroBr(valores["precoLitro"]);
+  const comDesconto = (valores["temDesconto"] ?? "") === "Sim";
+  const descontoTotal = comDesconto
+    ? Math.max(numeroBr(valores["desconto"]), litros * numeroBr(valores["descontoLitro"]))
+    : 0;
+  const totalCalculado = Math.max(0, litros * precoLitro - descontoTotal);
+
+  useEffect(() => {
+    if (tipo !== "abastecimento") return;
+    if (litros <= 0 || precoLitro <= 0) return;
+    const alvo = totalCalculado.toFixed(2);
+    setValores((v) => (v["valorPago"] === alvo ? v : { ...v, valorPago: alvo }));
+  }, [tipo, litros, precoLitro, totalCalculado]);
+
+
 
   const existente =
     tipo === "manutencao" && !row
@@ -256,6 +278,13 @@ function FormularioDialog({
                     <option key={nome} value={nome} />
                   ))}
                 </datalist>
+              )}
+              {tipo === "abastecimento" && campo.key === "valorPago" && litros > 0 && precoLitro > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {litros.toLocaleString("pt-BR")} L x R$ {precoLitro.toFixed(2)}
+                  {descontoTotal > 0 ? ` - R$ ${descontoTotal.toFixed(2)} de desconto` : ""} = R${" "}
+                  {totalCalculado.toFixed(2)}
+                </p>
               )}
               {campo.key === "parcelas" && (
                 <p className="text-xs text-muted-foreground">
