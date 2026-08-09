@@ -16,7 +16,14 @@ function anon(): string {
   return k;
 }
 
-export type Usuario = { id: string; email: string; nome: string; telefone: string; metaSemanal: number };
+export type Usuario = {
+  id: string;
+  email: string;
+  nome: string;
+  telefone: string;
+  metaSemanal: number;
+  isPremium: boolean;
+};
 
 type Tokens = { access_token?: string; refresh_token?: string };
 
@@ -72,7 +79,8 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     email: String(u["email"] ?? ""),
     nome: String(meta["nome"] ?? "").trim(),
     telefone: String(meta["telefone"] ?? "").trim(),
-    metaSemanal: metaSemanalDe(dados),
+    metaSemanal: metaSemanalDe(u),
+    isPremium: meta["is_premium"] === true,
   };
 }
 
@@ -83,8 +91,8 @@ export function metaSemanalDe(dados: Record<string, unknown>): number {
   return Number.isFinite(valor) && valor >= 0 ? valor : 0;
 }
 
-/** Salva nome e telefone no perfil do usuário logado. */
-export async function salvarPerfil(nome: string, telefone: string): Promise<Usuario> {
+/** Atualiza o user_metadata preservando os campos existentes do perfil. */
+async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usuario> {
   const atual = await exigirUsuario();
   const token = getCookie(ACCESS);
   if (!token) throw new Error("Sessão expirada. Entre novamente para continuar.");
@@ -95,32 +103,38 @@ export async function salvarPerfil(nome: string, telefone: string): Promise<Usua
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ data: { nome, telefone, metaSemanal: atual.metaSemanal } }),
+    body: JSON.stringify({
+      data: {
+        nome: atual.nome,
+        telefone: atual.telefone,
+        metaSemanal: atual.metaSemanal,
+        is_premium: atual.isPremium,
+        ...mudancas,
+      },
+    }),
   });
   const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
   const salvo = extrairUsuario(dados);
-  if (!salvo) throw new Error("Não foi possível salvar o perfil.");
+  if (!salvo) throw new Error("Não foi possível salvar as informações do perfil.");
   return salvo;
 }
 
-/** Salva/atualiza a meta semanal preservando nome e telefone. */
+/** Salva nome e telefone no perfil do usuário logado. */
+export async function salvarPerfil(nome: string, telefone: string): Promise<Usuario> {
+  return atualizarMetadata({ nome, telefone });
+}
+
+/** Salva/atualiza a meta semanal preservando o restante do perfil. */
 export async function salvarMetaSemanal(valor: number): Promise<number> {
-  const usuario = await exigirUsuario();
-  const token = getCookie(ACCESS);
-  if (!token) throw new Error("Sessão expirada. Entre novamente para continuar.");
-  const res = await fetch(`${url()}/user`, {
-    method: "PUT",
-    headers: {
-      apikey: anon(),
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ data: { nome: usuario.nome, telefone: usuario.telefone, metaSemanal: valor } }),
-  });
-  const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!res.ok) throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
-  return metaSemanalDe(dados);
+  const salvo = await atualizarMetadata({ metaSemanal: valor });
+  return salvo.metaSemanal;
+}
+
+/** Ativa ou cancela o plano Premium (sem anúncios). */
+export async function definirPremium(ativo: boolean): Promise<boolean> {
+  const salvo = await atualizarMetadata({ is_premium: ativo });
+  return salvo.isPremium;
 }
 
 export async function entrar(email: string, senha: string): Promise<Usuario> {

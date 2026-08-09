@@ -1,9 +1,10 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
+import { PremiumDialog } from "@/components/premium-dialog";
 import { sairFn } from "@/lib/auth.functions";
 
 import {
@@ -82,6 +83,18 @@ export function AppSidebar({ email }: { email?: string }) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <PremiumDialog
+              trigger={
+                <SidebarMenuButton tooltip="Seja Premium — remova os anúncios">
+                  <Crown className="size-4 text-primary" />
+                  <span>Seja Premium</span>
+                </SidebarMenuButton>
+              }
+            />
+          </SidebarMenuItem>
+        </SidebarMenu>
         {!collapsed && email && (
           <p className="truncate px-2 pt-1 text-[11px] text-muted-foreground">{email}</p>
         )}
