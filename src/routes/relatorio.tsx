@@ -254,7 +254,7 @@ function RelatorioPage() {
         <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
         <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
         <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
-        <StatCard label="Manutenção" value={brl(r.manutencao)} hint={`Ganho por km ${r.km ? brl(r.lucro / r.km) : brl(0)}`} icon={Wrench} />
+        <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
