@@ -118,6 +118,7 @@ const atalhos = [
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const { data: metaSemanal } = useSuspenseQuery(metaQueryOptions());
   const { usuario } = Route.useRouteContext();
   const saudacao = useSaudacao();
   const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
@@ -128,6 +129,16 @@ function Home() {
   const ganhosOntem = useMemo(() => data.ganhos.filter((g) => g.iso === ontem), [data.ganhos, ontem]);
   const abastHoje = useMemo(() => data.abastecimentos.filter((a) => a.iso === hoje), [data.abastecimentos, hoje]);
   const despesasHoje = useMemo(() => data.despesas.filter((d) => d.iso === hoje), [data.despesas, hoje]);
+
+  const [inicioSemana, fimSemana] = semanaAtualIso();
+  const ganhosSemana = useMemo(
+    () => data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= fimSemana),
+    [data.ganhos, inicioSemana, fimSemana],
+  );
+  const faturamentoSemana = ganhosSemana.reduce((s, g) => s + g.faturamento, 0);
+  const metaDefinida = metaSemanal && metaSemanal > 0;
+  const progressoMeta = metaDefinida ? Math.min(100, (faturamentoSemana / metaSemanal) * 100) : 0;
+  const faltanteMeta = metaDefinida ? Math.max(0, metaSemanal - faturamentoSemana) : 0;
 
   const faturamentoHoje = ganhosHoje.reduce((s, g) => s + g.faturamento, 0);
   const faturamentoOntem = ganhosOntem.reduce((s, g) => s + g.faturamento, 0);
