@@ -232,9 +232,9 @@ function Home() {
         />
       </div>
 
-      <SectionCard title="Últimos lançamentos de hoje" description="Atividades registradas hoje">
+      <SectionCard title="Últimos lançamentos da semana" description="Atividades registradas nesta semana">
         {recentes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum lançamento hoje.</p>
+          <p className="text-sm text-muted-foreground">Nenhum lançamento nesta semana.</p>
         ) : (
           <Table>
             <TableHeader>
