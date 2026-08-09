@@ -24,45 +24,50 @@ function campo(linha: Linha, ...nomes: string[]): unknown {
 
 const idDe = (linha: Linha) => Number(linha["ID"] ?? 0);
 
-let cache: { data: PainelData; at: number } | null = null;
-let emVoo: Promise<PainelData> | null = null;
+const caches = new Map<string, { data: PainelData; at: number }>();
+const emVoo = new Map<string, Promise<PainelData>>();
 const TTL = 30_000;
 
 /** Limpa o cache após gravações para a próxima leitura vir fresca. */
-export function invalidarPainelCache() {
-  cache = null;
+export function invalidarPainelCache(userId?: string) {
+  if (userId) caches.delete(userId);
+  else caches.clear();
 }
 
-export async function loadPainelData(): Promise<PainelData> {
+export async function loadPainelData(userId: string): Promise<PainelData> {
+  const cache = caches.get(userId);
   if (cache && Date.now() - cache.at < TTL) return cache.data;
-  if (emVoo) return emVoo;
+  const pendente = emVoo.get(userId);
+  if (pendente) return pendente;
   const anterior = cache;
-  emVoo = carregar()
+  const promessa = carregar(userId)
     .then((d) => {
-      cache = { data: d, at: Date.now() };
+      caches.set(userId, { data: d, at: Date.now() });
       return d;
     })
     .catch((err) => {
       if (anterior) {
-        cache = { data: anterior.data, at: Date.now() - TTL + 10_000 };
+        caches.set(userId, { data: anterior.data, at: Date.now() - TTL + 10_000 });
         return anterior.data;
       }
       throw err;
     })
     .finally(() => {
-      emVoo = null;
+      emVoo.delete(userId);
     });
-  return emVoo;
+  emVoo.set(userId, promessa);
+  return promessa;
 }
 
-async function carregar(): Promise<PainelData> {
+async function carregar(userId: string): Promise<PainelData> {
   const [rGanhos, rComb, rDesp, rRep, rManut] = await Promise.all([
-    selectAll(TABELAS.ganho),
-    selectAll(TABELAS.abastecimento),
-    selectAll(TABELAS.despesa),
-    selectAll(TABELAS.repasse),
-    selectAll(TABELAS.manutencao),
+    selectAll(TABELAS.ganho, userId),
+    selectAll(TABELAS.abastecimento, userId),
+    selectAll(TABELAS.despesa, userId),
+    selectAll(TABELAS.repasse, userId),
+    selectAll(TABELAS.manutencao, userId),
   ]);
+
 
   const ganhos = rGanhos
     .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
