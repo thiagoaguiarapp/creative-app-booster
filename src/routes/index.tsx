@@ -164,7 +164,7 @@ function Home() {
   const proximas = manutencoesAviso.filter((i) => i.s.nivel === "atencao");
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex max-w-5xl flex-col gap-8 py-2">
       <PageHeader
         title={`${saudacao}, ${(primeiroNome || "entregador").toUpperCase()}!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
