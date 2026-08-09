@@ -81,6 +81,34 @@ export function AppSidebar({ email }: { email?: string }) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border">
+        {!collapsed && email && (
+          <p className="truncate px-2 pt-1 text-[11px] text-muted-foreground">{email}</p>
+        )}
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Sair"
+              disabled={saindo}
+              onClick={async () => {
+                setSaindo(true);
+                try {
+                  await sair();
+                  await router.invalidate();
+                  router.navigate({ to: "/auth", replace: true });
+                } finally {
+                  setSaindo(false);
+                }
+              }}
+            >
+              <LogOut className="size-4" />
+              <span>Sair</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
+
   );
 }
