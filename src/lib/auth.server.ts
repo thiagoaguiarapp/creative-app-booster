@@ -72,6 +72,7 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     email: String(u["email"] ?? ""),
     nome: String(meta["nome"] ?? "").trim(),
     telefone: String(meta["telefone"] ?? "").trim(),
+    metaSemanal: metaSemanalDe(dados),
   };
 }
 
