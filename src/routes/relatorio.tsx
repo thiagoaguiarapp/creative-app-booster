@@ -259,7 +259,7 @@ function RelatorioPage() {
         <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <SectionCard title="Faturamento por plataforma">
           <Barras itens={r.porPlataforma} total={r.faturamento} />
         </SectionCard>
@@ -269,36 +269,36 @@ function RelatorioPage() {
       </div>
 
       <SectionCard title="Resumo mensal" description="Todo o período dividido por mês">
-        <div className="-mx-4 overflow-x-auto sm:-mx-5">
-          <Table className="min-w-[640px]">
+        <div className="-mx-3 overflow-x-auto sm:-mx-5">
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
-                <TableHead className="whitespace-nowrap">Mês</TableHead>
-                <TableHead className="whitespace-nowrap text-right">Corridas</TableHead>
-                <TableHead className="whitespace-nowrap text-right">Faturamento</TableHead>
-                <TableHead className="whitespace-nowrap text-right">Combustível</TableHead>
-                <TableHead className="whitespace-nowrap text-right">Despesas</TableHead>
-                <TableHead className="whitespace-nowrap text-right">Manutenção</TableHead>
-                <TableHead className="whitespace-nowrap text-right">Lucro</TableHead>
+                <TableHead className="whitespace-nowrap text-[10px] sm:text-xs">Mês</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Corridas</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Faturamento</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Combustível</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Despesas</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Manutenção</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Lucro</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {r.porMes.map((m) => (
                 <TableRow key={m.mes}>
-                  <TableCell className="whitespace-nowrap font-medium">{rotuloMes(m.mes)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right">{m.corridas || "—"}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right text-success">{brl(m.fat)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right">{brl(m.comb)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right">{brl(m.desp)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right">{brl(m.manut)}</TableCell>
-                  <TableCell className={`num whitespace-nowrap text-right font-semibold ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
+                  <TableCell className="whitespace-nowrap text-[10px] font-medium sm:text-xs">{rotuloMes(m.mes)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{m.corridas || "—"}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] text-success sm:text-xs">{brl(m.fat)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.comb)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.desp)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.manut)}</TableCell>
+                  <TableCell className={`num whitespace-nowrap text-right text-[10px] font-semibold sm:text-xs ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
                     {brl(m.lucro)}
                   </TableCell>
                 </TableRow>
               ))}
               {r.porMes.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center text-[10px] text-muted-foreground sm:text-sm">
                     Nenhum lançamento nesse período.
                   </TableCell>
                 </TableRow>
