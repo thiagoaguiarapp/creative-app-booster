@@ -84,6 +84,13 @@ function ontemIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function semanaAtualIso() {
+  const hoje = new Date();
+  const inicio = startOfWeek(hoje, { weekStartsOn: 1 });
+  const fim = endOfWeek(hoje, { weekStartsOn: 1 });
+  return [formatISO(inicio, { representation: "date" }), formatISO(fim, { representation: "date" })];
+}
+
 function useSaudacao() {
   const [texto, setTexto] = useState("Olá");
   useEffect(() => {
