@@ -15,7 +15,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
-import { Route as LimpezaRouteImport } from './routes/limpeza'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
@@ -51,11 +50,6 @@ const LancamentosRoute = LancamentosRouteImport.update({
   path: '/lancamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LimpezaRoute = LimpezaRouteImport.update({
-  id: '/limpeza',
-  path: '/limpeza',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ManutencaoRoute = ManutencaoRouteImport.update({
   id: '/manutencao',
   path: '/manutencao',
@@ -84,7 +78,6 @@ export interface FileRoutesByFullPath {
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
-  '/limpeza': typeof LimpezaRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
   '/relatorio': typeof RelatorioRoute
@@ -97,7 +90,6 @@ export interface FileRoutesByTo {
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
-  '/limpeza': typeof LimpezaRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
   '/relatorio': typeof RelatorioRoute
@@ -111,7 +103,6 @@ export interface FileRoutesById {
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
-  '/limpeza': typeof LimpezaRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
   '/relatorio': typeof RelatorioRoute
@@ -126,7 +117,6 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
-    | '/limpeza'
     | '/manutencao'
     | '/perfil'
     | '/relatorio'
@@ -139,7 +129,6 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
-    | '/limpeza'
     | '/manutencao'
     | '/perfil'
     | '/relatorio'
@@ -152,7 +141,6 @@ export interface FileRouteTypes {
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
-    | '/limpeza'
     | '/manutencao'
     | '/perfil'
     | '/relatorio'
@@ -166,7 +154,6 @@ export interface RootRouteChildren {
   DespesasRoute: typeof DespesasRoute
   GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
-  LimpezaRoute: typeof LimpezaRoute
   ManutencaoRoute: typeof ManutencaoRoute
   PerfilRoute: typeof PerfilRoute
   RelatorioRoute: typeof RelatorioRoute
@@ -217,13 +204,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LancamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/limpeza': {
-      id: '/limpeza'
-      path: '/limpeza'
-      fullPath: '/limpeza'
-      preLoaderRoute: typeof LimpezaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/manutencao': {
       id: '/manutencao'
       path: '/manutencao'
@@ -262,7 +242,6 @@ const rootRouteChildren: RootRouteChildren = {
   DespesasRoute: DespesasRoute,
   GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
-  LimpezaRoute: LimpezaRoute,
   ManutencaoRoute: ManutencaoRoute,
   PerfilRoute: PerfilRoute,
   RelatorioRoute: RelatorioRoute,
