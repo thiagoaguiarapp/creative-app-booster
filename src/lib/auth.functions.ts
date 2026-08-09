@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 
-export type SessaoUsuario = { id: string; email: string; nome: string; telefone: string } | null;
+export type SessaoUsuario = {
+  id: string;
+  email: string;
+  nome: string;
+  telefone: string;
+  metaSemanal: number;
+  isPremium: boolean;
+} | null;
 
 export const salvarPerfilFn = createServerFn({ method: "POST" })
   .inputValidator((input: { nome: string; telefone: string }) => input)
