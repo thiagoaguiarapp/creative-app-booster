@@ -117,15 +117,15 @@ function Home() {
 
   const recentes = useMemo(() => {
     const todos: LancamentoHoje[] = [
-      ...ganhosHoje.map((g) => ({ tipo: "ganho" as const, data: g })),
-      ...abastHoje.map((a) => ({ tipo: "abastecimento" as const, data: a })),
-      ...despesasHoje.map((d) => ({ tipo: "despesa" as const, data: d })),
-      ...data.repasses.filter((r) => r.iso === hoje).map((r) => ({ tipo: "repasse" as const, data: r })),
+      ...ganhosSemana.map((g) => ({ tipo: "ganho" as const, data: g })),
+      ...data.abastecimentos.filter((a) => a.iso >= inicioSemana && a.iso <= fimSemana).map((a) => ({ tipo: "abastecimento" as const, data: a })),
+      ...data.despesas.filter((d) => d.iso >= inicioSemana && d.iso <= fimSemana).map((d) => ({ tipo: "despesa" as const, data: d })),
+      ...data.repasses.filter((r) => r.iso >= inicioSemana && r.iso <= fimSemana).map((r) => ({ tipo: "repasse" as const, data: r })),
     ];
     return todos
       .sort((a, b) => b.data.iso.localeCompare(a.data.iso))
       .slice(0, 5);
-  }, [ganhosHoje, abastHoje, despesasHoje, data.repasses, hoje]);
+  }, [ganhosSemana, data.abastecimentos, data.despesas, data.repasses, inicioSemana, fimSemana]);
 
   const manutencoesAviso = useMemo(() => {
     const ultimos = new Map<string, Manutencao>();
