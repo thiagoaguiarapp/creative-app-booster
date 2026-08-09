@@ -2,20 +2,13 @@ import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
-  ArrowRight,
-  BarChart3,
-  Bike,
   CalendarClock,
   CircleDollarSign,
   Edit3,
-  Fuel,
   HandCoins,
-  ListChecks,
-  Receipt,
   Target,
   TrendingDown,
   TrendingUp,
-  Wallet,
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -26,7 +19,6 @@ import { NovoLancamentoRapido } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -107,16 +99,6 @@ type LancamentoHoje =
   | { tipo: "despesa"; data: Despesa }
   | { tipo: "repasse"; data: Repasse };
 
-const atalhos = [
-  { title: "Ganhos diários", url: "/ganhos-diarios", icon: Bike, desc: "Corridas e faturamento" },
-  { title: "Abastecimento", url: "/abastecimento", icon: Fuel, desc: "Consumo e km/L" },
-  { title: "Despesas", url: "/despesas", icon: Receipt, desc: "Custos operacionais" },
-  { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet, desc: "Conciliação por app" },
-  { title: "Manutenção", url: "/manutencao", icon: Wrench, desc: "Troca e revisão" },
-  { title: "Relatório", url: "/relatorio", icon: BarChart3, desc: "Análise por período" },
-  { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks, desc: "Consulta e edição" },
-];
-
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const { data: metaSemanal } = useSuspenseQuery(metaQueryOptions());
@@ -154,8 +136,6 @@ function Home() {
 
   const variacaoFaturamento =
     faturamentoOntem > 0 ? ((faturamentoHoje - faturamentoOntem) / faturamentoOntem) * 100 : null;
-  const variacaoCorridas =
-    corridasOntem > 0 ? ((corridasHoje - corridasOntem) / corridasOntem) * 100 : null;
 
   const recentes = useMemo(() => {
     const todos: LancamentoHoje[] = [
