@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Eraser, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
@@ -30,7 +30,6 @@ const items = [
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
   { title: "Relatório", url: "/relatorio", icon: BarChart3 },
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },
-  { title: "Limpar duplicados", url: "/limpeza", icon: Eraser },
 ];
 
 export function AppSidebar({ email }: { email?: string }) {
