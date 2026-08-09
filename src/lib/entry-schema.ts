@@ -34,12 +34,27 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   ],
   abastecimento: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
+    { key: "posto", label: "Posto (opcional)", tipo: "text" },
     { key: "odometro", label: "Odômetro (km)", tipo: "number", obrigatorio: true },
     { key: "litros", label: "Litros", tipo: "number", obrigatorio: true },
     { key: "precoLitro", label: "Preço por litro (R$)", tipo: "money" },
+    { key: "temDesconto", label: "Teve desconto?", tipo: "select", opcoes: ["Não", "Sim"] },
+    {
+      key: "descontoLitro",
+      label: "Desconto por litro (R$)",
+      tipo: "money",
+      somenteSe: { key: "temDesconto", valores: ["Sim"] },
+    },
+    {
+      key: "desconto",
+      label: "Desconto total (R$)",
+      tipo: "money",
+      somenteSe: { key: "temDesconto", valores: ["Sim"] },
+    },
     { key: "valorPago", label: "Valor pago (R$)", tipo: "money", obrigatorio: true },
     { key: "pagamento", label: "Forma de pagamento", tipo: "text" },
   ],
+
   despesa: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "categoria", label: "Categoria", tipo: "text", obrigatorio: true },
