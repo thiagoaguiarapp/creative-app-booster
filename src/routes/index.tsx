@@ -128,7 +128,6 @@ function Home() {
   const corridasHoje = ganhosHoje.reduce((s, g) => s + g.corridas, 0);
   const corridasOntem = ganhosOntem.reduce((s, g) => s + g.corridas, 0);
   const despesasTotal = despesasHoje.reduce((s, d) => s + d.valor, 0);
-  const litrosHoje = abastHoje.reduce((s, a) => s + a.litros, 0);
   const abastValorHoje = abastHoje.reduce((s, a) => s + a.valorPago, 0);
 
   const custosHoje = despesasTotal + abastValorHoje;
