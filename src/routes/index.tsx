@@ -95,7 +95,9 @@ const atalhos = [
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const { usuario } = Route.useRouteContext();
   const saudacao = useSaudacao();
+  const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
   const hoje = hojeIso();
   const ontem = ontemIso();
 

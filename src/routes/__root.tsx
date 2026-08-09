@@ -86,7 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       throw redirect({ to: "/auth" });
     }
     if (usuario && location.pathname === "/auth") {
-      throw redirect({ to: "/" });
+      throw redirect({ to: usuario.nome ? "/" : "/perfil" });
+    }
+    if (usuario && !usuario.nome && location.pathname !== "/perfil") {
+      throw redirect({ to: "/perfil" });
     }
     return { usuario };
   },
@@ -144,7 +147,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient, usuario } = Route.useRouteContext();
 
-  if (!usuario) {
+  if (!usuario || !usuario.nome) {
     return (
       <QueryClientProvider client={queryClient}>
         <Outlet />
