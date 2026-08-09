@@ -3,11 +3,19 @@ export type Tipo = "ganho" | "abastecimento" | "despesa" | "repasse" | "manutenc
 export type Campo = {
   key: string;
   label: string;
-  tipo: "text" | "date" | "number" | "money";
+  tipo: "text" | "date" | "number" | "money" | "select";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
   sugestoes?: "plataforma" | "forma";
+  /** opções fixas para tipo "select" */
+  opcoes?: string[];
+  /** só exibe o campo quando outro campo tem um dos valores listados */
+  somenteSe?: { key: string; valores: string[] };
 };
+
+/** formas de pagamento de despesa */
+export const FORMAS_PAGAMENTO = ["Dinheiro", "Débito", "Crédito", "Pix"];
+
 
 export const TITULOS: Record<Tipo, string> = {
   ganho: "lançamento de ganho",
