@@ -95,7 +95,9 @@ const atalhos = [
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const { usuario } = Route.useRouteContext();
   const saudacao = useSaudacao();
+  const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
   const hoje = hojeIso();
   const ontem = ontemIso();
 
@@ -147,7 +149,7 @@ function Home() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
-        title={`${saudacao}, entregador!`}
+        title={`${saudacao}, ${(primeiroNome || "entregador").toUpperCase()}!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
       />
 
