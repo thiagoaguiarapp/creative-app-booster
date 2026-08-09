@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Bike, CircleDollarSign, TrendingUp, Wallet } from "lucide-react";
+import { Bike, CircleDollarSign, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
