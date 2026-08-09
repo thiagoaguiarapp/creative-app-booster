@@ -117,12 +117,13 @@ function somaMeses(iso: string, meses: number): string {
 export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
+  userId: string,
   row?: number,
 ): Promise<void> {
   const mapa = MAPAS[tipo];
 
   if (row) {
-    await atualizar(mapa.tabela, row, montaLinha(tipo, valores));
+    await atualizar(mapa.tabela, row, montaLinha(tipo, valores), userId);
     return;
   }
 
@@ -143,14 +144,20 @@ export async function salvarLancamento(
           valor: valorParcela.toFixed(2),
           descricao: `${descricao ? `${descricao} ` : ""}(${i + 1}/${parcelas})`,
         }),
+        userId,
       );
     }
     return;
   }
 
-  await inserir(mapa.tabela, montaLinha(tipo, valores));
+  await inserir(mapa.tabela, montaLinha(tipo, valores), userId);
 }
 
-export async function excluirLancamento(tipo: Tipo, row: number): Promise<void> {
-  await remover(MAPAS[tipo].tabela, row);
+export async function excluirLancamento(
+  tipo: Tipo,
+  row: number,
+  userId: string,
+): Promise<void> {
+  await remover(MAPAS[tipo].tabela, row, userId);
 }
+

@@ -29,12 +29,23 @@ async function ok(res: Response, acao: string): Promise<unknown> {
 
 export type Linha = Record<string, unknown>;
 
-export async function selectAll(tabela: string): Promise<Linha[]> {
+export const COLUNA_USUARIO = "USER_ID";
+
+/** Filtro de dono: só aplicado quando a tabela tem a coluna USER_ID. */
+async function filtroDono(tabela: string, userId?: string): Promise<string> {
+  if (!userId) return "";
+  const colunas = await colunasDe(tabela);
+  if (!colunas.includes(COLUNA_USUARIO)) return "";
+  return `&${COLUNA_USUARIO}=eq.${encodeURIComponent(userId)}`;
+}
+
+export async function selectAll(tabela: string, userId?: string): Promise<Linha[]> {
   const paginas: Linha[] = [];
   const tamanho = 1000;
+  const dono = await filtroDono(tabela, userId);
   for (let inicio = 0; ; inicio += tamanho) {
     const res = await fetch(
-      `${base()}/${encodeURIComponent(tabela)}?select=*&order=ID.asc`,
+      `${base()}/${encodeURIComponent(tabela)}?select=*&order=ID.asc${dono}`,
       { headers: headers({ Range: `${inicio}-${inicio + tamanho - 1}` }) },
     );
     const lote = (await ok(res, "ler")) as Linha[] | null;
@@ -44,6 +55,7 @@ export async function selectAll(tabela: string): Promise<Linha[]> {
   }
   return paginas;
 }
+
 
 /** Colunas realmente existentes em cada tabela (lidas do schema do banco). */
 let colunasCache: Record<string, string[]> | null = null;
@@ -85,8 +97,12 @@ async function proximoId(tabela: string): Promise<number> {
   return Number(linhas?.[0]?.ID ?? 0) + 1;
 }
 
-export async function inserir(tabela: string, dados: Linha): Promise<void> {
-  const corpo = await filtrar(tabela, { ...dados, ID: await proximoId(tabela) });
+export async function inserir(tabela: string, dados: Linha, userId?: string): Promise<void> {
+  const corpo = await filtrar(tabela, {
+    ...dados,
+    ...(userId ? { [COLUNA_USUARIO]: userId } : {}),
+    ID: await proximoId(tabela),
+  });
   const res = await fetch(`${base()}/${encodeURIComponent(tabela)}`, {
     method: "POST",
     headers: headers({ Prefer: "return=minimal" }),
@@ -95,11 +111,16 @@ export async function inserir(tabela: string, dados: Linha): Promise<void> {
   await ok(res, "gravar");
 }
 
-export async function atualizar(tabela: string, id: number, dados: Linha): Promise<void> {
+export async function atualizar(
+  tabela: string,
+  id: number,
+  dados: Linha,
+  userId?: string,
+): Promise<void> {
   const corpo = await filtrar(tabela, dados);
   if (Object.keys(corpo).length === 0) return;
   const res = await fetch(
-    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}`,
+    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}${await filtroDono(tabela, userId)}`,
     {
       method: "PATCH",
       headers: headers({ Prefer: "return=minimal" }),
@@ -109,13 +130,17 @@ export async function atualizar(tabela: string, id: number, dados: Linha): Promi
   await ok(res, "atualizar");
 }
 
-export async function remover(tabela: string, id: number): Promise<void> {
-  const res = await fetch(`${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}`, {
-    method: "DELETE",
-    headers: headers({ Prefer: "return=minimal" }),
-  });
+export async function remover(tabela: string, id: number, userId?: string): Promise<void> {
+  const res = await fetch(
+    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}${await filtroDono(tabela, userId)}`,
+    {
+      method: "DELETE",
+      headers: headers({ Prefer: "return=minimal" }),
+    },
+  );
   await ok(res, "excluir");
 }
+
 
 /* ---------- conversões ---------- */
 
