@@ -279,6 +279,13 @@ function FormularioDialog({
                   ))}
                 </datalist>
               )}
+              {tipo === "abastecimento" && campo.key === "valorPago" && litros > 0 && precoLitro > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {litros.toLocaleString("pt-BR")} L x R$ {precoLitro.toFixed(2)}
+                  {descontoTotal > 0 ? ` - R$ ${descontoTotal.toFixed(2)} de desconto` : ""} = R${" "}
+                  {totalCalculado.toFixed(2)}
+                </p>
+              )}
               {campo.key === "parcelas" && (
                 <p className="text-xs text-muted-foreground">
                   As parcelas serão lançadas nos meses seguintes.
