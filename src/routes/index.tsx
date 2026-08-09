@@ -359,7 +359,7 @@ function Home() {
         </SectionCard>
       </div>
 
-      <AdBanner slot="home" />
+      <AdBanner />
     </div>
   );
 }
