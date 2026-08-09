@@ -64,10 +64,6 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-function hojeIso() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 
 function semanaAtualIso(): [string, string] {
@@ -98,11 +94,6 @@ function Home() {
   const { usuario } = Route.useRouteContext();
   const saudacao = useSaudacao();
   const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
-  const hoje = hojeIso();
-
-  const ganhosHoje = useMemo(() => data.ganhos.filter((g) => g.iso === hoje), [data.ganhos, hoje]);
-  const abastHoje = useMemo(() => data.abastecimentos.filter((a) => a.iso === hoje), [data.abastecimentos, hoje]);
-  const despesasHoje = useMemo(() => data.despesas.filter((d) => d.iso === hoje), [data.despesas, hoje]);
 
   const [inicioSemana, fimSemana] = semanaAtualIso();
   const ganhosSemana = useMemo(
@@ -117,15 +108,15 @@ function Home() {
 
   const recentes = useMemo(() => {
     const todos: LancamentoHoje[] = [
-      ...ganhosHoje.map((g) => ({ tipo: "ganho" as const, data: g })),
-      ...abastHoje.map((a) => ({ tipo: "abastecimento" as const, data: a })),
-      ...despesasHoje.map((d) => ({ tipo: "despesa" as const, data: d })),
-      ...data.repasses.filter((r) => r.iso === hoje).map((r) => ({ tipo: "repasse" as const, data: r })),
+      ...ganhosSemana.map((g) => ({ tipo: "ganho" as const, data: g })),
+      ...data.abastecimentos.filter((a) => a.iso >= inicioSemana && a.iso <= fimSemana).map((a) => ({ tipo: "abastecimento" as const, data: a })),
+      ...data.despesas.filter((d) => d.iso >= inicioSemana && d.iso <= fimSemana).map((d) => ({ tipo: "despesa" as const, data: d })),
+      ...data.repasses.filter((r) => r.iso >= inicioSemana && r.iso <= fimSemana).map((r) => ({ tipo: "repasse" as const, data: r })),
     ];
     return todos
       .sort((a, b) => b.data.iso.localeCompare(a.data.iso))
       .slice(0, 5);
-  }, [ganhosHoje, abastHoje, despesasHoje, data.repasses, hoje]);
+  }, [ganhosSemana, data.abastecimentos, data.despesas, data.repasses, inicioSemana, fimSemana]);
 
   const manutencoesAviso = useMemo(() => {
     const ultimos = new Map<string, Manutencao>();
@@ -232,9 +223,9 @@ function Home() {
         />
       </div>
 
-      <SectionCard title="Últimos lançamentos de hoje" description="Atividades registradas hoje">
+      <SectionCard title="Últimos lançamentos da semana" description="Atividades registradas nesta semana">
         {recentes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum lançamento hoje.</p>
+          <p className="text-sm text-muted-foreground">Nenhum lançamento nesta semana.</p>
         ) : (
           <Table>
             <TableHeader>
