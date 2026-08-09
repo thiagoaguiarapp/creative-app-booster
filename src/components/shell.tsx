@@ -46,17 +46,17 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="panel p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+    <div className="panel p-3 sm:p-5">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
           {label}
         </p>
-        <Icon className={cn("size-4 shrink-0", toneClass)} />
+        <Icon className={cn("size-3.5 shrink-0 sm:size-4", toneClass)} />
       </div>
-      <p className={cn("num mt-2 font-display text-2xl font-semibold sm:mt-3 sm:text-3xl", toneClass)}>
+      <p className={cn("num mt-1 font-display text-xl font-semibold sm:mt-3 sm:text-3xl", toneClass)}>
         {value}
       </p>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground sm:mt-1 sm:text-xs">{hint}</p>}
     </div>
   );
 }
