@@ -21,6 +21,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
+import { AdBanner } from "@/components/ad-banner";
 import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
