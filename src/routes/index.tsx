@@ -149,7 +149,7 @@ function Home() {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
-        title={`${saudacao}, entregador!`}
+        title={`${saudacao}, ${(primeiroNome || "entregador").toUpperCase()}!`}
         subtitle="Aqui está o resumo do seu dia de trabalho."
       />
 
