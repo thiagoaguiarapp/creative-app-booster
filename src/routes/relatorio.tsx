@@ -320,14 +320,14 @@ function Barras({ itens, total }: { itens: { nome: string; valor: number }[]; to
     <div className="flex flex-col gap-3">
       {itens.slice(0, 8).map((i) => (
         <div key={i.nome} className="flex items-center gap-3">
-          <span className="w-28 shrink-0 truncate text-sm text-muted-foreground">{i.nome}</span>
+          <span className="w-24 shrink-0 truncate text-sm text-muted-foreground sm:w-28">{i.nome}</span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
             <div
               className="h-full rounded-full bg-primary"
               style={{ width: `${total ? (i.valor / total) * 100 : 0}%` }}
             />
           </div>
-          <span className="num w-24 text-right text-sm font-medium">{brl(i.valor)}</span>
+          <span className="num w-20 text-right text-sm font-medium sm:w-24">{brl(i.valor)}</span>
         </div>
       ))}
     </div>
