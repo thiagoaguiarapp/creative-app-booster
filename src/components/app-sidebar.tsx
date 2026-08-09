@@ -82,6 +82,18 @@ export function AppSidebar({ email }: { email?: string }) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <PremiumDialog
+              trigger={
+                <SidebarMenuButton tooltip="Seja Premium — remova os anúncios">
+                  <Crown className="size-4 text-primary" />
+                  <span>Seja Premium</span>
+                </SidebarMenuButton>
+              }
+            />
+          </SidebarMenuItem>
+        </SidebarMenu>
         {!collapsed && email && (
           <p className="truncate px-2 pt-1 text-[11px] text-muted-foreground">{email}</p>
         )}
