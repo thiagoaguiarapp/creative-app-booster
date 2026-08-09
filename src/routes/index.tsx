@@ -251,113 +251,64 @@ function Home() {
           </div>
         </SectionCard>
       )}
+      <div className="flex justify-center sm:justify-start">
+        <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto" />
+      </div>
 
-
-
-      <div className="flex flex-wrap gap-2">
-        <NovoLancamento tipo="ganho" rotulo="Lançar ganho diário" />
-        <NovoLancamento tipo="abastecimento" />
-        <NovoLancamento tipo="despesa" />
-        <NovoLancamento tipo="repasse" />
-        <NovoLancamento
-          tipo="repasse"
-          rotulo="Recebi na entrega"
-          variant="outline"
-          icone={HandCoins}
-          titulo="Recebi na entrega (dinheiro / Pix)"
-          iniciais={{ data: hojeInputDate(), forma: "Dinheiro" }}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <CardMetaSemanal
+          faturamento={faturamentoSemana}
+          meta={metaSemanal}
+          inicio={inicioSemana}
+          fim={fimSemana}
+        />
+        <StatCard
+          label="Faturamento hoje"
+          value={brl(faturamentoHoje)}
+          hint={
+            variacaoFaturamento !== null
+              ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem`
+              : "Sem dados de ontem"
+          }
+          icon={CircleDollarSign}
+          tone="success"
+        />
+        <StatCard
+          label="Lucro líquido hoje"
+          value={brl(lucroHoje)}
+          hint={`${corridasHoje} corrida${corridasHoje === 1 ? "" : "s"} · ${brl(custosHoje)} em custos`}
+          icon={lucroHoje >= 0 ? TrendingUp : TrendingDown}
+          tone={lucroHoje >= 0 ? "success" : "warning"}
         />
       </div>
 
-
-      <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <CardMetaSemanal
-            faturamento={faturamentoSemana}
-            meta={metaSemanal}
-            inicio={inicioSemana}
-            fim={fimSemana}
-          />
-          <StatCard
-            label="Faturamento hoje"
-            value={brl(faturamentoHoje)}
-            hint={variacaoFaturamento !== null ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem` : "Sem dados de ontem"}
-            icon={CircleDollarSign}
-            tone="success"
-          />
-          <StatCard
-            label="Corridas"
-            value={String(corridasHoje)}
-            hint={variacaoCorridas !== null ? `${variacaoCorridas >= 0 ? "+" : ""}${variacaoCorridas.toFixed(0)}% vs ontem` : "Sem dados de ontem"}
-            icon={Bike}
-          />
-          <StatCard
-            label="Despesas"
-            value={brl(despesasTotal)}
-            hint={`${despesasHoje.length} lançamento${despesasHoje.length === 1 ? "" : "s"}`}
-            icon={TrendingDown}
-            tone="warning"
-          />
-          <StatCard
-            label="Abastecimento"
-            value={`${litrosHoje.toFixed(2)} L`}
-            hint={abastHoje.length ? brl(abastValorHoje) : "Sem abastecimento hoje"}
-            icon={Fuel}
-          />
-        </div>
+      <SectionCard title="Últimos lançamentos de hoje" description="Atividades registradas hoje">
+        {recentes.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum lançamento hoje.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Descrição</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentes.map((item) => (
+                <TableRow key={`${item.tipo}-${item.data.id}`}>
+                  <TableCell>
+                    <Badge variant="outline">{labelTipo(item.tipo)}</Badge>
+                  </TableCell>
+                  <TableCell className="text-sm">{descricaoLancamento(item)}</TableCell>
+                  <TableCell className="num text-right font-medium">{valorLancamento(item)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </SectionCard>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <SectionCard title="Últimos lançamentos de hoje" description="Atividades registradas hoje">
-          {recentes.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum lançamento hoje.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentes.map((item) => (
-                  <TableRow key={`${item.tipo}-${item.data.id}`}>
-                    <TableCell>
-                      <Badge variant="outline">{labelTipo(item.tipo)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">{descricaoLancamento(item)}</TableCell>
-                    <TableCell className="num text-right font-medium">{valorLancamento(item)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </SectionCard>
-
-        <SectionCard title="Acesso rápido" description="Navegue entre as áreas do app">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {atalhos.map((item) => (
-              <Card key={item.url} className="group transition-colors hover:bg-accent/40">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                    <item.icon className="size-4 text-primary" />
-                    {item.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                  <Button variant="link" size="sm" className="h-auto px-0 py-1 text-xs" asChild>
-                    <Link to={item.url}>
-                      Acessar <ArrowRight className="ml-1 size-3" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </SectionCard>
-      </div>
 
       <AdBanner />
     </div>
