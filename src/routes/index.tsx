@@ -271,8 +271,14 @@ function Home() {
 
       <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <CardMetaSemanal
+            faturamento={faturamentoSemana}
+            meta={metaSemanal}
+            inicio={inicioSemana}
+            fim={fimSemana}
+          />
           <StatCard
-            label="Faturamento"
+            label="Faturamento hoje"
             value={brl(faturamentoHoje)}
             hint={variacaoFaturamento !== null ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem` : "Sem dados de ontem"}
             icon={CircleDollarSign}
