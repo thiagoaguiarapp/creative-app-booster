@@ -85,7 +85,7 @@ export function metaSemanalDe(dados: Record<string, unknown>): number {
 
 /** Salva nome e telefone no perfil do usuário logado. */
 export async function salvarPerfil(nome: string, telefone: string): Promise<Usuario> {
-  const usuario = await exigirUsuario();
+  const atual = await exigirUsuario();
   const token = getCookie(ACCESS);
   if (!token) throw new Error("Sessão expirada. Entre novamente para continuar.");
   const res = await fetch(`${url()}/user`, {
@@ -95,13 +95,13 @@ export async function salvarPerfil(nome: string, telefone: string): Promise<Usua
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ data: { nome, telefone, metaSemanal: metaSemanalDe({ user: { user_metadata: { metaSemanal: usuario.metaSemanal } } } as unknown as Record<string, unknown>) } }),
+    body: JSON.stringify({ data: { nome, telefone, metaSemanal: atual.metaSemanal } }),
   });
   const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
-  const usuario = extrairUsuario(dados);
-  if (!usuario) throw new Error("Não foi possível salvar o perfil.");
-  return usuario;
+  const salvo = extrairUsuario(dados);
+  if (!salvo) throw new Error("Não foi possível salvar o perfil.");
+  return salvo;
 }
 
 /** Salva/atualiza a meta semanal preservando nome e telefone. */
