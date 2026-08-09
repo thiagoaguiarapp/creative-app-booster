@@ -80,7 +80,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  beforeLoad: async ({ location }) => {
+    const usuario = await sessaoFn();
+    if (!usuario && location.pathname !== "/auth") {
+      throw redirect({ to: "/auth" });
+    }
+    if (usuario && location.pathname === "/auth") {
+      throw redirect({ to: "/" });
+    }
+    return { usuario };
+  },
   head: () => ({
+
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
