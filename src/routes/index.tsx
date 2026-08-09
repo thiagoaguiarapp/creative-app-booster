@@ -7,8 +7,6 @@ import {
   Edit3,
   HandCoins,
   Target,
-  TrendingDown,
-  TrendingUp,
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -71,11 +69,6 @@ function hojeIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function ontemIso() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 function semanaAtualIso(): [string, string] {
   const hoje = new Date();
@@ -106,10 +99,8 @@ function Home() {
   const saudacao = useSaudacao();
   const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
   const hoje = hojeIso();
-  const ontem = ontemIso();
 
   const ganhosHoje = useMemo(() => data.ganhos.filter((g) => g.iso === hoje), [data.ganhos, hoje]);
-  const ganhosOntem = useMemo(() => data.ganhos.filter((g) => g.iso === ontem), [data.ganhos, ontem]);
   const abastHoje = useMemo(() => data.abastecimentos.filter((a) => a.iso === hoje), [data.abastecimentos, hoje]);
   const despesasHoje = useMemo(() => data.despesas.filter((d) => d.iso === hoje), [data.despesas, hoje]);
 
@@ -123,18 +114,6 @@ function Home() {
   const progressoMeta = metaDefinida ? Math.min(100, (faturamentoSemana / metaSemanal) * 100) : 0;
   const faltanteMeta = metaDefinida ? Math.max(0, metaSemanal - faturamentoSemana) : 0;
 
-  const faturamentoHoje = ganhosHoje.reduce((s, g) => s + g.faturamento, 0);
-  const faturamentoOntem = ganhosOntem.reduce((s, g) => s + g.faturamento, 0);
-  const corridasHoje = ganhosHoje.reduce((s, g) => s + g.corridas, 0);
-  const corridasOntem = ganhosOntem.reduce((s, g) => s + g.corridas, 0);
-  const despesasTotal = despesasHoje.reduce((s, d) => s + d.valor, 0);
-  const abastValorHoje = abastHoje.reduce((s, a) => s + a.valorPago, 0);
-
-  const custosHoje = despesasTotal + abastValorHoje;
-  const lucroHoje = faturamentoHoje - custosHoje;
-
-  const variacaoFaturamento =
-    faturamentoOntem > 0 ? ((faturamentoHoje - faturamentoOntem) / faturamentoOntem) * 100 : null;
 
   const recentes = useMemo(() => {
     const todos: LancamentoHoje[] = [
@@ -237,7 +216,7 @@ function Home() {
         <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto" />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
         <CardMetaSemanal
           faturamento={faturamentoSemana}
           meta={metaSemanal}
@@ -245,22 +224,11 @@ function Home() {
           fim={fimSemana}
         />
         <StatCard
-          label="Faturamento hoje"
-          value={brl(faturamentoHoje)}
-          hint={
-            variacaoFaturamento !== null
-              ? `${variacaoFaturamento >= 0 ? "+" : ""}${variacaoFaturamento.toFixed(0)}% vs ontem`
-              : "Sem dados de ontem"
-          }
+          label="Faturamento da semana"
+          value={brl(faturamentoSemana)}
+          hint={`${inicioSemana.slice(8, 10)}/${inicioSemana.slice(5, 7)} a ${fimSemana.slice(8, 10)}/${fimSemana.slice(5, 7)}`}
           icon={CircleDollarSign}
           tone="success"
-        />
-        <StatCard
-          label="Lucro líquido hoje"
-          value={brl(lucroHoje)}
-          hint={`${corridasHoje} corrida${corridasHoje === 1 ? "" : "s"} · ${brl(custosHoje)} em custos`}
-          icon={lucroHoje >= 0 ? TrendingUp : TrendingDown}
-          tone={lucroHoje >= 0 ? "success" : "warning"}
         />
       </div>
 
