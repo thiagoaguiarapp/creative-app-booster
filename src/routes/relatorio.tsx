@@ -190,7 +190,7 @@ function RelatorioPage() {
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:gap-6">
+    <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:gap-4 lg:gap-6">
       <PageHeader
         title="Relatório por período"
         subtitle="Consolidado de ganhos, custos e lucro líquido"
