@@ -1,11 +1,15 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bike, Eraser, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { BarChart3, Bike, Eraser, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
+import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
+import { sairFn } from "@/lib/auth.functions";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +19,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 
 const items = [
   { title: "Início", url: "/", icon: Home },
