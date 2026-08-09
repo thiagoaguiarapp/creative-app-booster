@@ -3,11 +3,19 @@ export type Tipo = "ganho" | "abastecimento" | "despesa" | "repasse" | "manutenc
 export type Campo = {
   key: string;
   label: string;
-  tipo: "text" | "date" | "number" | "money";
+  tipo: "text" | "date" | "number" | "money" | "select";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
   sugestoes?: "plataforma" | "forma";
+  /** opções fixas para tipo "select" */
+  opcoes?: string[];
+  /** só exibe o campo quando outro campo tem um dos valores listados */
+  somenteSe?: { key: string; valores: string[] };
 };
+
+/** formas de pagamento de despesa */
+export const FORMAS_PAGAMENTO = ["Dinheiro", "Débito", "Crédito", "Pix"];
+
 
 export const TITULOS: Record<Tipo, string> = {
   ganho: "lançamento de ganho",
@@ -37,10 +45,21 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "categoria", label: "Categoria", tipo: "text", obrigatorio: true },
     { key: "descricao", label: "Observação", tipo: "text" },
     { key: "valor", label: "Valor total (R$)", tipo: "money", obrigatorio: true },
-    { key: "pagamento", label: "Forma de pagamento", tipo: "text" },
-    { key: "parcelas", label: "Parcelas (1 = à vista)", tipo: "number" },
+    {
+      key: "pagamento",
+      label: "Forma de pagamento",
+      tipo: "select",
+      opcoes: FORMAS_PAGAMENTO,
+    },
+    {
+      key: "parcelas",
+      label: "Número de parcelas",
+      tipo: "number",
+      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+    },
   ],
   repasse: [
+
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "valor", label: "Valor recebido (R$)", tipo: "money", obrigatorio: true },

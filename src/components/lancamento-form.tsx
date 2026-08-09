@@ -16,6 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
   CAMPOS,
   FORMAS_RECEBIMENTO,
   TITULOS,
@@ -155,15 +163,21 @@ function FormularioDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const visivel = (campo: (typeof CAMPOS)[Tipo][number]) =>
+    !campo.somenteSe || campo.somenteSe.valores.includes(valores[campo.somenteSe.key] ?? "");
+
   function enviar(e: React.FormEvent) {
     e.preventDefault();
+    const enviaveis: Record<string, string> = {};
     for (const campo of CAMPOS[tipo]) {
+      if (!visivel(campo)) continue;
       if (campo.obrigatorio && !valores[campo.key]?.trim()) {
         toast.error(`Preencha "${campo.label}".`);
         return;
       }
+      enviaveis[campo.key] = valores[campo.key] ?? "";
     }
-    mutation.mutate(valores);
+    mutation.mutate(enviaveis);
   }
 
   if (seguinte) {
@@ -199,27 +213,54 @@ function FormularioDialog({
         </DialogHeader>
 
         <form onSubmit={enviar} className="grid gap-4 sm:grid-cols-2">
-          {CAMPOS[tipo].map((campo) => (
+          {CAMPOS[tipo].filter(visivel).map((campo) => (
             <div key={campo.key} className="flex flex-col gap-1.5">
               <Label htmlFor={campo.key}>{campo.label}</Label>
-              <Input
-                id={campo.key}
-                type={campo.tipo === "date" ? "date" : campo.tipo === "text" ? "text" : "number"}
-                step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
-                inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
-                maxLength={campo.tipo === "text" ? 120 : undefined}
-                list={campo.sugestoes ? `sugestoes-${campo.key}` : undefined}
-                value={valores[campo.key] ?? ""}
-                onChange={(e) =>
-                  setValores((v) => ({ ...v, [campo.key]: e.target.value }))
-                }
-              />
+              {campo.tipo === "select" ? (
+                <Select
+                  value={valores[campo.key] ?? ""}
+                  onValueChange={(v) =>
+                    setValores((atual) => ({
+                      ...atual,
+                      [campo.key]: v,
+                      ...(campo.key === "pagamento" && v !== "Crédito" ? { parcelas: "" } : {}),
+                    }))
+                  }
+                >
+                  <SelectTrigger id={campo.key}>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(campo.opcoes ?? []).map((opcao) => (
+                      <SelectItem key={opcao} value={opcao}>
+                        {opcao}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id={campo.key}
+                  type={campo.tipo === "date" ? "date" : campo.tipo === "text" ? "text" : "number"}
+                  step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
+                  inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
+                  maxLength={campo.tipo === "text" ? 120 : undefined}
+                  list={campo.sugestoes ? `sugestoes-${campo.key}` : undefined}
+                  value={valores[campo.key] ?? ""}
+                  onChange={(e) => setValores((v) => ({ ...v, [campo.key]: e.target.value }))}
+                />
+              )}
               {campo.sugestoes && (
                 <datalist id={`sugestoes-${campo.key}`}>
                   {(campo.sugestoes === "forma" ? formas : plataformas).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}
                 </datalist>
+              )}
+              {campo.key === "parcelas" && (
+                <p className="text-xs text-muted-foreground">
+                  As parcelas serão lançadas nos meses seguintes.
+                </p>
               )}
               {tipo === "repasse" &&
                 campo.key === "aplicativo" &&
@@ -230,6 +271,7 @@ function FormularioDialog({
                 )}
             </div>
           ))}
+
 
           {existente && (
             <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-xs sm:col-span-2">
