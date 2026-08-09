@@ -270,7 +270,7 @@ function Home() {
 
 
       <SectionCard title="Hoje" description="Resumo dos lançamentos do dia">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <CardMetaSemanal
             faturamento={faturamentoSemana}
             meta={metaSemanal}
