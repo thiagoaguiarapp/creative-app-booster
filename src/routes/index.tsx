@@ -361,6 +361,103 @@ function Home() {
   );
 }
 
+function CardMetaSemanal({
+  faturamento,
+  meta,
+  inicio,
+  fim,
+}: {
+  faturamento: number;
+  meta: number;
+  inicio: string;
+  fim: string;
+}) {
+  const [editando, setEditando] = useState(false);
+  const [valor, setValor] = useState(String(meta > 0 ? meta : ""));
+  const salvar = useServerFn(salvarMetaSemanalFn);
+  const queryClient = useQueryClient();
+
+  const metaDefinida = meta > 0;
+  const progresso = metaDefinida ? Math.min(100, (faturamento / meta) * 100) : 0;
+  const faltante = metaDefinida ? Math.max(0, meta - faturamento) : 0;
+
+  async function handleSalvar() {
+    const num = Number(valor.replace(/\./g, "").replace(",", "."));
+    if (!Number.isFinite(num) || num < 0) {
+      toast.error("Informe um valor válido.");
+      return;
+    }
+    try {
+      await salvar({ data: { valor: num } });
+      await queryClient.invalidateQueries({ queryKey: ["meta-semanal"] });
+      toast.success("Meta semanal salva.");
+      setEditando(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar meta.");
+    }
+  }
+
+  return (
+    <div className="panel p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          Meta semanal
+        </p>
+        <Target className="size-4 text-primary" />
+      </div>
+      <p className={cn("num mt-3 font-display text-3xl font-semibold", metaDefinida ? "text-primary" : "text-muted-foreground")}>
+        {brl(faturamento)}
+      </p>
+      {metaDefinida && (
+        <div className="mt-3">
+          <Progress value={progresso} />
+          <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+            <span>Meta: {brl(meta)}</span>
+            <span>{faltante > 0 ? `${brl(faltante)} restantes` : "Meta atingida!"}</span>
+          </div>
+        </div>
+      )}
+      {!metaDefinida && !editando && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Sem meta para {inicio.slice(8, 10)}/{inicio.slice(5, 7)} a {fim.slice(8, 10)}/{fim.slice(5, 7)}.
+        </p>
+      )}
+      {editando ? (
+        <div className="mt-3 flex items-center gap-2">
+          <Input
+            value={valor}
+            onChange={(e) => setValor(e.target.value)}
+            placeholder="R$ 0,00"
+            className="h-8 text-sm"
+            autoFocus
+          />
+          <Button size="sm" className="h-8 text-xs" onClick={handleSalvar}>
+            Salvar
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 text-xs"
+            onClick={() => setEditando(false)}
+          >
+            Cancelar
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="link"
+          size="sm"
+          className="mt-2 h-auto px-0 py-1 text-xs"
+          onClick={() => setEditando(true)}
+        >
+          <Edit3 className="mr-1 size-3" />
+          {metaDefinida ? "Editar meta" : "Definir meta"}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function labelTipo(tipo: LancamentoHoje["tipo"]) {
   switch (tipo) {
     case "ganho":
