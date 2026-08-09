@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Bike, CircleDollarSign, TrendingUp, Wallet } from "lucide-react";
+import { Bike, CircleDollarSign, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
@@ -67,7 +67,7 @@ function Ganhos() {
 
   const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
-  const recebido = ganhos.reduce((s, g) => s + g.recebido, 0);
+  
 
   const porDia = new Map<string, { label: string; valor: number }>();
   for (const g of recentes) {
@@ -99,10 +99,9 @@ function Ganhos() {
         ))}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Faturamento" value={brl(total)} icon={CircleDollarSign} tone="success" />
         <StatCard label="Corridas" value={String(corridas)} icon={Bike} />
-        <StatCard label="Valor recebido" value={brl(recebido)} icon={Wallet} />
         <StatCard
           label="Ticket médio"
           value={brl(corridas ? total / corridas : 0)}
@@ -135,7 +134,7 @@ function Ganhos() {
               <TableHead>App</TableHead>
               <TableHead className="text-right">Rotas</TableHead>
               <TableHead className="text-right">Faturamento</TableHead>
-              <TableHead className="text-right">Recebido</TableHead>
+              
               <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -150,7 +149,7 @@ function Ganhos() {
                 <TableCell className="num text-right font-semibold text-success">
                   {brl(g.faturamento)}
                 </TableCell>
-                <TableCell className="num text-right">{brl(g.recebido)}</TableCell>
+                
                 <TableCell>
                   <AcoesLancamento tipo="ganho" registro={g} />
                 </TableCell>

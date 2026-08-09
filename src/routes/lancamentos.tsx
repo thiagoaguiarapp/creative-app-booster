@@ -81,7 +81,7 @@ function LancamentosPage() {
         data: g.data,
         iso: g.iso,
         titulo: g.plataforma,
-        detalhe: `${g.corridas || 0} rotas · recebido ${brl(g.recebido)}`,
+        detalhe: `${g.corridas || 0} rotas`,
         valor: g.faturamento,
         positivo: true,
         registro: g as unknown as Record<string, unknown> & { row: number },
