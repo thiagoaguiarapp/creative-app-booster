@@ -190,17 +190,17 @@ function RelatorioPage() {
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:gap-6">
       <PageHeader
         title="Relatório por período"
         subtitle="Consolidado de ganhos, custos e lucro líquido"
         action={
           <div className="flex gap-2 print:hidden">
-            <Button variant="outline" size="sm" onClick={baixarCsv}>
-              <Download className="size-4" /> CSV
+            <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
+              <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
             </Button>
-            <Button size="sm" onClick={() => window.print()}>
-              <Printer className="size-4" /> Imprimir
+            <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
+              <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
             </Button>
           </div>
         }
