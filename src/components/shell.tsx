@@ -74,13 +74,13 @@ export function SectionCard({
 }) {
   return (
     <section className={cn("panel overflow-hidden", className)}>
-      <header className="border-b border-border px-4 py-3 sm:px-5 sm:py-4">
-        <h2 className="font-display text-base font-semibold uppercase tracking-wide sm:text-lg">
+      <header className="border-b border-border px-3 py-2 sm:px-5 sm:py-4">
+        <h2 className="font-display text-sm font-semibold uppercase tracking-wide sm:text-lg">
           {title}
         </h2>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {description && <p className="text-[10px] text-muted-foreground sm:text-xs">{description}</p>}
       </header>
-      <div className="p-4 sm:p-5">{children}</div>
+      <div className="p-3 sm:p-5">{children}</div>
     </section>
   );
 }
