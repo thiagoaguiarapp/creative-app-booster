@@ -98,11 +98,6 @@ function Home() {
   const { usuario } = Route.useRouteContext();
   const saudacao = useSaudacao();
   const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
-  const hoje = hojeIso();
-
-  const ganhosHoje = useMemo(() => data.ganhos.filter((g) => g.iso === hoje), [data.ganhos, hoje]);
-  const abastHoje = useMemo(() => data.abastecimentos.filter((a) => a.iso === hoje), [data.abastecimentos, hoje]);
-  const despesasHoje = useMemo(() => data.despesas.filter((d) => d.iso === hoje), [data.despesas, hoje]);
 
   const [inicioSemana, fimSemana] = semanaAtualIso();
   const ganhosSemana = useMemo(
