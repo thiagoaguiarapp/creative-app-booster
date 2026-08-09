@@ -207,12 +207,13 @@ function RelatorioPage() {
       />
 
       <SectionCard title="Período" description="Escolha um atalho ou defina as datas">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           <div className="flex flex-wrap gap-2 print:hidden">
             {PRESETS.map((p) => (
               <Button
                 key={p.label}
                 size="sm"
+                className="h-8 text-xs"
                 variant={de === p.de() && ate === p.ate() ? "default" : "secondary"}
                 onClick={() => {
                   setDe(p.de());
@@ -225,18 +226,18 @@ function RelatorioPage() {
           </div>
           <div className="flex flex-wrap items-end gap-3 sm:gap-4">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="de" className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label htmlFor="de" className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
                 De
               </Label>
-              <Input id="de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="w-40 sm:w-44" />
+              <Input id="de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="h-9 w-36 text-xs sm:w-44 sm:text-sm" />
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="ate" className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label htmlFor="ate" className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
                 Até
               </Label>
-              <Input id="ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="w-40 sm:w-44" />
+              <Input id="ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="h-9 w-36 text-xs sm:w-44 sm:text-sm" />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground sm:text-xs">
               {r.qtd.ganhos} ganhos · {r.qtd.abast} abastecimentos · {r.qtd.despesas} despesas ·{" "}
               {r.qtd.repasses} repasses · {r.qtd.manut} manutenções
             </p>
