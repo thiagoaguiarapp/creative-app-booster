@@ -358,6 +358,8 @@ function Home() {
           </div>
         </SectionCard>
       </div>
+
+      <AdBanner slot="home" />
     </div>
   );
 }
