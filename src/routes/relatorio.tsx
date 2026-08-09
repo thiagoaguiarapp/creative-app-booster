@@ -223,18 +223,18 @@ function RelatorioPage() {
               </Button>
             ))}
           </div>
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-wrap items-end gap-3 sm:gap-4">
             <div className="flex flex-col gap-1">
               <Label htmlFor="de" className="text-xs uppercase tracking-wide text-muted-foreground">
                 De
               </Label>
-              <Input id="de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="w-44" />
+              <Input id="de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="w-40 sm:w-44" />
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="ate" className="text-xs uppercase tracking-wide text-muted-foreground">
                 Até
               </Label>
-              <Input id="ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="w-44" />
+              <Input id="ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="w-40 sm:w-44" />
             </div>
             <p className="text-xs text-muted-foreground">
               {r.qtd.ganhos} ganhos · {r.qtd.abast} abastecimentos · {r.qtd.despesas} despesas ·{" "}
@@ -244,14 +244,14 @@ function RelatorioPage() {
         </div>
       </SectionCard>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
         <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
         <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
         <StatCard label="Recebido" value={brl(r.recebido)} hint="Repasses das plataformas" icon={Wallet} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
         <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
         <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
