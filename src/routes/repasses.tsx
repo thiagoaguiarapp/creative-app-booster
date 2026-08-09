@@ -237,9 +237,6 @@ function RepassesPage() {
             {extrasNoRepasse.length} lançamento(s) de gorjeta/sobra de troco ({brl(extrasNoRepasseValor)}) estão
             nesta aba. O certo agora é lançar em Ganhos diários.
           </span>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/limpeza">Limpar duplicados</Link>
-          </Button>
         </div>
       )}
 
