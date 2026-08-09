@@ -16,7 +16,7 @@ function anon(): string {
   return k;
 }
 
-export type Usuario = { id: string; email: string };
+export type Usuario = { id: string; email: string; nome: string; telefone: string };
 
 type Tokens = { access_token?: string; refresh_token?: string };
 
@@ -66,7 +66,33 @@ function traduzir(msg: string, status: number): string {
 function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
   const u = (dados["user"] ?? dados) as Record<string, unknown> | null;
   if (!u || typeof u["id"] !== "string") return null;
-  return { id: u["id"], email: String(u["email"] ?? "") };
+  const meta = (u["user_metadata"] ?? {}) as Record<string, unknown>;
+  return {
+    id: u["id"],
+    email: String(u["email"] ?? ""),
+    nome: String(meta["nome"] ?? "").trim(),
+    telefone: String(meta["telefone"] ?? "").trim(),
+  };
+}
+
+/** Salva nome e telefone no perfil do usuário logado. */
+export async function salvarPerfil(nome: string, telefone: string): Promise<Usuario> {
+  const token = getCookie(ACCESS);
+  if (!token) throw new Error("Sessão expirada. Entre novamente para continuar.");
+  const res = await fetch(`${url()}/user`, {
+    method: "PUT",
+    headers: {
+      apikey: anon(),
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: { nome, telefone } }),
+  });
+  const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
+  const usuario = extrairUsuario(dados);
+  if (!usuario) throw new Error("Não foi possível salvar o perfil.");
+  return usuario;
 }
 
 export async function entrar(email: string, senha: string): Promise<Usuario> {

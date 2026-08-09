@@ -1,6 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 
-export type SessaoUsuario = { id: string; email: string } | null;
+export type SessaoUsuario = { id: string; email: string; nome: string; telefone: string } | null;
+
+export const salvarPerfilFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { nome: string; telefone: string }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { salvarPerfil } = await import("./auth.server");
+    const nome = data.nome.trim().slice(0, 80);
+    if (nome.length < 2) throw new Error("Informe seu nome.");
+    await salvarPerfil(nome, data.telefone.trim().slice(0, 20));
+    return { ok: true };
+  });
 
 export const sessaoFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<SessaoUsuario> => {
