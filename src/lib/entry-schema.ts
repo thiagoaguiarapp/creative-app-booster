@@ -23,7 +23,6 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "plataforma", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "corridas", label: "Rotas / corridas", tipo: "number" },
     { key: "faturamento", label: "Faturamento (R$)", tipo: "money", obrigatorio: true },
-    { key: "recebido", label: "Valor recebido (R$)", tipo: "money" },
   ],
   abastecimento: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
