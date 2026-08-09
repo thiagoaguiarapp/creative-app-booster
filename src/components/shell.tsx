@@ -13,12 +13,14 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="font-display text-3xl font-semibold uppercase tracking-wide">{title}</h1>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:flex-wrap sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="truncate font-display text-2xl font-semibold uppercase tracking-wide sm:text-3xl">
+          {title}
+        </h1>
         {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
-      {action}
+      <div className="shrink-0">{action}</div>
     </div>
   );
 }
@@ -44,14 +46,16 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="panel p-5">
+    <div className="panel p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
           {label}
         </p>
-        <Icon className={cn("size-4", toneClass)} />
+        <Icon className={cn("size-4 shrink-0", toneClass)} />
       </div>
-      <p className={cn("num mt-3 font-display text-3xl font-semibold", toneClass)}>{value}</p>
+      <p className={cn("num mt-2 font-display text-2xl font-semibold sm:mt-3 sm:text-3xl", toneClass)}>
+        {value}
+      </p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
@@ -70,11 +74,14 @@ export function SectionCard({
 }) {
   return (
     <section className={cn("panel overflow-hidden", className)}>
-      <header className="border-b border-border px-5 py-4">
-        <h2 className="font-display text-lg font-semibold uppercase tracking-wide">{title}</h2>
+      <header className="border-b border-border px-4 py-3 sm:px-5 sm:py-4">
+        <h2 className="font-display text-base font-semibold uppercase tracking-wide sm:text-lg">
+          {title}
+        </h2>
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </header>
-      <div className="p-5">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </section>
   );
 }
+
