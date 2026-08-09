@@ -126,3 +126,18 @@ Esses valores aparecem em cards separados na tela e também no hint do card "Rec
 - **Valor recebido** do campo antigo `RECEBIDO` na tabela `DIARIO` foi removido. A coluna ainda existe se você não alterou o banco, mas o app não usa.
 - **Gorjeta/Sobra lançada na aba REPASSE** não entra no faturamento, no recebido, nos cards de Gorjeta/Sobra, nem na conciliação. Aparece apenas no alerta de erro.
 - **Despesas e abastecimento** não entram nesta tela.
+
+## 11. Ajuste no relatório: card de Manutenção
+
+Na tela **Relatório por período** (`src/routes/relatorio.tsx`), o card "Manutenção" está mostrando o hint "Ganho por km" (`r.lucro / r.km`). Esse hint não faz sentido para um card de custo.
+
+### O que será feito
+
+- Remover o hint "Ganho por km" do card de Manutenção.
+- Substituir por um hint relacionado ao valor gasto, por exemplo: "Valor gasto com manutenção no período" ou deixar sem hint secundário.
+- Manter o valor principal do card como `r.manutencao` (soma dos valores da tabela `MANUTENCAO` no período).
+
+### Arquivo e local
+
+- `src/routes/relatorio.tsx`, linha do `<StatCard label="Manutenção" ... />`.
+
