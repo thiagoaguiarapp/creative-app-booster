@@ -366,6 +366,69 @@ export function NovoLancamento({
   );
 }
 
+const TIPOS_RAPIDOS: { tipo: Tipo; rotulo: string; desc: string }[] = [
+  { tipo: "ganho", rotulo: "Ganho diário", desc: "Corridas e faturamento" },
+  { tipo: "abastecimento", rotulo: "Abastecimento", desc: "Litros e odômetro" },
+  { tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais" },
+  { tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos" },
+];
+
+/** Botão único que abre um menu rápido para escolher o tipo de lançamento. */
+export function NovoLancamentoRapido({ className }: { className?: string }) {
+  const [menu, setMenu] = useState(false);
+  const [tipo, setTipo] = useState<Tipo | null>(null);
+
+  return (
+    <>
+      <Button
+        size="lg"
+        onClick={() => setMenu(true)}
+        {...(className ? { className } : {})}
+      >
+        <Plus className="size-5" /> Novo lançamento
+      </Button>
+
+      <Dialog open={menu} onOpenChange={setMenu}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo lançamento</DialogTitle>
+            <DialogDescription>Escolha o que você quer registrar.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2">
+            {TIPOS_RAPIDOS.map((item) => (
+              <button
+                key={item.tipo}
+                type="button"
+                onClick={() => {
+                  setMenu(false);
+                  setTipo(item.tipo);
+                }}
+                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/50"
+              >
+                <span>
+                  <span className="block text-sm font-medium">{item.rotulo}</span>
+                  <span className="block text-xs text-muted-foreground">{item.desc}</span>
+                </span>
+                <Plus className="size-4 text-primary" />
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {tipo && (
+        <FormularioDialog
+          tipo={tipo}
+          aberto={true}
+          onOpenChange={(v) => {
+            if (!v) setTipo(null);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
 /** Data de hoje no formato do input date (aaaa-mm-dd). */
 export function hojeInputDate() {
   const d = new Date();
