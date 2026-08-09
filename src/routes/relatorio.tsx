@@ -315,20 +315,20 @@ function RelatorioPage() {
 
 function Barras({ itens, total }: { itens: { nome: string; valor: number }[]; total: number }) {
   if (itens.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sem dados no período.</p>;
+    return <p className="text-xs text-muted-foreground sm:text-sm">Sem dados no período.</p>;
   }
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2 sm:gap-3">
       {itens.slice(0, 8).map((i) => (
-        <div key={i.nome} className="flex items-center gap-3">
-          <span className="w-24 shrink-0 truncate text-sm text-muted-foreground sm:w-28">{i.nome}</span>
+        <div key={i.nome} className="flex items-center gap-2 sm:gap-3">
+          <span className="w-20 shrink-0 truncate text-[10px] text-muted-foreground sm:w-28 sm:text-sm">{i.nome}</span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
             <div
               className="h-full rounded-full bg-primary"
               style={{ width: `${total ? (i.valor / total) * 100 : 0}%` }}
             />
           </div>
-          <span className="num w-20 text-right text-sm font-medium sm:w-24">{brl(i.valor)}</span>
+          <span className="num w-18 text-right text-[10px] font-medium sm:w-24 sm:text-sm">{brl(i.valor)}</span>
         </div>
       ))}
     </div>
