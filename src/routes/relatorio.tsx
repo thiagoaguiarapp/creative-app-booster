@@ -268,41 +268,43 @@ function RelatorioPage() {
       </div>
 
       <SectionCard title="Resumo mensal" description="Todo o período dividido por mês">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Mês</TableHead>
-              <TableHead className="text-right">Corridas</TableHead>
-              <TableHead className="text-right">Faturamento</TableHead>
-              <TableHead className="text-right">Combustível</TableHead>
-              <TableHead className="text-right">Despesas</TableHead>
-              <TableHead className="text-right">Manutenção</TableHead>
-              <TableHead className="text-right">Lucro</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {r.porMes.map((m) => (
-              <TableRow key={m.mes}>
-                <TableCell className="font-medium">{rotuloMes(m.mes)}</TableCell>
-                <TableCell className="num text-right">{m.corridas || "—"}</TableCell>
-                <TableCell className="num text-right text-success">{brl(m.fat)}</TableCell>
-                <TableCell className="num text-right">{brl(m.comb)}</TableCell>
-                <TableCell className="num text-right">{brl(m.desp)}</TableCell>
-                <TableCell className="num text-right">{brl(m.manut)}</TableCell>
-                <TableCell className={`num text-right font-semibold ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
-                  {brl(m.lucro)}
-                </TableCell>
-              </TableRow>
-            ))}
-            {r.porMes.length === 0 && (
+        <div className="-mx-4 overflow-x-auto sm:-mx-5">
+          <Table className="min-w-[640px]">
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
-                  Nenhum lançamento nesse período.
-                </TableCell>
+                <TableHead className="whitespace-nowrap">Mês</TableHead>
+                <TableHead className="whitespace-nowrap text-right">Corridas</TableHead>
+                <TableHead className="whitespace-nowrap text-right">Faturamento</TableHead>
+                <TableHead className="whitespace-nowrap text-right">Combustível</TableHead>
+                <TableHead className="whitespace-nowrap text-right">Despesas</TableHead>
+                <TableHead className="whitespace-nowrap text-right">Manutenção</TableHead>
+                <TableHead className="whitespace-nowrap text-right">Lucro</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {r.porMes.map((m) => (
+                <TableRow key={m.mes}>
+                  <TableCell className="whitespace-nowrap font-medium">{rotuloMes(m.mes)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right">{m.corridas || "—"}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-success">{brl(m.fat)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right">{brl(m.comb)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right">{brl(m.desp)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right">{brl(m.manut)}</TableCell>
+                  <TableCell className={`num whitespace-nowrap text-right font-semibold ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
+                    {brl(m.lucro)}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {r.porMes.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
+                    Nenhum lançamento nesse período.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </SectionCard>
 
       <AdBanner />
