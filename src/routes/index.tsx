@@ -22,7 +22,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AdBanner } from "@/components/ad-banner";
-import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
+import { NovoLancamentoRapido } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -148,6 +148,9 @@ function Home() {
   const despesasTotal = despesasHoje.reduce((s, d) => s + d.valor, 0);
   const litrosHoje = abastHoje.reduce((s, a) => s + a.litros, 0);
   const abastValorHoje = abastHoje.reduce((s, a) => s + a.valorPago, 0);
+
+  const custosHoje = despesasTotal + abastValorHoje;
+  const lucroHoje = faturamentoHoje - custosHoje;
 
   const variacaoFaturamento =
     faturamentoOntem > 0 ? ((faturamentoHoje - faturamentoOntem) / faturamentoOntem) * 100 : null;
