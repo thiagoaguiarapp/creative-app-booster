@@ -303,6 +303,8 @@ function RelatorioPage() {
           </TableBody>
         </Table>
       </SectionCard>
+
+      <AdBanner slot="relatorio" />
     </div>
   );
 }
