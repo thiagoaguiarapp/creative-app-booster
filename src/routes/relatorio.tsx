@@ -190,29 +190,30 @@ function RelatorioPage() {
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:gap-4 lg:gap-6">
       <PageHeader
         title="Relatório por período"
         subtitle="Consolidado de ganhos, custos e lucro líquido"
         action={
           <div className="flex gap-2 print:hidden">
-            <Button variant="outline" size="sm" onClick={baixarCsv}>
-              <Download className="size-4" /> CSV
+            <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
+              <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
             </Button>
-            <Button size="sm" onClick={() => window.print()}>
-              <Printer className="size-4" /> Imprimir
+            <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
+              <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
             </Button>
           </div>
         }
       />
 
       <SectionCard title="Período" description="Escolha um atalho ou defina as datas">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           <div className="flex flex-wrap gap-2 print:hidden">
             {PRESETS.map((p) => (
               <Button
                 key={p.label}
                 size="sm"
+                className="h-8 text-xs"
                 variant={de === p.de() && ate === p.ate() ? "default" : "secondary"}
                 onClick={() => {
                   setDe(p.de());
@@ -223,20 +224,20 @@ function RelatorioPage() {
               </Button>
             ))}
           </div>
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-wrap items-end gap-3 sm:gap-4">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="de" className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label htmlFor="de" className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
                 De
               </Label>
-              <Input id="de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="w-44" />
+              <Input id="de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="h-9 w-36 text-xs sm:w-44 sm:text-sm" />
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="ate" className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label htmlFor="ate" className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
                 Até
               </Label>
-              <Input id="ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="w-44" />
+              <Input id="ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="h-9 w-36 text-xs sm:w-44 sm:text-sm" />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground sm:text-xs">
               {r.qtd.ganhos} ganhos · {r.qtd.abast} abastecimentos · {r.qtd.despesas} despesas ·{" "}
               {r.qtd.repasses} repasses · {r.qtd.manut} manutenções
             </p>
@@ -244,21 +245,21 @@ function RelatorioPage() {
         </div>
       </SectionCard>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
         <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
         <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
         <StatCard label="Recebido" value={brl(r.recebido)} hint="Repasses das plataformas" icon={Wallet} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
         <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
         <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
         <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <SectionCard title="Faturamento por plataforma">
           <Barras itens={r.porPlataforma} total={r.faturamento} />
         </SectionCard>
@@ -268,41 +269,43 @@ function RelatorioPage() {
       </div>
 
       <SectionCard title="Resumo mensal" description="Todo o período dividido por mês">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Mês</TableHead>
-              <TableHead className="text-right">Corridas</TableHead>
-              <TableHead className="text-right">Faturamento</TableHead>
-              <TableHead className="text-right">Combustível</TableHead>
-              <TableHead className="text-right">Despesas</TableHead>
-              <TableHead className="text-right">Manutenção</TableHead>
-              <TableHead className="text-right">Lucro</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {r.porMes.map((m) => (
-              <TableRow key={m.mes}>
-                <TableCell className="font-medium">{rotuloMes(m.mes)}</TableCell>
-                <TableCell className="num text-right">{m.corridas || "—"}</TableCell>
-                <TableCell className="num text-right text-success">{brl(m.fat)}</TableCell>
-                <TableCell className="num text-right">{brl(m.comb)}</TableCell>
-                <TableCell className="num text-right">{brl(m.desp)}</TableCell>
-                <TableCell className="num text-right">{brl(m.manut)}</TableCell>
-                <TableCell className={`num text-right font-semibold ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
-                  {brl(m.lucro)}
-                </TableCell>
-              </TableRow>
-            ))}
-            {r.porMes.length === 0 && (
+        <div className="-mx-3 overflow-x-auto sm:-mx-5">
+          <Table className="min-w-[600px]">
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
-                  Nenhum lançamento nesse período.
-                </TableCell>
+                <TableHead className="whitespace-nowrap text-[10px] sm:text-xs">Mês</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Corridas</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Faturamento</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Combustível</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Despesas</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Manutenção</TableHead>
+                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Lucro</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {r.porMes.map((m) => (
+                <TableRow key={m.mes}>
+                  <TableCell className="whitespace-nowrap text-[10px] font-medium sm:text-xs">{rotuloMes(m.mes)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{m.corridas || "—"}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] text-success sm:text-xs">{brl(m.fat)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.comb)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.desp)}</TableCell>
+                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.manut)}</TableCell>
+                  <TableCell className={`num whitespace-nowrap text-right text-[10px] font-semibold sm:text-xs ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
+                    {brl(m.lucro)}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {r.porMes.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-[10px] text-muted-foreground sm:text-sm">
+                    Nenhum lançamento nesse período.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </SectionCard>
 
       <AdBanner />
@@ -312,20 +315,20 @@ function RelatorioPage() {
 
 function Barras({ itens, total }: { itens: { nome: string; valor: number }[]; total: number }) {
   if (itens.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sem dados no período.</p>;
+    return <p className="text-xs text-muted-foreground sm:text-sm">Sem dados no período.</p>;
   }
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2 sm:gap-3">
       {itens.slice(0, 8).map((i) => (
-        <div key={i.nome} className="flex items-center gap-3">
-          <span className="w-28 shrink-0 truncate text-sm text-muted-foreground">{i.nome}</span>
+        <div key={i.nome} className="flex items-center gap-2 sm:gap-3">
+          <span className="w-20 shrink-0 truncate text-[10px] text-muted-foreground sm:w-28 sm:text-sm">{i.nome}</span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
             <div
               className="h-full rounded-full bg-primary"
               style={{ width: `${total ? (i.valor / total) * 100 : 0}%` }}
             />
           </div>
-          <span className="num w-24 text-right text-sm font-medium">{brl(i.valor)}</span>
+          <span className="num w-18 text-right text-[10px] font-medium sm:w-24 sm:text-sm">{brl(i.valor)}</span>
         </div>
       ))}
     </div>

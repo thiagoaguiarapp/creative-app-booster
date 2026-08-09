@@ -13,12 +13,14 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="font-display text-3xl font-semibold uppercase tracking-wide">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:flex sm:flex-wrap sm:justify-between sm:gap-4">
+      <div className="min-w-0">
+        <h1 className="truncate font-display text-xl font-semibold uppercase tracking-wide sm:text-3xl">
+          {title}
+        </h1>
+        {subtitle && <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm sm:mt-1">{subtitle}</p>}
       </div>
-      {action}
+      <div className="shrink-0">{action}</div>
     </div>
   );
 }
@@ -44,15 +46,17 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="panel p-5">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+    <div className="panel p-3 sm:p-5">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
           {label}
         </p>
-        <Icon className={cn("size-4", toneClass)} />
+        <Icon className={cn("size-3.5 shrink-0 sm:size-4", toneClass)} />
       </div>
-      <p className={cn("num mt-3 font-display text-3xl font-semibold", toneClass)}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      <p className={cn("num mt-1 font-display text-xl font-semibold sm:mt-3 sm:text-3xl", toneClass)}>
+        {value}
+      </p>
+      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground sm:mt-1 sm:text-xs">{hint}</p>}
     </div>
   );
 }
@@ -70,11 +74,14 @@ export function SectionCard({
 }) {
   return (
     <section className={cn("panel overflow-hidden", className)}>
-      <header className="border-b border-border px-5 py-4">
-        <h2 className="font-display text-lg font-semibold uppercase tracking-wide">{title}</h2>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      <header className="border-b border-border px-3 py-2 sm:px-5 sm:py-4">
+        <h2 className="font-display text-sm font-semibold uppercase tracking-wide sm:text-lg">
+          {title}
+        </h2>
+        {description && <p className="text-[10px] text-muted-foreground sm:text-xs">{description}</p>}
       </header>
-      <div className="p-5">{children}</div>
+      <div className="p-3 sm:p-5">{children}</div>
     </section>
   );
 }
+
