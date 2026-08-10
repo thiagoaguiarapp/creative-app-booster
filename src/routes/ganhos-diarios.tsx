@@ -81,17 +81,18 @@ function Ganhos() {
   const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
 
   const semana = useMemo(() => {
-    const soma = new Array(7).fill(0) as number[];
+    const soma: number[] = [0, 0, 0, 0, 0, 0, 0];
     for (const g of ganhos) {
       if (!g.iso) continue;
       const [y, m, d] = g.iso.split("-").map(Number);
       if (!y || !m || !d) continue;
-      soma[new Date(y, m - 1, d).getDay()] += g.faturamento;
+      const dia = new Date(y, m - 1, d).getDay();
+      soma[dia] = (soma[dia] ?? 0) + g.faturamento;
     }
     // segunda a domingo
     return [1, 2, 3, 4, 5, 6, 0].map((i) => ({
-      label: DIAS_SEMANA[i],
-      valor: soma[i],
+      label: DIAS_SEMANA[i] ?? "",
+      valor: soma[i] ?? 0,
     }));
   }, [ganhos]);
 
