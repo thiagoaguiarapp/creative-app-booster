@@ -14,12 +14,14 @@ export type Abastecimento = {
   row: number;
   data: string;
   iso: string;
+  posto: string;
   odometro: number;
   litros: number;
   precoLitro: number;
   kmRodado: number;
   kmPorLitro: number;
   custoKm: number;
+  desconto: number;
   valorPago: number;
   pagamento: string;
 };

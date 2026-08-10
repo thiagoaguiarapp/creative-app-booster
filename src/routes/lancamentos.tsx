@@ -92,8 +92,14 @@ function LancamentosPage() {
         rotulo: "Abastecimento",
         data: a.data,
         iso: a.iso,
-        titulo: `${a.litros} L`,
-        detalhe: `Odômetro ${a.odometro} km · ${a.pagamento}`,
+        titulo: a.posto ? `${a.litros} L · ${a.posto}` : `${a.litros} L`,
+        detalhe: [
+          `Odômetro ${a.odometro} km`,
+          a.desconto > 0 ? `Desconto ${brl(a.desconto)}` : "",
+          a.pagamento,
+        ]
+          .filter(Boolean)
+          .join(" · "),
         valor: a.valorPago,
         positivo: false,
         registro: a as unknown as Record<string, unknown> & { row: number },
