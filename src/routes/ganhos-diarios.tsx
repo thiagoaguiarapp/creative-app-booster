@@ -51,6 +51,18 @@ const PERIODOS: { id: Periodo; label: string }[] = [
 
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+function isoHoje() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function offsetDia(iso: string, dias: number) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + dias);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 function prefixoMes(offset: number) {
   const d = new Date();
   d.setDate(1);
@@ -80,23 +92,23 @@ function Ganhos() {
   const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
 
-  const semana = useMemo(() => {
-    const soma: number[] = [0, 0, 0, 0, 0, 0, 0];
-    for (const g of ganhos) {
-      if (!g.iso) continue;
-      const [y, m, d] = g.iso.split("-").map(Number);
-      if (!y || !m || !d) continue;
-      const dia = new Date(y, m - 1, d).getDay();
-      soma[dia] = (soma[dia] ?? 0) + g.faturamento;
+  const ultimos7Dias = useMemo(() => {
+    const hoje = isoHoje();
+    const dias: { iso: string; label: string; valor: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const iso = offsetDia(hoje, -i);
+      const [y, m, d] = iso.split("-").map(Number);
+      const date = new Date(y, m - 1, d);
+      const label = `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")} ${DIAS_SEMANA[date.getDay()]}`;
+      const valor = ganhos
+        .filter((g) => g.iso === iso)
+        .reduce((s, g) => s + g.faturamento, 0);
+      dias.push({ iso, label, valor });
     }
-    // segunda a domingo
-    return [1, 2, 3, 4, 5, 6, 0].map((i) => ({
-      label: DIAS_SEMANA[i] ?? "",
-      valor: soma[i] ?? 0,
-    }));
+    return dias;
   }, [ganhos]);
 
-  const max = Math.max(1, ...semana.map((d) => d.valor));
+  const max = Math.max(1, ...ultimos7Dias.map((d) => d.valor));
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
