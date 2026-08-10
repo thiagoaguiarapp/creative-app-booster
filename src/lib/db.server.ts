@@ -77,13 +77,28 @@ export async function colunasDe(tabela: string): Promise<string[]> {
   return colunasCache[tabela] ?? [];
 }
 
-/** Remove campos que não existem na tabela (schema pode variar entre importações). */
+/** Normaliza nome de coluna: sem acentos, sem espaços extras, maiúsculas. */
+function chaveNormalizada(nome: string): string {
+  return nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+/**
+ * Remove campos que não existem na tabela e ajusta o nome da coluna quando ela
+ * existe com outra grafia (maiúsculas/minúsculas ou acentos).
+ */
 async function filtrar(tabela: string, dados: Linha): Promise<Linha> {
   const colunas = await colunasDe(tabela);
   if (colunas.length === 0) return dados;
+  const porNome = new Map(colunas.map((c) => [chaveNormalizada(c), c]));
   const saida: Linha = {};
   for (const [k, v] of Object.entries(dados)) {
-    if (colunas.includes(k)) saida[k] = v;
+    const real = colunas.includes(k) ? k : porNome.get(chaveNormalizada(k));
+    if (real) saida[real] = v;
   }
   return saida;
 }
