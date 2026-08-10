@@ -7,6 +7,8 @@ import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -38,13 +40,16 @@ export const Route = createFileRoute("/ganhos-diarios")({
   component: Ganhos,
 });
 
-type Periodo = "atual" | "passado" | "total";
+type Periodo = "atual" | "passado" | "total" | "custom";
 
 const PERIODOS: { id: Periodo; label: string }[] = [
   { id: "atual", label: "Mês atual" },
   { id: "passado", label: "Mês passado" },
   { id: "total", label: "Total" },
+  { id: "custom", label: "Personalizado" },
 ];
+
+const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function prefixoMes(offset: number) {
   const d = new Date();
@@ -56,27 +61,42 @@ function prefixoMes(offset: number) {
 function Ganhos() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [de, setDe] = useState("");
+  const [ate, setAte] = useState("");
 
   const ganhos = useMemo(() => {
     if (periodo === "total") return data.ganhos;
+    if (periodo === "custom") {
+      return data.ganhos.filter(
+        (g) => (!de || g.iso >= de) && (!ate || g.iso <= ate),
+      );
+    }
     const p = prefixoMes(periodo === "atual" ? 0 : -1);
     return data.ganhos.filter((g) => g.iso.startsWith(p));
-  }, [data.ganhos, periodo]);
+  }, [data.ganhos, periodo, de, ate]);
 
   const recentes = ganhos.slice(0, 12);
 
   const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
-  
 
-  const porDia = new Map<string, { label: string; valor: number }>();
-  for (const g of recentes) {
-    const atual = porDia.get(g.data) ?? { label: g.data, valor: 0 };
-    atual.valor += g.faturamento;
-    porDia.set(g.data, atual);
-  }
-  const dias = [...porDia.values()].slice(0, 7).reverse();
-  const max = Math.max(1, ...dias.map((d) => d.valor));
+  const semana = useMemo(() => {
+    const soma: number[] = [0, 0, 0, 0, 0, 0, 0];
+    for (const g of ganhos) {
+      if (!g.iso) continue;
+      const [y, m, d] = g.iso.split("-").map(Number);
+      if (!y || !m || !d) continue;
+      const dia = new Date(y, m - 1, d).getDay();
+      soma[dia] = (soma[dia] ?? 0) + g.faturamento;
+    }
+    // segunda a domingo
+    return [1, 2, 3, 4, 5, 6, 0].map((i) => ({
+      label: DIAS_SEMANA[i] ?? "",
+      valor: soma[i] ?? 0,
+    }));
+  }, [ganhos]);
+
+  const max = Math.max(1, ...semana.map((d) => d.valor));
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -99,6 +119,35 @@ function Ganhos() {
         ))}
       </div>
 
+      {periodo === "custom" && (
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="grid gap-1">
+            <Label htmlFor="de" className="text-xs text-muted-foreground">
+              De
+            </Label>
+            <Input
+              id="de"
+              type="date"
+              value={de}
+              onChange={(e) => setDe(e.target.value)}
+              className="h-9 w-40"
+            />
+          </div>
+          <div className="grid gap-1">
+            <Label htmlFor="ate" className="text-xs text-muted-foreground">
+              Até
+            </Label>
+            <Input
+              id="ate"
+              type="date"
+              value={ate}
+              onChange={(e) => setAte(e.target.value)}
+              className="h-9 w-40"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Faturamento" value={brl(total)} icon={CircleDollarSign} tone="success" />
         <StatCard label="Corridas" value={String(corridas)} icon={Bike} />
@@ -111,16 +160,20 @@ function Ganhos() {
         />
       </div>
 
-      <SectionCard title="Evolução" description="Faturamento por dia (últimos dias)">
-        <div className="flex h-48 items-stretch gap-4">
-          {dias.map((d) => (
+      <SectionCard title="Evolução" description="Faturamento por dia da semana no período">
+        <div className="flex h-48 items-stretch gap-2 sm:gap-4">
+          {semana.map((d) => (
             <div key={d.label} className="flex h-full flex-1 flex-col justify-end gap-2">
-              <span className="num text-center text-xs text-muted-foreground">{brl(d.valor)}</span>
+              <span className="num text-center text-[10px] text-muted-foreground sm:text-xs">
+                {brl(d.valor)}
+              </span>
               <div
                 className="w-full rounded-t-md bg-primary/80"
                 style={{ height: `${Math.max(4, (d.valor / max) * 100)}%` }}
               />
-              <span className="text-center text-xs text-muted-foreground">{d.label}</span>
+              <span className="text-center text-[10px] text-muted-foreground sm:text-xs">
+                {d.label}
+              </span>
             </div>
           ))}
         </div>
