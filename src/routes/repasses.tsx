@@ -404,9 +404,10 @@ function RepassesPage() {
           </TableHeader>
           <TableBody>
             {porApp.map((a) => {
-              const pct = a.faturado > 0 ? Math.round((a.recebido / a.faturado) * 100) : 100;
-              const quitado = a.pendente <= 0.009;
-              const parcial = !quitado && a.recebido > 0.009;
+              const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
+              const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
+              const parcial = !quitado && a.quitado > 0.009;
+
               const baixas = repasses
                 .filter((r) => norm(r.aplicativo) === norm(a.app))
                 .sort((x, y) => y.iso.localeCompare(x.iso));
