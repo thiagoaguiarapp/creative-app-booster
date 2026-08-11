@@ -96,26 +96,73 @@ function Ganhos() {
   const total = ganhos.reduce((s, g) => s + g.faturamento, 0);
   const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
 
-  const ultimos7Dias = useMemo(() => {
-    const hoje = isoHoje();
-    const dias: { iso: string; label: string; valor: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const iso = offsetDia(hoje, -i);
+  const periodoLabel = PERIODOS.find((p) => p.id === periodo)?.label ?? "";
+
+  const { serie, tituloGrafico, descricaoGrafico } = useMemo(() => {
+    const todos = data.ganhos;
+
+    const somaDia = (iso: string) =>
+      todos.filter((g) => g.iso === iso).reduce((s, g) => s + g.faturamento, 0);
+
+    const labelDia = (iso: string) => {
       const parts = iso.split("-").map(Number);
       const y = parts[0] ?? 0;
       const m = parts[1] ?? 0;
       const d = parts[2] ?? 0;
       const date = new Date(y, m - 1, d);
-      const label = `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")} ${DIAS_SEMANA[date.getDay()]}`;
-      const valor = ganhos
-        .filter((g) => g.iso === iso)
-        .reduce((s, g) => s + g.faturamento, 0);
-      dias.push({ iso, label, valor });
-    }
-    return dias;
-  }, [ganhos]);
+      return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")} ${DIAS_SEMANA[date.getDay()]}`;
+    };
 
-  const max = Math.max(1, ...ultimos7Dias.map((d) => d.valor));
+    const intervaloDias = (inicio: string, fim: string) => {
+      const out: { key: string; label: string; valor: number }[] = [];
+      let cursor = inicio;
+      let guard = 0;
+      while (cursor <= fim && guard < 400) {
+        out.push({ key: cursor, label: labelDia(cursor), valor: somaDia(cursor) });
+        cursor = offsetDia(cursor, 1);
+        guard++;
+      }
+      return out.slice(-31);
+    };
+
+    if (periodo === "hoje" || periodo === "ontem") {
+      const iso = periodo === "hoje" ? isoHoje() : offsetDia(isoHoje(), -1);
+      const mapa = new Map<string, number>();
+      for (const g of todos) {
+        if (g.iso !== iso) continue;
+        const app = g.plataforma || "Sem app";
+        mapa.set(app, (mapa.get(app) ?? 0) + g.faturamento);
+      }
+      const serieApps = [...mapa.entries()]
+        .map(([label, valor]) => ({ key: label, label, valor }))
+        .sort((a, b) => b.valor - a.valor);
+      return {
+        serie: serieApps,
+        tituloGrafico: periodo === "hoje" ? "Ganhos de hoje por app" : "Ganhos de ontem por app",
+        descricaoGrafico: labelDia(iso),
+      };
+    }
+
+    if (periodo === "custom") {
+      const fim = ate || isoHoje();
+      const inicio = de || offsetDia(fim, -6);
+      return {
+        serie: intervaloDias(inicio, fim),
+        tituloGrafico: "Ganhos por dia",
+        descricaoGrafico: "Período personalizado",
+      };
+    }
+
+    const inicioSemana = offsetDia(isoHoje(), -new Date().getDay());
+    return {
+      serie: intervaloDias(inicioSemana, isoHoje()),
+      tituloGrafico: "Ganhos da semana por dia",
+      descricaoGrafico: "De domingo até hoje",
+    };
+  }, [data.ganhos, periodo, de, ate]);
+
+  const max = Math.max(1, ...serie.map((d) => d.valor));
+
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
