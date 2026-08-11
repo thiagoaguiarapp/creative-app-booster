@@ -40,12 +40,12 @@ export const Route = createFileRoute("/ganhos-diarios")({
   component: Ganhos,
 });
 
-type Periodo = "atual" | "passado" | "total" | "custom";
+type Periodo = "hoje" | "ontem" | "semana" | "custom";
 
 const PERIODOS: { id: Periodo; label: string }[] = [
-  { id: "atual", label: "Mês atual" },
-  { id: "passado", label: "Mês passado" },
-  { id: "total", label: "Total" },
+  { id: "hoje", label: "Hoje" },
+  { id: "ontem", label: "Ontem" },
+  { id: "semana", label: "Esta semana" },
   { id: "custom", label: "Personalizado" },
 ];
 
