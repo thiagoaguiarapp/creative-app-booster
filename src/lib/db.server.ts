@@ -122,7 +122,7 @@ export async function inserir(tabela: string, dados: Linha, userId?: string): Pr
   const corpo = await filtrar(tabela, {
     ...dados,
     ...(userId ? { [COLUNA_USUARIO]: userId } : {}),
-    ID: await proximoId(tabela),
+    ID: String(await proximoId(tabela)),
   });
   const res = await fetch(`${base()}/${encodeURIComponent(tabela)}`, {
     method: "POST",
