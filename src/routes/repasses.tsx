@@ -21,7 +21,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { criarAuditoriaMensal, normalizarPlataforma, saldosAteMes } from "@/lib/conciliacao";
+import { criarAuditoriaMensal, normalizarPlataforma, quitacaoPorApp, saldosAteMes } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -110,6 +110,14 @@ function RepassesPage() {
 
   const norm = normalizarPlataforma;
 
+  const quitacao = useMemo(
+    () =>
+      quitacaoPorApp(data.ganhos, data.repasses, (iso) =>
+        prefixo ? iso.startsWith(prefixo) : true,
+      ),
+    [data.ganhos, data.repasses, prefixo],
+  );
+
   const porApp = useMemo(() => {
     const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
     const pegar = (nome: string) => {
@@ -130,11 +138,23 @@ function RepassesPage() {
       pegar(r.aplicativo).recebido += r.valor;
     }
     return Array.from(mapa.values())
-      .map((i) => ({ ...i, pendente: i.faturado - i.recebido }))
+      .map((i) => {
+        const q = quitacao.get(norm(i.app));
+        // o que já foi quitado desse faturado, mesmo que o repasse tenha caído em outro mês
+        const quitado = q?.quitado ?? i.recebido;
+        const quitadoDepois = q?.quitadoDepois ?? 0;
+        return {
+          ...i,
+          quitado,
+          quitadoDepois,
+          pendente: Math.max(0, i.faturado - quitado),
+        };
+      })
       .filter((i) => i.faturado !== 0 || i.recebido !== 0)
       .sort((a, b) => b.faturado - a.faturado || b.recebido - a.recebido);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ganhos, repasses]);
+  }, [ganhos, repasses, quitacao]);
+
 
   const auditoria = useMemo(
     () => criarAuditoriaMensal(data.ganhos, data.repasses),
@@ -154,7 +174,7 @@ function RepassesPage() {
       const app = mes?.app ?? acumulado?.app ?? "—";
       const faturadoMes = mes?.faturado ?? 0;
       const recebidoMes = mes?.recebido ?? 0;
-      const pendenteMes = Math.max(0, faturadoMes - recebidoMes);
+      const pendenteMes = mes?.pendente ?? Math.max(0, faturadoMes - recebidoMes);
       const saldoAcumulado = Math.max(0, acumulado?.saldo ?? 0);
       const restanteAnterior = Math.max(0, saldoAcumulado - pendenteMes);
       const historicoAntes = auditoria
@@ -384,9 +404,10 @@ function RepassesPage() {
           </TableHeader>
           <TableBody>
             {porApp.map((a) => {
-              const pct = a.faturado > 0 ? Math.round((a.recebido / a.faturado) * 100) : 100;
-              const quitado = a.pendente <= 0.009;
-              const parcial = !quitado && a.recebido > 0.009;
+              const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
+              const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
+              const parcial = !quitado && a.quitado > 0.009;
+
               const baixas = repasses
                 .filter((r) => norm(r.aplicativo) === norm(a.app))
                 .sort((x, y) => y.iso.localeCompare(x.iso));
@@ -411,7 +432,15 @@ function RepassesPage() {
                       </button>
                     </TableCell>
                     <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
-                    <TableCell className="num text-right text-success">{brl(a.recebido)}</TableCell>
+                    <TableCell className="num text-right text-success">
+                      {brl(a.recebido)}
+                      {a.quitadoDepois > 0.009 && (
+                        <span className="block text-xs text-muted-foreground">
+                          + {brl(a.quitadoDepois)} recebido em outro mês
+                        </span>
+                      )}
+                    </TableCell>
+
                     <TableCell
                       className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
                     >
