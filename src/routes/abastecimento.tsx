@@ -144,9 +144,11 @@ function AbastecimentoPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
+              <TableHead>Posto</TableHead>
               <TableHead>Pagamento</TableHead>
               <TableHead className="text-right">Litros</TableHead>
               <TableHead className="text-right">R$/L</TableHead>
+              <TableHead className="text-right">Desconto</TableHead>
               <TableHead className="text-right">Odômetro</TableHead>
               <TableHead className="text-right">km/L</TableHead>
               <TableHead className="text-right">Total</TableHead>
@@ -157,9 +159,13 @@ function AbastecimentoPage() {
             {recentes.map((a) => (
               <TableRow key={a.id}>
                 <TableCell className="num">{a.data}</TableCell>
+                <TableCell>{a.posto || "—"}</TableCell>
                 <TableCell>{a.pagamento}</TableCell>
                 <TableCell className="num text-right">{a.litros.toFixed(2)}</TableCell>
                 <TableCell className="num text-right">{brl(a.precoLitro)}</TableCell>
+                <TableCell className="num text-right">
+                  {a.desconto > 0 ? brl(a.desconto) : "—"}
+                </TableCell>
                 <TableCell className="num text-right">
                   {a.odometro.toLocaleString("pt-BR")}
                 </TableCell>
