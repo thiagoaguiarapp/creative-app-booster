@@ -174,7 +174,7 @@ function RepassesPage() {
       const app = mes?.app ?? acumulado?.app ?? "—";
       const faturadoMes = mes?.faturado ?? 0;
       const recebidoMes = mes?.recebido ?? 0;
-      const pendenteMes = Math.max(0, faturadoMes - recebidoMes);
+      const pendenteMes = mes?.pendente ?? Math.max(0, faturadoMes - recebidoMes);
       const saldoAcumulado = Math.max(0, acumulado?.saldo ?? 0);
       const restanteAnterior = Math.max(0, saldoAcumulado - pendenteMes);
       const historicoAntes = auditoria
