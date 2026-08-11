@@ -156,10 +156,8 @@ function RepassesPage() {
   }, [ganhos, repasses, quitacao]);
 
 
-  const auditoria = useMemo(
-    () => criarAuditoriaMensal(data.ganhos, data.repasses),
-    [data.ganhos, data.repasses],
-  );
+
+
 
   // pendência de meses anteriores considerando quitação cronológica (FIFO)
   const anterioresSoAntigos = useMemo(
