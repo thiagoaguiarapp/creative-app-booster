@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AdBanner } from "@/components/ad-banner";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { NovoLancamentoRapido } from "@/components/lancamento-form";
 import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
@@ -203,8 +204,9 @@ function Home() {
           </div>
         </SectionCard>
       )}
-      <div className="flex justify-center sm:justify-start">
-        <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto" />
+      <div className="flex items-center justify-center gap-2 sm:justify-start">
+        <NovoLancamentoRapido className="w-full flex-1 shadow-lg sm:w-auto sm:flex-none" />
+        <AtalhoPaginas />
       </div>
 
       <div className="grid gap-5">
