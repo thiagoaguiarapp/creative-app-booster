@@ -210,11 +210,6 @@ function Home() {
           </div>
         </SectionCard>
       )}
-      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-start">
-        <NovoLancamentoRapido className="shadow-lg" />
-        <AtalhoPaginas />
-      </div>
-
       <div className="grid gap-5">
         <CardMetaSemanal
           faturamento={faturamentoSemana}
