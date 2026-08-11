@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
   CalendarClock,
-  CircleDollarSign,
+  CalendarClock,
   Edit3,
   HandCoins,
   Target,
