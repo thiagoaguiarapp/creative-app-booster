@@ -121,7 +121,7 @@ export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
   userId: string,
-  row?: number,
+  row?: string,
 ): Promise<void> {
   const mapa = MAPAS[tipo];
 
@@ -158,7 +158,7 @@ export async function salvarLancamento(
 
 export async function excluirLancamento(
   tipo: Tipo,
-  row: number,
+  row: string,
   userId: string,
 ): Promise<void> {
   await remover(MAPAS[tipo].tabela, row, userId);
