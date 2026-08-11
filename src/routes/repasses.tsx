@@ -21,7 +21,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { criarAuditoriaMensal, normalizarPlataforma, quitacaoPorApp, saldosAteMes } from "@/lib/conciliacao";
+import { normalizarPlataforma, quitacaoPorApp } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
