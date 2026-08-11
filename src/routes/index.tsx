@@ -214,13 +214,6 @@ function Home() {
           inicio={inicioSemana}
           fim={fimSemana}
         />
-        <StatCard
-          label="Faturamento da semana"
-          value={brl(faturamentoSemana)}
-          hint={`${inicioSemana.slice(8, 10)}/${inicioSemana.slice(5, 7)} a ${fimSemana.slice(8, 10)}/${fimSemana.slice(5, 7)}`}
-          icon={CircleDollarSign}
-          tone="success"
-        />
       </div>
 
       <SectionCard title="Últimos lançamentos da semana" description="Atividades registradas nesta semana">
