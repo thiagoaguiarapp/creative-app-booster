@@ -215,8 +215,13 @@ function Ganhos() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Faturamento" value={brl(total)} icon={CircleDollarSign} tone="success" />
-        <StatCard label="Corridas" value={String(corridas)} icon={Bike} />
+        <StatCard
+          label={`Faturamento — ${periodoLabel}`}
+          value={brl(total)}
+          icon={CircleDollarSign}
+          tone="success"
+        />
+        <StatCard label={`Corridas — ${periodoLabel}`} value={String(corridas)} icon={Bike} />
         <StatCard
           label="Ticket médio"
           value={brl(corridas ? total / corridas : 0)}
@@ -226,24 +231,31 @@ function Ganhos() {
         />
       </div>
 
-      <SectionCard title="Evolução" description="Faturamento dos últimos 7 dias">
-        <div className="flex h-48 items-stretch gap-2 sm:gap-4">
-          {ultimos7Dias.map((d) => (
-            <div key={d.iso} className="flex h-full flex-1 flex-col justify-end gap-2">
-              <span className="num text-center text-[10px] text-muted-foreground sm:text-xs">
-                {brl(d.valor)}
-              </span>
-              <div
-                className="w-full rounded-t-md bg-primary/80"
-                style={{ height: `${Math.max(4, (d.valor / max) * 100)}%` }}
-              />
-              <span className="text-center text-[10px] text-muted-foreground sm:text-xs">
-                {d.label}
-              </span>
-            </div>
-          ))}
-        </div>
+      <SectionCard title={tituloGrafico} description={descricaoGrafico}>
+        {serie.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">
+            Nenhum ganho lançado neste dia.
+          </p>
+        ) : (
+          <div className="flex h-48 items-stretch gap-2 sm:gap-4">
+            {serie.map((d) => (
+              <div key={d.key} className="flex h-full flex-1 flex-col justify-end gap-2">
+                <span className="num text-center text-[10px] text-muted-foreground sm:text-xs">
+                  {brl(d.valor)}
+                </span>
+                <div
+                  className="w-full rounded-t-md bg-primary/80"
+                  style={{ height: `${Math.max(4, (d.valor / max) * 100)}%` }}
+                />
+                <span className="text-center text-[10px] text-muted-foreground sm:text-xs">
+                  {d.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </SectionCard>
+
 
       <SectionCard title="Lançamentos" description="Últimos registros da aba DIA A DIA">
         <Table>
