@@ -3,10 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
   CalendarClock,
-  CircleDollarSign,
   Edit3,
   HandCoins,
   Target,
+
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -14,7 +14,7 @@ import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AdBanner } from "@/components/ad-banner";
 import { NovoLancamentoRapido } from "@/components/lancamento-form";
-import { PageHeader, SectionCard, StatCard } from "@/components/shell";
+import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -207,19 +207,12 @@ function Home() {
         <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto" />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5">
         <CardMetaSemanal
           faturamento={faturamentoSemana}
           meta={metaSemanal}
           inicio={inicioSemana}
           fim={fimSemana}
-        />
-        <StatCard
-          label="Faturamento da semana"
-          value={brl(faturamentoSemana)}
-          hint={`${inicioSemana.slice(8, 10)}/${inicioSemana.slice(5, 7)} a ${fimSemana.slice(8, 10)}/${fimSemana.slice(5, 7)}`}
-          icon={CircleDollarSign}
-          tone="success"
         />
       </div>
 
