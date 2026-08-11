@@ -81,3 +81,64 @@ export function saldosAteMes(auditoria: AuditoriaMensal[], mes: string) {
   }
   return saldos;
 }
+/**
+ * Aplica os recebimentos aos faturamentos por plataforma em ordem cronológica (FIFO),
+ * inclusive quando o repasse cai em um mês posterior ao faturamento.
+ * Retorna, por plataforma, o faturado do período e o quanto desse faturado já foi quitado
+ * (mesmo que a baixa tenha acontecido depois do período).
+ */
+export function quitacaoPorApp(
+  ganhos: Ganho[],
+  repasses: Repasse[],
+  noPeriodo: (iso: string) => boolean,
+) {
+  const porPlataforma = new Map<string, { app: string; ganhos: Ganho[]; repasses: Repasse[] }>();
+  const pegar = (nome: string) => {
+    const chave = normalizarPlataforma(nome);
+    let item = porPlataforma.get(chave);
+    if (!item) {
+      item = { app: nome.trim() || "—", ganhos: [], repasses: [] };
+      porPlataforma.set(chave, item);
+    }
+    return item;
+  };
+  for (const g of ganhos) {
+    if (ehExtra(g.plataforma) || !g.iso) continue;
+    pegar(g.plataforma).ganhos.push(g);
+  }
+  for (const r of repasses) {
+    if (ehExtra(r.aplicativo) || !r.iso) continue;
+    pegar(r.aplicativo).repasses.push(r);
+  }
+
+  const resultado = new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>();
+  for (const [chave, item] of porPlataforma) {
+    const dividas = [...item.ganhos]
+      .sort((a, b) => a.iso.localeCompare(b.iso))
+      .map((g) => ({ g, restante: g.faturamento, pago: 0, pagoFora: 0 }));
+    const pagamentos = [...item.repasses].sort((a, b) => a.iso.localeCompare(b.iso));
+    for (const pagamento of pagamentos) {
+      let sobra = pagamento.valor;
+      for (const divida of dividas) {
+        if (sobra <= 0.0001) break;
+        if (divida.restante <= 0.0001) continue;
+        const usado = Math.min(sobra, divida.restante);
+        divida.restante -= usado;
+        divida.pago += usado;
+        if (!noPeriodo(pagamento.iso)) divida.pagoFora += usado;
+        sobra -= usado;
+      }
+    }
+    let faturado = 0;
+    let quitado = 0;
+    let quitadoDepois = 0;
+    for (const divida of dividas) {
+      if (!noPeriodo(divida.g.iso)) continue;
+      faturado += divida.g.faturamento;
+      quitado += divida.pago;
+      quitadoDepois += divida.pagoFora;
+    }
+    resultado.set(chave, { app: item.app, faturado, quitado, quitadoDepois });
+  }
+  return resultado;
+}
