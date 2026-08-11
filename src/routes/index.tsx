@@ -207,7 +207,7 @@ function Home() {
         <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto" />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5">
         <CardMetaSemanal
           faturamento={faturamentoSemana}
           meta={metaSemanal}
