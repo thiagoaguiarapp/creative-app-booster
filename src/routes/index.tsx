@@ -141,6 +141,12 @@ function Home() {
         subtitle="Aqui está o resumo do seu dia de trabalho."
       />
 
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+        <AtalhoPaginas />
+        <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto sm:flex-none" />
+      </div>
+
+
       {manutencoesAviso.length > 0 && (
         <SectionCard
           title="Manutenção"
