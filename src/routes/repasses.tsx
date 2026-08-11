@@ -110,6 +110,14 @@ function RepassesPage() {
 
   const norm = normalizarPlataforma;
 
+  const quitacao = useMemo(
+    () =>
+      quitacaoPorApp(data.ganhos, data.repasses, (iso) =>
+        prefixo ? iso.startsWith(prefixo) : true,
+      ),
+    [data.ganhos, data.repasses, prefixo],
+  );
+
   const porApp = useMemo(() => {
     const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
     const pegar = (nome: string) => {
@@ -130,11 +138,23 @@ function RepassesPage() {
       pegar(r.aplicativo).recebido += r.valor;
     }
     return Array.from(mapa.values())
-      .map((i) => ({ ...i, pendente: i.faturado - i.recebido }))
+      .map((i) => {
+        const q = quitacao.get(norm(i.app));
+        // o que já foi quitado desse faturado, mesmo que o repasse tenha caído em outro mês
+        const quitado = q?.quitado ?? i.recebido;
+        const quitadoDepois = q?.quitadoDepois ?? 0;
+        return {
+          ...i,
+          quitado,
+          quitadoDepois,
+          pendente: Math.max(0, i.faturado - quitado),
+        };
+      })
       .filter((i) => i.faturado !== 0 || i.recebido !== 0)
       .sort((a, b) => b.faturado - a.faturado || b.recebido - a.recebido);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ganhos, repasses]);
+  }, [ganhos, repasses, quitacao]);
+
 
   const auditoria = useMemo(
     () => criarAuditoriaMensal(data.ganhos, data.repasses),
