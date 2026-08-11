@@ -141,6 +141,12 @@ function Home() {
         subtitle="Aqui está o resumo do seu dia de trabalho."
       />
 
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+        <AtalhoPaginas />
+        <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto sm:flex-none" />
+      </div>
+
+
       {manutencoesAviso.length > 0 && (
         <SectionCard
           title="Manutenção"
@@ -204,11 +210,6 @@ function Home() {
           </div>
         </SectionCard>
       )}
-      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-start">
-        <NovoLancamentoRapido className="shadow-lg" />
-        <AtalhoPaginas />
-      </div>
-
       <div className="grid gap-5">
         <CardMetaSemanal
           faturamento={faturamentoSemana}
