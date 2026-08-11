@@ -204,8 +204,8 @@ function Home() {
           </div>
         </SectionCard>
       )}
-      <div className="flex items-center justify-center gap-2 sm:justify-start">
-        <NovoLancamentoRapido className="w-full flex-1 shadow-lg sm:w-auto sm:flex-none" />
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-start">
+        <NovoLancamentoRapido className="shadow-lg" />
         <AtalhoPaginas />
       </div>
 
