@@ -21,7 +21,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { criarAuditoriaMensal, normalizarPlataforma, quitacaoPorApp, saldosAteMes } from "@/lib/conciliacao";
+import { normalizarPlataforma, quitacaoPorApp } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -156,31 +156,48 @@ function RepassesPage() {
   }, [ganhos, repasses, quitacao]);
 
 
-  const auditoria = useMemo(
-    () => criarAuditoriaMensal(data.ganhos, data.repasses),
-    [data.ganhos, data.repasses],
+
+
+
+  // pendência de meses anteriores considerando quitação cronológica (FIFO)
+  const anterioresSoAntigos = useMemo(
+    () =>
+      prefixo
+        ? quitacaoPorApp(
+            data.ganhos,
+            data.repasses.filter((r) => r.iso < prefixo),
+            (iso) => iso < prefixo,
+          )
+        : new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>(),
+    [data.ganhos, data.repasses, prefixo],
   );
-  const saldosSelecionados = useMemo(
-    () => (prefixo ? saldosAteMes(auditoria, prefixo) : new Map<string, { app: string; saldo: number }>()),
-    [auditoria, prefixo],
+  const anterioresComTudo = useMemo(
+    () =>
+      prefixo
+        ? quitacaoPorApp(data.ganhos, data.repasses, (iso) => iso < prefixo)
+        : new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>(),
+    [data.ganhos, data.repasses, prefixo],
   );
 
   // conciliação: o que sobrou do recebido no mês abate a pendência antiga do mesmo app
   const conciliacao = useMemo(() => {
-    const chaves = new Set([...porApp.map((a) => norm(a.app)), ...saldosSelecionados.keys()]);
+    const chaves = new Set([
+      ...porApp.map((a) => norm(a.app)),
+      ...anterioresComTudo.keys(),
+    ]);
     return Array.from(chaves).map((chave) => {
       const mes = porApp.find((a) => norm(a.app) === chave);
-      const acumulado = saldosSelecionados.get(chave);
-      const app = mes?.app ?? acumulado?.app ?? "—";
+      const antigo = anterioresComTudo.get(chave);
+      const app = mes?.app ?? antigo?.app ?? "—";
       const faturadoMes = mes?.faturado ?? 0;
       const recebidoMes = mes?.recebido ?? 0;
       const pendenteMes = mes?.pendente ?? Math.max(0, faturadoMes - recebidoMes);
-      const saldoAcumulado = Math.max(0, acumulado?.saldo ?? 0);
-      const restanteAnterior = Math.max(0, saldoAcumulado - pendenteMes);
-      const historicoAntes = auditoria
-        .filter((item) => item.mes < (prefixo ?? "") && norm(item.app) === chave)
-        .at(0);
-      const pendenteAnterior = Math.max(0, historicoAntes?.saldoAcumulado ?? 0);
+      const soAntigos = anterioresSoAntigos.get(chave);
+      const pendenteAnterior = Math.max(
+        0,
+        (soAntigos?.faturado ?? 0) - (soAntigos?.quitado ?? 0),
+      );
+      const restanteAnterior = Math.max(0, (antigo?.faturado ?? 0) - (antigo?.quitado ?? 0));
       const abatido = Math.max(0, pendenteAnterior - restanteAnterior);
       return {
         app,
@@ -194,7 +211,8 @@ function RepassesPage() {
       };
     }).sort((a, b) => b.total - a.total || b.pendenteAnterior - a.pendenteAnterior);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [porApp, saldosSelecionados, auditoria, prefixo]);
+  }, [porApp, anterioresSoAntigos, anterioresComTudo, prefixo]);
+
 
 
   const pendenteAnteriorTotal = conciliacao.reduce((s, a) => s + a.pendenteAnterior, 0);
