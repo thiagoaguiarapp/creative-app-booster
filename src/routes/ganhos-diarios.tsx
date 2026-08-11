@@ -75,19 +75,27 @@ function prefixoMes(offset: number) {
 
 function Ganhos() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
 
   const ganhos = useMemo(() => {
-    if (periodo === "total") return data.ganhos;
     if (periodo === "custom") {
       return data.ganhos.filter(
         (g) => (!de || g.iso >= de) && (!ate || g.iso <= ate),
       );
     }
-    const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return data.ganhos.filter((g) => g.iso.startsWith(p));
+    if (periodo === "hoje") {
+      const hoje = isoHoje();
+      return data.ganhos.filter((g) => g.iso === hoje);
+    }
+    if (periodo === "ontem") {
+      const ontem = offsetDia(isoHoje(), -1);
+      return data.ganhos.filter((g) => g.iso === ontem);
+    }
+    const d = new Date();
+    const inicioSemana = offsetDia(isoHoje(), -d.getDay());
+    return data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= isoHoje());
   }, [data.ganhos, periodo, de, ate]);
 
   const recentes = ganhos.slice(0, 12);
