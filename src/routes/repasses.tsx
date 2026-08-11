@@ -20,6 +20,8 @@ import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lan
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { normalizarPlataforma, quitacaoPorApp } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
@@ -53,12 +55,13 @@ export const Route = createFileRoute("/repasses")({
   component: RepassesPage,
 });
 
-type Periodo = "atual" | "passado" | "total";
+type Periodo = "atual" | "passado" | "total" | "custom";
 
 const PERIODOS: { id: Periodo; label: string }[] = [
   { id: "atual", label: "Mês atual" },
   { id: "passado", label: "Mês passado" },
   { id: "total", label: "Total" },
+  { id: "custom", label: "Personalizado" },
 ];
 
 function prefixoMes(offset: number) {
@@ -72,16 +75,29 @@ function RepassesPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
   const [aberto, setAberto] = useState<string | null>(null);
+  const [de, setDe] = useState("");
+  const [ate, setAte] = useState("");
 
   const prefixo = periodo === "total" ? null : prefixoMes(periodo === "atual" ? 0 : -1);
+  // corte de "meses anteriores": no período personalizado usa a data inicial.
+  const corte = periodo === "total" ? null : periodo === "custom" ? de || null : prefixo;
+
+  const filtra = (iso: string) =>
+    periodo === "custom"
+      ? (!de || iso >= de) && (!ate || iso <= ate)
+      : prefixo
+        ? iso.startsWith(prefixo)
+        : true;
 
   const repasses = useMemo(
-    () => (prefixo ? data.repasses.filter((r) => r.iso.startsWith(prefixo)) : data.repasses),
-    [data.repasses, prefixo],
+    () => data.repasses.filter((r) => filtra(r.iso)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data.repasses, periodo, de, ate, prefixo],
   );
   const ganhos = useMemo(
-    () => (prefixo ? data.ganhos.filter((g) => g.iso.startsWith(prefixo)) : data.ganhos),
-    [data.ganhos, prefixo],
+    () => data.ganhos.filter((g) => filtra(g.iso)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data.ganhos, periodo, de, ate, prefixo],
   );
 
   const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 15);
@@ -111,11 +127,9 @@ function RepassesPage() {
   const norm = normalizarPlataforma;
 
   const quitacao = useMemo(
-    () =>
-      quitacaoPorApp(data.ganhos, data.repasses, (iso) =>
-        prefixo ? iso.startsWith(prefixo) : true,
-      ),
-    [data.ganhos, data.repasses, prefixo],
+    () => quitacaoPorApp(data.ganhos, data.repasses, filtra),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data.ganhos, data.repasses, periodo, de, ate, prefixo],
   );
 
   const porApp = useMemo(() => {
@@ -162,21 +176,21 @@ function RepassesPage() {
   // pendência de meses anteriores considerando quitação cronológica (FIFO)
   const anterioresSoAntigos = useMemo(
     () =>
-      prefixo
+      corte
         ? quitacaoPorApp(
             data.ganhos,
-            data.repasses.filter((r) => r.iso < prefixo),
-            (iso) => iso < prefixo,
+            data.repasses.filter((r) => r.iso < corte),
+            (iso) => iso < corte,
           )
         : new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>(),
-    [data.ganhos, data.repasses, prefixo],
+    [data.ganhos, data.repasses, corte],
   );
   const anterioresComTudo = useMemo(
     () =>
-      prefixo
-        ? quitacaoPorApp(data.ganhos, data.repasses, (iso) => iso < prefixo)
+      corte
+        ? quitacaoPorApp(data.ganhos, data.repasses, (iso) => iso < corte)
         : new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>(),
-    [data.ganhos, data.repasses, prefixo],
+    [data.ganhos, data.repasses, corte],
   );
 
   // conciliação: o que sobrou do recebido no mês abate a pendência antiga do mesmo app
@@ -211,7 +225,7 @@ function RepassesPage() {
       };
     }).sort((a, b) => b.total - a.total || b.pendenteAnterior - a.pendenteAnterior);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [porApp, anterioresSoAntigos, anterioresComTudo, prefixo]);
+  }, [porApp, anterioresSoAntigos, anterioresComTudo, corte]);
 
 
 
@@ -255,7 +269,7 @@ function RepassesPage() {
         action={<NovoLancamento tipo="repasse" />}
       />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         {PERIODOS.map((p) => (
           <Button
             key={p.id}
@@ -266,6 +280,28 @@ function RepassesPage() {
             {p.label}
           </Button>
         ))}
+        {periodo === "custom" && (
+          <>
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs text-muted-foreground">De</Label>
+              <Input
+                type="date"
+                value={de}
+                onChange={(e) => setDe(e.target.value)}
+                className="h-9 w-40"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label className="text-xs text-muted-foreground">Até</Label>
+              <Input
+                type="date"
+                value={ate}
+                onChange={(e) => setAte(e.target.value)}
+                className="h-9 w-40"
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {extrasNoRepasse.length > 0 && (
@@ -297,7 +333,7 @@ function RepassesPage() {
           tone="warning"
           hint="Pendências do período selecionado"
         />
-        {prefixo && (
+        {corte && (
           <StatCard
             label="A receber (meses anteriores)"
             value={brl(restanteAnteriorTotal)}
@@ -339,7 +375,7 @@ function RepassesPage() {
         />
       </div>
 
-      {prefixo && conciliacao.some((c) => c.restanteAnterior > 0.009) && (
+      {corte && conciliacao.some((c) => c.restanteAnterior > 0.009) && (
         <SectionCard
           title="A receber de meses anteriores"
           description="Pendências antigas por aplicativo e o quanto já foi abatido com o recebido deste período"
