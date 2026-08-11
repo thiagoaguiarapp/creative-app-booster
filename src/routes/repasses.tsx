@@ -432,7 +432,15 @@ function RepassesPage() {
                       </button>
                     </TableCell>
                     <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
-                    <TableCell className="num text-right text-success">{brl(a.recebido)}</TableCell>
+                    <TableCell className="num text-right text-success">
+                      {brl(a.recebido)}
+                      {a.quitadoDepois > 0.009 && (
+                        <span className="block text-xs text-muted-foreground">
+                          + {brl(a.quitadoDepois)} recebido em outro mês
+                        </span>
+                      )}
+                    </TableCell>
+
                     <TableCell
                       className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
                     >
