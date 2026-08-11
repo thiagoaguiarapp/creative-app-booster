@@ -1,6 +1,6 @@
 export type Ganho = {
   id: string;
-  row: number;
+  row: string;
   data: string;
   iso: string;
   plataforma: string;
@@ -11,7 +11,7 @@ export type Ganho = {
 
 export type Abastecimento = {
   id: string;
-  row: number;
+  row: string;
   data: string;
   iso: string;
   posto: string;
@@ -28,7 +28,7 @@ export type Abastecimento = {
 
 export type Despesa = {
   id: string;
-  row: number;
+  row: string;
   data: string;
   iso: string;
   valor: number;
@@ -39,7 +39,7 @@ export type Despesa = {
 
 export type Repasse = {
   id: string;
-  row: number;
+  row: string;
   data: string;
   iso: string;
   aplicativo: string;
@@ -49,7 +49,7 @@ export type Repasse = {
 
 export type Manutencao = {
   id: string;
-  row: number;
+  row: string;
   veiculo: string;
   data: string;
   iso: string;

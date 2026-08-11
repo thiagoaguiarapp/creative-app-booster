@@ -52,7 +52,7 @@ type Linha = {
   detalhe: string;
   valor: number;
   positivo: boolean;
-  registro: Record<string, unknown> & { row: number };
+  registro: Record<string, unknown> & { row: string };
 };
 
 const TIPOS: { tipo: Tipo | "todos"; rotulo: string }[] = [
@@ -84,7 +84,7 @@ function LancamentosPage() {
         detalhe: `${g.corridas || 0} rotas`,
         valor: g.faturamento,
         positivo: true,
-        registro: g as unknown as Record<string, unknown> & { row: number },
+        registro: g as unknown as Record<string, unknown> & { row: string },
       })),
       ...data.abastecimentos.map((a) => ({
         key: `abastecimento-${a.row}`,
@@ -102,7 +102,7 @@ function LancamentosPage() {
           .join(" · "),
         valor: a.valorPago,
         positivo: false,
-        registro: a as unknown as Record<string, unknown> & { row: number },
+        registro: a as unknown as Record<string, unknown> & { row: string },
       })),
       ...data.despesas.map((d) => ({
         key: `despesa-${d.row}`,
@@ -114,7 +114,7 @@ function LancamentosPage() {
         detalhe: [d.descricao, d.pagamento].filter(Boolean).join(" · "),
         valor: d.valor,
         positivo: false,
-        registro: d as unknown as Record<string, unknown> & { row: number },
+        registro: d as unknown as Record<string, unknown> & { row: string },
       })),
       ...data.repasses.map((r) => ({
         key: `repasse-${r.row}`,
@@ -126,7 +126,7 @@ function LancamentosPage() {
         detalhe: r.forma,
         valor: r.valor,
         positivo: true,
-        registro: r as unknown as Record<string, unknown> & { row: number },
+        registro: r as unknown as Record<string, unknown> & { row: string },
       })),
       ...data.manutencoes.map((m) => ({
         key: `manutencao-${m.row}`,
@@ -138,7 +138,7 @@ function LancamentosPage() {
         detalhe: `${m.veiculo} · ${m.kmTroca} km`,
         valor: m.valor,
         positivo: false,
-        registro: m as unknown as Record<string, unknown> & { row: number },
+        registro: m as unknown as Record<string, unknown> & { row: string },
       })),
     ];
     return linhas.sort((a, b) => b.iso.localeCompare(a.iso));

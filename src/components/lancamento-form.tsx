@@ -103,7 +103,7 @@ function FormularioDialog({
   onOpenChange,
 }: {
   tipo: Tipo;
-  row?: number;
+  row?: string;
   registro?: Record<string, unknown>;
   iniciais?: Record<string, string>;
   titulo?: string;
@@ -112,7 +112,7 @@ function FormularioDialog({
 }) {
   const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
   const [seguinte, setSeguinte] = useState<{
-    row?: number;
+    row?: string;
     registro?: Record<string, unknown>;
     iniciais: Record<string, string>;
     titulo: string;
@@ -469,7 +469,7 @@ export function AcoesLancamento({
   registro,
 }: {
   tipo: Tipo;
-  registro: Record<string, unknown> & { row: number };
+  registro: Record<string, unknown> & { row: string };
 }) {
   const [aberto, setAberto] = useState(false);
   const excluir = useServerFn(excluirLancamentoFn);

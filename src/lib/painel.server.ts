@@ -22,7 +22,7 @@ function campo(linha: Linha, ...nomes: string[]): unknown {
   return undefined;
 }
 
-const idDe = (linha: Linha) => Number(linha["ID"] ?? 0);
+const idDe = (linha: Linha) => txt(linha["ID"]);
 
 const caches = new Map<string, { data: PainelData; at: number }>();
 const emVoo = new Map<string, Promise<PainelData>>();
@@ -72,7 +72,7 @@ async function carregar(userId: string): Promise<PainelData> {
   const ganhos = rGanhos
     .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
     .map((l) => ({
-      id: String(idDe(l)),
+      id: idDe(l),
       row: idDe(l),
       data: dataBr(campo(l, "DATA", "Data")),
       iso: isoDate(campo(l, "DATA", "Data")),
@@ -89,7 +89,7 @@ async function carregar(userId: string): Promise<PainelData> {
       const litros = num(campo(l, "Volume abastecido", "LITROS"));
       const kmRodado = num(campo(l, "KM RODADO"));
       return {
-        id: String(idDe(l)),
+        id: idDe(l),
         row: idDe(l),
         data: dataBr(campo(l, "Data", "DATA")),
         iso: isoDate(campo(l, "Data", "DATA")),
@@ -110,7 +110,7 @@ async function carregar(userId: string): Promise<PainelData> {
   const despesas = rDesp
     .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
     .map((l) => ({
-      id: String(idDe(l)),
+      id: idDe(l),
       row: idDe(l),
       data: dataBr(campo(l, "DATA", "Data")),
       iso: isoDate(campo(l, "DATA", "Data")),
@@ -124,7 +124,7 @@ async function carregar(userId: string): Promise<PainelData> {
   const repasses = rRep
     .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
     .map((l) => ({
-      id: String(idDe(l)),
+      id: idDe(l),
       row: idDe(l),
       data: dataBr(campo(l, "DATA", "Data")),
       iso: isoDate(campo(l, "DATA", "Data")),
@@ -137,7 +137,7 @@ async function carregar(userId: string): Promise<PainelData> {
   const manutencoes = rManut
     .filter((l) => txt(campo(l, "SERVIÇO", "SERVICO")) !== "")
     .map((l) => ({
-      id: String(idDe(l)),
+      id: idDe(l),
       row: idDe(l),
       veiculo: txt(campo(l, "VEICULO", "VEÍCULO")) || "—",
       data: dataBr(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),

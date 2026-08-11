@@ -14,7 +14,7 @@ export const getPainelData = createServerFn({ method: "GET" }).handler(
 
 export const salvarLancamentoFn = createServerFn({ method: "POST" })
   .inputValidator(
-    (input: { tipo: Tipo; valores: Record<string, string>; row?: number }) => input,
+    (input: { tipo: Tipo; valores: Record<string, string>; row?: string }) => input,
   )
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { exigirUsuario } = await import("./auth.server");
@@ -27,7 +27,7 @@ export const salvarLancamentoFn = createServerFn({ method: "POST" })
   });
 
 export const excluirLancamentoFn = createServerFn({ method: "POST" })
-  .inputValidator((input: { tipo: Tipo; row: number }) => input)
+  .inputValidator((input: { tipo: Tipo; row: string }) => input)
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { exigirUsuario } = await import("./auth.server");
     const { excluirLancamento } = await import("./painel-write.server");

@@ -104,19 +104,25 @@ async function filtrar(tabela: string, dados: Linha): Promise<Linha> {
 }
 
 async function proximoId(tabela: string): Promise<number> {
+  // A coluna ID pode ser texto e conter valores não numéricos; pegamos o maior número existente.
   const res = await fetch(
-    `${base()}/${encodeURIComponent(tabela)}?select=ID&order=ID.desc&limit=1`,
+    `${base()}/${encodeURIComponent(tabela)}?select=ID`,
     { headers: headers() },
   );
-  const linhas = (await ok(res, "ler")) as { ID?: number }[] | null;
-  return Number(linhas?.[0]?.ID ?? 0) + 1;
+  const linhas = (await ok(res, "ler")) as { ID?: unknown }[] | null;
+  let maior = 0;
+  for (const l of linhas ?? []) {
+    const n = Number(String(l?.ID ?? "").trim());
+    if (Number.isFinite(n) && n > maior) maior = n;
+  }
+  return maior + 1;
 }
 
 export async function inserir(tabela: string, dados: Linha, userId?: string): Promise<void> {
   const corpo = await filtrar(tabela, {
     ...dados,
     ...(userId ? { [COLUNA_USUARIO]: userId } : {}),
-    ID: await proximoId(tabela),
+    ID: String(await proximoId(tabela)),
   });
   const res = await fetch(`${base()}/${encodeURIComponent(tabela)}`, {
     method: "POST",
@@ -128,14 +134,14 @@ export async function inserir(tabela: string, dados: Linha, userId?: string): Pr
 
 export async function atualizar(
   tabela: string,
-  id: number,
+  id: string,
   dados: Linha,
   userId?: string,
 ): Promise<void> {
   const corpo = await filtrar(tabela, dados);
   if (Object.keys(corpo).length === 0) return;
   const res = await fetch(
-    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}${await filtroDono(tabela, userId)}`,
+    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${encodeURIComponent(id)}${await filtroDono(tabela, userId)}`,
     {
       method: "PATCH",
       headers: headers({ Prefer: "return=minimal" }),
@@ -145,9 +151,9 @@ export async function atualizar(
   await ok(res, "atualizar");
 }
 
-export async function remover(tabela: string, id: number, userId?: string): Promise<void> {
+export async function remover(tabela: string, id: string, userId?: string): Promise<void> {
   const res = await fetch(
-    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${id}${await filtroDono(tabela, userId)}`,
+    `${base()}/${encodeURIComponent(tabela)}?ID=eq.${encodeURIComponent(id)}${await filtroDono(tabela, userId)}`,
     {
       method: "DELETE",
       headers: headers({ Prefer: "return=minimal" }),
