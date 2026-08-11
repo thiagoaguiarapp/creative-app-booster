@@ -144,9 +144,11 @@ function AbastecimentoPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
+              <TableHead>Posto</TableHead>
               <TableHead>Pagamento</TableHead>
               <TableHead className="text-right">Litros</TableHead>
               <TableHead className="text-right">R$/L</TableHead>
+              <TableHead className="text-right">Desconto</TableHead>
               <TableHead className="text-right">Odômetro</TableHead>
               <TableHead className="text-right">km/L</TableHead>
               <TableHead className="text-right">Total</TableHead>
