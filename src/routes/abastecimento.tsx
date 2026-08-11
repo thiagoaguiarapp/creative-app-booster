@@ -159,9 +159,13 @@ function AbastecimentoPage() {
             {recentes.map((a) => (
               <TableRow key={a.id}>
                 <TableCell className="num">{a.data}</TableCell>
+                <TableCell>{a.posto || "—"}</TableCell>
                 <TableCell>{a.pagamento}</TableCell>
                 <TableCell className="num text-right">{a.litros.toFixed(2)}</TableCell>
                 <TableCell className="num text-right">{brl(a.precoLitro)}</TableCell>
+                <TableCell className="num text-right">
+                  {a.desconto > 0 ? brl(a.desconto) : "—"}
+                </TableCell>
                 <TableCell className="num text-right">
                   {a.odometro.toLocaleString("pt-BR")}
                 </TableCell>
