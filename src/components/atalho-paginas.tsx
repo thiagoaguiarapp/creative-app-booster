@@ -1,15 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { BarChart3, Bike, Fuel, Home, LayoutGrid, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const paginas = [
   { title: "Início", url: "/", icon: Home },
@@ -24,24 +16,21 @@ const paginas = [
 
 export function AtalhoPaginas() {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="lg" variant="outline" aria-label="Atalhos de acesso às páginas">
-          <LayoutGrid className="size-5" />
+    <div className="flex flex-wrap items-center gap-2">
+      {paginas.map((item) => (
+        <Button
+          key={item.url}
+          asChild
+          size="icon"
+          variant="outline"
+          aria-label={item.title}
+          title={item.title}
+        >
+          <Link to={item.url}>
+            <item.icon className="size-4" />
+          </Link>
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64">
-        <DropdownMenuLabel>Acessar páginas</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {paginas.map((item) => (
-          <DropdownMenuItem key={item.url} asChild>
-            <Link to={item.url} className="flex items-center gap-2">
-              <item.icon className="size-4 text-muted-foreground" />
-              <span>{item.title}</span>
-            </Link>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      ))}
+    </div>
   );
 }
