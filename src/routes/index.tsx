@@ -14,7 +14,7 @@ import { formatISO, startOfWeek, endOfWeek } from "date-fns";
 
 import { AdBanner } from "@/components/ad-banner";
 import { NovoLancamentoRapido } from "@/components/lancamento-form";
-import { PageHeader, SectionCard, StatCard } from "@/components/shell";
+import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
