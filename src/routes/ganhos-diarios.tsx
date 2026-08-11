@@ -40,12 +40,12 @@ export const Route = createFileRoute("/ganhos-diarios")({
   component: Ganhos,
 });
 
-type Periodo = "atual" | "passado" | "total" | "custom";
+type Periodo = "hoje" | "ontem" | "semana" | "custom";
 
 const PERIODOS: { id: Periodo; label: string }[] = [
-  { id: "atual", label: "Mês atual" },
-  { id: "passado", label: "Mês passado" },
-  { id: "total", label: "Total" },
+  { id: "hoje", label: "Hoje" },
+  { id: "ontem", label: "Ontem" },
+  { id: "semana", label: "Esta semana" },
   { id: "custom", label: "Personalizado" },
 ];
 
@@ -66,28 +66,29 @@ function offsetDia(iso: string, dias: number) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
-function prefixoMes(offset: number) {
-  const d = new Date();
-  d.setDate(1);
-  d.setMonth(d.getMonth() + offset);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
 function Ganhos() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
 
   const ganhos = useMemo(() => {
-    if (periodo === "total") return data.ganhos;
     if (periodo === "custom") {
       return data.ganhos.filter(
         (g) => (!de || g.iso >= de) && (!ate || g.iso <= ate),
       );
     }
-    const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return data.ganhos.filter((g) => g.iso.startsWith(p));
+    if (periodo === "hoje") {
+      const hoje = isoHoje();
+      return data.ganhos.filter((g) => g.iso === hoje);
+    }
+    if (periodo === "ontem") {
+      const ontem = offsetDia(isoHoje(), -1);
+      return data.ganhos.filter((g) => g.iso === ontem);
+    }
+    const d = new Date();
+    const inicioSemana = offsetDia(isoHoje(), -d.getDay());
+    return data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= isoHoje());
   }, [data.ganhos, periodo, de, ate]);
 
   const recentes = ganhos.slice(0, 12);
