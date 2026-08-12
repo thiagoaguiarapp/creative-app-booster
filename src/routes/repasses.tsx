@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
-  Coins,
   HandCoins,
   History,
 
