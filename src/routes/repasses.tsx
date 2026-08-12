@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
-  Coins,
   HandCoins,
   History,
 
@@ -345,19 +344,13 @@ function RepassesPage() {
         <StatCard label="Repasses" value={String(repasses.length)} icon={Landmark} />
 
         <StatCard
-          label="Gorjetas"
-          value={brl(gorjetas)}
+          label="Ganho extra"
+          value={brl(gorjetas + sobraTroco)}
           icon={HandCoins}
           tone="success"
-          hint="Lançadas em Ganhos diários"
+          hint={`Gorjeta ${brl(gorjetas)} · Sobra de troco ${brl(sobraTroco)}`}
         />
-        <StatCard
-          label="Sobra de troco"
-          value={brl(sobraTroco)}
-          icon={Coins}
-          tone="success"
-          hint="Lançada em Ganhos diários"
-        />
+
 
         <StatCard
           label="Recebido em dinheiro"
