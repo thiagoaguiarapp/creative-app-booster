@@ -3,7 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ListChecks, Search, TrendingDown, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AcoesLancamento, NovoLancamento, NovoLancamentoRapido } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -167,8 +168,16 @@ function LancamentosPage() {
       <PageHeader
         title="Todos os lançamentos"
         subtitle="Consulte, corrija ou exclua qualquer registro da planilha"
-        action={filtro !== "todos" ? <NovoLancamento tipo={filtro} /> : undefined}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        {filtro !== "todos" ? (
+          <NovoLancamento tipo={filtro} />
+        ) : (
+          <NovoLancamentoRapido />
+        )}
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Registros" value={String(filtradas.length)} icon={ListChecks} />

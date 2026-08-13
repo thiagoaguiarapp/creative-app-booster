@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, CalendarClock, Gauge, Wrench } from "lucide-react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { painelQueryOptions } from "@/lib/painel-query";
@@ -77,8 +78,12 @@ function ManutencaoPage() {
       <PageHeader
         title="Manutenção"
         subtitle="Controle por quilometragem, com alerta antes de vencer (aba MANUTENCAO)"
-        action={<NovoLancamento tipo="manutencao" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="manutencao" />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

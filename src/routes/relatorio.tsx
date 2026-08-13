@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from "react";
 
 import { AdBanner } from "@/components/ad-banner";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,6 +206,10 @@ function RelatorioPage() {
           </div>
         }
       />
+
+      <div className="flex flex-wrap items-center gap-2 print:hidden">
+        <AtalhoPaginas />
+      </div>
 
       <SectionCard title="Período" description="Escolha um atalho ou defina as datas">
         <div className="flex flex-col gap-3 sm:gap-4">

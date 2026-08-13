@@ -4,6 +4,7 @@ import { Bike, CircleDollarSign, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -169,8 +170,12 @@ function Ganhos() {
       <PageHeader
         title="Ganhos diários"
         subtitle={`${ganhos.length} lançamentos no período`}
-        action={<NovoLancamento tipo="ganho" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="ganho" />
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (

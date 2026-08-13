@@ -16,6 +16,7 @@ import {
 import { Fragment, useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -265,8 +266,12 @@ function RepassesPage() {
       <PageHeader
         title="Recebimento / Repasse"
         subtitle="Conciliação dos repasses das plataformas (aba REPASSE)"
-        action={<NovoLancamento tipo="repasse" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="repasse" />
+      </div>
 
       <div className="flex flex-wrap items-end gap-2">
         {PERIODOS.map((p) => (

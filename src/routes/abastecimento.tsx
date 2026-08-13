@@ -4,6 +4,7 @@ import { Droplets, Fuel, Gauge } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -100,8 +101,12 @@ function AbastecimentoPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Abastecimento"
-        action={<NovoLancamento tipo="abastecimento" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="abastecimento" />
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (
