@@ -79,8 +79,12 @@ function DespesasPage() {
       <PageHeader
         title="Despesas"
         subtitle="Custos operacionais fora do combustível (aba DESPESA)"
-        action={<NovoLancamento tipo="despesa" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="despesa" />
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (

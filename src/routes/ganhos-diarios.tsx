@@ -169,8 +169,12 @@ function Ganhos() {
       <PageHeader
         title="Ganhos diários"
         subtitle={`${ganhos.length} lançamentos no período`}
-        action={<NovoLancamento tipo="ganho" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="ganho" />
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (

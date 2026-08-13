@@ -77,8 +77,12 @@ function ManutencaoPage() {
       <PageHeader
         title="Manutenção"
         subtitle="Controle por quilometragem, com alerta antes de vencer (aba MANUTENCAO)"
-        action={<NovoLancamento tipo="manutencao" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="manutencao" />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard

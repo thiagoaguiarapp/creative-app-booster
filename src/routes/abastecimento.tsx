@@ -100,8 +100,12 @@ function AbastecimentoPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Abastecimento"
-        action={<NovoLancamento tipo="abastecimento" />}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        <NovoLancamento tipo="abastecimento" />
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (

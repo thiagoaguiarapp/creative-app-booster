@@ -167,8 +167,16 @@ function LancamentosPage() {
       <PageHeader
         title="Todos os lançamentos"
         subtitle="Consulte, corrija ou exclua qualquer registro da planilha"
-        action={filtro !== "todos" ? <NovoLancamento tipo={filtro} /> : undefined}
       />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <AtalhoPaginas />
+        {filtro !== "todos" ? (
+          <NovoLancamento tipo={filtro} />
+        ) : (
+          <NovoLancamentoRapido />
+        )}
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Registros" value={String(filtradas.length)} icon={ListChecks} />
