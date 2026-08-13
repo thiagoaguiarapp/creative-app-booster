@@ -15,6 +15,8 @@ const paginas = [
 ];
 
 export function AtalhoPaginas() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {paginas.map((item) => (
@@ -22,7 +24,7 @@ export function AtalhoPaginas() {
           key={item.url}
           asChild
           size="icon"
-          variant="outline"
+          variant={pathname === item.url ? "default" : "outline"}
           aria-label={item.title}
           title={item.title}
         >
