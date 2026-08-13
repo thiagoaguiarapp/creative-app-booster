@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, CalendarClock, Gauge, Wrench } from "lucide-react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { painelQueryOptions } from "@/lib/painel-query";

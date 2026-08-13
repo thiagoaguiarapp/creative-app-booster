@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from "react";
 
 import { AdBanner } from "@/components/ad-banner";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

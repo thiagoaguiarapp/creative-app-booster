@@ -16,6 +16,7 @@ import {
 import { Fragment, useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento, hojeInputDate } from "@/components/lancamento-form";
+import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
