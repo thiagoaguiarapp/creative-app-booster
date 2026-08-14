@@ -118,7 +118,7 @@ function RelatorioPage() {
     const recebido = repasses.reduce((s, x) => s + x.valor, 0);
     const combustivel = abast.reduce((s, a) => s + a.valorPago, 0);
     const litros = abast.reduce((s, a) => s + a.litros, 0);
-    const km = abast.reduce((s, a) => s + a.kmRodado, 0);
+    const km = kmPeriodo(abast);
     const outras = despesas.reduce((s, d) => s + d.valor, 0);
     const manutencao = manut.reduce((s, m) => s + m.valor, 0);
     const custos = combustivel + outras + manutencao;
