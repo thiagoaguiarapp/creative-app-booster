@@ -99,6 +99,17 @@ function rotuloMes(isoMes: string) {
   return `${MESES[Number(m) - 1]}/${y}`;
 }
 
+/** KM do período: diferença de odômetro quando disponível, senão soma de KM RODADO. */
+function kmPeriodo(abast: { odometro: number; kmRodado: number }[]) {
+  const validos = abast.filter((a) => a.odometro > 0).sort((a, b) => a.odometro - b.odometro);
+  if (validos.length >= 2) {
+    const diff = validos[validos.length - 1]!.odometro - validos[0]!.odometro;
+    if (diff > 0) return diff;
+  }
+  return abast.reduce((s, a) => s + a.kmRodado, 0);
+}
+
+
 function RelatorioPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [de, setDe] = useState(() => iso(inicioMes()));
