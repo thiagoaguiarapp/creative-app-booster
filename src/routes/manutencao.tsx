@@ -80,7 +80,7 @@ function ManutencaoPage() {
         subtitle="Controle por quilometragem, com alerta antes de vencer (aba MANUTENCAO)"
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
         <NovoLancamento tipo="manutencao" />
       </div>

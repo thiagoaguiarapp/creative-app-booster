@@ -218,7 +218,7 @@ function RelatorioPage() {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2 print:hidden">
+      <div className="flex flex-col items-center gap-3 print:hidden">
         <AtalhoPaginas />
       </div>
 

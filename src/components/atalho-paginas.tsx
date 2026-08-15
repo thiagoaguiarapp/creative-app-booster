@@ -18,7 +18,7 @@ export function AtalhoPaginas() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center justify-center gap-2">
       {paginas.map((item) => (
         <Button
           key={item.url}
