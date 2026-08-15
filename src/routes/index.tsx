@@ -217,6 +217,7 @@ function Home() {
           inicio={inicioSemana}
           fim={fimSemana}
         />
+        <CardGanhosSemana ganhos={ganhosSemana} inicio={inicioSemana} />
       </div>
 
       <SectionCard title="Últimos lançamentos da semana" description="Atividades registradas nesta semana">
