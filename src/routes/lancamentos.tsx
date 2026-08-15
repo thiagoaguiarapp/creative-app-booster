@@ -170,7 +170,7 @@ function LancamentosPage() {
         subtitle="Consulte, corrija ou exclua qualquer registro da planilha"
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
         {filtro !== "todos" ? (
           <NovoLancamento tipo={filtro} />

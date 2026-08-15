@@ -103,7 +103,7 @@ function AbastecimentoPage() {
         title="Abastecimento"
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
         <NovoLancamento tipo="abastecimento" />
       </div>

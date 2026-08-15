@@ -141,7 +141,7 @@ function Home() {
         subtitle="Aqui está o resumo do seu dia de trabalho."
       />
 
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+      <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
         <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto sm:flex-none" />
       </div>

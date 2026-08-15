@@ -268,7 +268,7 @@ function RepassesPage() {
         subtitle="Conciliação dos repasses das plataformas (aba REPASSE)"
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
         <NovoLancamento tipo="repasse" />
       </div>

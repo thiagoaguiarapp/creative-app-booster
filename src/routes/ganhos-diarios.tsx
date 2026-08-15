@@ -172,7 +172,7 @@ function Ganhos() {
         subtitle={`${ganhos.length} lançamentos no período`}
       />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
         <NovoLancamento tipo="ganho" />
       </div>
