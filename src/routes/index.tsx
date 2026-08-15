@@ -10,7 +10,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { formatISO, startOfWeek, endOfWeek } from "date-fns";
+import { formatISO, startOfWeek, endOfWeek, parseISO, addDays, format } from "date-fns";
 
 import { AdBanner } from "@/components/ad-banner";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
@@ -217,6 +217,7 @@ function Home() {
           inicio={inicioSemana}
           fim={fimSemana}
         />
+        <CardGanhosSemana ganhos={ganhosSemana} inicio={inicioSemana} />
       </div>
 
       <SectionCard title="Últimos lançamentos da semana" description="Atividades registradas nesta semana">
@@ -345,6 +346,66 @@ function CardMetaSemanal({
           {metaDefinida ? "Editar meta" : "Definir meta"}
         </Button>
       )}
+    </div>
+  );
+}
+
+function CardGanhosSemana({
+  ganhos,
+  inicio,
+}: {
+  ganhos: Ganho[];
+  inicio: string;
+}) {
+  const dias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  const inicioDate = parseISO(inicio);
+
+  const valores = useMemo(() => {
+    const arr = Array.from({ length: 7 }, (_, i) => {
+      const dia = format(addDays(inicioDate, i), "yyyy-MM-dd");
+      const total = ganhos
+        .filter((g) => g.iso === dia)
+        .reduce((s, g) => s + g.faturamento, 0);
+      return { dia, label: dias[i], total };
+    });
+    const max = Math.max(...arr.map((d) => d.total), 1);
+    return arr.map((d) => ({ ...d, pct: (d.total / max) * 100 }));
+  }, [ganhos, inicioDate]);
+
+  const totalSemana = valores.reduce((s, d) => s + d.total, 0);
+
+  return (
+    <div className="panel p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            Ganhos da semana
+          </p>
+          <p className="num mt-1 font-display text-2xl font-semibold text-primary">
+            {brl(totalSemana)}
+          </p>
+        </div>
+        <HandCoins className="size-5 text-primary" />
+      </div>
+      <div className="mt-4 grid grid-cols-7 gap-2">
+        {valores.map((v) => (
+          <div key={v.dia} className="flex flex-col items-center gap-2">
+            <div className="flex h-24 w-full flex-col justify-end rounded-md bg-muted/50 p-1">
+              <div
+                className="w-full rounded-sm bg-primary/80 transition-all"
+                style={{ height: `${v.pct}%` }}
+                aria-label={`${v.label}: ${brl(v.total)}`}
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-medium uppercase text-muted-foreground">
+                {v.label}
+              </p>
+              <p className="num text-xs font-semibold">{brl(v.total)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
