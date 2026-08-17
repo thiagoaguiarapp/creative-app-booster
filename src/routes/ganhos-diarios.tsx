@@ -156,11 +156,13 @@ function Ganhos() {
       };
     }
 
-    const inicioSemana = offsetDia(isoHoje(), -new Date().getDay());
+    const diaSemana = new Date().getDay();
+    const inicioSemana = offsetDia(isoHoje(), -((diaSemana + 6) % 7));
+    const fimSemana = offsetDia(inicioSemana, 6);
     return {
-      serie: intervaloDias(inicioSemana, isoHoje()),
+      serie: intervaloDias(inicioSemana, fimSemana),
       tituloGrafico: "Ganhos da semana por dia",
-      descricaoGrafico: "De domingo até hoje",
+      descricaoGrafico: "De segunda a domingo",
     };
   }, [data.ganhos, periodo, de, ate]);
 
