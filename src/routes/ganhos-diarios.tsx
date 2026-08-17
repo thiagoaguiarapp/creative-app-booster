@@ -88,8 +88,10 @@ function Ganhos() {
       return data.ganhos.filter((g) => g.iso === ontem);
     }
     const d = new Date();
-    const inicioSemana = offsetDia(isoHoje(), -d.getDay());
-    return data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= isoHoje());
+    const diaSemana = d.getDay();
+    const inicioSemana = offsetDia(isoHoje(), -((diaSemana + 6) % 7));
+    const fimSemana = offsetDia(inicioSemana, 6);
+    return data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= fimSemana);
   }, [data.ganhos, periodo, de, ate]);
 
   const recentes = ganhos.slice(0, 12);
@@ -154,11 +156,13 @@ function Ganhos() {
       };
     }
 
-    const inicioSemana = offsetDia(isoHoje(), -new Date().getDay());
+    const diaSemana = new Date().getDay();
+    const inicioSemana = offsetDia(isoHoje(), -((diaSemana + 6) % 7));
+    const fimSemana = offsetDia(inicioSemana, 6);
     return {
-      serie: intervaloDias(inicioSemana, isoHoje()),
+      serie: intervaloDias(inicioSemana, fimSemana),
       tituloGrafico: "Ganhos da semana por dia",
-      descricaoGrafico: "De domingo até hoje",
+      descricaoGrafico: "De segunda a domingo",
     };
   }, [data.ganhos, periodo, de, ate]);
 
