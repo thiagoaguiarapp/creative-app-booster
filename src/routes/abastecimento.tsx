@@ -80,6 +80,7 @@ function consumo(lista: Abastecimento[]) {
 function AbastecimentoPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [abertoId, setAbertoId] = useState<string | null>(null);
 
   const lista = useMemo(() => {
     if (periodo === "total") return data.abastecimentos;
