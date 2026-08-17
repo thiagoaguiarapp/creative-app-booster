@@ -387,22 +387,22 @@ function CardGanhosSemana({
         </div>
         <HandCoins className="size-5 text-primary" />
       </div>
-      <div className="mt-4 grid grid-cols-7 gap-2">
+      <div className="mt-4 flex h-48 items-stretch gap-2 sm:gap-4">
         {valores.map((v) => (
-          <div key={v.dia} className="flex flex-col items-center gap-2">
-            <div className="flex h-24 w-full flex-col justify-end rounded-md bg-muted/50 p-1">
+          <div key={v.dia} className="flex h-full flex-1 flex-col justify-end gap-2">
+            <span className="num text-center text-[10px] text-muted-foreground sm:text-xs">
+              {brl(v.total)}
+            </span>
+            <div className="flex w-full flex-col justify-end rounded-t-md bg-muted/50 p-1">
               <div
-                className="w-full rounded-sm bg-primary/80 transition-all"
-                style={{ height: `${v.pct}%` }}
+                className="w-full rounded-t-sm bg-primary/80 transition-all"
+                style={{ height: `${Math.max(4, v.pct)}%` }}
                 aria-label={`${v.label}: ${brl(v.total)}`}
               />
             </div>
-            <div className="text-center">
-              <p className="text-[10px] font-medium uppercase text-muted-foreground">
-                {v.label}
-              </p>
-              <p className="num text-xs font-semibold">{brl(v.total)}</p>
-            </div>
+            <span className="text-center text-[10px] text-muted-foreground sm:text-xs">
+              {v.label}
+            </span>
           </div>
         ))}
       </div>
