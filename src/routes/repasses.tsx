@@ -373,6 +373,68 @@ function RepassesPage() {
         />
       </div>
 
+      {saldoPlataformas.length > 0 && (
+        <SectionCard
+          title="Saldo nas plataformas"
+          description="Situação acumulada de todo o histórico: tudo que foi faturado no app menos tudo que já foi recebido"
+        >
+          <div className="mb-3 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Total a receber</p>
+              <p className="num text-lg font-semibold text-warning">{brl(totalAReceberSaldo)}</p>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Recebido a mais</p>
+              <p className="num text-lg font-semibold text-success">{brl(totalRecebidoAMais)}</p>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Saldo líquido</p>
+              <p className="num text-lg font-semibold">{brl(saldoLiquidoGeral)}</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Aplicativo</TableHead>
+                  <TableHead className="text-right">Faturado</TableHead>
+                  <TableHead className="text-right">Recebido</TableHead>
+                  <TableHead className="text-right">Saldo</TableHead>
+                  <TableHead className="text-right">Situação</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {saldoPlataformas.map((s) => {
+                  const aReceber = s.saldo > 0.009;
+                  const aMais = s.saldo < -0.009;
+                  return (
+                    <TableRow key={`saldo-${s.app}`}>
+                      <TableCell className="font-medium">{s.app}</TableCell>
+                      <TableCell className="num text-right">{brl(s.faturado)}</TableCell>
+                      <TableCell className="num text-right">{brl(s.recebido)}</TableCell>
+                      <TableCell
+                        className={`num text-right font-semibold ${
+                          aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                        }`}
+                      >
+                        {brl(Math.abs(s.saldo))}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right text-xs ${
+                          aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                        }`}
+                      >
+                        {aReceber ? "A receber" : aMais ? "Recebido a mais" : "Em dia"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </SectionCard>
+      )}
+
       {corte && conciliacao.some((c) => c.restanteAnterior > 0.009) && (
         <SectionCard
           title="A receber de meses anteriores"
