@@ -104,6 +104,20 @@ function AbastecimentoPage() {
     return mapa;
   }, [data.abastecimentos]);
 
+  // Km rodado por registro: odômetro atual − odômetro do abastecimento anterior
+  const kmRodadoPorRegistro = useMemo(() => {
+    const ordenados = [...data.abastecimentos]
+      .filter((a) => a.odometro > 0)
+      .sort((a, b) => a.odometro - b.odometro);
+    const mapa = new Map<string, number>();
+    for (let i = 1; i < ordenados.length; i++) {
+      const atual = ordenados[i]!;
+      const km = atual.odometro - ordenados[i - 1]!.odometro;
+      if (km > 0) mapa.set(atual.id, km);
+    }
+    return mapa;
+  }, [data.abastecimentos]);
+
   const litrosTotais = lista.reduce((s, a) => s + a.litros, 0);
   const gasto = lista.reduce((s, a) => s + a.valorPago, 0);
   const { km, media } = consumo(lista);
@@ -209,7 +223,10 @@ function AbastecimentoPage() {
                           />
                           <Detalhe
                             rotulo="Km rodado"
-                            valor={a.kmRodado > 0 ? `${a.kmRodado.toLocaleString("pt-BR")} km` : "—"}
+                            valor={(() => {
+                              const km = kmRodadoPorRegistro.get(a.id);
+                              return km && km > 0 ? `${km.toLocaleString("pt-BR")} km` : "—";
+                            })()}
                           />
                         </div>
                         <div className="mt-3 flex justify-end">
