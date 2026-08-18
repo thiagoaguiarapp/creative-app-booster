@@ -223,7 +223,10 @@ function AbastecimentoPage() {
                           />
                           <Detalhe
                             rotulo="Km rodado"
-                            valor={a.kmRodado > 0 ? `${a.kmRodado.toLocaleString("pt-BR")} km` : "—"}
+                            valor={(() => {
+                              const km = kmRodadoPorRegistro.get(a.id);
+                              return km && km > 0 ? `${km.toLocaleString("pt-BR")} km` : "—";
+                            })()}
                           />
                         </div>
                         <div className="mt-3 flex justify-end">
