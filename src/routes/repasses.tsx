@@ -229,6 +229,14 @@ function RepassesPage() {
 
 
 
+  const saldoPlataformas = useMemo(
+    () => saldoPorPlataforma(data.ganhos, data.repasses),
+    [data.ganhos, data.repasses],
+  );
+  const totalAReceberSaldo = saldoPlataformas.reduce((s, p) => s + Math.max(0, p.saldo), 0);
+  const totalRecebidoAMais = saldoPlataformas.reduce((s, p) => s + Math.max(0, -p.saldo), 0);
+  const saldoLiquidoGeral = totalAReceberSaldo - totalRecebidoAMais;
+
   const pendenteAnteriorTotal = conciliacao.reduce((s, a) => s + a.pendenteAnterior, 0);
   const abatidoTotal = conciliacao.reduce((s, a) => s + a.abatido, 0);
   const restanteAnteriorTotal = conciliacao.reduce((s, a) => s + a.restanteAnterior, 0);
