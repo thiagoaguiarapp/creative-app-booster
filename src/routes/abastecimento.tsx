@@ -104,6 +104,12 @@ function AbastecimentoPage() {
     return mapa;
   }, [data.abastecimentos]);
 
+id);
+      if (km > 0) mapa.set(atual.id, km);
+    }
+    return mapa;
+  }, [data.abastecimentos]);
+
   const litrosTotais = lista.reduce((s, a) => s + a.litros, 0);
   const gasto = lista.reduce((s, a) => s + a.valorPago, 0);
   const { km, media } = consumo(lista);
