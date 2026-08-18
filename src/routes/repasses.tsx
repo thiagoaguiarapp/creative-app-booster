@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { normalizarPlataforma, quitacaoPorApp } from "@/lib/conciliacao";
+import { normalizarPlataforma, quitacaoPorApp, saldoPorPlataforma } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -229,6 +229,14 @@ function RepassesPage() {
 
 
 
+  const saldoPlataformas = useMemo(
+    () => saldoPorPlataforma(data.ganhos, data.repasses),
+    [data.ganhos, data.repasses],
+  );
+  const totalAReceberSaldo = saldoPlataformas.reduce((s, p) => s + Math.max(0, p.saldo), 0);
+  const totalRecebidoAMais = saldoPlataformas.reduce((s, p) => s + Math.max(0, -p.saldo), 0);
+  const saldoLiquidoGeral = totalAReceberSaldo - totalRecebidoAMais;
+
   const pendenteAnteriorTotal = conciliacao.reduce((s, a) => s + a.pendenteAnterior, 0);
   const abatidoTotal = conciliacao.reduce((s, a) => s + a.abatido, 0);
   const restanteAnteriorTotal = conciliacao.reduce((s, a) => s + a.restanteAnterior, 0);
@@ -372,6 +380,68 @@ function RepassesPage() {
           hint="Entregas pagas na hora"
         />
       </div>
+
+      {saldoPlataformas.length > 0 && (
+        <SectionCard
+          title="Saldo nas plataformas"
+          description="Situação acumulada de todo o histórico: tudo que foi faturado no app menos tudo que já foi recebido"
+        >
+          <div className="mb-3 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Total a receber</p>
+              <p className="num text-lg font-semibold text-warning">{brl(totalAReceberSaldo)}</p>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Recebido a mais</p>
+              <p className="num text-lg font-semibold text-success">{brl(totalRecebidoAMais)}</p>
+            </div>
+            <div className="rounded-lg border border-border/60 p-3">
+              <p className="text-xs text-muted-foreground">Saldo líquido</p>
+              <p className="num text-lg font-semibold">{brl(saldoLiquidoGeral)}</p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Aplicativo</TableHead>
+                  <TableHead className="text-right">Faturado</TableHead>
+                  <TableHead className="text-right">Recebido</TableHead>
+                  <TableHead className="text-right">Saldo</TableHead>
+                  <TableHead className="text-right">Situação</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {saldoPlataformas.map((s) => {
+                  const aReceber = s.saldo > 0.009;
+                  const aMais = s.saldo < -0.009;
+                  return (
+                    <TableRow key={`saldo-${s.app}`}>
+                      <TableCell className="font-medium">{s.app}</TableCell>
+                      <TableCell className="num text-right">{brl(s.faturado)}</TableCell>
+                      <TableCell className="num text-right">{brl(s.recebido)}</TableCell>
+                      <TableCell
+                        className={`num text-right font-semibold ${
+                          aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                        }`}
+                      >
+                        {brl(Math.abs(s.saldo))}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right text-xs ${
+                          aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                        }`}
+                      >
+                        {aReceber ? "A receber" : aMais ? "Recebido a mais" : "Em dia"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </SectionCard>
+      )}
 
       {corte && conciliacao.some((c) => c.restanteAnterior > 0.009) && (
         <SectionCard

@@ -154,3 +154,35 @@ export function quitacaoPorApp(
   }
   return resultado;
 }
+
+export type SaldoPlataforma = {
+  app: string;
+  faturado: number;
+  recebido: number;
+  saldo: number;
+};
+
+/** Saldo histórico (sem filtro de período) por plataforma: faturado - recebido. */
+export function saldoPorPlataforma(ganhos: Ganho[], repasses: Repasse[]): SaldoPlataforma[] {
+  const mapa = new Map<string, SaldoPlataforma>();
+  const pegar = (nome: string) => {
+    const chave = normalizarPlataforma(nome);
+    let item = mapa.get(chave);
+    if (!item) {
+      item = { app: nome.trim() || "—", faturado: 0, recebido: 0, saldo: 0 };
+      mapa.set(chave, item);
+    }
+    return item;
+  };
+  for (const g of ganhos) {
+    if (ehExtra(g.plataforma)) continue;
+    pegar(g.plataforma).faturado += g.faturamento;
+  }
+  for (const r of repasses) {
+    if (ehExtra(r.aplicativo)) continue;
+    pegar(r.aplicativo).recebido += r.valor;
+  }
+  const lista = Array.from(mapa.values());
+  for (const item of lista) item.saldo = item.faturado - item.recebido;
+  return lista.sort((a, b) => Math.abs(b.saldo) - Math.abs(a.saldo) || a.app.localeCompare(b.app, "pt-BR"));
+}
