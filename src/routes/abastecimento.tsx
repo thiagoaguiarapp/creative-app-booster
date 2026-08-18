@@ -207,6 +207,10 @@ function AbastecimentoPage() {
                             rotulo="Odômetro"
                             valor={a.odometro.toLocaleString("pt-BR")}
                           />
+                          <Detalhe
+                            rotulo="Km rodado"
+                            valor={a.kmRodado > 0 ? `${a.kmRodado.toLocaleString("pt-BR")} km` : "—"}
+                          />
                         </div>
                         <div className="mt-3 flex justify-end">
                           <AcoesLancamento tipo="abastecimento" registro={a} />
