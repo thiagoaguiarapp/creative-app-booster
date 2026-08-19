@@ -393,7 +393,7 @@ function CardGanhosSemana({
             <span className="num text-center text-[10px] text-muted-foreground sm:text-xs">
               {brl(v.total)}
             </span>
-            <div className="flex w-full flex-col justify-end rounded-t-md bg-muted/50 p-1">
+            <div className="flex min-h-0 w-full flex-1 flex-col justify-end rounded-t-md bg-muted/50 p-1">
               <div
                 className="w-full rounded-t-sm bg-primary/80 transition-all"
                 style={{ height: `${Math.max(4, v.pct)}%` }}
