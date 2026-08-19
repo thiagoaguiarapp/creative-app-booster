@@ -20,6 +20,7 @@ const MAPAS: Record<Tipo, { tabela: string; mesColuna?: string; campos: Record<s
     tabela: TABELAS.abastecimento,
     campos: {
       data: { coluna: "Data", tipo: "data" },
+      veiculo: { coluna: "VEICULO", tipo: "texto" },
       posto: { coluna: "POSTO", tipo: "texto" },
       odometro: { coluna: "Odômetro total", tipo: "inteiro" },
       litros: { coluna: "Volume abastecido", tipo: "dinheiro" },

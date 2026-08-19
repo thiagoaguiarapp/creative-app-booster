@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
@@ -93,6 +93,18 @@ export function AppSidebar({ email }: { email?: string }) {
                 </SidebarMenuButton>
               }
             />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={currentPath === "/configuracoes"}
+              tooltip="Configurações do app"
+            >
+              <Link to="/configuracoes" className="flex items-center gap-2">
+                <Settings className="size-4" />
+                <span>Configurações</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
         {!collapsed && email && (
