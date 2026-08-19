@@ -395,10 +395,11 @@ function CardGanhosSemana({
             </span>
             <div className="flex min-h-0 w-full flex-1 flex-col justify-end rounded-t-md bg-muted/50 p-1">
               <div
-                className="w-full rounded-t-sm bg-primary/80 transition-all"
-                style={{ height: `${Math.max(4, v.pct)}%` }}
+                className="w-full shrink-0 rounded-t-sm bg-primary/80 transition-all"
+                style={{ flexGrow: Math.max(4, v.pct), flexBasis: 0, flexShrink: 1, minHeight: 4 }}
                 aria-label={`${v.label}: ${brl(v.total)}`}
               />
+              <div style={{ flexGrow: Math.max(0, 100 - Math.max(4, v.pct)), flexBasis: 0 }} />
             </div>
             <span className="text-center text-[10px] text-muted-foreground sm:text-xs">
               {v.label}
