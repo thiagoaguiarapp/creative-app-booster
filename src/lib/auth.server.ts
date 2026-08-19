@@ -16,6 +16,15 @@ function anon(): string {
   return k;
 }
 
+export type Veiculo = {
+  id: string;
+  nome: string;
+  placa: string;
+  tipo: string;
+  km: number;
+  padrao: boolean;
+};
+
 export type Usuario = {
   id: string;
   email: string;
@@ -23,6 +32,7 @@ export type Usuario = {
   telefone: string;
   metaSemanal: number;
   isPremium: boolean;
+  veiculos: Veiculo[];
 };
 
 type Tokens = { access_token?: string; refresh_token?: string };
@@ -83,7 +93,31 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     telefone: String(meta["telefone"] ?? "").trim(),
     metaSemanal: metaSemanalDe(u),
     isPremium: meta["is_premium"] === true,
+    veiculos: normalizarVeiculos(meta["veiculos"]),
   };
+}
+
+/** Normaliza a lista de veículos guardada no user_metadata. */
+export function normalizarVeiculos(bruto: unknown): Veiculo[] {
+  if (!Array.isArray(bruto)) return [];
+  const lista: Veiculo[] = [];
+  for (const item of bruto) {
+    if (!item || typeof item !== "object") continue;
+    const v = item as Record<string, unknown>;
+    const nome = String(v["nome"] ?? "").trim().slice(0, 60);
+    if (!nome) continue;
+    const km = Number(v["km"] ?? 0);
+    lista.push({
+      id: String(v["id"] ?? "").trim() || `${Date.now()}-${lista.length}`,
+      nome,
+      placa: String(v["placa"] ?? "").trim().slice(0, 12),
+      tipo: String(v["tipo"] ?? "Moto").trim() || "Moto",
+      km: Number.isFinite(km) && km > 0 ? Math.trunc(km) : 0,
+      padrao: v["padrao"] === true,
+    });
+  }
+  if (lista.length > 0 && !lista.some((v) => v.padrao)) lista[0]!.padrao = true;
+  return lista.slice(0, 10);
 }
 
 /** Lê a meta semanal armazenada no user_metadata. */
@@ -111,6 +145,7 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
         telefone: atual.telefone,
         metaSemanal: atual.metaSemanal,
         is_premium: atual.isPremium,
+        veiculos: atual.veiculos,
         ...mudancas,
       },
     }),
@@ -131,6 +166,13 @@ export async function salvarPerfil(nome: string, telefone: string): Promise<Usua
 export async function salvarMetaSemanal(valor: number): Promise<number> {
   const salvo = await atualizarMetadata({ metaSemanal: valor });
   return salvo.metaSemanal;
+}
+
+/** Salva a lista de veículos do usuário. */
+export async function salvarVeiculos(veiculos: unknown): Promise<Veiculo[]> {
+  const lista = normalizarVeiculos(veiculos);
+  const salvo = await atualizarMetadata({ veiculos: lista });
+  return salvo.veiculos;
 }
 
 /** Ativa ou cancela o plano Premium (sem anúncios). */

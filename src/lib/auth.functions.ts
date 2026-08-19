@@ -7,7 +7,23 @@ export type SessaoUsuario = {
   telefone: string;
   metaSemanal: number;
   isPremium: boolean;
+  veiculos: {
+    id: string;
+    nome: string;
+    placa: string;
+    tipo: string;
+    km: number;
+    padrao: boolean;
+  }[];
 } | null;
+
+export const salvarVeiculosFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { veiculos: unknown }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { salvarVeiculos } = await import("./auth.server");
+    await salvarVeiculos(data.veiculos);
+    return { ok: true };
+  });
 
 export const salvarPerfilFn = createServerFn({ method: "POST" })
   .inputValidator((input: { nome: string; telefone: string }) => input)
