@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
@@ -33,6 +34,11 @@ const AbastecimentoRoute = AbastecimentoRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DespesasRoute = DespesasRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/auth': typeof AuthRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/auth': typeof AuthRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/auth': typeof AuthRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/auth'
+    | '/configuracoes'
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/auth'
+    | '/configuracoes'
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/auth'
+    | '/configuracoes'
     | '/despesas'
     | '/ganhos-diarios'
     | '/lancamentos'
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbastecimentoRoute: typeof AbastecimentoRoute
   AuthRoute: typeof AuthRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   DespesasRoute: typeof DespesasRoute
   GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/despesas': {
@@ -239,6 +259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
   AuthRoute: AuthRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   DespesasRoute: DespesasRoute,
   GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
