@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2, type LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -78,6 +79,21 @@ function usePlataformas(tipo: Tipo): string[] {
 }
 
 
+/** Veículos cadastrados em Configurações + nomes já usados nos lançamentos. */
+function useVeiculos(): { nomes: string[]; padrao: string } {
+  const context = useRouteContext({ from: "__root__" });
+  const { data } = useQuery(painelQueryOptions());
+  const cadastrados = context.usuario?.veiculos ?? [];
+  const nomes = new Set<string>();
+  for (const v of cadastrados) if (v.nome.trim()) nomes.add(v.nome.trim());
+  for (const m of data?.manutencoes ?? []) {
+    const n = m.veiculo?.trim();
+    if (n && n !== "—") nomes.add(n);
+  }
+  const padrao = (cadastrados.find((v) => v.padrao) ?? cadastrados[0])?.nome.trim() ?? "";
+  return { nomes: Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR")), padrao };
+}
+
 function useFormas(): string[] {
   const { data } = useQuery(painelQueryOptions());
   const nomes = new Set<string>(FORMAS_RECEBIMENTO);
@@ -110,7 +126,14 @@ function FormularioDialog({
   aberto: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
-  const [valores, setValores] = useState(() => valoresIniciais(tipo, registro, iniciais));
+  const veiculos = useVeiculos();
+  const [valores, setValores] = useState(() => {
+    const base = valoresIniciais(tipo, registro, iniciais);
+    if (!registro && !base["veiculo"] && veiculos.padrao && "veiculo" in base) {
+      base["veiculo"] = veiculos.padrao;
+    }
+    return base;
+  });
   const [seguinte, setSeguinte] = useState<{
     row?: string;
     registro?: Record<string, unknown>;
@@ -274,7 +297,12 @@ function FormularioDialog({
               )}
               {campo.sugestoes && (
                 <datalist id={`sugestoes-${campo.key}`}>
-                  {(campo.sugestoes === "forma" ? formas : plataformas).map((nome) => (
+                  {(campo.sugestoes === "forma"
+                    ? formas
+                    : campo.sugestoes === "veiculo"
+                      ? veiculos.nomes
+                      : plataformas
+                  ).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}
                 </datalist>
