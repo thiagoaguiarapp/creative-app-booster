@@ -1,7 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, Plus, Trash2, type LucideIcon } from "lucide-react";
+import {
+  Bike,
+  ChevronRight,
+  Fuel,
+  Pencil,
+  Plus,
+  Receipt,
+  Trash2,
+  Wallet,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +34,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 
 import {
   CAMPOS,
@@ -423,17 +443,48 @@ export function NovoLancamento({
   );
 }
 
-const TIPOS_RAPIDOS: { tipo: Tipo; rotulo: string; desc: string }[] = [
-  { tipo: "ganho", rotulo: "Ganho diário", desc: "Corridas e faturamento" },
-  { tipo: "abastecimento", rotulo: "Abastecimento", desc: "Litros e odômetro" },
-  { tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais" },
-  { tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos" },
+const TIPOS_RAPIDOS: { tipo: Tipo; rotulo: string; desc: string; icone: LucideIcon }[] = [
+  { tipo: "ganho", rotulo: "Ganho diário", desc: "Corridas e faturamento", icone: Bike },
+  { tipo: "abastecimento", rotulo: "Abastecimento", desc: "Litros e odômetro", icone: Fuel },
+  { tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais", icone: Receipt },
+  { tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos", icone: Wallet },
+  { tipo: "manutencao", rotulo: "Manutenção", desc: "Serviços e trocas", icone: Wrench },
 ];
+
+function ListaTiposRapidos({ onEscolher }: { onEscolher: (tipo: Tipo) => void }) {
+  return (
+    <div className="grid gap-2 overflow-y-auto pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      {TIPOS_RAPIDOS.map((item) => (
+        <button
+          key={item.tipo}
+          type="button"
+          onClick={() => onEscolher(item.tipo)}
+          className="flex min-h-14 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/50 active:bg-accent"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+            <item.icone className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium">{item.rotulo}</span>
+            <span className="block truncate text-xs text-muted-foreground">{item.desc}</span>
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 /** Botão único que abre um menu rápido para escolher o tipo de lançamento. */
 export function NovoLancamentoRapido({ className }: { className?: string }) {
   const [menu, setMenu] = useState(false);
   const [tipo, setTipo] = useState<Tipo | null>(null);
+  const isMobile = useIsMobile();
+
+  const escolher = (t: Tipo) => {
+    setMenu(false);
+    setTipo(t);
+  };
 
   return (
     <>
@@ -445,33 +496,31 @@ export function NovoLancamentoRapido({ className }: { className?: string }) {
         <Plus className="size-5" /> Novo lançamento
       </Button>
 
-      <Dialog open={menu} onOpenChange={setMenu}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Novo lançamento</DialogTitle>
-            <DialogDescription>Escolha o que você quer registrar.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-2">
-            {TIPOS_RAPIDOS.map((item) => (
-              <button
-                key={item.tipo}
-                type="button"
-                onClick={() => {
-                  setMenu(false);
-                  setTipo(item.tipo);
-                }}
-                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/50"
-              >
-                <span>
-                  <span className="block text-sm font-medium">{item.rotulo}</span>
-                  <span className="block text-xs text-muted-foreground">{item.desc}</span>
-                </span>
-                <Plus className="size-4 text-primary" />
-              </button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {isMobile ? (
+        <Sheet open={menu} onOpenChange={setMenu}>
+          <SheetContent
+            side="bottom"
+            className="flex max-h-[85dvh] flex-col gap-4 rounded-t-2xl px-4 pb-4 pt-3"
+          >
+            <div className="mx-auto h-1.5 w-10 shrink-0 rounded-full bg-muted" />
+            <SheetHeader className="space-y-1 text-left">
+              <SheetTitle>Novo lançamento</SheetTitle>
+              <SheetDescription>Escolha o que você quer registrar.</SheetDescription>
+            </SheetHeader>
+            <ListaTiposRapidos onEscolher={escolher} />
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Dialog open={menu} onOpenChange={setMenu}>
+          <DialogContent className="flex max-h-[85dvh] flex-col sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Novo lançamento</DialogTitle>
+              <DialogDescription>Escolha o que você quer registrar.</DialogDescription>
+            </DialogHeader>
+            <ListaTiposRapidos onEscolher={escolher} />
+          </DialogContent>
+        </Dialog>
+      )}
 
       {tipo && (
         <FormularioDialog
