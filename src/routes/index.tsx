@@ -298,14 +298,21 @@ function CardMetaSemanal({
         <Target className="size-4 text-primary" />
       </div>
       <p className={cn("num mt-3 font-display text-3xl font-semibold", metaDefinida ? "text-primary" : "text-muted-foreground")}>
-        {brl(faturamento)}
+        {metaDefinida ? brl(meta) : "—"}
       </p>
       {metaDefinida && (
         <div className="mt-3">
           <Progress value={progresso} />
-          <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
-            <span>Meta: {brl(meta)}</span>
-            <span>{faltante > 0 ? `${brl(faltante)} restantes` : "Meta atingida!"}</span>
+          <div className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center justify-between">
+              <span>Faturado: <span className="num font-medium text-foreground">{brl(faturamento)}</span></span>
+              <span>{progresso.toFixed(0)}%</span>
+            </div>
+            <p className="text-xs">
+              {faltante > 0
+                ? `Faltam ${brl(faltante)} para bater a meta`
+                : "Meta atingida!"}
+            </p>
           </div>
         </div>
       )}
