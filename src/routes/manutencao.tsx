@@ -1,13 +1,35 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, CalendarClock, Gauge, Wrench } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  AlertTriangle,
+  CalendarClock,
+  Gauge,
+  Pencil,
+  Trash2,
+  Wrench,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
+import { NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { brl, statusManutencao } from "@/lib/sheets-types";
+import { salvarLancamentoFn, excluirLancamentoFn } from "@/lib/painel.functions";
+import { brl, statusManutencao, type Manutencao } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/manutencao")({
@@ -52,12 +74,218 @@ const nivelInfo = {
   },
 } as const;
 
+function hojeInputDate() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function numeroBr(valor: string | undefined): number {
+  const n = Number(String(valor ?? "").replace(/[^\d,.-]/g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function AtualizarManutencaoDialog({
+  registro,
+  odometroAtual,
+  aberto,
+  onOpenChange,
+}: {
+  registro: Manutencao;
+  odometroAtual: number;
+  aberto: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const [valores, setValores] = useState({
+    data: hojeInputDate(),
+    kmTroca: String(odometroAtual > registro.kmTroca ? odometroAtual : registro.kmTroca),
+    valor: registro.valor ? String(registro.valor.toFixed(2)) : "",
+    observacao: registro.observacao || "",
+    validadeKm: String(registro.validadeKm || ""),
+  });
+
+  const salvar = useServerFn(salvarLancamentoFn);
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      await salvar({
+        data: {
+          tipo: "manutencao",
+          valores: {
+            veiculo: registro.veiculo,
+            data: valores.data,
+            servico: registro.servico,
+            kmTroca: valores.kmTroca,
+            validadeKm: valores.validadeKm,
+            valor: valores.valor,
+            observacao: valores.observacao,
+          },
+          row: registro.row,
+        },
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["painel"] });
+      toast.success("Manutenção atualizada.");
+      onOpenChange(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function enviar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!valores.kmTroca.trim() || numeroBr(valores.kmTroca) <= 0) {
+      toast.error("Informe o km da troca.");
+      return;
+    }
+    if (!valores.validadeKm.trim() || numeroBr(valores.validadeKm) <= 0) {
+      toast.error("Informe a validade em km.");
+      return;
+    }
+    mutation.mutate();
+  }
+
+  return (
+    <Dialog open={aberto} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-display uppercase tracking-wide">
+            Atualizar manutenção
+          </DialogTitle>
+          <DialogDescription>
+            {registro.servico} · {registro.veiculo}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={enviar} className="grid gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="data">Data da troca</Label>
+              <Input
+                id="data"
+                type="date"
+                value={valores.data}
+                onChange={(e) => setValores((v) => ({ ...v, data: e.target.value }))}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="kmTroca">Km da troca</Label>
+              <Input
+                id="kmTroca"
+                type="number"
+                inputMode="decimal"
+                step="any"
+                value={valores.kmTroca}
+                onChange={(e) => setValores((v) => ({ ...v, kmTroca: e.target.value }))}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="valor">Valor gasto</Label>
+              <Input
+                id="valor"
+                type="text"
+                inputMode="decimal"
+                placeholder="R$ 0,00"
+                value={valores.valor}
+                onChange={(e) => setValores((v) => ({ ...v, valor: e.target.value }))}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="validadeKm">Validade (km)</Label>
+              <Input
+                id="validadeKm"
+                type="number"
+                inputMode="decimal"
+                step="any"
+                value={valores.validadeKm}
+                onChange={(e) => setValores((v) => ({ ...v, validadeKm: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="observacao">Observação</Label>
+            <Input
+              id="observacao"
+              type="text"
+              value={valores.observacao}
+              onChange={(e) => setValores((v) => ({ ...v, observacao: e.target.value }))}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Salvando…" : "Atualizar manutenção"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AcoesManutencao({
+  registro,
+  odometroAtual,
+}: {
+  registro: Manutencao;
+  odometroAtual: number;
+}) {
+  const [editando, setEditando] = useState(false);
+  const excluir = useServerFn(excluirLancamentoFn);
+  const queryClient = useQueryClient();
+
+  const remover = useMutation({
+    mutationFn: () => excluir({ data: { tipo: "manutencao", row: registro.row } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["painel"] });
+      toast.success("Manutenção excluída.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <>
+      <div className="flex items-center gap-1">
+        <Button
+          size="sm"
+          className="h-7 gap-1 text-xs"
+          onClick={() => setEditando(true)}
+        >
+          <Pencil className="size-3" /> Atualizar
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Excluir manutenção"
+          disabled={remover.isPending}
+          onClick={() => {
+            if (confirm("Excluir este registro de manutenção?")) remover.mutate();
+          }}
+        >
+          <Trash2 className="size-4 text-destructive" />
+        </Button>
+      </div>
+      {editando && (
+        <AtualizarManutencaoDialog
+          registro={registro}
+          odometroAtual={odometroAtual}
+          aberto={editando}
+          onOpenChange={setEditando}
+        />
+      )}
+    </>
+  );
+}
+
 function ManutencaoPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const odometroAtual = data.odometroAtual;
 
   // Mantém apenas o serviço mais recente de cada tipo por veículo.
-  const ultimos = new Map<string, (typeof data.manutencoes)[number]>();
+  const ultimos = new Map<string, Manutencao>();
   for (const m of data.manutencoes) {
     const chave = `${m.veiculo}|${m.servico}`.toUpperCase();
     if (!ultimos.has(chave)) ultimos.set(chave, m);
@@ -108,17 +336,17 @@ function ManutencaoPage() {
             return (
               <article key={m.id} className="rounded-lg border border-border bg-background/40 p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="font-display text-lg font-semibold">{m.servico}</h3>
                     <p className="text-xs text-muted-foreground">
                       {m.veiculo} · {m.data}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex shrink-0 flex-col items-end gap-2">
                     <Badge variant="outline" className={info.badge}>
                       {info.label}
                     </Badge>
-                    <AcoesLancamento tipo="manutencao" registro={m} />
+                    <AcoesManutencao registro={m} odometroAtual={odometroAtual} />
                   </div>
                 </div>
 
