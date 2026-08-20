@@ -1,7 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, Plus, Trash2, type LucideIcon } from "lucide-react";
+import {
+  Bike,
+  ChevronRight,
+  Fuel,
+  Pencil,
+  Plus,
+  Receipt,
+  Trash2,
+  Wallet,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
