@@ -119,28 +119,19 @@ export function quitacaoPorApp(
     const pagamentos = [...item.repasses].sort((a, b) => a.iso.localeCompare(b.iso));
     for (const pagamento of pagamentos) {
       let sobra = pagamento.valor;
-      const mesPagamento = pagamento.iso.slice(0, 7);
-      // 1) quita o próprio mês do repasse, 2) meses anteriores (mais antigo primeiro),
-      // 3) meses posteriores (adiantamento). Assim um repasse de julho não é consumido
-      // por dívidas de maio/junho antes de baixar o faturamento de julho.
-      const grupos = [
-        dividas.filter((d) => d.g.iso.slice(0, 7) === mesPagamento),
-        dividas.filter((d) => d.g.iso.slice(0, 7) < mesPagamento),
-        dividas.filter((d) => d.g.iso.slice(0, 7) > mesPagamento),
-      ];
-      for (const grupo of grupos) {
-        for (const divida of grupo) {
-          if (sobra <= 0.0001) break;
-          if (divida.restante <= 0.0001) continue;
-          const usado = Math.min(sobra, divida.restante);
-          divida.restante -= usado;
-          divida.pago += usado;
-          if (!noPeriodo(pagamento.iso)) divida.pagoFora += usado;
-          sobra -= usado;
-        }
+      // baixa estritamente cronológica: quita sempre a dívida mais antiga primeiro,
+      // independente do mês em que o repasse caiu.
+      for (const divida of dividas) {
         if (sobra <= 0.0001) break;
+        if (divida.restante <= 0.0001) continue;
+        const usado = Math.min(sobra, divida.restante);
+        divida.restante -= usado;
+        divida.pago += usado;
+        if (!noPeriodo(pagamento.iso)) divida.pagoFora += usado;
+        sobra -= usado;
       }
     }
+
     let faturado = 0;
     let quitado = 0;
     let quitadoDepois = 0;
