@@ -18,6 +18,7 @@ import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
 
@@ -66,6 +67,11 @@ const PerfilRoute = PerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RelatorioRoute = RelatorioRouteImport.update({
   id: '/relatorio',
   path: '/relatorio',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
   PerfilRoute: typeof PerfilRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
 }
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/relatorio': {
       id: '/relatorio'
       path: '/relatorio'
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
   PerfilRoute: PerfilRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
   RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
 }
