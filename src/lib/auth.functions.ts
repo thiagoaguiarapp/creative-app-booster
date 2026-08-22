@@ -65,3 +65,28 @@ export const sairFn = createServerFn({ method: "POST" }).handler(
     return { ok: true };
   },
 );
+
+export const reenviarConfirmacaoFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { email: string; redirectTo: string }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { reenviarConfirmacao } = await import("./auth.server");
+    await reenviarConfirmacao(data.email.trim(), data.redirectTo);
+    return { ok: true };
+  });
+
+export const recuperarSenhaFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { email: string; redirectTo: string }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { recuperarSenha } = await import("./auth.server");
+    await recuperarSenha(data.email.trim(), data.redirectTo);
+    return { ok: true };
+  });
+
+export const redefinirSenhaFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { accessToken: string; senha: string }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { redefinirSenha } = await import("./auth.server");
+    if (data.senha.length < 6) throw new Error("A senha precisa ter ao menos 6 caracteres.");
+    await redefinirSenha(data.accessToken, data.senha);
+    return { ok: true };
+  });

@@ -234,10 +234,10 @@ export async function exigirUsuario(): Promise<Usuario> {
 
 /** Reenvia o e-mail de confirmação de cadastro. */
 export async function reenviarConfirmacao(email: string, redirectTo: string): Promise<void> {
-  const res = await fetch(`${url()}/resend`, {
+  const res = await fetch(`${url()}/resend?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: "POST",
     headers: { apikey: anon(), "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "signup", email, options: { email_redirect_to: redirectTo } }),
+    body: JSON.stringify({ type: "signup", email }),
   });
   if (!res.ok) {
     const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
@@ -247,10 +247,10 @@ export async function reenviarConfirmacao(email: string, redirectTo: string): Pr
 
 /** Envia o e-mail de recuperação de senha. */
 export async function recuperarSenha(email: string, redirectTo: string): Promise<void> {
-  const res = await fetch(`${url()}/recover`, {
+  const res = await fetch(`${url()}/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: "POST",
     headers: { apikey: anon(), "Content-Type": "application/json" },
-    body: JSON.stringify({ email, options: { redirect_to: redirectTo } }),
+    body: JSON.stringify({ email }),
   });
   if (!res.ok) {
     const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
