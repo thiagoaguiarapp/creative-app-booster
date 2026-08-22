@@ -231,3 +231,45 @@ export async function exigirUsuario(): Promise<Usuario> {
   if (!u) throw new Error("Sessão expirada. Entre novamente para continuar.");
   return u;
 }
+
+/** Reenvia o e-mail de confirmação de cadastro. */
+export async function reenviarConfirmacao(email: string, redirectTo: string): Promise<void> {
+  const res = await fetch(`${url()}/resend`, {
+    method: "POST",
+    headers: { apikey: anon(), "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "signup", email, options: { email_redirect_to: redirectTo } }),
+  });
+  if (!res.ok) {
+    const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
+  }
+}
+
+/** Envia o e-mail de recuperação de senha. */
+export async function recuperarSenha(email: string, redirectTo: string): Promise<void> {
+  const res = await fetch(`${url()}/recover`, {
+    method: "POST",
+    headers: { apikey: anon(), "Content-Type": "application/json" },
+    body: JSON.stringify({ email, options: { redirect_to: redirectTo } }),
+  });
+  if (!res.ok) {
+    const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
+  }
+}
+
+/** Define uma nova senha usando o token do link de recuperação. */
+export async function redefinirSenha(accessToken: string, senha: string): Promise<void> {
+  const res = await fetch(`${url()}/user`, {
+    method: "PUT",
+    headers: {
+      apikey: anon(),
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password: senha }),
+  });
+  const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
+  gravarSessao(dados as Tokens);
+}
