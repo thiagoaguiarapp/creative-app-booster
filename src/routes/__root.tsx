@@ -168,7 +168,7 @@ function RootComponent() {
                 Rota Control
               </span>
             </header>
-            <main className="flex-1 p-4 md:p-8">
+            <main className="flex-1 p-4 pb-24 md:p-8">
               {/* Required: nested routes render here. */}
               <Outlet />
             </main>
