@@ -267,19 +267,20 @@ function FormularioDialog({
 
   return (
     <Dialog open={aberto} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="font-display uppercase tracking-wide">
+      <DialogContent className="flex h-[100dvh] max-h-[100dvh] w-full max-w-none flex-col gap-0 rounded-none border-0 p-0 sm:h-auto sm:max-h-[92dvh] sm:max-w-2xl sm:rounded-lg sm:border">
+        <DialogHeader className="shrink-0 space-y-1 border-b bg-muted/30 px-5 py-4 text-left sm:px-6">
+          <DialogTitle className="font-display text-lg uppercase tracking-wide sm:text-xl">
             {titulo ?? `${row ? "Editar" : "Novo"} ${TITULOS[tipo]}`}
           </DialogTitle>
           <DialogDescription>
-            As alterações são gravadas direto na sua planilha do Google Sheets.
+            Preencha os campos abaixo. Os dados são gravados na sua conta.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={enviar} className="grid gap-4 sm:grid-cols-2">
+        <form onSubmit={enviar} className="flex min-h-0 flex-1 flex-col">
+          <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto px-5 py-5 sm:grid-cols-2 sm:px-6">
           {CAMPOS[tipo].filter(visivel).map((campo) => (
-            <div key={campo.key} className="flex flex-col gap-1.5">
+            <div key={campo.key} className="flex min-w-0 flex-col gap-1.5">
               <Label htmlFor={campo.key}>{campo.label}</Label>
               {campo.tipo === "select" ? (
                 <Select
@@ -375,14 +376,19 @@ function FormularioDialog({
               </Button>
             </div>
           )}
+          </div>
 
-
-          <DialogFooter className="sm:col-span-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="shrink-0 gap-2 border-t bg-muted/30 px-5 py-4 sm:px-6">
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full sm:w-auto"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Salvando…" : "Salvar na planilha"}
+            <Button type="submit" className="w-full sm:w-auto" disabled={mutation.isPending}>
+              {mutation.isPending ? "Salvando…" : "Salvar"}
             </Button>
           </DialogFooter>
         </form>
