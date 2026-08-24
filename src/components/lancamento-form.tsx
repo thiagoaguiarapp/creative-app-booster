@@ -376,14 +376,19 @@ function FormularioDialog({
               </Button>
             </div>
           )}
+          </div>
 
-
-          <DialogFooter className="sm:col-span-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="shrink-0 gap-2 border-t bg-muted/30 px-5 py-4 sm:px-6">
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full sm:w-auto"
+              onClick={() => onOpenChange(false)}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Salvando…" : "Salvar na planilha"}
+            <Button type="submit" className="w-full sm:w-auto" disabled={mutation.isPending}>
+              {mutation.isPending ? "Salvando…" : "Salvar"}
             </Button>
           </DialogFooter>
         </form>
