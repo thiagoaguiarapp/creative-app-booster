@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ListChecks, Search, TrendingDown, TrendingUp } from "lucide-react";
+import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento, NovoLancamentoRapido } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
-import { PageHeader, SectionCard, StatCard } from "@/components/shell";
+import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -160,9 +160,6 @@ function LancamentosPage() {
     });
   }, [todas, filtro, busca, de, ate]);
 
-  const entradas = filtradas.filter((l) => l.positivo).reduce((s, l) => s + l.valor, 0);
-  const saidas = filtradas.filter((l) => !l.positivo).reduce((s, l) => s + l.valor, 0);
-
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
@@ -179,11 +176,6 @@ function LancamentosPage() {
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Registros" value={String(filtradas.length)} icon={ListChecks} />
-        <StatCard label="Entradas" value={brl(entradas)} icon={TrendingUp} tone="success" />
-        <StatCard label="Saídas" value={brl(saidas)} icon={TrendingDown} tone="destructive" />
-      </div>
 
       <SectionCard title="Filtros">
         <div className="flex flex-col gap-4">
