@@ -114,8 +114,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Rota Control — Gestão do entregador" },
       { property: "og:description", content: "Controle ganhos, gastos, abastecimento, manutenção e repasses das suas entregas em um só lugar." },
       { name: "twitter:description", content: "Controle ganhos, gastos, abastecimento, manutenção e repasses das suas entregas em um só lugar." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/89e39d90-e248-4bb4-8400-7d11372129ab/id-preview-a565d132--050c271a-9a2e-417d-a594-e8336c2f72c9.lovable.app-1785774593793.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/89e39d90-e248-4bb4-8400-7d11372129ab/id-preview-a565d132--050c271a-9a2e-417d-a594-e8336c2f72c9.lovable.app-1785774593793.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
