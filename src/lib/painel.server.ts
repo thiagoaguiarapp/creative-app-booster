@@ -100,7 +100,7 @@ async function carregar(userId: string): Promise<PainelData> {
         row: idDe(l),
         data: dataBr(campo(l, "Data", "DATA")),
         iso: isoDate(campo(l, "Data", "DATA")),
-        posto: txt(campo(l, "POSTO", "Posto")),
+        posto: normalizar(campo(l, "POSTO", "Posto")),
         odometro: num(campo(l, "Odômetro total", "ODOMETRO")),
         litros,
         precoLitro: num(campo(l, "Preço do Litro", "PRECO LITRO")),
@@ -109,7 +109,7 @@ async function carregar(userId: string): Promise<PainelData> {
         custoKm: num(campo(l, "Custo do km")),
         desconto: num(campo(l, "DESCONTO", "Desconto")),
         valorPago: num(campo(l, "VALOR PAGO", "VALOR")),
-        pagamento: txt(campo(l, "CONDIÇÃO PAGAMENTO", "CONDICAO PAGAMENTO")) || "—",
+        pagamento: normalizar(campo(l, "CONDIÇÃO PAGAMENTO", "CONDICAO PAGAMENTO")) || "—",
       };
     })
     .sort(byIsoDesc);
@@ -122,9 +122,9 @@ async function carregar(userId: string): Promise<PainelData> {
       data: dataBr(campo(l, "DATA", "Data")),
       iso: isoDate(campo(l, "DATA", "Data")),
       valor: num(campo(l, "VALOR")),
-      categoria: txt(campo(l, "TIPO DE GASTO", "CATEGORIA")) || "Outros",
+      categoria: normalizar(campo(l, "TIPO DE GASTO", "CATEGORIA")) || "Outros",
       descricao: txt(campo(l, "OBS", "OBSERVAÇÃO", "DESCRICAO")),
-      pagamento: txt(campo(l, "CONDIÇÃO DE PAGAMENTO", "CONDICAO DE PAGAMENTO")) || "—",
+      pagamento: normalizar(campo(l, "CONDIÇÃO DE PAGAMENTO", "CONDICAO DE PAGAMENTO")) || "—",
     }))
     .sort(byIsoDesc);
 
@@ -135,9 +135,9 @@ async function carregar(userId: string): Promise<PainelData> {
       row: idDe(l),
       data: dataBr(campo(l, "DATA", "Data")),
       iso: isoDate(campo(l, "DATA", "Data")),
-      aplicativo: txt(campo(l, "APLICATIVO", "APP")) || "—",
+      aplicativo: normalizar(campo(l, "APLICATIVO", "APP")) || "—",
       valor: num(campo(l, "VALOR RECEBIDO", "VALOR")),
-      forma: txt(campo(l, "FORMA RECEBIMENTO", "FORMA")) || "—",
+      forma: normalizar(campo(l, "FORMA RECEBIMENTO", "FORMA")) || "—",
     }))
     .sort(byIsoDesc);
 
@@ -146,10 +146,10 @@ async function carregar(userId: string): Promise<PainelData> {
     .map((l) => ({
       id: idDe(l),
       row: idDe(l),
-      veiculo: txt(campo(l, "VEICULO", "VEÍCULO")) || "—",
+      veiculo: normalizar(campo(l, "VEICULO", "VEÍCULO")) || "—",
       data: dataBr(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
       iso: isoDate(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
-      servico: txt(campo(l, "SERVIÇO", "SERVICO")),
+      servico: normalizar(campo(l, "SERVIÇO", "SERVICO")),
       kmTroca: num(campo(l, "KM TROCA")),
       validadeKm: num(campo(l, "VALIDADE (KM)", "VALIDADE KM")),
       valor: num(campo(l, "VALOR GASTO", "VALOR")),
