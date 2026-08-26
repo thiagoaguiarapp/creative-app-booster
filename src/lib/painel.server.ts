@@ -24,6 +24,13 @@ function campo(linha: Linha, ...nomes: string[]): unknown {
 
 const idDe = (linha: Linha) => txt(linha["ID"]);
 
+/** Normaliza textos usados como chave de agrupamento: maiúsculas e sem espaços extras. */
+function normalizar(raw: unknown): string {
+  const v = txt(raw);
+  if (!v) return v;
+  return v.replace(/\s+/g, " ").trim().toUpperCase();
+}
+
 const caches = new Map<string, { data: PainelData; at: number }>();
 const emVoo = new Map<string, Promise<PainelData>>();
 const TTL = 30_000;
