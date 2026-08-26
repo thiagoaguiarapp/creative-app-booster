@@ -261,7 +261,8 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, open } = useSidebar();
+  const [riding, setRiding] = React.useState(false);
 
   return (
     <Button
@@ -269,14 +270,21 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-7 w-7 overflow-visible", className)}
       onClick={(event) => {
         onClick?.(event);
+        setRiding(true);
+        window.setTimeout(() => setRiding(false), 700);
         toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeft />
+      <Bike
+        className={cn(
+          "transition-transform duration-200",
+          riding && (open ? "animate-moto-out" : "animate-moto-in"),
+        )}
+      />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
