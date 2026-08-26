@@ -283,7 +283,7 @@ const SidebarTrigger = React.forwardRef<
       <Bike
         className={cn(
           "transition-transform duration-200",
-          riding && (open ? "animate-moto-out" : "animate-moto-in"),
+          riding && (aberto ? "animate-moto-out" : "animate-moto-in"),
         )}
       />
       <span className="sr-only">Toggle Sidebar</span>
