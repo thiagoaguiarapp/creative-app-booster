@@ -155,3 +155,40 @@
 @utility num {
   font-variant-numeric: tabular-nums;
 }
+
+/* Animação da moto ao abrir/fechar o menu lateral */
+@keyframes moto-in {
+  0% {
+    transform: translateX(-14px) rotate(-8deg);
+    opacity: 0.4;
+  }
+  55% {
+    transform: translateX(3px) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes moto-out {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  45% {
+    transform: translateX(10px) rotate(8deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-2px) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@utility animate-moto-in {
+  animation: moto-in 0.65s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+@utility animate-moto-out {
+  animation: moto-out 0.65s cubic-bezier(0.22, 1.2, 0.36, 1);
+}

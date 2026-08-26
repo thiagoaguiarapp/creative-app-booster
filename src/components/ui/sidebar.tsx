@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
+import { Bike } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -261,7 +261,9 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, open, openMobile, isMobile } = useSidebar();
+  const aberto = isMobile ? openMobile : open;
+  const [riding, setRiding] = React.useState(false);
 
   return (
     <Button
@@ -269,14 +271,21 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-7 w-7 overflow-visible", className)}
       onClick={(event) => {
         onClick?.(event);
+        setRiding(true);
+        window.setTimeout(() => setRiding(false), 700);
         toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeft />
+      <Bike
+        className={cn(
+          "transition-transform duration-200",
+          riding && (aberto ? "animate-moto-out" : "animate-moto-in"),
+        )}
+      />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
