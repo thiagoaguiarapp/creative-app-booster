@@ -83,7 +83,7 @@ async function carregar(userId: string): Promise<PainelData> {
       row: idDe(l),
       data: dataBr(campo(l, "DATA", "Data")),
       iso: isoDate(campo(l, "DATA", "Data")),
-      plataforma: txt(campo(l, "APP", "APLICATIVO", "PLATAFORMA")) || "—",
+      plataforma: normalizar(campo(l, "APP", "APLICATIVO", "PLATAFORMA")) || "—",
       corridas: num(campo(l, "ROTAS CONCLUIDAS", "CORRIDAS")),
       faturamento: num(campo(l, "FATURAMENTO")),
       recebido: num(campo(l, "RECEBIDO", "VALOR RECEBIDO")),
