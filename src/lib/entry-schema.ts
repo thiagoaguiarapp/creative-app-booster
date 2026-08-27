@@ -6,7 +6,7 @@ export type Campo = {
   tipo: "text" | "date" | "number" | "money" | "select";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
-  sugestoes?: "plataforma" | "forma" | "veiculo";
+  sugestoes?: "plataforma" | "forma" | "veiculo" | "servico" | "combustivel";
   /** opções fixas para tipo "select" */
   opcoes?: string[];
   /** só exibe o campo quando outro campo tem um dos valores listados */
@@ -35,7 +35,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   abastecimento: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "veiculo", label: "Veículo", tipo: "text", sugestoes: "veiculo" },
-    { key: "posto", label: "Posto (opcional)", tipo: "text" },
+    { key: "posto", label: "Posto / combustível (opcional)", tipo: "text", sugestoes: "combustivel" },
     { key: "odometro", label: "Odômetro (km)", tipo: "number", obrigatorio: true },
     { key: "litros", label: "Litros", tipo: "number", obrigatorio: true },
     { key: "precoLitro", label: "Preço por litro (R$)", tipo: "money" },
@@ -84,7 +84,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   manutencao: [
     { key: "veiculo", label: "Veículo", tipo: "text", obrigatorio: true, sugestoes: "veiculo" },
     { key: "data", label: "Data do serviço", tipo: "date", obrigatorio: true },
-    { key: "servico", label: "Serviço", tipo: "text", obrigatorio: true },
+    { key: "servico", label: "Serviço", tipo: "text", obrigatorio: true, sugestoes: "servico" },
     { key: "kmTroca", label: "Km da troca", tipo: "number", obrigatorio: true },
     { key: "validadeKm", label: "Validade (km)", tipo: "number", obrigatorio: true },
     { key: "valor", label: "Valor (R$)", tipo: "money" },

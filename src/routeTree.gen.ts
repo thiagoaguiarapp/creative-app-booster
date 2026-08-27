@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DespesasRouteImport } from './routes/despesas'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const AbastecimentoRoute = AbastecimentoRouteImport.update({
   id: '/abastecimento',
   path: '/abastecimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -86,6 +92,7 @@ const RepassesRoute = RepassesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/abastecimento'
+    | '/admin'
     | '/auth'
     | '/configuracoes'
     | '/despesas'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/abastecimento'
+    | '/admin'
     | '/auth'
     | '/configuracoes'
     | '/despesas'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/abastecimento'
+    | '/admin'
     | '/auth'
     | '/configuracoes'
     | '/despesas'
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbastecimentoRoute: typeof AbastecimentoRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DespesasRoute: typeof DespesasRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/abastecimento'
       fullPath: '/abastecimento'
       preLoaderRoute: typeof AbastecimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -278,6 +298,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DespesasRoute: DespesasRoute,

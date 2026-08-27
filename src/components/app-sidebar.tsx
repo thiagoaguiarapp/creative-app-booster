@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
@@ -33,7 +33,7 @@ const items = [
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },
 ];
 
-export function AppSidebar({ email }: { email?: string }) {
+export function AppSidebar({ email, isAdmin }: { email?: string; isAdmin?: boolean }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
@@ -94,6 +94,20 @@ export function AppSidebar({ email }: { email?: string }) {
               }
             />
           </SidebarMenuItem>
+          {isAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={currentPath === "/admin"}
+                tooltip="Painel do administrador"
+              >
+                <Link to="/admin" className="flex items-center gap-2">
+                  <Shield className="size-4 text-primary" />
+                  <span>Administração</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild

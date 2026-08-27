@@ -32,6 +32,7 @@ export type Usuario = {
   telefone: string;
   metaSemanal: number;
   isPremium: boolean;
+  isAdmin?: boolean;
   veiculos: Veiculo[];
 };
 
@@ -193,7 +194,8 @@ export async function cadastrar(email: string, senha: string): Promise<Usuario |
   const dados = await chamar("/signup", { email, password: senha });
   if ((dados as Tokens).access_token) {
     gravarSessao(dados as Tokens);
-    return extrairUsuario(dados);
+    const renovado = extrairUsuario(dados);
+    return renovado ? await marcarAdmin(renovado) : null;
   }
   // Confirmação de e-mail ativa no projeto: ainda não há sessão.
   return null;
@@ -207,12 +209,22 @@ async function usuarioPorToken(token: string): Promise<Usuario | null> {
   return extrairUsuario((await res.json()) as Record<string, unknown>);
 }
 
+/** Marca o usuário como administrador conforme a role na tabela profiles. */
+async function marcarAdmin(u: Usuario): Promise<Usuario> {
+  try {
+    const { roleDe } = await import("./admin.server");
+    return { ...u, isAdmin: (await roleDe(u.id)) === "admin" };
+  } catch {
+    return u;
+  }
+}
+
 /** Usuário da requisição atual, renovando o token quando necessário. */
 export async function usuarioAtual(): Promise<Usuario | null> {
   const access = getCookie(ACCESS);
   if (access) {
     const u = await usuarioPorToken(access);
-    if (u) return u;
+    if (u) return marcarAdmin(u);
   }
   const refresh = getCookie(REFRESH);
   if (!refresh) return null;
