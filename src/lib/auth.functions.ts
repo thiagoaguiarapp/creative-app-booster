@@ -7,6 +7,7 @@ export type SessaoUsuario = {
   telefone: string;
   metaSemanal: number;
   isPremium: boolean;
+  isAdmin?: boolean;
   veiculos: {
     id: string;
     nome: string;
