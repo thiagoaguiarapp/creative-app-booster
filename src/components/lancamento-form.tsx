@@ -54,6 +54,7 @@ import {
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { categoriasQueryOptions } from "@/lib/categorias-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
 function valoresIniciais(
@@ -87,9 +88,15 @@ function numeroBr(valor: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function useCategorias() {
+  const { data } = useQuery(categoriasQueryOptions());
+  return data ?? { plataformas: [], combustiveis: [], servicos: [] };
+}
+
 function usePlataformas(tipo: Tipo): string[] {
   const { data } = useQuery(painelQueryOptions());
-  const nomes = new Set<string>();
+  const categorias = useCategorias();
+  const nomes = new Set<string>(categorias.plataformas);
   for (const g of data?.ganhos ?? []) if (g.plataforma?.trim()) nomes.add(g.plataforma.trim());
   for (const r of data?.repasses ?? []) if (r.aplicativo?.trim()) nomes.add(r.aplicativo.trim());
   if (tipo === "ganho") for (const e of EXTRAS_SUGERIDOS) nomes.add(e);
@@ -163,6 +170,7 @@ function FormularioDialog({
   const salvar = useServerFn(salvarLancamentoFn);
   const plataformas = usePlataformas(tipo);
   const formas = useFormas();
+  const categorias = useCategorias();
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
@@ -322,7 +330,11 @@ function FormularioDialog({
                     ? formas
                     : campo.sugestoes === "veiculo"
                       ? veiculos.nomes
-                      : plataformas
+                      : campo.sugestoes === "servico"
+                        ? categorias.servicos
+                        : campo.sugestoes === "combustivel"
+                          ? categorias.combustiveis
+                          : plataformas
                   ).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}
