@@ -400,7 +400,54 @@ function RepassesPage() {
               <p className="num text-lg font-semibold">{brl(saldoLiquidoGeral)}</p>
             </div>
           </div>
-          <div className="overflow-x-auto">
+
+          {/* Mobile cards */}
+          <div className="flex flex-col gap-3 sm:hidden">
+            {saldoPlataformas.map((s) => {
+              const aReceber = s.saldo > 0.009;
+              const aMais = s.saldo < -0.009;
+              return (
+                <div
+                  key={`saldo-m-${s.app}`}
+                  className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{s.app}</span>
+                    <span
+                      className={`text-xs ${
+                        aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                      }`}
+                    >
+                      {aReceber ? "A receber" : aMais ? "Recebido a mais" : "Em dia"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Faturado</p>
+                      <p className="num font-medium">{brl(s.faturado)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Recebido</p>
+                      <p className="num font-medium">{brl(s.recebido)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground">Saldo</p>
+                      <p
+                        className={`num font-semibold ${
+                          aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                        }`}
+                      >
+                        {brl(Math.abs(s.saldo))}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto sm:block">
             <Table>
               <TableHeader>
                 <TableRow>
