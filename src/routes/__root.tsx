@@ -81,14 +81,16 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
+    // Rotas públicas: login e o link de recuperação de senha (token vem no hash).
+    const publica = location.pathname === "/auth" || location.pathname === "/redefinir-senha";
     const usuario = await sessaoFn();
-    if (!usuario && location.pathname !== "/auth") {
+    if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
     }
     if (usuario && location.pathname === "/auth") {
       throw redirect({ to: usuario.nome ? "/" : "/perfil" });
     }
-    if (usuario && !usuario.nome && location.pathname !== "/perfil") {
+    if (usuario && !usuario.nome && location.pathname !== "/perfil" && !publica) {
       throw redirect({ to: "/perfil" });
     }
     return { usuario };
