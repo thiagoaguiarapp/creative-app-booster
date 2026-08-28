@@ -495,59 +495,125 @@ function RepassesPage() {
           title="A receber de meses anteriores"
           description="Pendências antigas por aplicativo e o quanto já foi abatido com o recebido deste período"
         >
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Aplicativo</TableHead>
-                <TableHead className="text-right">Pendente antigo</TableHead>
-                <TableHead className="text-right">Abatido agora</TableHead>
-                <TableHead className="text-right">Ainda falta</TableHead>
-                <TableHead className="w-36 text-right">Baixa</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {conciliacao
-                .filter((c) => c.restanteAnterior > 0.009)
-                .map((c) => (
-                  <TableRow key={`ant-${c.app}`}>
-                    <TableCell className="font-medium">{c.app}</TableCell>
-                    <TableCell className="num text-right">{brl(c.pendenteAnterior)}</TableCell>
-                    <TableCell className="num text-right text-success">
-                      {c.abatido > 0.009 ? brl(c.abatido) : "—"}
-                    </TableCell>
-                    <TableCell className="num text-right font-semibold text-warning">
-                      {brl(c.restanteAnterior)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {c.restanteAnterior > 0.009 && (
-                        <NovoLancamento
-                          tipo="repasse"
-                          rotulo="Dar baixa"
-                          size="sm"
-                          icone={CheckCircle2}
-                          titulo={`Baixa de mês anterior — ${c.app}`}
-                          iniciais={{
-                            data: hojeInputDate(),
-                            aplicativo: c.app,
-                            valor: c.restanteAnterior.toFixed(2),
-                            forma: "Repasse do app",
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              <TableRow>
-                <TableCell className="font-semibold">Total</TableCell>
-                <TableCell className="num text-right font-semibold">{brl(pendenteAnteriorTotal)}</TableCell>
-                <TableCell className="num text-right font-semibold text-success">{brl(abatidoTotal)}</TableCell>
-                <TableCell className="num text-right font-semibold text-warning">
-                  {brl(restanteAnteriorTotal)}
-                </TableCell>
-                <TableCell />
-              </TableRow>
-            </TableBody>
-          </Table>
+          {/* Mobile cards */}
+          <div className="flex flex-col gap-3 sm:hidden">
+            {conciliacao
+              .filter((c) => c.restanteAnterior > 0.009)
+              .map((c) => (
+                <div
+                  key={`ant-m-${c.app}`}
+                  className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{c.app}</span>
+                    {c.restanteAnterior > 0.009 && (
+                      <NovoLancamento
+                        tipo="repasse"
+                        rotulo="Dar baixa"
+                        size="sm"
+                        icone={CheckCircle2}
+                        titulo={`Baixa de mês anterior — ${c.app}`}
+                        iniciais={{
+                          data: hojeInputDate(),
+                          aplicativo: c.app,
+                          valor: c.restanteAnterior.toFixed(2),
+                          forma: "Repasse do app",
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Pendente antigo</p>
+                      <p className="num font-medium">{brl(c.pendenteAnterior)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground">Abatido</p>
+                      <p className="num font-medium text-success">
+                        {c.abatido > 0.009 ? brl(c.abatido) : "—"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground">Ainda falta</p>
+                      <p className="num font-semibold text-warning">{brl(c.restanteAnterior)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Total antigo</p>
+                  <p className="num font-semibold">{brl(pendenteAnteriorTotal)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Abatido</p>
+                  <p className="num font-semibold text-success">{brl(abatidoTotal)}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">Ainda falta</p>
+                  <p className="num font-semibold text-warning">{brl(restanteAnteriorTotal)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Aplicativo</TableHead>
+                  <TableHead className="text-right">Pendente antigo</TableHead>
+                  <TableHead className="text-right">Abatido agora</TableHead>
+                  <TableHead className="text-right">Ainda falta</TableHead>
+                  <TableHead className="w-36 text-right">Baixa</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {conciliacao
+                  .filter((c) => c.restanteAnterior > 0.009)
+                  .map((c) => (
+                    <TableRow key={`ant-${c.app}`}>
+                      <TableCell className="font-medium">{c.app}</TableCell>
+                      <TableCell className="num text-right">{brl(c.pendenteAnterior)}</TableCell>
+                      <TableCell className="num text-right text-success">
+                        {c.abatido > 0.009 ? brl(c.abatido) : "—"}
+                      </TableCell>
+                      <TableCell className="num text-right font-semibold text-warning">
+                        {brl(c.restanteAnterior)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {c.restanteAnterior > 0.009 && (
+                          <NovoLancamento
+                            tipo="repasse"
+                            rotulo="Dar baixa"
+                            size="sm"
+                            icone={CheckCircle2}
+                            titulo={`Baixa de mês anterior — ${c.app}`}
+                            iniciais={{
+                              data: hojeInputDate(),
+                              aplicativo: c.app,
+                              valor: c.restanteAnterior.toFixed(2),
+                              forma: "Repasse do app",
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                <TableRow>
+                  <TableCell className="font-semibold">Total</TableCell>
+                  <TableCell className="num text-right font-semibold">{brl(pendenteAnteriorTotal)}</TableCell>
+                  <TableCell className="num text-right font-semibold text-success">{brl(abatidoTotal)}</TableCell>
+                  <TableCell className="num text-right font-semibold text-warning">
+                    {brl(restanteAnteriorTotal)}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
           <p className="mt-3 text-sm text-muted-foreground">
             Quando o app paga o mês passado junto com o atual, o valor recebido a mais no período abate
             automaticamente a dívida antiga. A receber no total: <strong>{brl(aReceberGeral)}</strong>.
