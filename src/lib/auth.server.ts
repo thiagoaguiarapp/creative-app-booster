@@ -231,7 +231,8 @@ export async function usuarioAtual(): Promise<Usuario | null> {
   try {
     const dados = await chamar("/token?grant_type=refresh_token", { refresh_token: refresh });
     gravarSessao(dados as Tokens);
-    return extrairUsuario(dados);
+    const renovado = extrairUsuario(dados);
+    return renovado ? await marcarAdmin(renovado) : null;
   } catch {
     limparSessao();
     return null;
