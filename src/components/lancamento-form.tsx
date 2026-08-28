@@ -275,7 +275,7 @@ function FormularioDialog({
 
   return (
     <Dialog open={aberto} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[100dvh] max-h-[100dvh] w-full max-w-none flex-col gap-0 rounded-none border-0 p-0 sm:h-auto sm:max-h-[92dvh] sm:max-w-2xl sm:rounded-lg sm:border">
+      <DialogContent className="fixed inset-0 translate-x-0 translate-y-0 flex h-dvh max-h-dvh w-full max-w-none flex-col gap-0 rounded-none border-0 p-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[92dvh] sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border">
         <DialogHeader className="shrink-0 space-y-1 border-b bg-muted/30 px-5 py-4 text-left sm:px-6">
           <DialogTitle className="font-display text-lg uppercase tracking-wide sm:text-xl">
             {titulo ?? `${row ? "Editar" : "Novo"} ${TITULOS[tipo]}`}
@@ -286,10 +286,10 @@ function FormularioDialog({
         </DialogHeader>
 
         <form onSubmit={enviar} className="flex min-h-0 flex-1 flex-col">
-          <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto px-5 py-5 sm:grid-cols-2 sm:px-6">
+          <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto px-5 py-6 sm:grid-cols-2 sm:gap-4 sm:px-6">
           {CAMPOS[tipo].filter(visivel).map((campo) => (
-            <div key={campo.key} className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor={campo.key}>{campo.label}</Label>
+            <div key={campo.key} className="flex min-w-0 flex-col gap-2 sm:gap-1.5">
+              <Label htmlFor={campo.key} className="text-sm sm:text-xs">{campo.label}</Label>
               {campo.tipo === "select" ? (
                 <Select
                   value={valores[campo.key] ?? ""}
@@ -301,7 +301,7 @@ function FormularioDialog({
                     }))
                   }
                 >
-                  <SelectTrigger id={campo.key}>
+                  <SelectTrigger id={campo.key} className="h-12 text-base sm:h-9 sm:text-sm">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -315,6 +315,7 @@ function FormularioDialog({
               ) : (
                 <Input
                   id={campo.key}
+                  className="h-12 text-base sm:h-9 sm:text-sm"
                   type={campo.tipo === "date" ? "date" : campo.tipo === "text" ? "text" : "number"}
                   step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
                   inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
@@ -364,7 +365,7 @@ function FormularioDialog({
 
 
           {existente && (
-            <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-xs sm:col-span-2">
+            <div className="rounded-md border border-warning/40 bg-warning/10 p-4 text-sm sm:col-span-2 sm:p-3 sm:text-xs">
               <p className="text-warning">
                 Já existe manutenção ativa de “{existente.servico}”
                 {existente.veiculo ? ` (${existente.veiculo})` : ""} em {existente.data}, km{" "}
@@ -374,7 +375,7 @@ function FormularioDialog({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-2"
+                className="mt-3 sm:mt-2"
                 onClick={() =>
                   setSeguinte({
                     row: existente.row,
@@ -390,16 +391,16 @@ function FormularioDialog({
           )}
           </div>
 
-          <DialogFooter className="shrink-0 gap-2 border-t bg-muted/30 px-5 py-4 sm:px-6">
+          <DialogFooter className="shrink-0 gap-3 border-t bg-muted/30 px-5 py-5 sm:gap-2 sm:px-6 sm:py-4">
             <Button
               type="button"
               variant="ghost"
-              className="w-full sm:w-auto"
+              className="h-12 w-full text-base sm:h-9 sm:w-auto sm:text-sm"
               onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button type="submit" className="w-full sm:w-auto" disabled={mutation.isPending}>
+            <Button type="submit" className="h-12 w-full text-base sm:h-9 sm:w-auto sm:text-sm" disabled={mutation.isPending}>
               {mutation.isPending ? "Salvando…" : "Salvar"}
             </Button>
           </DialogFooter>
