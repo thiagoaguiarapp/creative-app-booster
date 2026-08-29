@@ -625,130 +625,261 @@ function RepassesPage() {
         title="Conciliação por aplicativo"
         description="Faturado no período x recebido (repasse, dinheiro ou Pix na entrega)"
       >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Aplicativo</TableHead>
-              <TableHead className="text-right">Faturado</TableHead>
-              <TableHead className="text-right">Recebido</TableHead>
-              <TableHead className="text-right">Falta receber</TableHead>
-              <TableHead className="w-24 text-right">%</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-36 text-right">Baixa</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {porApp.map((a) => {
-              const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
-              const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
-              const parcial = !quitado && a.quitado > 0.009;
+        {/* Mobile cards */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          {porApp.map((a) => {
+            const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
+            const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
+            const parcial = !quitado && a.quitado > 0.009;
 
-              const baixas = repasses
-                .filter((r) => norm(r.aplicativo) === norm(a.app))
-                .sort((x, y) => y.iso.localeCompare(x.iso));
-              const expandido = aberto === norm(a.app);
-              return (
-                <Fragment key={a.app}>
-                  <TableRow key={a.app}>
-                    <TableCell className="font-medium">
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 text-left hover:text-primary"
-                        onClick={() => setAberto(expandido ? null : norm(a.app))}
-                        aria-expanded={expandido}
-                      >
-                        <ChevronRight
-                          className={`size-4 shrink-0 transition-transform ${expandido ? "rotate-90" : ""}`}
-                        />
-                        {a.app}
-                        {baixas.length > 0 && (
-                          <span className="text-xs text-muted-foreground">({baixas.length})</span>
-                        )}
-                      </button>
-                    </TableCell>
-                    <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
-                    <TableCell className="num text-right text-success">
-                      {brl(a.recebido)}
-                      {a.quitadoDepois > 0.009 && (
-                        <span className="block text-xs text-muted-foreground">
-                          + {brl(a.quitadoDepois)} recebido em outro mês
-                        </span>
-                      )}
-                    </TableCell>
+            const baixas = repasses
+              .filter((r) => norm(r.aplicativo) === norm(a.app))
+              .sort((x, y) => y.iso.localeCompare(x.iso));
+            const expandido = aberto === norm(a.app);
+            return (
+              <div
+                key={`app-m-${a.app}`}
+                className="flex flex-col gap-3 rounded-lg border border-border/60 p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    className="flex min-w-0 items-center gap-1.5 text-left font-medium hover:text-primary"
+                    onClick={() => setAberto(expandido ? null : norm(a.app))}
+                    aria-expanded={expandido}
+                  >
+                    <ChevronRight
+                      className={`size-4 shrink-0 transition-transform ${expandido ? "rotate-90" : ""}`}
+                    />
+                    <span className="truncate">{a.app}</span>
+                    {baixas.length > 0 && (
+                      <span className="text-xs text-muted-foreground">({baixas.length})</span>
+                    )}
+                  </button>
+                  <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
+                    {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
+                  </Badge>
+                </div>
 
-                    <TableCell
-                      className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground">Faturado</p>
+                    <p className="num font-medium">{brl(a.faturado)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground">Recebido</p>
+                    <p className="num font-medium text-success">{brl(a.recebido)}</p>
+                    {a.quitadoDepois > 0.009 && (
+                      <p className="text-[10px] text-muted-foreground">
+                        + {brl(a.quitadoDepois)} outro mês
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-muted-foreground">Falta</p>
+                    <p
+                      className={`num font-semibold ${
+                        a.pendente > 0.009
+                          ? "text-warning"
+                          : a.pendente < -0.009
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                      }`}
                     >
                       {brl(a.pendente)}
-                    </TableCell>
-                    <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
-                    <TableCell>
-                      <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
-                        {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {!quitado && (
-                        <NovoLancamento
-                          tipo="repasse"
-                          rotulo="Dar baixa"
-                          variant="outline"
-                          size="sm"
-                          icone={CheckCircle2}
-                          titulo={`Dar baixa — ${a.app}`}
-                          iniciais={{
-                            data: hojeInputDate(),
-                            aplicativo: a.app,
-                            valor: a.pendente.toFixed(2),
-                            forma: "Dinheiro",
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                  {expandido && (
-                    <TableRow key={`${a.app}-baixas`} className="bg-muted/30 hover:bg-muted/30">
-                      <TableCell colSpan={7} className="p-0">
-                        {baixas.length === 0 ? (
-                          <p className="px-4 py-3 text-sm text-muted-foreground">
-                            Nenhuma baixa registrada para {a.app} neste período.
-                          </p>
-                        ) : (
-                          <div className="flex flex-col divide-y divide-border">
-                            {baixas.map((r) => (
-                              <div
-                                key={r.id}
-                                className="flex flex-wrap items-center gap-3 px-4 py-2 text-sm"
-                              >
-                                <span className="num w-24 text-muted-foreground">{r.data}</span>
-                                <span className="flex-1 text-muted-foreground">{r.forma}</span>
-                                <span className="num font-semibold text-success">{brl(r.valor)}</span>
-                                <AcoesLancamento tipo="repasse" registro={r} />
-                              </div>
-                            ))}
-                          </div>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">{pct}% quitado</span>
+                  {!quitado && (
+                    <NovoLancamento
+                      tipo="repasse"
+                      rotulo="Dar baixa"
+                      variant="outline"
+                      size="sm"
+                      icone={CheckCircle2}
+                      titulo={`Dar baixa — ${a.app}`}
+                      iniciais={{
+                        data: hojeInputDate(),
+                        aplicativo: a.app,
+                        valor: a.pendente.toFixed(2),
+                        forma: "Dinheiro",
+                      }}
+                    />
+                  )}
+                </div>
+
+                {expandido && (
+                  <div className="flex flex-col divide-y divide-border rounded-md bg-muted/30">
+                    {baixas.length === 0 ? (
+                      <p className="px-3 py-3 text-sm text-muted-foreground">
+                        Nenhuma baixa registrada para {a.app} neste período.
+                      </p>
+                    ) : (
+                      baixas.map((r) => (
+                        <div
+                          key={r.id}
+                          className="flex flex-wrap items-center gap-3 px-3 py-2 text-sm"
+                        >
+                          <span className="num w-20 text-muted-foreground">{r.data}</span>
+                          <span className="flex-1 truncate text-muted-foreground">{r.forma}</span>
+                          <span className="num font-semibold text-success">{brl(r.valor)}</span>
+                          <AcoesLancamento tipo="repasse" registro={r} />
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <p className="text-[10px] text-muted-foreground">Faturado</p>
+                <p className="num font-semibold">{brl(faturado)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground">Recebido</p>
+                <p className="num font-semibold text-success">{brl(recebidoPlataformas)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground">Falta</p>
+                <p className="num font-semibold text-warning">{brl(pendenteTotal)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden sm:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Aplicativo</TableHead>
+                <TableHead className="text-right">Faturado</TableHead>
+                <TableHead className="text-right">Recebido</TableHead>
+                <TableHead className="text-right">Falta receber</TableHead>
+                <TableHead className="w-24 text-right">%</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-36 text-right">Baixa</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {porApp.map((a) => {
+                const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
+                const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
+                const parcial = !quitado && a.quitado > 0.009;
+
+                const baixas = repasses
+                  .filter((r) => norm(r.aplicativo) === norm(a.app))
+                  .sort((x, y) => y.iso.localeCompare(x.iso));
+                const expandido = aberto === norm(a.app);
+                return (
+                  <Fragment key={a.app}>
+                    <TableRow key={a.app}>
+                      <TableCell className="font-medium">
+                        <button
+                          type="button"
+                          className="flex items-center gap-1.5 text-left hover:text-primary"
+                          onClick={() => setAberto(expandido ? null : norm(a.app))}
+                          aria-expanded={expandido}
+                        >
+                          <ChevronRight
+                            className={`size-4 shrink-0 transition-transform ${expandido ? "rotate-90" : ""}`}
+                          />
+                          {a.app}
+                          {baixas.length > 0 && (
+                            <span className="text-xs text-muted-foreground">({baixas.length})</span>
+                          )}
+                        </button>
+                      </TableCell>
+                      <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
+                      <TableCell className="num text-right text-success">
+                        {brl(a.recebido)}
+                        {a.quitadoDepois > 0.009 && (
+                          <span className="block text-xs text-muted-foreground">
+                            + {brl(a.quitadoDepois)} recebido em outro mês
+                          </span>
+                        )}
+                      </TableCell>
+
+                      <TableCell
+                        className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
+                      >
+                        {brl(a.pendente)}
+                      </TableCell>
+                      <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
+                      <TableCell>
+                        <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
+                          {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {!quitado && (
+                          <NovoLancamento
+                            tipo="repasse"
+                            rotulo="Dar baixa"
+                            variant="outline"
+                            size="sm"
+                            icone={CheckCircle2}
+                            titulo={`Dar baixa — ${a.app}`}
+                            iniciais={{
+                              data: hojeInputDate(),
+                              aplicativo: a.app,
+                              valor: a.pendente.toFixed(2),
+                              forma: "Dinheiro",
+                            }}
+                          />
                         )}
                       </TableCell>
                     </TableRow>
-                  )}
-                </Fragment>
-              );
-            })}
-            <TableRow>
-              <TableCell className="font-semibold">Total</TableCell>
-              <TableCell className="num text-right font-semibold">{brl(faturado)}</TableCell>
-              <TableCell className="num text-right font-semibold text-success">
-                {brl(recebidoPlataformas)}
-              </TableCell>
-              <TableCell className="num text-right font-semibold text-warning">
-                {brl(pendenteTotal)}
-              </TableCell>
-              <TableCell />
-              <TableCell />
-              <TableCell />
-            </TableRow>
-          </TableBody>
-        </Table>
+                    {expandido && (
+                      <TableRow key={`${a.app}-baixas`} className="bg-muted/30 hover:bg-muted/30">
+                        <TableCell colSpan={7} className="p-0">
+                          {baixas.length === 0 ? (
+                            <p className="px-4 py-3 text-sm text-muted-foreground">
+                              Nenhuma baixa registrada para {a.app} neste período.
+                            </p>
+                          ) : (
+                            <div className="flex flex-col divide-y divide-border">
+                              {baixas.map((r) => (
+                                <div
+                                  key={r.id}
+                                  className="flex flex-wrap items-center gap-3 px-4 py-2 text-sm"
+                                >
+                                  <span className="num w-24 text-muted-foreground">{r.data}</span>
+                                  <span className="flex-1 text-muted-foreground">{r.forma}</span>
+                                  <span className="num font-semibold text-success">{brl(r.valor)}</span>
+                                  <AcoesLancamento tipo="repasse" registro={r} />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
+                );
+              })}
+              <TableRow>
+                <TableCell className="font-semibold">Total</TableCell>
+                <TableCell className="num text-right font-semibold">{brl(faturado)}</TableCell>
+                <TableCell className="num text-right font-semibold text-success">
+                  {brl(recebidoPlataformas)}
+                </TableCell>
+                <TableCell className="num text-right font-semibold text-warning">
+                  {brl(pendenteTotal)}
+                </TableCell>
+                <TableCell />
+                <TableCell />
+                <TableCell />
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
       </SectionCard>
 
       <SectionCard
@@ -781,34 +912,57 @@ function RepassesPage() {
 
 
       <SectionCard title="Últimos repasses">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Aplicativo</TableHead>
-              <TableHead>Forma</TableHead>
-              <TableHead className="text-right">Valor recebido</TableHead>
-              <TableHead className="w-24 text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentes.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell className="num">{r.data}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{r.aplicativo}</Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{r.forma}</TableCell>
-                <TableCell className="num text-right font-semibold text-success">
-                  {brl(r.valor)}
-                </TableCell>
-                <TableCell>
-                  <AcoesLancamento tipo="repasse" registro={r} />
-                </TableCell>
+        {/* Mobile cards */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          {recentes.map((r) => (
+            <div
+              key={`rec-m-${r.id}`}
+              className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <Badge variant="secondary">{r.aplicativo}</Badge>
+                <AcoesLancamento tipo="repasse" registro={r} />
+              </div>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="num text-muted-foreground">{r.data}</span>
+                <span className="text-muted-foreground">{r.forma}</span>
+              </div>
+              <p className="num text-right text-lg font-semibold text-success">{brl(r.valor)}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden sm:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Aplicativo</TableHead>
+                <TableHead>Forma</TableHead>
+                <TableHead className="text-right">Valor recebido</TableHead>
+                <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {recentes.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="num">{r.data}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{r.aplicativo}</Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{r.forma}</TableCell>
+                  <TableCell className="num text-right font-semibold text-success">
+                    {brl(r.valor)}
+                  </TableCell>
+                  <TableCell>
+                    <AcoesLancamento tipo="repasse" registro={r} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </SectionCard>
     </div>
   );
