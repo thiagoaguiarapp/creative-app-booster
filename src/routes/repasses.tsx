@@ -912,34 +912,57 @@ function RepassesPage() {
 
 
       <SectionCard title="Últimos repasses">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Aplicativo</TableHead>
-              <TableHead>Forma</TableHead>
-              <TableHead className="text-right">Valor recebido</TableHead>
-              <TableHead className="w-24 text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentes.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell className="num">{r.data}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{r.aplicativo}</Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{r.forma}</TableCell>
-                <TableCell className="num text-right font-semibold text-success">
-                  {brl(r.valor)}
-                </TableCell>
-                <TableCell>
-                  <AcoesLancamento tipo="repasse" registro={r} />
-                </TableCell>
+        {/* Mobile cards */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          {recentes.map((r) => (
+            <div
+              key={`rec-m-${r.id}`}
+              className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <Badge variant="secondary">{r.aplicativo}</Badge>
+                <AcoesLancamento tipo="repasse" registro={r} />
+              </div>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="num text-muted-foreground">{r.data}</span>
+                <span className="text-muted-foreground">{r.forma}</span>
+              </div>
+              <p className="num text-right text-lg font-semibold text-success">{brl(r.valor)}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden sm:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Aplicativo</TableHead>
+                <TableHead>Forma</TableHead>
+                <TableHead className="text-right">Valor recebido</TableHead>
+                <TableHead className="w-24 text-right">Ações</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {recentes.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="num">{r.data}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{r.aplicativo}</Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{r.forma}</TableCell>
+                  <TableCell className="num text-right font-semibold text-success">
+                    {brl(r.valor)}
+                  </TableCell>
+                  <TableCell>
+                    <AcoesLancamento tipo="repasse" registro={r} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </SectionCard>
     </div>
   );
