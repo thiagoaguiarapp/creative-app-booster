@@ -133,8 +133,6 @@ function DespesasPage() {
             <TableRow>
               <TableHead>Data</TableHead>
               <TableHead>Categoria</TableHead>
-              <TableHead>Observação</TableHead>
-              <TableHead>Pagamento</TableHead>
               <TableHead className="text-right">Valor</TableHead>
               <TableHead className="w-24 text-right">Ações</TableHead>
             </TableRow>
@@ -146,8 +144,6 @@ function DespesasPage() {
                 <TableCell>
                   <Badge variant="secondary">{d.categoria}</Badge>
                 </TableCell>
-                <TableCell>{d.descricao || "—"}</TableCell>
-                <TableCell className="text-muted-foreground">{d.pagamento}</TableCell>
                 <TableCell className="num text-right font-semibold text-destructive">
                   {brl(d.valor)}
                 </TableCell>
