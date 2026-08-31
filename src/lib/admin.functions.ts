@@ -22,3 +22,10 @@ export const categoriasPadraoFn = createServerFn({ method: "GET" }).handler(
     return lerCategorias();
   },
 );
+
+export const lancamentosGlobaisFn = createServerFn({ method: "GET" }).handler(
+  async (): Promise<import("./admin.server").LancamentoAdmin[]> => {
+    const { lancamentosGlobais } = await import("./admin.server");
+    return lancamentosGlobais();
+  },
+);
