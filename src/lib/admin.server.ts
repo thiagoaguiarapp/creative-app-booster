@@ -218,3 +218,100 @@ export async function resumoAdmin(): Promise<ResumoAdmin> {
     categorias,
   };
 }
+
+/* ------------------------- Relatórios globais ------------------------- */
+
+export type TipoLancamento = "ganho" | "abastecimento" | "despesa" | "repasse" | "manutencao";
+
+export type LancamentoAdmin = {
+  id: string;
+  tipo: TipoLancamento;
+  iso: string;
+  categoria: string;
+  valor: number;
+  usuarioId: string;
+};
+
+const ROTULO_TIPO: Record<TipoLancamento, string> = {
+  ganho: "Faturamento",
+  abastecimento: "Abastecimento",
+  despesa: "Despesa",
+  repasse: "Repasse",
+  manutencao: "Manutenção",
+};
+
+export const TIPOS_LANCAMENTO = (
+  Object.keys(ROTULO_TIPO) as TipoLancamento[]
+).map((t) => ({ valor: t, rotulo: ROTULO_TIPO[t] }));
+
+/** Todos os lançamentos do app (todos os usuários), já normalizados. */
+export async function lancamentosGlobais(): Promise<LancamentoAdmin[]> {
+  await exigirAdmin();
+  const { selectAll, isoDate, num, txt } = await import("./db.server");
+
+  const normalizar = (v: unknown) =>
+    txt(v).replace(/\s+/g, " ").trim().toUpperCase();
+  const pegar = (linha: Record<string, unknown>, ...nomes: string[]) => {
+    for (const n of nomes) {
+      const v = linha[n];
+      if (v !== undefined && v !== null && txt(v) !== "") return v;
+    }
+    return undefined;
+  };
+
+  const [ganhos, comb, desp, rep, manut] = await Promise.all([
+    selectAll("DIARIO"),
+    selectAll("CONTROLE COMBUSTIVEL"),
+    selectAll("DESPESAS"),
+    selectAll("REPASSE"),
+    selectAll("MANUTENCAO"),
+  ]);
+
+  const dono = (l: Record<string, unknown>) => txt(pegar(l, "USER_ID"));
+
+  const itens: LancamentoAdmin[] = [
+    ...ganhos.map((l) => ({
+      id: `ganho-${txt(l["ID"])}`,
+      tipo: "ganho" as const,
+      iso: isoDate(pegar(l, "DATA", "Data")),
+      categoria: normalizar(pegar(l, "APP", "APLICATIVO", "PLATAFORMA")) || "—",
+      valor: num(pegar(l, "FATURAMENTO")),
+      usuarioId: dono(l),
+    })),
+    ...comb.map((l) => ({
+      id: `abast-${txt(l["ID"])}`,
+      tipo: "abastecimento" as const,
+      iso: isoDate(pegar(l, "Data", "DATA")),
+      categoria: normalizar(pegar(l, "POSTO", "Posto")) || "COMBUSTÍVEL",
+      valor: num(pegar(l, "VALOR PAGO", "VALOR")),
+      usuarioId: dono(l),
+    })),
+    ...desp.map((l) => ({
+      id: `desp-${txt(l["ID"])}`,
+      tipo: "despesa" as const,
+      iso: isoDate(pegar(l, "DATA", "Data")),
+      categoria: normalizar(pegar(l, "TIPO DE GASTO", "CATEGORIA")) || "OUTROS",
+      valor: num(pegar(l, "VALOR")),
+      usuarioId: dono(l),
+    })),
+    ...rep.map((l) => ({
+      id: `rep-${txt(l["ID"])}`,
+      tipo: "repasse" as const,
+      iso: isoDate(pegar(l, "DATA", "Data")),
+      categoria: normalizar(pegar(l, "APLICATIVO", "APP")) || "—",
+      valor: num(pegar(l, "VALOR RECEBIDO", "VALOR")),
+      usuarioId: dono(l),
+    })),
+    ...manut.map((l) => ({
+      id: `manut-${txt(l["ID"])}`,
+      tipo: "manutencao" as const,
+      iso: isoDate(pegar(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
+      categoria: normalizar(pegar(l, "SERVIÇO", "SERVICO")) || "—",
+      valor: num(pegar(l, "VALOR GASTO", "VALOR")),
+      usuarioId: dono(l),
+    })),
+  ].filter((i) => i.iso !== "");
+
+  itens.sort((a, b) => b.iso.localeCompare(a.iso));
+  return itens;
+}

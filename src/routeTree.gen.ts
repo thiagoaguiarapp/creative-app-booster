@@ -22,6 +22,8 @@ import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminRelatoriosRouteImport } from './routes/admin.relatorios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,11 +90,21 @@ const RepassesRoute = RepassesRouteImport.update({
   path: '/repasses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
@@ -103,11 +115,12 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
-  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
@@ -118,12 +131,14 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
@@ -134,6 +149,8 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,11 +168,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/admin/relatorios'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/abastecimento'
-    | '/admin'
     | '/auth'
     | '/configuracoes'
     | '/despesas'
@@ -166,6 +184,8 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/admin/relatorios'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -181,12 +201,14 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/admin/relatorios'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbastecimentoRoute: typeof AbastecimentoRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DespesasRoute: typeof DespesasRoute
@@ -292,13 +314,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepassesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/relatorios': {
+      id: '/admin/relatorios'
+      path: '/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AdminRelatoriosRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminRelatoriosRoute: typeof AdminRelatoriosRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminRelatoriosRoute: AdminRelatoriosRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DespesasRoute: DespesasRoute,
