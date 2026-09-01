@@ -439,9 +439,7 @@ function RepassesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Aplicativo</TableHead>
-                  <TableHead className="text-right">Faturado</TableHead>
-                  <TableHead className="text-right">Recebido</TableHead>
-                  <TableHead className="text-right">Saldo</TableHead>
+                  <TableHead className="text-right">Saldo a receber</TableHead>
                   <TableHead className="text-right">Situação</TableHead>
                 </TableRow>
               </TableHeader>
@@ -452,8 +450,6 @@ function RepassesPage() {
                   return (
                     <TableRow key={`saldo-${s.app}`}>
                       <TableCell className="font-medium">{s.app}</TableCell>
-                      <TableCell className="num text-right">{brl(s.faturado)}</TableCell>
-                      <TableCell className="num text-right">{brl(s.recebido)}</TableCell>
                       <TableCell
                         className={`num text-right font-semibold ${
                           aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
