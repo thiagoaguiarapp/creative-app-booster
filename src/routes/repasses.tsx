@@ -409,9 +409,9 @@ function RepassesPage() {
               return (
                 <div
                   key={`saldo-m-${s.app}`}
-                  className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border/60 p-3"
                 >
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col gap-1">
                     <span className="font-medium">{s.app}</span>
                     <span
                       className={`text-xs ${
@@ -421,26 +421,13 @@ function RepassesPage() {
                       {aReceber ? "A receber" : aMais ? "Recebido a mais" : "Em dia"}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div>
-                      <p className="text-[10px] text-muted-foreground">Faturado</p>
-                      <p className="num font-medium">{brl(s.faturado)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-muted-foreground">Recebido</p>
-                      <p className="num font-medium">{brl(s.recebido)}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] text-muted-foreground">Saldo</p>
-                      <p
-                        className={`num font-semibold ${
-                          aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
-                        }`}
-                      >
-                        {brl(Math.abs(s.saldo))}
-                      </p>
-                    </div>
-                  </div>
+                  <p
+                    className={`num font-semibold ${
+                      aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
+                    }`}
+                  >
+                    {brl(Math.abs(s.saldo))}
+                  </p>
                 </div>
               );
             })}
@@ -452,9 +439,7 @@ function RepassesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Aplicativo</TableHead>
-                  <TableHead className="text-right">Faturado</TableHead>
-                  <TableHead className="text-right">Recebido</TableHead>
-                  <TableHead className="text-right">Saldo</TableHead>
+                  <TableHead className="text-right">Saldo a receber</TableHead>
                   <TableHead className="text-right">Situação</TableHead>
                 </TableRow>
               </TableHeader>
@@ -465,8 +450,6 @@ function RepassesPage() {
                   return (
                     <TableRow key={`saldo-${s.app}`}>
                       <TableCell className="font-medium">{s.app}</TableCell>
-                      <TableCell className="num text-right">{brl(s.faturado)}</TableCell>
-                      <TableCell className="num text-right">{brl(s.recebido)}</TableCell>
                       <TableCell
                         className={`num text-right font-semibold ${
                           aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
