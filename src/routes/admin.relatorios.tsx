@@ -236,7 +236,7 @@ function AdminRelatorios() {
           label="Lucro"
           value={brl(totais.lucro)}
           icon={Wallet}
-          tone={totais.lucro >= 0 ? "success" : "danger"}
+          tone={totais.lucro >= 0 ? "success" : "destructive"}
         />
         <StatCard label="Lançamentos" value={String(totais.quantidade)} icon={Receipt} />
       </div>
