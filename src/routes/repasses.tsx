@@ -402,7 +402,7 @@ function RepassesPage() {
           </div>
 
           {/* Mobile cards */}
-          <div className="flex flex-col gap-3 sm:hidden">
+          <div className="flex flex-col gap-3 lg:hidden">
             {saldoPlataformas.map((s) => {
               const aReceber = s.saldo > 0.009;
               const aMais = s.saldo < -0.009;
@@ -434,7 +434,7 @@ function RepassesPage() {
           </div>
 
           {/* Desktop table */}
-          <div className="hidden overflow-x-auto sm:block">
+          <div className="hidden overflow-x-auto lg:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -479,7 +479,7 @@ function RepassesPage() {
           description="Pendências antigas por aplicativo e o quanto já foi abatido com o recebido deste período"
         >
           {/* Mobile cards */}
-          <div className="flex flex-col gap-3 sm:hidden">
+          <div className="flex flex-col gap-3 lg:hidden">
             {conciliacao
               .filter((c) => c.restanteAnterior > 0.009)
               .map((c) => (
@@ -542,7 +542,7 @@ function RepassesPage() {
           </div>
 
           {/* Desktop table */}
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -609,7 +609,7 @@ function RepassesPage() {
         description="Faturado no período x recebido (repasse, dinheiro ou Pix na entrega)"
       >
         {/* Mobile cards */}
-        <div className="flex flex-col gap-3 sm:hidden">
+        <div className="flex flex-col gap-3 lg:hidden">
           {porApp.map((a) => {
             const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
             const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
@@ -737,7 +737,7 @@ function RepassesPage() {
         </div>
 
         {/* Desktop table */}
-        <div className="hidden sm:block">
+        <div className="hidden lg:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -896,7 +896,7 @@ function RepassesPage() {
 
       <SectionCard title="Últimos repasses">
         {/* Mobile cards */}
-        <div className="flex flex-col gap-3 sm:hidden">
+        <div className="flex flex-col gap-3 lg:hidden">
           {recentes.map((r) => (
             <div
               key={`rec-m-${r.id}`}
@@ -916,7 +916,7 @@ function RepassesPage() {
         </div>
 
         {/* Desktop table */}
-        <div className="hidden sm:block">
+        <div className="hidden lg:block">
           <Table>
             <TableHeader>
               <TableRow>
