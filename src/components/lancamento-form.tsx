@@ -212,7 +212,6 @@ function FormularioDialog({
         const base: Record<string, string> = {
           data: v["data"] ?? "",
           servico,
-          valor: v["valor"] ?? "",
         };
         setSeguinte(
           ativa
@@ -226,9 +225,10 @@ function FormularioDialog({
         );
         toast.info(
           ativa
-            ? "Esse serviço já está em manutenção — atualize o km e a validade."
-            : "Complete o registro na tela de manutenção.",
+            ? "O valor já foi lançado na despesa — aqui atualize apenas km e validade."
+            : "O valor já foi lançado na despesa — complete apenas km e validade.",
         );
+
         return;
       }
       onOpenChange(false);
