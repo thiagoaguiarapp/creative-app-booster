@@ -22,11 +22,6 @@ const GRUPOS: { chave: keyof Listas; titulo: string; exemplo: string }[] = [
   { chave: "servicos", titulo: "Serviços de manutenção", exemplo: "Ex.: TROCA DE ÓLEO" },
 ];
 
-function dataBr(iso: string): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-BR");
-}
 
 function AdminVisaoGeral() {
   const carregar = useServerFn(resumoAdminFn);
