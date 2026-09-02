@@ -19,9 +19,11 @@ import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminRelatoriosRouteImport } from './routes/admin.relatorios'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
@@ -76,6 +78,11 @@ const PerfilRoute = PerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
@@ -89,6 +96,11 @@ const RelatorioRoute = RelatorioRouteImport.update({
 const RepassesRoute = RepassesRouteImport.update({
   id: '/repasses',
   path: '/repasses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -118,9 +130,11 @@ export interface FileRoutesByFullPath {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/termos': typeof TermosRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
@@ -135,9 +149,11 @@ export interface FileRoutesByTo {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/termos': typeof TermosRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin': typeof AdminIndexRoute
@@ -154,9 +170,11 @@ export interface FileRoutesById {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/termos': typeof TermosRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
@@ -174,9 +192,11 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/privacidade'
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/termos'
     | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin/'
@@ -191,9 +211,11 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/privacidade'
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/termos'
     | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin'
@@ -209,9 +231,11 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/privacidade'
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/termos'
     | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin/'
@@ -228,9 +252,11 @@ export interface RootRouteChildren {
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
   PerfilRoute: typeof PerfilRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
+  TermosRoute: typeof TermosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -305,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/redefinir-senha': {
       id: '/redefinir-senha'
       path: '/redefinir-senha'
@@ -324,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/repasses'
       fullPath: '/repasses'
       preLoaderRoute: typeof RepassesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -375,9 +415,11 @@ const rootRouteChildren: RootRouteChildren = {
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
   PerfilRoute: PerfilRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
+  TermosRoute: TermosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

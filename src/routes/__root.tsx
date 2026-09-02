@@ -188,7 +188,12 @@ function RootComponent() {
   if (!usuario || !usuario.nome) {
     return (
       <QueryClientProvider client={queryClient}>
-        <Outlet />
+        <div className="flex min-h-screen flex-col">
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <RodapeLegal />
+        </div>
         <Toaster richColors position="top-center" />
       </QueryClientProvider>
     );
@@ -210,6 +215,9 @@ function RootComponent() {
               {/* Required: nested routes render here. */}
               <Outlet />
             </main>
+            <div className="pb-20 md:pb-0">
+              <RodapeLegal />
+            </div>
           </div>
         </div>
       </SidebarProvider>
