@@ -154,7 +154,7 @@ function RelatorioPage() {
     };
 
     const porPlataforma = grupo(ganhos, (g) => g.plataforma, (g) => g.faturamento);
-    const porCategoria = grupo(despesas, (d) => d.categoria, (d) => d.valor);
+    const porCategoria = grupo(despesasCusto, (d) => d.categoria, (d) => d.valor);
 
     const mesesSet = new Map<
       string,
