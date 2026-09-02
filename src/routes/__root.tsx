@@ -79,11 +79,32 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+type SessaoUsuario = Awaited<ReturnType<typeof sessaoFn>>;
+
+// Guarda a última sessão conhecida para sobreviver a falhas de rede pontuais
+// (HMR, oscilação de conexão) sem derrubar o app em tela branca.
+let ultimaSessao: SessaoUsuario | undefined;
+
+async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boolean }> {
+  for (let tentativa = 0; tentativa < 2; tentativa++) {
+    try {
+      const usuario = await sessaoFn();
+      ultimaSessao = usuario;
+      return { usuario, falhou: false };
+    } catch {
+      if (tentativa === 0) await new Promise((r) => setTimeout(r, 400));
+    }
+  }
+  return { usuario: (ultimaSessao ?? null) as SessaoUsuario, falhou: true };
+}
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
     // Rotas públicas: login e o link de recuperação de senha (token vem no hash).
     const publica = location.pathname === "/auth" || location.pathname === "/redefinir-senha";
-    const usuario = await sessaoFn();
+    const { usuario, falhou } = await carregarSessao();
+    // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
+    if (falhou) return { usuario };
     if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
     }
