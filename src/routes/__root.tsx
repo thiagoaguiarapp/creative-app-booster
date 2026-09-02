@@ -101,6 +101,7 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
+    if (location.pathname.startsWith("/lovable/")) return {};
     // Rotas públicas: login e o link de recuperação de senha (token vem no hash).
     const publica = location.pathname === "/auth" || location.pathname === "/redefinir-senha";
     const { usuario, falhou } = await carregarSessao();
