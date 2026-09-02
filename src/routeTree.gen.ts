@@ -24,6 +24,7 @@ import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminRelatoriosRouteImport } from './routes/admin.relatorios'
+import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +101,11 @@ const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
   '/admin/relatorios': typeof AdminRelatoriosRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/relatorio'
     | '/repasses'
     | '/admin/relatorios'
+    | '/admin/usuarios'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/relatorio'
     | '/repasses'
     | '/admin/relatorios'
+    | '/admin/usuarios'
     | '/admin'
   id:
     | '__root__'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/relatorio'
     | '/repasses'
     | '/admin/relatorios'
+    | '/admin/usuarios'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -328,16 +340,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRelatoriosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/usuarios': {
+      id: '/admin/usuarios'
+      path: '/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AdminUsuariosRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
   AdminRelatoriosRoute: typeof AdminRelatoriosRoute
+  AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminRelatoriosRoute: AdminRelatoriosRoute,
+  AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
