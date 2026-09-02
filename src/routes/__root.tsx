@@ -95,7 +95,7 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
       if (tentativa === 0) await new Promise((r) => setTimeout(r, 400));
     }
   }
-  return { usuario: ultimaSessao, falhou: true };
+  return { usuario: (ultimaSessao ?? null) as SessaoUsuario, falhou: true };
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
