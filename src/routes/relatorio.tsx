@@ -165,7 +165,7 @@ function RelatorioPage() {
       (mesesSet.set(k, { fat: 0, comb: 0, desp: 0, manut: 0, corridas: 0 }), mesesSet.get(k)!);
     for (const g of ganhos) if (g.iso) { const b = bucket(g.iso.slice(0, 7)); b.fat += g.faturamento; b.corridas += g.corridas; }
     for (const a of abast) if (a.iso) bucket(a.iso.slice(0, 7)).comb += a.valorPago;
-    for (const d of despesas) if (d.iso) bucket(d.iso.slice(0, 7)).desp += d.valor;
+    for (const d of despesasCusto) if (d.iso) bucket(d.iso.slice(0, 7)).desp += d.valor;
     for (const m of manut) if (m.iso) bucket(m.iso.slice(0, 7)).manut += m.valor;
     const porMes = [...mesesSet.entries()]
       .map(([mes, v]) => ({ mes, ...v, lucro: v.fat - v.comb - v.desp - v.manut }))
