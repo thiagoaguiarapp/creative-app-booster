@@ -16,6 +16,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { sessaoFn } from "@/lib/auth.functions";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { RodapeLegal } from "@/components/rodape-legal";
 
 
 
