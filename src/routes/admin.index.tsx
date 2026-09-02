@@ -118,44 +118,6 @@ function AdminVisaoGeral() {
             </ul>
           </SectionCard>
 
-          <SectionCard title="Usuários" description={`${data.usuarios.length} conta(s)`}>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[520px] text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="py-2">Usuário</th>
-                    <th className="py-2">Status</th>
-                    <th className="py-2">Plano</th>
-                    <th className="py-2">Cadastro</th>
-                    <th className="py-2">Último acesso</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.usuarios.map((u) => (
-                    <tr key={u.id} className="border-t border-border align-top">
-                      <td className="py-2 pr-3">
-                        <p className="font-medium">{u.nome || "—"}</p>
-                        <p className="text-xs text-muted-foreground">{u.email}</p>
-                        {u.role === "admin" && (
-                          <span className="text-[10px] uppercase tracking-wide text-primary">
-                            administrador
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-2 pr-3">
-                        <span className={u.confirmado ? "text-success" : "text-warning"}>
-                          {u.confirmado ? "Confirmado" : "Pendente"}
-                        </span>
-                      </td>
-                      <td className="py-2 pr-3">{u.premium ? "Premium" : "Free"}</td>
-                      <td className="py-2 pr-3">{dataBr(u.criadoEm)}</td>
-                      <td className="py-2">{dataBr(u.ultimoAcesso)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </SectionCard>
 
           <SectionCard
             title="Categorias padrão"
