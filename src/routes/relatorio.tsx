@@ -130,9 +130,18 @@ function RelatorioPage() {
     const combustivel = abast.reduce((s, a) => s + a.valorPago, 0);
     const litros = abast.reduce((s, a) => s + a.litros, 0);
     const km = kmPeriodo(abast);
-    const outras = despesas.reduce((s, d) => s + d.valor, 0);
+    // despesas de manutenção que já têm um registro equivalente na aba MANUTENCAO
+    // seriam contadas duas vezes no custo — descartamos a cópia da despesa.
+    const despesasCusto = despesas.filter((d) => {
+      if (!ehCategoriaManutencao(d.categoria)) return true;
+      return !data.manutencoes.some(
+        (m) => m.iso === d.iso && Math.abs(m.valor - d.valor) < 0.01 && m.valor > 0,
+      );
+    });
+    const outras = despesasCusto.reduce((s, d) => s + d.valor, 0);
     const manutencao = manut.reduce((s, m) => s + m.valor, 0);
     const custos = combustivel + outras + manutencao;
+
     const lucro = faturamento - custos;
 
     const grupo = <T,>(itens: T[], chave: (t: T) => string, valor: (t: T) => number) => {
