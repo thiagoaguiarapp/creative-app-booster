@@ -1,21 +1,22 @@
-# Fluxo de caixa no painel admin
+# Nova aba "Usuários" no painel de Administração
 
-Nova aba **Fluxo de caixa** dentro de `/admin`, mostrando entradas e saídas organizadas por data, com totais de faturado, despesas e saldo do período.
+Hoje a lista de usuários fica misturada na aba "Visão geral", junto com métricas e categorias. A ideia é dar a ela uma aba própria.
 
-## O que a tela mostra
+## O que muda
 
-1. **Filtro de período** (data inicial e final, começando no mês atual), igual ao da aba Relatórios.
-2. **Três cards de totais**: Faturado (entradas), Despesas (saídas: abastecimento + despesa + manutenção) e Saldo (faturado − despesas), com destaque de cor quando o saldo é negativo.
-3. **Lista por data** (mais recente primeiro): cada dia é uma linha/cartão com entradas do dia, saídas do dia e saldo do dia.
-4. **Detalhe do dia**: ao expandir a data, aparecem os lançamentos individuais (tipo, categoria, valor), com sinal + para entrada e − para saída.
-5. **Saldo acumulado** exibido ao lado de cada dia, para acompanhar a evolução do caixa dentro do período.
-6. Layout mobile em cartões empilhados e tabela a partir de 1024px, seguindo o padrão já usado nas outras telas.
+1. Nova aba **Usuários** na barra do `/admin`, ao lado de "Visão geral" e "Relatórios" (rota `/admin/usuarios`).
+2. A tabela de usuários sai da "Visão geral" e passa para a nova aba. A visão geral fica só com os cards de métricas, lançamentos por módulo e categorias padrão.
+3. Na nova aba, a lista ganha:
+   - Campo de busca por nome ou e-mail.
+   - Filtros rápidos: Todos, Premium, Free, Pendentes de confirmação, Administradores.
+   - Cards de resumo no topo: total de contas, premium, pendentes.
+   - Colunas: usuário (nome, e-mail, marcação de admin), status, plano, cadastro e último acesso.
+4. Layout mobile: cada usuário vira um card empilhado (nome + e-mail em destaque, status/plano/datas abaixo), seguindo o padrão já usado nas outras telas.
 
 ## Detalhes técnicos
 
-- Novo arquivo `src/routes/admin.fluxo-caixa.tsx` com `createFileRoute("/admin/fluxo-caixa")`.
-- Reutiliza `lancamentosGlobaisFn` (`src/lib/admin.functions.ts`) via `useQuery` + `useServerFn`, com a mesma `queryKey` `["admin-lancamentos"]` da aba Relatórios — sem novas funções de servidor nem mudanças no banco.
-- Classificação: `ganho` = entrada; `abastecimento`, `despesa`, `manutencao` = saída; `repasse` fica fora do resultado (é recebimento de valor já faturado) e é apenas indicado como informação de caixa, para não duplicar o faturamento.
-- Agrupamento por `iso` (data) com `useMemo`; formatação com `brl` e `dataBr`.
-- Adiciona a aba na lista `ABAS` de `src/routes/admin.tsx`.
-- Componentes existentes: `SectionCard`, `StatCard`, `Input`, `Label`, `Button`.
+- Novo arquivo `src/routes/admin.usuarios.tsx` com `createFileRoute("/admin/usuarios")`, reaproveitando `resumoAdminFn` (mesma query key `admin-resumo`, sem chamadas extras ao banco).
+- `src/routes/admin.tsx`: adicionar a entrada `{ to: "/admin/usuarios", rotulo: "Usuários" }` no array `ABAS`.
+- `src/routes/admin.index.tsx`: remover o `SectionCard` "Usuários"; manter os StatCards (o card "Usuários cadastrados" continua e pode servir de atalho).
+- Busca e filtros feitos em memória sobre `data.usuarios`; nenhuma mudança em server functions, schema ou políticas.
+- `head()` próprio na rota com título e descrição específicos da aba.
