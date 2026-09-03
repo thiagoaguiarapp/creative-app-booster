@@ -10,7 +10,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { normalizaForma, numeroParcela, somaMeses } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
+
+/** vencimento efetivo: crédito cai no mês seguinte (uma parcela por mês) */
+function vencimentoIso(iso: string, pagamento: string, descricao: string) {
+  return normalizaForma(pagamento) === "Crédito" && iso
+    ? somaMeses(iso, numeroParcela(descricao))
+    : iso;
+}
+
+function rotuloVencimento(iso: string) {
+  const nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const m = /^(\d{4})-(\d{2})/.exec(iso);
+  return m ? `${nomes[Number(m[2]) - 1]}/${m[1]}` : iso;
+}
 
 export const Route = createFileRoute("/despesas")({
   head: () => ({
