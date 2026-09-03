@@ -15,7 +15,7 @@ export const PRODUTO_MENSAL = "rota_control_premium_mensal";
 
 export type ResultadoCompra =
   | { ok: true; premium: boolean }
-  | { ok: false; motivo: "indisponivel" | "cancelado" | "erro"; mensagem?: string };
+  | { ok: false; motivo: "indisponivel" | "cancelado" | "erro"; mensagem?: string | undefined };
 
 let configurado = false;
 
@@ -57,10 +57,8 @@ export async function precoAssinatura(): Promise<string | null> {
   try {
     await configurar();
     const { Purchases } = await import("@revenuecat/purchases-capacitor");
-    const { current } = (await Purchases.getOfferings()).all
-      ? await Purchases.getOfferings()
-      : { current: null };
-    const pacote = current?.availablePackages?.[0];
+    const ofertas = await Purchases.getOfferings();
+    const pacote = ofertas.current?.availablePackages?.[0];
     return pacote?.product?.priceString ?? null;
   } catch {
     return null;
