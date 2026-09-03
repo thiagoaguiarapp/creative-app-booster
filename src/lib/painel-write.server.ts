@@ -137,7 +137,6 @@ export async function salvarLancamento(
   if (tipo === "despesa" && parcelas > 1 && total > 0) {
     const base = Math.floor((total / parcelas) * 100) / 100;
     const resto = Math.round((total - base * parcelas) * 100) / 100;
-    const dataBase = txt(valores["dataPrimeiraParcela"] ?? "") || (valores["data"] ?? "");
     for (let i = 0; i < parcelas; i++) {
       const valorParcela = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
       const descricao = `${valores["descricao"] ?? ""}`.trim();
@@ -145,7 +144,6 @@ export async function salvarLancamento(
         mapa.tabela,
         montaLinha(tipo, {
           ...valores,
-          data: somaMeses(dataBase, i),
           valor: valorParcela.toFixed(2),
           descricao: `${descricao ? `${descricao} ` : ""}(${i + 1}/${parcelas})`,
         }),
@@ -155,12 +153,7 @@ export async function salvarLancamento(
     return;
   }
 
-  const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
-  await inserir(
-    mapa.tabela,
-    montaLinha(tipo, tipo === "despesa" && primeira ? { ...valores, data: primeira } : valores),
-    userId,
-  );
+  await inserir(mapa.tabela, montaLinha(tipo, valores), userId);
 }
 
 export async function excluirLancamento(
