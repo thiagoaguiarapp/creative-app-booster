@@ -135,6 +135,17 @@ function DespesasPage() {
         />
       </div>
 
+      <div className="rounded-lg border border-border bg-card p-4 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-muted-foreground">Pago no mês da despesa</span>
+          <span className="num font-semibold">{brl(pagoNoMes)}</span>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-muted-foreground">A pagar em meses seguintes (crédito)</span>
+          <span className="num font-semibold text-warning">{brl(aPagarDepois)}</span>
+        </div>
+      </div>
+
       <SectionCard title="Por categoria">
         <div className="flex flex-col gap-3">
           {categorias.map((c) => (
