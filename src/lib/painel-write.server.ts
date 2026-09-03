@@ -106,17 +106,6 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
   return linha;
 }
 
-/** "aaaa-mm-dd" + n meses, ajustando o dia ao último dia do mês quando necessário */
-function somaMeses(iso: string, meses: number): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt(iso));
-  if (!m) return iso;
-  const ano = Number(m[1]);
-  const mes = Number(m[2]) - 1;
-  const dia = Number(m[3]);
-  const ultimoDia = new Date(ano, mes + meses + 1, 0).getDate();
-  const d = new Date(ano, mes + meses, Math.min(dia, ultimoDia));
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 export async function salvarLancamento(
   tipo: Tipo,
