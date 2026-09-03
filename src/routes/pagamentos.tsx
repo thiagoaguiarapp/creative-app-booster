@@ -261,7 +261,9 @@ function PagamentosPage() {
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">{p.descricao}</div>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  <span className="num text-xs text-muted-foreground">{p.data}</span>
+                  <span className="num text-xs text-muted-foreground">
+                    {p.forma === "Crédito" ? `compra ${p.data} · vence ${p.dataPagamento}` : p.data}
+                  </span>
                   <Badge variant="secondary">{p.origem}</Badge>
                   <Badge variant="outline">
                     {p.forma === "Outros" ? "Não informado" : p.forma}
