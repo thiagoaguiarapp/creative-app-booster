@@ -103,8 +103,12 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
     if (location.pathname.startsWith("/lovable/")) return {};
-    // Rotas públicas: login e o link de recuperação de senha (token vem no hash).
-    const publica = location.pathname === "/auth" || location.pathname === "/redefinir-senha";
+    // Rotas públicas: login, recuperação de senha e páginas legais.
+    const publica =
+      location.pathname === "/auth" ||
+      location.pathname === "/redefinir-senha" ||
+      location.pathname === "/termos" ||
+      location.pathname === "/privacidade";
     const { usuario, falhou } = await carregarSessao();
     // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
     if (falhou) return { usuario };
