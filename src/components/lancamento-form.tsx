@@ -297,7 +297,12 @@ function FormularioDialog({
                     setValores((atual) => ({
                       ...atual,
                       [campo.key]: v,
-                      ...(campo.key === "pagamento" && v !== "Crédito" ? { parcelas: "" } : {}),
+                      ...(campo.key === "pagamento" && v !== "Crédito"
+                        ? { parcelas: "", dataPrimeiraParcela: "" }
+                        : {}),
+                      ...(campo.key === "pagamento" && v === "Crédito" && !atual["dataPrimeiraParcela"]
+                        ? { dataPrimeiraParcela: atual["data"] ?? "" }
+                        : {}),
                     }))
                   }
                 >
