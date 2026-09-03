@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bike, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, CreditCard, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ const paginas = [
   { title: "Ganhos diários", short: "Ganhos", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", short: "Abastec.", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", short: "Despesas", url: "/despesas", icon: Receipt },
+  { title: "Pagamentos", short: "Pagam.", url: "/pagamentos", icon: CreditCard },
   { title: "Recebimento / Repasse", short: "Repasse", url: "/repasses", icon: Wallet },
   { title: "Manutenção", short: "Manut.", url: "/manutencao", icon: Wrench },
   { title: "Relatório", short: "Relatório", url: "/relatorio", icon: BarChart3 },

@@ -1,6 +1,6 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, CreditCard, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
@@ -26,6 +26,7 @@ const items = [
   { title: "Ganhos diários", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", url: "/despesas", icon: Receipt },
+  { title: "Pagamentos", url: "/pagamentos", icon: CreditCard },
   { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet },
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
   { title: "Relatório", url: "/relatorio", icon: BarChart3 },
