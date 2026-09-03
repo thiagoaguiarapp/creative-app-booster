@@ -69,7 +69,7 @@ export function montaPagamentos(
   despesas: Despesa[],
   abastecimentos: Abastecimento[],
 ): Pagamento[] {
-  const lista: Pagamento[] = [
+  const bruto = [
     ...despesas.map((d) => ({
       id: `despesa-${d.row}`,
       origem: "Despesa" as const,
@@ -89,6 +89,10 @@ export function montaPagamentos(
       valor: a.valorPago,
     })),
   ];
+  const lista: Pagamento[] = bruto.map((p) => {
+    const isoPagamento = vencimento(p.iso, p.forma, p.descricao);
+    return { ...p, isoPagamento, dataPagamento: paraBr(isoPagamento) };
+  });
   return lista.sort((a, b) => b.iso.localeCompare(a.iso));
 }
 
@@ -103,12 +107,12 @@ export function totaisPorForma(pagamentos: Pagamento[]) {
   });
 }
 
-/** total de crédito lançado em cada mês (aaaa-mm), ordenado do mais antigo ao mais novo */
+/** total de crédito que vence em cada mês (aaaa-mm), do mais antigo ao mais novo */
 export function faturaPorMes(pagamentos: Pagamento[]) {
   const mapa = new Map<string, number>();
   for (const p of pagamentos) {
-    if (p.forma !== "Crédito" || !p.iso) continue;
-    const mes = p.iso.slice(0, 7);
+    if (p.forma !== "Crédito" || !p.isoPagamento) continue;
+    const mes = p.isoPagamento.slice(0, 7);
     mapa.set(mes, (mapa.get(mes) ?? 0) + p.valor);
   }
   return Array.from(mapa.entries())
@@ -116,11 +120,11 @@ export function faturaPorMes(pagamentos: Pagamento[]) {
     .sort((a, b) => a.mes.localeCompare(b.mes));
 }
 
-/** parcelas de crédito com data futura */
+/** parcelas de crédito que ainda vão vencer */
 export function parcelasEmAberto(pagamentos: Pagamento[], hojeIso: string) {
   return pagamentos
-    .filter((p) => p.forma === "Crédito" && p.iso > hojeIso)
-    .sort((a, b) => a.iso.localeCompare(b.iso));
+    .filter((p) => p.forma === "Crédito" && p.isoPagamento > hojeIso)
+    .sort((a, b) => a.isoPagamento.localeCompare(b.isoPagamento));
 }
 
 export function rotuloMes(mes: string) {
