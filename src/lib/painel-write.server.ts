@@ -155,7 +155,12 @@ export async function salvarLancamento(
     return;
   }
 
-  await inserir(mapa.tabela, montaLinha(tipo, valores), userId);
+  const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
+  await inserir(
+    mapa.tabela,
+    montaLinha(tipo, tipo === "despesa" && primeira ? { ...valores, data: primeira } : valores),
+    userId,
+  );
 }
 
 export async function excluirLancamento(
