@@ -17,6 +17,7 @@ import { sessaoFn } from "@/lib/auth.functions";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { RodapeLegal } from "@/components/rodape-legal";
+import { AdBannerMobile } from "@/components/ad-banner-mobile";
 
 
 
@@ -217,12 +218,16 @@ function RootComponent() {
               {/* Required: nested routes render here. */}
               <Outlet />
             </main>
-            <div className="pb-20 md:pb-0">
+            <div
+              className="pb-20 md:pb-0"
+              style={{ paddingBottom: "calc(5rem + var(--altura-banner-ads, 0px))" }}
+            >
               <RodapeLegal />
             </div>
           </div>
         </div>
       </SidebarProvider>
+      <AdBannerMobile />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
 
