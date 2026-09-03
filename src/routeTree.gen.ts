@@ -19,6 +19,7 @@ import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
@@ -79,6 +80,11 @@ const PerfilRoute = PerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
   '/perfil': typeof PerfilRoute
+  '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/premium'
     | '/privacidade'
     | '/redefinir-senha'
     | '/relatorio'
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/premium'
     | '/privacidade'
     | '/redefinir-senha'
     | '/relatorio'
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | '/lancamentos'
     | '/manutencao'
     | '/perfil'
+    | '/premium'
     | '/privacidade'
     | '/redefinir-senha'
     | '/relatorio'
@@ -265,6 +277,7 @@ export interface RootRouteChildren {
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
   PerfilRoute: typeof PerfilRoute
+  PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RelatorioRoute: typeof RelatorioRoute
@@ -343,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacidade': {
@@ -436,6 +456,7 @@ const rootRouteChildren: RootRouteChildren = {
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
   PerfilRoute: PerfilRoute,
+  PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RelatorioRoute: RelatorioRoute,

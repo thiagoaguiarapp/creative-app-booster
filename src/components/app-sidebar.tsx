@@ -85,14 +85,16 @@ export function AppSidebar({ email, isAdmin }: { email?: string; isAdmin?: boole
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <PremiumDialog
-              trigger={
-                <SidebarMenuButton tooltip="Seja Premium — remova os anúncios">
-                  <Crown className="size-4 text-primary" />
-                  <span>Seja Premium</span>
-                </SidebarMenuButton>
-              }
-            />
+            <SidebarMenuButton
+              asChild
+              isActive={currentPath === "/premium"}
+              tooltip="Seja Premium — remova os anúncios"
+            >
+              <Link to="/premium" className="flex items-center gap-2">
+                <Crown className="size-4 text-primary" />
+                <span>Seja Premium</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           {isAdmin && (
             <SidebarMenuItem>
