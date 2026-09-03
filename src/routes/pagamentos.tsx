@@ -122,8 +122,24 @@ function PagamentosPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Pagamentos"
-        subtitle="Quanto você paga em dinheiro, Pix, débito e crédito"
+        subtitle="Pelo caixa: o crédito entra no mês em que a fatura vence"
       />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <StatCard
+          label="Sai neste mês"
+          value={brl(saiuNoMes)}
+          hint="À vista, Pix, débito e faturas que vencem no mês"
+          icon={Wallet}
+        />
+        <StatCard
+          label="Vai sair depois"
+          value={brl(vaiSairDepois)}
+          hint="Parcelas de crédito que ainda vão vencer"
+          icon={CalendarClock}
+          tone="warning"
+        />
+      </div>
 
       <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
