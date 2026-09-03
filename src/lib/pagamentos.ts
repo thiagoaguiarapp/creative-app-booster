@@ -7,12 +7,45 @@ export const FORMAS: Forma[] = ["Dinheiro", "Pix", "Débito", "Crédito", "Outro
 export type Pagamento = {
   id: string;
   origem: "Despesa" | "Abastecimento";
+  /** data da compra (competência) */
   data: string;
   iso: string;
+  /** data em que o valor sai do bolso (crédito = vencimento calculado) */
+  dataPagamento: string;
+  isoPagamento: string;
   descricao: string;
   forma: Forma;
   valor: number;
 };
+
+/** "aaaa-mm-dd" + n meses, ajustando o dia ao último dia do mês quando necessário */
+export function somaMeses(iso: string, meses: number): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  if (!m) return iso;
+  const ano = Number(m[1]);
+  const mes = Number(m[2]) - 1;
+  const dia = Number(m[3]);
+  const ultimoDia = new Date(ano, mes + meses + 1, 0).getDate();
+  const d = new Date(ano, mes + meses, Math.min(dia, ultimoDia));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function paraBr(iso: string) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+}
+
+/** lê "(2/6)" na observação e devolve o número da parcela (1 quando não houver) */
+export function numeroParcela(descricao: string): number {
+  const m = /\((\d+)\s*\/\s*(\d+)\)/.exec(descricao ?? "");
+  return m ? Number(m[1]) : 1;
+}
+
+/** crédito: parcela 1 vence no mês seguinte à compra; demais, um mês depois de cada */
+function vencimento(iso: string, forma: Forma, descricao: string): string {
+  if (forma !== "Crédito" || !iso) return iso;
+  return somaMeses(iso, numeroParcela(descricao));
+}
 
 function semAcento(texto: string) {
   return texto
