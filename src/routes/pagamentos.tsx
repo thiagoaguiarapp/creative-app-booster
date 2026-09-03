@@ -91,13 +91,25 @@ function PagamentosPage() {
   const doPeriodo = useMemo(() => {
     if (periodo === "total") return todos;
     const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return todos.filter((p2) => p2.iso.startsWith(p));
+    return todos.filter((p2) => p2.isoPagamento.startsWith(p));
   }, [todos, periodo]);
 
   const totais = totaisPorForma(doPeriodo).filter((t) => t.quantidade > 0 || t.forma !== "Outros");
   const totalPeriodo = doPeriodo.reduce((s, p) => s + p.valor, 0);
 
   const mesAtual = prefixoMes(0);
+  const hoje = hojeIso();
+  const saiuNoMes = useMemo(
+    () =>
+      todos
+        .filter((p) => p.isoPagamento.startsWith(mesAtual))
+        .reduce((s, p) => s + p.valor, 0),
+    [todos, mesAtual],
+  );
+  const vaiSairDepois = useMemo(
+    () => todos.filter((p) => p.isoPagamento > hoje).reduce((s, p) => s + p.valor, 0),
+    [todos, hoje],
+  );
   const faturas = useMemo(
     () => faturaPorMes(todos).filter((f) => f.mes >= mesAtual),
     [todos, mesAtual],
