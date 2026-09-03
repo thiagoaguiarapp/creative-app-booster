@@ -110,10 +110,8 @@ function PagamentosPage() {
     () => todos.filter((p) => p.isoPagamento > hoje).reduce((s, p) => s + p.valor, 0),
     [todos, hoje],
   );
-  const faturas = useMemo(
-    () => faturaPorMes(todos).filter((f) => f.mes >= mesAtual),
-    [todos, mesAtual],
-  );
+  const faturas = useMemo(() => faturaPorMes(todos), [todos]);
+
   const abertas = useMemo(() => parcelasEmAberto(todos, hoje), [todos, hoje]);
   const totalAberto = abertas.reduce((s, p) => s + p.valor, 0);
   const maiorFatura = Math.max(1, ...faturas.map((f) => f.total));
