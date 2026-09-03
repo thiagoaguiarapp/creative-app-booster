@@ -355,7 +355,12 @@ function FormularioDialog({
               )}
               {campo.key === "parcelas" && (
                 <p className="text-xs text-muted-foreground">
-                  As parcelas serão lançadas nos meses seguintes.
+                  As parcelas serão lançadas mês a mês a partir da data da 1ª parcela.
+                </p>
+              )}
+              {campo.key === "dataPrimeiraParcela" && (
+                <p className="text-xs text-muted-foreground">
+                  Se vazio, usa a data da compra.
                 </p>
               )}
               {tipo === "repasse" &&
