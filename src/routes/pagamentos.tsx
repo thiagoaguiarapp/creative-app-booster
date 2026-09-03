@@ -282,7 +282,8 @@ function PagamentosPage() {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground">
         <CalendarClock className="size-3.5" />
-        Compras no crédito vencem no mês seguinte; cada parcela cai um mês depois da anterior.
+        No crédito, cada parcela entra no mês do vencimento informado no lançamento.
+
       </p>
     </div>
   );
