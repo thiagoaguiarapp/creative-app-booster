@@ -10,7 +10,7 @@ export type Pagamento = {
   /** data da compra (competência) */
   data: string;
   iso: string;
-  /** data em que o valor sai do bolso (crédito = vencimento calculado) */
+  /** data em que o valor sai do bolso (crédito = vencimento gravado da parcela) */
   dataPagamento: string;
   isoPagamento: string;
   descricao: string;
@@ -35,17 +35,36 @@ function paraBr(iso: string) {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
 
+function paraIso(br: string) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(br ?? "");
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : "";
+}
+
+/** marca gravada na observação das parcelas de crédito */
+const MARCA_COMPRA = /\s*\[compra (\d{2}\/\d{2}\/\d{4})\]/i;
+
+/** monta a marca "[compra dd/mm/aaaa]" */
+export function marcaCompra(dataBr: string): string {
+  return `[compra ${dataBr}]`;
+}
+
+/** remove a marca "[compra ...]" da descrição exibida */
+export function limpaDescricao(descricao: string): string {
+  return (descricao ?? "").replace(MARCA_COMPRA, "").trim();
+}
+
+/** data da compra em iso lida da marca; sem marca, usa a própria data da linha */
+export function isoCompra(descricao: string, isoLinha: string): string {
+  const m = MARCA_COMPRA.exec(descricao ?? "");
+  return m ? paraIso(m[1]!) || isoLinha : isoLinha;
+}
+
 /** lê "(2/6)" na observação e devolve o número da parcela (1 quando não houver) */
 export function numeroParcela(descricao: string): number {
   const m = /\((\d+)\s*\/\s*(\d+)\)/.exec(descricao ?? "");
   return m ? Number(m[1]) : 1;
 }
 
-/** crédito: parcela 1 vence no mês seguinte à compra; demais, um mês depois de cada */
-function vencimento(iso: string, forma: Forma, descricao: string): string {
-  if (forma !== "Crédito" || !iso) return iso;
-  return somaMeses(iso, numeroParcela(descricao));
-}
 
 function semAcento(texto: string) {
   return texto
