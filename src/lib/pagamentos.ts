@@ -88,32 +88,36 @@ export function montaPagamentos(
   despesas: Despesa[],
   abastecimentos: Abastecimento[],
 ): Pagamento[] {
-  const bruto = [
-    ...despesas.map((d) => ({
-      id: `despesa-${d.row}`,
-      origem: "Despesa" as const,
-      data: d.data,
-      iso: d.iso,
-      descricao: [d.categoria, d.descricao].filter(Boolean).join(" · "),
-      forma: normalizaForma(d.pagamento),
-      valor: d.valor,
-    })),
+  const lista: Pagamento[] = [
+    ...despesas.map((d) => {
+      const iso = isoCompra(d.descricao, d.iso);
+      return {
+        id: `despesa-${d.row}`,
+        origem: "Despesa" as const,
+        data: paraBr(iso),
+        iso,
+        isoPagamento: d.iso,
+        dataPagamento: d.data,
+        descricao: [d.categoria, limpaDescricao(d.descricao)].filter(Boolean).join(" · "),
+        forma: normalizaForma(d.pagamento),
+        valor: d.valor,
+      };
+    }),
     ...abastecimentos.map((a) => ({
       id: `abastecimento-${a.row}`,
       origem: "Abastecimento" as const,
       data: a.data,
       iso: a.iso,
+      isoPagamento: a.iso,
+      dataPagamento: a.data,
       descricao: a.posto ? `Abastecimento · ${a.posto}` : "Abastecimento",
       forma: normalizaForma(a.pagamento),
       valor: a.valorPago,
     })),
   ];
-  const lista: Pagamento[] = bruto.map((p) => {
-    const isoPagamento = vencimento(p.iso, p.forma, p.descricao);
-    return { ...p, isoPagamento, dataPagamento: paraBr(isoPagamento) };
-  });
-  return lista.sort((a, b) => b.iso.localeCompare(a.iso));
+  return lista.sort((a, b) => b.isoPagamento.localeCompare(a.isoPagamento));
 }
+
 
 export function totaisPorForma(pagamentos: Pagamento[]) {
   return FORMAS.map((forma) => {
