@@ -78,6 +78,12 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       tipo: "number",
       somenteSe: { key: "pagamento", valores: ["Crédito"] },
     },
+    {
+      key: "dataPrimeiraParcela",
+      label: "Data da 1ª parcela (vencimento)",
+      tipo: "date",
+      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+    },
   ],
   repasse: [
 
@@ -93,9 +99,28 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "kmTroca", label: "Km da troca", tipo: "number", obrigatorio: true },
     { key: "validadeKm", label: "Validade (km)", tipo: "number", obrigatorio: true },
     { key: "valor", label: "Valor (R$)", tipo: "money" },
+    {
+      key: "pagamento",
+      label: "Forma de pagamento",
+      tipo: "select",
+      opcoes: FORMAS_PAGAMENTO,
+    },
+    {
+      key: "parcelas",
+      label: "Número de parcelas",
+      tipo: "number",
+      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+    },
+    {
+      key: "dataPrimeiraParcela",
+      label: "Data da 1ª parcela (vencimento)",
+      tipo: "date",
+      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+    },
     { key: "observacao", label: "Observação", tipo: "text" },
   ],
 };
+
 
 /** "dd/mm/aaaa" -> "aaaa-mm-dd" para o input date */
 export function paraInputDate(br: string): string {
