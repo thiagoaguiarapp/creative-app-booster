@@ -195,9 +195,10 @@ function PagamentosPage() {
       </SectionCard>
 
       <SectionCard
-        title="Fatura do crédito por mês"
-        description="Inclui parcelas que ainda vão vencer"
+        title="Histórico da fatura do cartão"
+        description="Total do crédito por mês de vencimento, incluindo parcelas futuras"
       >
+
         {faturas.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhuma compra no crédito.</p>
         ) : (
