@@ -180,13 +180,14 @@ function DespesasPage() {
             {recentes.map((d) => (
               <TableRow key={d.id}>
                 <TableCell className="num">
-                  {d.data}
+                  {paraBr(d.compraIso)}
                   {normalizaForma(d.pagamento) === "Crédito" && (
                     <span className="block text-xs text-muted-foreground">
-                      vence {rotuloVencimento(vencimentoIso(d.iso, d.pagamento, d.descricao))}
+                      vence {d.data}
                     </span>
                   )}
                 </TableCell>
+
                 <TableCell>
                   <Badge variant="secondary">{d.categoria}</Badge>
                 </TableCell>
