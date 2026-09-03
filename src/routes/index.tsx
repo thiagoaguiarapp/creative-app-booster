@@ -12,7 +12,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { formatISO, startOfWeek, endOfWeek, parseISO, addDays, format } from "date-fns";
 
-import { AdBanner } from "@/components/ad-banner";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { NovoLancamentoRapido } from "@/components/lancamento-form";
 import { PageHeader, SectionCard } from "@/components/shell";
@@ -247,8 +246,6 @@ function Home() {
         )}
       </SectionCard>
 
-
-      <AdBanner />
     </div>
   );
 }
