@@ -81,6 +81,17 @@ function DespesasPage() {
   const recentes = despesas.slice(0, 15);
 
   const total = despesas.reduce((s, d) => s + d.valor, 0);
+
+  const { pagoNoMes, aPagarDepois } = useMemo(() => {
+    let pago = 0;
+    let depois = 0;
+    for (const d of despesas) {
+      const venc = vencimentoIso(d.iso, d.pagamento, d.descricao);
+      if (venc.slice(0, 7) === d.iso.slice(0, 7)) pago += d.valor;
+      else depois += d.valor;
+    }
+    return { pagoNoMes: pago, aPagarDepois: depois };
+  }, [despesas]);
   const categorias = Array.from(new Set(despesas.map((d) => d.categoria)))
     .map((c) => ({
       nome: c,
