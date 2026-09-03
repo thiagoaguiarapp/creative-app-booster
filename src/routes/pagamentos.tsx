@@ -238,7 +238,9 @@ function PagamentosPage() {
               <div key={p.id} className="flex items-center justify-between gap-3 py-2.5">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">{p.descricao}</div>
-                  <div className="num text-xs text-muted-foreground">{p.data}</div>
+                  <div className="num text-xs text-muted-foreground">
+                    vence {p.dataPagamento} · compra {p.data}
+                  </div>
                 </div>
                 <span className="num shrink-0 text-sm font-semibold text-warning">
                   {brl(p.valor)}
