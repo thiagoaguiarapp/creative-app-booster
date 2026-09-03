@@ -18,6 +18,7 @@ import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
+import { Route as PagamentosRouteImport } from './routes/pagamentos'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -73,6 +74,11 @@ const LancamentosRoute = LancamentosRouteImport.update({
 const ManutencaoRoute = ManutencaoRouteImport.update({
   id: '/manutencao',
   path: '/manutencao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentosRoute = PagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
+    | '/pagamentos'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
+    | '/pagamentos'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
+    | '/pagamentos'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
+  PagamentosRoute: typeof PagamentosRoute
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/manutencao'
       fullPath: '/manutencao'
       preLoaderRoute: typeof ManutencaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamentos': {
+      id: '/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof PagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -455,6 +475,7 @@ const rootRouteChildren: RootRouteChildren = {
   GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
+  PagamentosRoute: PagamentosRoute,
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,
