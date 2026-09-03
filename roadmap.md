@@ -32,7 +32,13 @@ Depois do passo 3, abra `android/app/src/main/AndroidManifest.xml` e adicione de
 
 O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do AdMob antes de publicar.
 
+## Premium (Google Play)
+
+- [x] Tela `/premium` com benefícios, preço, "Assinar agora" e "Restaurar compras".
+- [x] Plugin `@revenuecat/purchases-capacitor` integrado em `src/lib/iap.ts`.
+- [ ] Criar a assinatura mensal na Google Play Console (produto `rota_control_premium_mensal`).
+- [ ] Criar o entitlement `premium` no RevenueCat e definir `VITE_REVENUECAT_ANDROID_KEY`.
+
 ## Outros pendentes
 
 - [ ] Domínio de e-mail `notify.rotacontrolapp.com.br` aguardando validação de DNS.
-- [ ] Definir provedor de pagamento do plano Premium.
