@@ -110,10 +110,8 @@ function PagamentosPage() {
     () => todos.filter((p) => p.isoPagamento > hoje).reduce((s, p) => s + p.valor, 0),
     [todos, hoje],
   );
-  const faturas = useMemo(
-    () => faturaPorMes(todos).filter((f) => f.mes >= mesAtual),
-    [todos, mesAtual],
-  );
+  const faturas = useMemo(() => faturaPorMes(todos), [todos]);
+
   const abertas = useMemo(() => parcelasEmAberto(todos, hoje), [todos, hoje]);
   const totalAberto = abertas.reduce((s, p) => s + p.valor, 0);
   const maiorFatura = Math.max(1, ...faturas.map((f) => f.total));
@@ -197,9 +195,10 @@ function PagamentosPage() {
       </SectionCard>
 
       <SectionCard
-        title="Fatura do crédito por mês"
-        description="Inclui parcelas que ainda vão vencer"
+        title="Histórico da fatura do cartão"
+        description="Total do crédito por mês de vencimento, incluindo parcelas futuras"
       >
+
         {faturas.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nenhuma compra no crédito.</p>
         ) : (
@@ -283,7 +282,8 @@ function PagamentosPage() {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground">
         <CalendarClock className="size-3.5" />
-        Compras no crédito vencem no mês seguinte; cada parcela cai um mês depois da anterior.
+        No crédito, cada parcela entra no mês do vencimento informado no lançamento.
+
       </p>
     </div>
   );

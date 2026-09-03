@@ -10,21 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { normalizaForma, numeroParcela, somaMeses } from "@/lib/pagamentos";
+import { isoCompra, limpaDescricao, normalizaForma } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
 
-/** vencimento efetivo: crédito cai no mês seguinte (uma parcela por mês) */
-function vencimentoIso(iso: string, pagamento: string, descricao: string) {
-  return normalizaForma(pagamento) === "Crédito" && iso
-    ? somaMeses(iso, numeroParcela(descricao))
-    : iso;
+function paraBr(iso: string) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
 
-function rotuloVencimento(iso: string) {
-  const nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  const m = /^(\d{4})-(\d{2})/.exec(iso);
-  return m ? `${nomes[Number(m[2]) - 1]}/${m[1]}` : iso;
-}
 
 export const Route = createFileRoute("/despesas")({
   head: () => ({
@@ -72,11 +65,21 @@ function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
 
+  const todas = useMemo(
+    () =>
+      data.despesas.map((d) => ({
+        ...d,
+        compraIso: isoCompra(d.descricao, d.iso),
+        descricao: limpaDescricao(d.descricao),
+      })),
+    [data.despesas],
+  );
+
   const despesas = useMemo(() => {
-    if (periodo === "total") return data.despesas;
+    if (periodo === "total") return todas;
     const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return data.despesas.filter((d) => d.iso.startsWith(p));
-  }, [data.despesas, periodo]);
+    return todas.filter((d) => d.compraIso.startsWith(p));
+  }, [todas, periodo]);
 
   const recentes = despesas.slice(0, 15);
 
@@ -86,12 +89,12 @@ function DespesasPage() {
     let pago = 0;
     let depois = 0;
     for (const d of despesas) {
-      const venc = vencimentoIso(d.iso, d.pagamento, d.descricao);
-      if (venc.slice(0, 7) === d.iso.slice(0, 7)) pago += d.valor;
+      if (d.iso.slice(0, 7) === d.compraIso.slice(0, 7)) pago += d.valor;
       else depois += d.valor;
     }
     return { pagoNoMes: pago, aPagarDepois: depois };
   }, [despesas]);
+
   const categorias = Array.from(new Set(despesas.map((d) => d.categoria)))
     .map((c) => ({
       nome: c,
@@ -177,13 +180,14 @@ function DespesasPage() {
             {recentes.map((d) => (
               <TableRow key={d.id}>
                 <TableCell className="num">
-                  {d.data}
+                  {paraBr(d.compraIso)}
                   {normalizaForma(d.pagamento) === "Crédito" && (
                     <span className="block text-xs text-muted-foreground">
-                      vence {rotuloVencimento(vencimentoIso(d.iso, d.pagamento, d.descricao))}
+                      vence {d.data}
                     </span>
                   )}
                 </TableCell>
+
                 <TableCell>
                   <Badge variant="secondary">{d.categoria}</Badge>
                 </TableCell>

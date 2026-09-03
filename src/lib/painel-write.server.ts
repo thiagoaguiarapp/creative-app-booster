@@ -1,6 +1,8 @@
 import { atualizar, inserir, remover, txt, type Linha } from "./db.server";
 import type { Tipo } from "./entry-schema";
+import { marcaCompra, somaMeses } from "./pagamentos";
 import { TABELAS } from "./painel.server";
+
 
 type Campo = { coluna: string; tipo: "texto" | "data" | "inteiro" | "dinheiro" };
 
@@ -107,6 +109,45 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
 }
 
 
+/** grava uma despesa (à vista ou parcelada no crédito) */
+async function gravarDespesa(valores: Record<string, string>, userId: string): Promise<void> {
+  const mapa = MAPAS.despesa;
+  const credito = /credito|crédito/i.test(txt(valores["pagamento"] ?? ""));
+  const parcelas = credito ? Math.max(1, Math.trunc(Number(valores["parcelas"] ?? "1")) || 1) : 1;
+  const total = paraNumero(valores["valor"] ?? "0");
+  const dataCompra = txt(valores["data"] ?? "");
+  const primeira = txt(valores["dataPrimeiraParcela"] ?? "") || dataCompra;
+  const descricaoBase = `${valores["descricao"] ?? ""}`.trim();
+
+  if (!credito) {
+    await inserir(mapa.tabela, montaLinha("despesa", valores), userId);
+    return;
+  }
+
+  const base = parcelas > 1 ? Math.floor((total / parcelas) * 100) / 100 : total;
+  const resto = parcelas > 1 ? Math.round((total - base * parcelas) * 100) / 100 : 0;
+
+  for (let i = 0; i < parcelas; i++) {
+    const valorParcela = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
+    const vencimento = somaMeses(primeira, i);
+    const partes = [
+      descricaoBase,
+      parcelas > 1 ? `(${i + 1}/${parcelas})` : "",
+      marcaCompra(paraBr(dataCompra)),
+    ].filter(Boolean);
+    await inserir(
+      mapa.tabela,
+      montaLinha("despesa", {
+        ...valores,
+        data: vencimento,
+        valor: valorParcela.toFixed(2),
+        descricao: partes.join(" "),
+      }),
+      userId,
+    );
+  }
+}
+
 export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
@@ -120,30 +161,42 @@ export async function salvarLancamento(
     return;
   }
 
-  const parcelas = Math.trunc(Number(valores["parcelas"] ?? "1")) || 1;
-  const total = paraNumero(valores["valor"] ?? "0");
+  if (tipo === "despesa") {
+    await gravarDespesa(valores, userId);
+    return;
+  }
 
-  if (tipo === "despesa" && parcelas > 1 && total > 0) {
-    const base = Math.floor((total / parcelas) * 100) / 100;
-    const resto = Math.round((total - base * parcelas) * 100) / 100;
-    for (let i = 0; i < parcelas; i++) {
-      const valorParcela = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
-      const descricao = `${valores["descricao"] ?? ""}`.trim();
-      await inserir(
-        mapa.tabela,
-        montaLinha(tipo, {
-          ...valores,
-          valor: valorParcela.toFixed(2),
-          descricao: `${descricao ? `${descricao} ` : ""}(${i + 1}/${parcelas})`,
-        }),
+  if (tipo === "manutencao") {
+    const valor = paraNumero(valores["valor"] ?? "0");
+    const forma = txt(valores["pagamento"] ?? "");
+    if (valor > 0 && forma) {
+      await gravarDespesa(
+        {
+          data: valores["data"] ?? "",
+          categoria: "Manutenção",
+          descricao: txt(valores["servico"] ?? "") || "Manutenção",
+          valor: valores["valor"] ?? "",
+          pagamento: forma,
+          parcelas: valores["parcelas"] ?? "",
+          dataPrimeiraParcela: valores["dataPrimeiraParcela"] ?? "",
+        },
         userId,
       );
+      const observacao = [txt(valores["observacao"] ?? ""), "valor lançado em despesa"]
+        .filter(Boolean)
+        .join(" · ");
+      await inserir(
+        mapa.tabela,
+        montaLinha(tipo, { ...valores, valor: "0", observacao }),
+        userId,
+      );
+      return;
     }
-    return;
   }
 
   await inserir(mapa.tabela, montaLinha(tipo, valores), userId);
 }
+
 
 export async function excluirLancamento(
   tipo: Tipo,
