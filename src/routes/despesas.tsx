@@ -65,11 +65,21 @@ function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
 
+  const todas = useMemo(
+    () =>
+      data.despesas.map((d) => ({
+        ...d,
+        compraIso: isoCompra(d.descricao, d.iso),
+        descricao: limpaDescricao(d.descricao),
+      })),
+    [data.despesas],
+  );
+
   const despesas = useMemo(() => {
-    if (periodo === "total") return data.despesas;
+    if (periodo === "total") return todas;
     const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return data.despesas.filter((d) => d.iso.startsWith(p));
-  }, [data.despesas, periodo]);
+    return todas.filter((d) => d.compraIso.startsWith(p));
+  }, [todas, periodo]);
 
   const recentes = despesas.slice(0, 15);
 
@@ -79,12 +89,12 @@ function DespesasPage() {
     let pago = 0;
     let depois = 0;
     for (const d of despesas) {
-      const venc = vencimentoIso(d.iso, d.pagamento, d.descricao);
-      if (venc.slice(0, 7) === d.iso.slice(0, 7)) pago += d.valor;
+      if (d.iso.slice(0, 7) === d.compraIso.slice(0, 7)) pago += d.valor;
       else depois += d.valor;
     }
     return { pagoNoMes: pago, aPagarDepois: depois };
   }, [despesas]);
+
   const categorias = Array.from(new Set(despesas.map((d) => d.categoria)))
     .map((c) => ({
       nome: c,
