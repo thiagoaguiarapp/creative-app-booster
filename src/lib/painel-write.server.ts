@@ -106,17 +106,6 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
   return linha;
 }
 
-/** "aaaa-mm-dd" + n meses, ajustando o dia ao último dia do mês quando necessário */
-function somaMeses(iso: string, meses: number): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt(iso));
-  if (!m) return iso;
-  const ano = Number(m[1]);
-  const mes = Number(m[2]) - 1;
-  const dia = Number(m[3]);
-  const ultimoDia = new Date(ano, mes + meses + 1, 0).getDate();
-  const d = new Date(ano, mes + meses, Math.min(dia, ultimoDia));
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 export async function salvarLancamento(
   tipo: Tipo,
@@ -137,7 +126,6 @@ export async function salvarLancamento(
   if (tipo === "despesa" && parcelas > 1 && total > 0) {
     const base = Math.floor((total / parcelas) * 100) / 100;
     const resto = Math.round((total - base * parcelas) * 100) / 100;
-    const dataBase = txt(valores["dataPrimeiraParcela"] ?? "") || (valores["data"] ?? "");
     for (let i = 0; i < parcelas; i++) {
       const valorParcela = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
       const descricao = `${valores["descricao"] ?? ""}`.trim();
@@ -145,7 +133,6 @@ export async function salvarLancamento(
         mapa.tabela,
         montaLinha(tipo, {
           ...valores,
-          data: somaMeses(dataBase, i),
           valor: valorParcela.toFixed(2),
           descricao: `${descricao ? `${descricao} ` : ""}(${i + 1}/${parcelas})`,
         }),
@@ -155,12 +142,7 @@ export async function salvarLancamento(
     return;
   }
 
-  const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
-  await inserir(
-    mapa.tabela,
-    montaLinha(tipo, tipo === "despesa" && primeira ? { ...valores, data: primeira } : valores),
-    userId,
-  );
+  await inserir(mapa.tabela, montaLinha(tipo, valores), userId);
 }
 
 export async function excluirLancamento(

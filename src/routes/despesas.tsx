@@ -10,7 +10,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { normalizaForma, numeroParcela, somaMeses } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
+
+/** vencimento efetivo: crédito cai no mês seguinte (uma parcela por mês) */
+function vencimentoIso(iso: string, pagamento: string, descricao: string) {
+  return normalizaForma(pagamento) === "Crédito" && iso
+    ? somaMeses(iso, numeroParcela(descricao))
+    : iso;
+}
+
+function rotuloVencimento(iso: string) {
+  const nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const m = /^(\d{4})-(\d{2})/.exec(iso);
+  return m ? `${nomes[Number(m[2]) - 1]}/${m[1]}` : iso;
+}
 
 export const Route = createFileRoute("/despesas")({
   head: () => ({
@@ -67,6 +81,17 @@ function DespesasPage() {
   const recentes = despesas.slice(0, 15);
 
   const total = despesas.reduce((s, d) => s + d.valor, 0);
+
+  const { pagoNoMes, aPagarDepois } = useMemo(() => {
+    let pago = 0;
+    let depois = 0;
+    for (const d of despesas) {
+      const venc = vencimentoIso(d.iso, d.pagamento, d.descricao);
+      if (venc.slice(0, 7) === d.iso.slice(0, 7)) pago += d.valor;
+      else depois += d.valor;
+    }
+    return { pagoNoMes: pago, aPagarDepois: depois };
+  }, [despesas]);
   const categorias = Array.from(new Set(despesas.map((d) => d.categoria)))
     .map((c) => ({
       nome: c,
@@ -110,6 +135,17 @@ function DespesasPage() {
         />
       </div>
 
+      <div className="rounded-lg border border-border bg-card p-4 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-muted-foreground">Pago no mês da despesa</span>
+          <span className="num font-semibold">{brl(pagoNoMes)}</span>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-muted-foreground">A pagar em meses seguintes (crédito)</span>
+          <span className="num font-semibold text-warning">{brl(aPagarDepois)}</span>
+        </div>
+      </div>
+
       <SectionCard title="Por categoria">
         <div className="flex flex-col gap-3">
           {categorias.map((c) => (
@@ -140,7 +176,14 @@ function DespesasPage() {
           <TableBody>
             {recentes.map((d) => (
               <TableRow key={d.id}>
-                <TableCell className="num">{d.data}</TableCell>
+                <TableCell className="num">
+                  {d.data}
+                  {normalizaForma(d.pagamento) === "Crédito" && (
+                    <span className="block text-xs text-muted-foreground">
+                      vence {rotuloVencimento(vencimentoIso(d.iso, d.pagamento, d.descricao))}
+                    </span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <Badge variant="secondary">{d.categoria}</Badge>
                 </TableCell>

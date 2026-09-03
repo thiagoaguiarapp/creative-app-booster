@@ -78,12 +78,6 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       tipo: "number",
       somenteSe: { key: "pagamento", valores: ["Crédito"] },
     },
-    {
-      key: "dataPrimeiraParcela",
-      label: "Data da 1ª parcela",
-      tipo: "date",
-      somenteSe: { key: "pagamento", valores: ["Crédito"] },
-    },
   ],
   repasse: [
 

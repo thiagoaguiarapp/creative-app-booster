@@ -91,18 +91,30 @@ function PagamentosPage() {
   const doPeriodo = useMemo(() => {
     if (periodo === "total") return todos;
     const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return todos.filter((p2) => p2.iso.startsWith(p));
+    return todos.filter((p2) => p2.isoPagamento.startsWith(p));
   }, [todos, periodo]);
 
   const totais = totaisPorForma(doPeriodo).filter((t) => t.quantidade > 0 || t.forma !== "Outros");
   const totalPeriodo = doPeriodo.reduce((s, p) => s + p.valor, 0);
 
   const mesAtual = prefixoMes(0);
+  const hoje = hojeIso();
+  const saiuNoMes = useMemo(
+    () =>
+      todos
+        .filter((p) => p.isoPagamento.startsWith(mesAtual))
+        .reduce((s, p) => s + p.valor, 0),
+    [todos, mesAtual],
+  );
+  const vaiSairDepois = useMemo(
+    () => todos.filter((p) => p.isoPagamento > hoje).reduce((s, p) => s + p.valor, 0),
+    [todos, hoje],
+  );
   const faturas = useMemo(
     () => faturaPorMes(todos).filter((f) => f.mes >= mesAtual),
     [todos, mesAtual],
   );
-  const abertas = useMemo(() => parcelasEmAberto(todos, hojeIso()), [todos]);
+  const abertas = useMemo(() => parcelasEmAberto(todos, hoje), [todos, hoje]);
   const totalAberto = abertas.reduce((s, p) => s + p.valor, 0);
   const maiorFatura = Math.max(1, ...faturas.map((f) => f.total));
 
@@ -110,8 +122,24 @@ function PagamentosPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Pagamentos"
-        subtitle="Quanto você paga em dinheiro, Pix, débito e crédito"
+        subtitle="Pelo caixa: o crédito entra no mês em que a fatura vence"
       />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <StatCard
+          label="Sai neste mês"
+          value={brl(saiuNoMes)}
+          hint="À vista, Pix, débito e faturas que vencem no mês"
+          icon={Wallet}
+        />
+        <StatCard
+          label="Vai sair depois"
+          value={brl(vaiSairDepois)}
+          hint="Parcelas de crédito que ainda vão vencer"
+          icon={CalendarClock}
+          tone="warning"
+        />
+      </div>
 
       <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
@@ -210,7 +238,9 @@ function PagamentosPage() {
               <div key={p.id} className="flex items-center justify-between gap-3 py-2.5">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">{p.descricao}</div>
-                  <div className="num text-xs text-muted-foreground">{p.data}</div>
+                  <div className="num text-xs text-muted-foreground">
+                    vence {p.dataPagamento} · compra {p.data}
+                  </div>
                 </div>
                 <span className="num shrink-0 text-sm font-semibold text-warning">
                   {brl(p.valor)}
@@ -231,7 +261,9 @@ function PagamentosPage() {
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">{p.descricao}</div>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  <span className="num text-xs text-muted-foreground">{p.data}</span>
+                  <span className="num text-xs text-muted-foreground">
+                    {p.forma === "Crédito" ? `compra ${p.data} · vence ${p.dataPagamento}` : p.data}
+                  </span>
                   <Badge variant="secondary">{p.origem}</Badge>
                   <Badge variant="outline">
                     {p.forma === "Outros" ? "Não informado" : p.forma}
@@ -251,7 +283,7 @@ function PagamentosPage() {
 
       <p className="flex items-center gap-2 text-xs text-muted-foreground">
         <CalendarClock className="size-3.5" />
-        As parcelas do crédito seguem a data da 1ª parcela informada no lançamento.
+        Compras no crédito vencem no mês seguinte; cada parcela cai um mês depois da anterior.
       </p>
     </div>
   );
