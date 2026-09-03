@@ -1,6 +1,8 @@
 import { atualizar, inserir, remover, txt, type Linha } from "./db.server";
 import type { Tipo } from "./entry-schema";
+import { marcaCompra, somaMeses } from "./pagamentos";
 import { TABELAS } from "./painel.server";
+
 
 type Campo = { coluna: string; tipo: "texto" | "data" | "inteiro" | "dinheiro" };
 
