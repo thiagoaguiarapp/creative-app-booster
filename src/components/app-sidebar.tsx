@@ -4,7 +4,6 @@ import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settin
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.png.asset.json";
-import { PremiumDialog } from "@/components/premium-dialog";
 import { sairFn } from "@/lib/auth.functions";
 
 import {
