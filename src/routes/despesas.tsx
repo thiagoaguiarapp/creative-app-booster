@@ -248,6 +248,13 @@ function DespesasPage() {
                 </TableCell>
               </TableRow>
             ))}
+            {recentes.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
+                  {busca ? "Nenhuma despesa encontrada para a busca." : "Nenhuma despesa no período."}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </SectionCard>
