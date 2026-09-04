@@ -141,17 +141,40 @@ function DespesasPage() {
         <NovoLancamento tipo="despesa" />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {PERIODOS.map((p) => (
-          <Button
-            key={p.id}
-            size="sm"
-            variant={periodo === p.id ? "default" : "outline"}
-            onClick={() => setPeriodo(p.id)}
-          >
-            {p.label}
-          </Button>
-        ))}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {PERIODOS.map((p) => (
+            <Button
+              key={p.id}
+              size="sm"
+              variant={periodo === p.id ? "default" : "outline"}
+              onClick={() => setPeriodo(p.id)}
+            >
+              {p.label}
+            </Button>
+          ))}
+        </div>
+
+        <div className="relative flex-1 sm:max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Procurar despesa..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className={cn("h-9 pl-9 pr-8", busca && "pr-8")}
+          />
+          {busca && (
+            <button
+              type="button"
+              onClick={() => setBusca("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Limpar busca"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
