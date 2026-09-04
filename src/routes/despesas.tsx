@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Receipt, TrendingDown, Wallet } from "lucide-react";
+import { Receipt, Search, TrendingDown, Wallet, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
@@ -8,10 +8,12 @@ import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { isoCompra, limpaDescricao, normalizaForma } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
+import { cn } from "@/lib/utils";
 
 function paraBr(iso: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
