@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Receipt, TrendingDown, Wallet } from "lucide-react";
+import { Receipt, Search, TrendingDown, Wallet, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
@@ -8,10 +8,12 @@ import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { isoCompra, limpaDescricao, normalizaForma } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
+import { cn } from "@/lib/utils";
 
 function paraBr(iso: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
@@ -61,9 +63,18 @@ function prefixoMes(offset: number) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function normaliza(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [busca, setBusca] = useState("");
 
   const todas = useMemo(
     () =>
@@ -76,10 +87,25 @@ function DespesasPage() {
   );
 
   const despesas = useMemo(() => {
-    if (periodo === "total") return todas;
-    const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return todas.filter((d) => d.compraIso.startsWith(p));
-  }, [todas, periodo]);
+    let lista = todas;
+    if (periodo !== "total") {
+      const p = prefixoMes(periodo === "atual" ? 0 : -1);
+      lista = lista.filter((d) => d.compraIso.startsWith(p));
+    }
+    if (!busca.trim()) return lista;
+    const termo = normaliza(busca);
+    return lista.filter((d) => {
+      const campos = [
+        d.descricao,
+        d.categoria,
+        d.pagamento,
+        d.data,
+        paraBr(d.compraIso),
+        brl(d.valor),
+      ];
+      return campos.some((c) => normaliza(c).includes(termo));
+    });
+  }, [todas, periodo, busca]);
 
   const recentes = despesas.slice(0, 15);
 
@@ -115,17 +141,40 @@ function DespesasPage() {
         <NovoLancamento tipo="despesa" />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {PERIODOS.map((p) => (
-          <Button
-            key={p.id}
-            size="sm"
-            variant={periodo === p.id ? "default" : "outline"}
-            onClick={() => setPeriodo(p.id)}
-          >
-            {p.label}
-          </Button>
-        ))}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {PERIODOS.map((p) => (
+            <Button
+              key={p.id}
+              size="sm"
+              variant={periodo === p.id ? "default" : "outline"}
+              onClick={() => setPeriodo(p.id)}
+            >
+              {p.label}
+            </Button>
+          ))}
+        </div>
+
+        <div className="relative flex-1 sm:max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Procurar despesa..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className={cn("h-9 pl-9 pr-8", busca && "pr-8")}
+          />
+          {busca && (
+            <button
+              type="button"
+              onClick={() => setBusca("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Limpar busca"
+            >
+              <X className="size-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -199,6 +248,13 @@ function DespesasPage() {
                 </TableCell>
               </TableRow>
             ))}
+            {recentes.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
+                  {busca ? "Nenhuma despesa encontrada para a busca." : "Nenhuma despesa no período."}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </SectionCard>
