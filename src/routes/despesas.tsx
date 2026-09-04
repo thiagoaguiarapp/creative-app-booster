@@ -63,6 +63,14 @@ function prefixoMes(offset: number) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function normaliza(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
