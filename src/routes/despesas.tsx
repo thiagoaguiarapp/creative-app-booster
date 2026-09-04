@@ -74,6 +74,7 @@ function normaliza(texto: string) {
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [busca, setBusca] = useState("");
 
   const todas = useMemo(
     () =>
@@ -86,10 +87,25 @@ function DespesasPage() {
   );
 
   const despesas = useMemo(() => {
-    if (periodo === "total") return todas;
-    const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return todas.filter((d) => d.compraIso.startsWith(p));
-  }, [todas, periodo]);
+    let lista = todas;
+    if (periodo !== "total") {
+      const p = prefixoMes(periodo === "atual" ? 0 : -1);
+      lista = lista.filter((d) => d.compraIso.startsWith(p));
+    }
+    if (!busca.trim()) return lista;
+    const termo = normaliza(busca);
+    return lista.filter((d) => {
+      const campos = [
+        d.descricao,
+        d.categoria,
+        d.pagamento,
+        d.data,
+        paraBr(d.compraIso),
+        brl(d.valor),
+      ];
+      return campos.some((c) => normaliza(c).includes(termo));
+    });
+  }, [todas, periodo, busca]);
 
   const recentes = despesas.slice(0, 15);
 
