@@ -95,12 +95,18 @@ async function carregar(userId: string): Promise<PainelData> {
     .map((l) => {
       const litros = num(campo(l, "Volume abastecido", "LITROS"));
       const kmRodado = num(campo(l, "KM RODADO"));
+      // POSTO pode vir como "Posto · Combustível"
+      const postoBruto = normalizar(campo(l, "POSTO", "Posto"));
+      const partesPosto = postoBruto.split("·").map((p) => p.trim()).filter(Boolean);
+      const posto = partesPosto.length > 1 ? partesPosto.slice(0, -1).join(" · ") : postoBruto;
+      const combustivel = partesPosto.length > 1 ? partesPosto[partesPosto.length - 1]! : "";
       return {
         id: idDe(l),
         row: idDe(l),
         data: dataBr(campo(l, "Data", "DATA")),
         iso: isoDate(campo(l, "Data", "DATA")),
-        posto: normalizar(campo(l, "POSTO", "Posto")),
+        posto,
+        combustivel,
         odometro: num(campo(l, "Odômetro total", "ODOMETRO")),
         litros,
         precoLitro: num(campo(l, "Preço do Litro", "PRECO LITRO")),

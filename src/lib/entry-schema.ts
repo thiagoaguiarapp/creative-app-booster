@@ -25,6 +25,15 @@ export const FORMAS_PAGAMENTO = [
 /** verdadeiro para "Crédito à vista" e "Crédito parcelado" */
 export const ehCredito = (forma: string): boolean => /cr[eé]dito/i.test(forma ?? "");
 
+/** tipos de combustível do abastecimento */
+export const COMBUSTIVEIS = [
+  "Gasolina",
+  "Gasolina aditivada",
+  "Etanol",
+  "GNV",
+  "Diesel",
+];
+
 
 export const TITULOS: Record<Tipo, string> = {
   ganho: "lançamento de ganho",
@@ -44,7 +53,8 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   abastecimento: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "veiculo", label: "Veículo", tipo: "text", sugestoes: "veiculo" },
-    { key: "posto", label: "Posto / combustível (opcional)", tipo: "text", sugestoes: "combustivel" },
+    { key: "combustivel", label: "Combustível utilizado", tipo: "select", opcoes: COMBUSTIVEIS, obrigatorio: true },
+    { key: "posto", label: "Posto (opcional)", tipo: "text", sugestoes: "combustivel" },
     { key: "odometro", label: "Odômetro (km)", tipo: "number", obrigatorio: true },
     { key: "litros", label: "Litros", tipo: "number", obrigatorio: true },
     { key: "precoLitro", label: "Preço por litro (R$)", tipo: "money" },

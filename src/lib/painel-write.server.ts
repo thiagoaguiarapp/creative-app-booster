@@ -99,6 +99,12 @@ function converter(campo: Campo, valor: string): unknown {
 
 function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
   const mapa = MAPAS[tipo];
+  // abastecimento: grava posto e combustível juntos na coluna POSTO ("Posto · Combustível")
+  if (tipo === "abastecimento") {
+    const posto = txt(valores["posto"] ?? "");
+    const combustivel = txt(valores["combustivel"] ?? "");
+    valores = { ...valores, posto: [posto, combustivel].filter(Boolean).join(" · ") };
+  }
   const linha: Linha = {};
   for (const [chave, campo] of Object.entries(mapa.campos)) {
     if (valores[chave] === undefined) continue;
