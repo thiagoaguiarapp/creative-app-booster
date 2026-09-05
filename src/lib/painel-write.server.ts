@@ -222,7 +222,7 @@ export async function baixarPagamento(
   const { selectAll } = await import("./db.server");
   const linhas = await selectAll(TABELAS.despesa, userId);
   const linha = linhas.find((l) => txt(l["ID"]) === txt(row));
-  if (!linha) throw new Error("Lançamento não encontrado.");
+  if (!linha) throw new Error("Não encontrei essa conta para dar baixa. Atualize a tela e tente de novo.");
   const atual = txt(linha["OBS"] ?? linha["OBSERVAÇÃO"] ?? linha["DESCRICAO"] ?? "");
   const nova = aplicaBaixa(atual, dataPago ? paraBr(dataPago) : null);
   await atualizar(TABELAS.despesa, row, { OBS: nova }, userId);

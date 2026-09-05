@@ -45,9 +45,15 @@ export const baixarPagamentoFn = createServerFn({ method: "POST" })
     const { baixarPagamento } = await import("./painel-write.server");
     const { invalidarPainelCache } = await import("./painel.server");
     const usuario = await exigirUsuario();
-    for (const row of data.rows) {
-      await baixarPagamento(row, usuario.id, data.dataPago);
+    try {
+      for (const row of data.rows) {
+        await baixarPagamento(row, usuario.id, data.dataPago);
+      }
+    } catch (e) {
+      console.error("baixarPagamentoFn falhou", data.rows, e);
+      throw e;
     }
     invalidarPainelCache(usuario.id);
     return { ok: true };
+
   });
