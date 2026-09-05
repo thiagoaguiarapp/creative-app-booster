@@ -8,19 +8,25 @@ Mês atual / Mês passado / Total, participação por forma, histórico da fatur
 do cartão, contas em aberto, lançamentos do período e os botões
 "Nova despesa", "Lançar pagamento" e "Retirada pessoal".
 
-## Aba Extrato (movimentação em dinheiro)
-Só o dinheiro que realmente circula na conta/carteira: **Dinheiro, Pix e
-débito**. Nada de cartão de crédito aqui.
+## Aba Extrato (sua conta bancária)
+O Extrato funciona como a conta: mostra tudo que entra e tudo que sai em
+dinheiro, Pix ou débito. Compras no cartão **não** aparecem aqui — o que
+aparece é o **pagamento da fatura**, descontado do saldo na data da baixa.
 
-- **Entradas**: recebimentos/repasses das plataformas e ganhos extras
-  (gorjeta, sobra de troco).
-- **Saídas**: despesas, abastecimentos e manutenções pagos em dinheiro, Pix ou
-  débito, na data em que o dinheiro saiu.
+- **Entradas**: todos os recebimentos — repasses das plataformas, recebimentos
+  em dinheiro/Pix na entrega e extras (gorjeta, sobra de troco).
+- **Saídas**: despesas, abastecimentos, manutenções e retiradas pessoais pagos
+  em dinheiro, Pix ou débito, na data em que o dinheiro saiu.
+- **Saídas de fatura**: cada baixa de parcela do cartão vira uma linha
+  "Pagamento de fatura do cartão" na data da baixa.
 
-Lista única em ordem de data (mais recente primeiro), de todo o período. Cada
-linha mostra data, descrição, origem (Repasse, Despesa, Abastecimento…), forma
-e o valor — verde para entrada, vermelho para saída — com saldo acumulado. No
-topo: total de entradas, total de saídas e saldo do que está sendo exibido.
+**Card fixo "Saldo em conta"** no topo da aba, sempre visível ao rolar,
+mostrando o saldo atual (todas as entradas menos todas as saídas, de todo o
+período) e, ao lado, entradas e saídas do período filtrado.
+
+Lista única em ordem de data (mais recente primeiro). Cada linha mostra data,
+descrição, origem (Repasse, Despesa, Fatura do cartão…), forma e o valor —
+verde para entrada, vermelho para saída — com saldo acumulado.
 
 **Busca personalizada**: campo de pesquisa que filtra por descrição, origem,
 forma, data ou valor, sem diferenciar maiúsculas e acentos, com botão para
@@ -49,8 +55,10 @@ Tudo o que foi gasto no cartão de crédito, à vista ou parcelado.
   `AbaPagamento`; `/pagamentos` passa a redirecionar para `/banco`.
 - Novo `src/lib/extrato.ts` com `montaExtrato(data)`: saídas via
   `montaPagamentos` filtrando `forma !== "Crédito"`, entradas a partir de
-  repasses/extras como já faz `src/lib/fluxo-caixa.ts`; devolve
-  `{ id, iso, data, descricao, origem, forma, tipo: "entrada" | "saida", valor }`.
+  repasses/extras como já faz `src/lib/fluxo-caixa.ts`, mais uma linha de saída
+  por parcela de crédito com baixa (usa `dataPago` da marca `[pago ...]`);
+  devolve `{ id, iso, data, descricao, origem, forma, tipo: "entrada" | "saida", valor }`
+  e o saldo acumulado.
 - Novo `src/lib/cartao.ts` com o agrupamento por fatura e o cálculo de
   limite usado/disponível (reaproveita `faturaPorMes`, `parcelasEmAberto`).
 - Limite e dia de vencimento gravados no perfil do usuário (mesmo caminho já
