@@ -210,6 +210,7 @@ function AbastecimentoPage() {
                     <TableRow className="hover:bg-transparent">
                       <TableCell colSpan={5} className="bg-muted/30">
                         <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3 sm:text-sm">
+                          <Detalhe rotulo="Combustível" valor={a.combustivel || "—"} />
                           <Detalhe rotulo="Posto" valor={a.posto || "—"} />
                           <Detalhe rotulo="Pagamento" valor={a.pagamento || "—"} />
                           <Detalhe rotulo="R$/L" valor={brl(a.precoLitro)} />
