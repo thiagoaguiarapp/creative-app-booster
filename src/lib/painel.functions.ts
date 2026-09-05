@@ -37,3 +37,17 @@ export const excluirLancamentoFn = createServerFn({ method: "POST" })
     invalidarPainelCache(usuario.id);
     return { ok: true };
   });
+
+export const baixarPagamentoFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { rows: string[]; dataPago: string | null }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { exigirUsuario } = await import("./auth.server");
+    const { baixarPagamento } = await import("./painel-write.server");
+    const { invalidarPainelCache } = await import("./painel.server");
+    const usuario = await exigirUsuario();
+    for (const row of data.rows) {
+      await baixarPagamento(row, usuario.id, data.dataPago);
+    }
+    invalidarPainelCache(usuario.id);
+    return { ok: true };
+  });
