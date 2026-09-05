@@ -496,22 +496,41 @@ export function NovoLancamento({
   );
 }
 
-const TIPOS_RAPIDOS: { tipo: Tipo; rotulo: string; desc: string; icone: LucideIcon }[] = [
-  { tipo: "ganho", rotulo: "Ganho diário", desc: "Corridas e faturamento", icone: Bike },
-  { tipo: "abastecimento", rotulo: "Abastecimento", desc: "Litros e odômetro", icone: Fuel },
-  { tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais", icone: Receipt },
-  { tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos", icone: Wallet },
-  { tipo: "manutencao", rotulo: "Manutenção", desc: "Serviços e trocas", icone: Wrench },
+type ItemRapido = {
+  id: string;
+  tipo: Tipo;
+  rotulo: string;
+  desc: string;
+  icone: LucideIcon;
+  iniciais?: Record<string, string>;
+  titulo?: string;
+};
+
+const TIPOS_RAPIDOS: ItemRapido[] = [
+  { id: "ganho", tipo: "ganho", rotulo: "Ganho diário", desc: "Corridas e faturamento", icone: Bike },
+  { id: "abastecimento", tipo: "abastecimento", rotulo: "Abastecimento", desc: "Litros e odômetro", icone: Fuel },
+  { id: "despesa", tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais", icone: Receipt },
+  { id: "repasse", tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos", icone: Wallet },
+  { id: "manutencao", tipo: "manutencao", rotulo: "Manutenção", desc: "Serviços e trocas", icone: Wrench },
+  {
+    id: "retirada",
+    tipo: "despesa",
+    rotulo: "Retirada pessoal (salário)",
+    desc: "Dinheiro que você tira para uso pessoal",
+    icone: PiggyBank,
+    iniciais: { categoria: CATEGORIA_RETIRADA },
+    titulo: "Retirada pessoal (salário)",
+  },
 ];
 
-function ListaTiposRapidos({ onEscolher }: { onEscolher: (tipo: Tipo) => void }) {
+function ListaTiposRapidos({ onEscolher }: { onEscolher: (item: ItemRapido) => void }) {
   return (
     <div className="grid gap-2 overflow-y-auto pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       {TIPOS_RAPIDOS.map((item) => (
         <button
-          key={item.tipo}
+          key={item.id}
           type="button"
-          onClick={() => onEscolher(item.tipo)}
+          onClick={() => onEscolher(item)}
           className="flex min-h-14 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/50 active:bg-accent"
         >
           <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
@@ -531,12 +550,12 @@ function ListaTiposRapidos({ onEscolher }: { onEscolher: (tipo: Tipo) => void })
 /** Botão único que abre um menu rápido para escolher o tipo de lançamento. */
 export function NovoLancamentoRapido({ className }: { className?: string }) {
   const [menu, setMenu] = useState(false);
-  const [tipo, setTipo] = useState<Tipo | null>(null);
+  const [item, setItem] = useState<ItemRapido | null>(null);
   const isMobile = useIsMobile();
 
-  const escolher = (t: Tipo) => {
+  const escolher = (i: ItemRapido) => {
     setMenu(false);
-    setTipo(t);
+    setItem(i);
   };
 
   return (
@@ -575,12 +594,14 @@ export function NovoLancamentoRapido({ className }: { className?: string }) {
         </Dialog>
       )}
 
-      {tipo && (
+      {item && (
         <FormularioDialog
-          tipo={tipo}
+          tipo={item.tipo}
+          {...(item.iniciais ? { iniciais: item.iniciais } : {})}
+          {...(item.titulo ? { titulo: item.titulo } : {})}
           aberto={true}
           onOpenChange={(v) => {
-            if (!v) setTipo(null);
+            if (!v) setItem(null);
           }}
         />
       )}
