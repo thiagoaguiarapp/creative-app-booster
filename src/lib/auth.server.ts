@@ -125,6 +125,12 @@ export function normalizarVeiculos(bruto: unknown): Veiculo[] {
   return lista.slice(0, 10);
 }
 
+/** número não negativo guardado no user_metadata (0 quando ausente/ inválido) */
+function numeroMeta(bruto: unknown): number {
+  const valor = Number(bruto ?? 0);
+  return Number.isFinite(valor) && valor >= 0 ? valor : 0;
+}
+
 /** Lê a meta semanal armazenada no user_metadata. */
 export function metaSemanalDe(dados: Record<string, unknown>): number {
   const meta = (dados["user_metadata"] ?? {}) as Record<string, unknown>;
