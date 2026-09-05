@@ -125,8 +125,15 @@ function PagamentosPage() {
   );
   const faturas = useMemo(() => faturaPorMes(todos), [todos]);
 
-  const abertas = useMemo(() => parcelasEmAberto(todos, hoje), [todos, hoje]);
+  const abertas = useMemo(() => parcelasEmAberto(todos), [todos]);
+  const pagas = useMemo(() => parcelasPagas(todos), [todos]);
   const totalAberto = abertas.reduce((s, p) => s + p.valor, 0);
+  const vencido = abertas
+    .filter((p) => p.isoPagamento <= hoje)
+    .reduce((s, p) => s + p.valor, 0);
+  const retiradas = doPeriodo
+    .filter((p) => ehRetirada(p.categoria))
+    .reduce((s, p) => s + p.valor, 0);
   const maiorFatura = Math.max(1, ...faturas.map((f) => f.total));
 
   return (
@@ -136,7 +143,7 @@ function PagamentosPage() {
         subtitle="Pelo caixa: o crédito entra no mês em que a fatura vence"
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Sai neste mês"
           value={brl(saiuNoMes)}
@@ -150,12 +157,41 @@ function PagamentosPage() {
           icon={CalendarClock}
           tone="warning"
         />
+        <StatCard
+          label="A pagar (vencido)"
+          value={brl(vencido)}
+          hint="Contas com vencimento passado e sem baixa"
+          icon={CheckCircle2}
+          tone={vencido > 0 ? "destructive" : "success"}
+        />
+        <StatCard
+          label="Retiradas do período"
+          value={brl(retiradas)}
+          hint="Dinheiro que você tirou para uso pessoal"
+          icon={PiggyBank}
+        />
       </div>
 
       <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
-        <NovoLancamento tipo="despesa" />
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <NovoLancamento tipo="despesa" />
+          <BaixaPagamentoDialog abertas={abertas} pagas={pagas} hojeIso={hoje}>
+            <Button variant="outline">
+              <CheckCircle2 className="size-4" /> Lançar pagamento
+            </Button>
+          </BaixaPagamentoDialog>
+          <NovoLancamento
+            tipo="despesa"
+            rotulo="Retirada pessoal"
+            titulo="Retirada pessoal (salário)"
+            iniciais={{ categoria: CATEGORIA_RETIRADA }}
+            variant="secondary"
+            icone={PiggyBank}
+          />
+        </div>
       </div>
+
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (
