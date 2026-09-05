@@ -6,6 +6,7 @@ export const FORMAS: Forma[] = ["Dinheiro", "Pix", "Débito", "Crédito", "Outro
 
 export type Pagamento = {
   id: string;
+  row: string;
   origem: "Despesa" | "Abastecimento";
   /** data da compra (competência) */
   data: string;
@@ -14,9 +15,22 @@ export type Pagamento = {
   dataPagamento: string;
   isoPagamento: string;
   descricao: string;
+  categoria: string;
   forma: Forma;
   valor: number;
+  /** já quitado (à vista sempre; crédito só com baixa registrada) */
+  pago: boolean;
+  /** data em que a baixa foi registrada (dd/mm/aaaa) */
+  dataPago: string;
 };
+
+/** categoria usada nas retiradas pessoais (salário) */
+export const CATEGORIA_RETIRADA = "Retirada pessoal";
+
+export function ehRetirada(categoria: string): boolean {
+  return semAcento(categoria ?? "").includes("retirada");
+}
+
 
 /** "aaaa-mm-dd" + n meses, ajustando o dia ao último dia do mês quando necessário */
 export function somaMeses(iso: string, meses: number): string {
