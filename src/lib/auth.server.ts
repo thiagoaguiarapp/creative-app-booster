@@ -31,6 +31,8 @@ export type Usuario = {
   nome: string;
   telefone: string;
   metaSemanal: number;
+  limiteCartao: number;
+  vencimentoCartao: number;
   isPremium: boolean;
   isAdmin?: boolean;
   veiculos: Veiculo[];
@@ -93,6 +95,8 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     nome: String(meta["nome"] ?? "").trim(),
     telefone: String(meta["telefone"] ?? "").trim(),
     metaSemanal: metaSemanalDe(u),
+    limiteCartao: numeroMeta(meta["limiteCartao"]),
+    vencimentoCartao: numeroMeta(meta["vencimentoCartao"]),
     isPremium: meta["is_premium"] === true,
     veiculos: normalizarVeiculos(meta["veiculos"]),
   };
@@ -121,6 +125,12 @@ export function normalizarVeiculos(bruto: unknown): Veiculo[] {
   return lista.slice(0, 10);
 }
 
+/** número não negativo guardado no user_metadata (0 quando ausente/ inválido) */
+function numeroMeta(bruto: unknown): number {
+  const valor = Number(bruto ?? 0);
+  return Number.isFinite(valor) && valor >= 0 ? valor : 0;
+}
+
 /** Lê a meta semanal armazenada no user_metadata. */
 export function metaSemanalDe(dados: Record<string, unknown>): number {
   const meta = (dados["user_metadata"] ?? {}) as Record<string, unknown>;
@@ -145,6 +155,8 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
         nome: atual.nome,
         telefone: atual.telefone,
         metaSemanal: atual.metaSemanal,
+        limiteCartao: atual.limiteCartao,
+        vencimentoCartao: atual.vencimentoCartao,
         is_premium: atual.isPremium,
         veiculos: atual.veiculos,
         ...mudancas,
@@ -168,6 +180,20 @@ export async function salvarMetaSemanal(valor: number): Promise<number> {
   const salvo = await atualizarMetadata({ metaSemanal: valor });
   return salvo.metaSemanal;
 }
+
+/** Salva o limite do cartão e o dia de vencimento da fatura. */
+export async function salvarCartao(
+  limite: number,
+  vencimento: number,
+): Promise<{ limiteCartao: number; vencimentoCartao: number }> {
+  const salvo = await atualizarMetadata({
+    limiteCartao: Math.max(0, Number(limite) || 0),
+    vencimentoCartao: Math.min(31, Math.max(0, Math.trunc(Number(vencimento) || 0))),
+  });
+  return { limiteCartao: salvo.limiteCartao, vencimentoCartao: salvo.vencimentoCartao };
+}
+
+
 
 /** Salva a lista de veículos do usuário. */
 export async function salvarVeiculos(veiculos: unknown): Promise<Veiculo[]> {
