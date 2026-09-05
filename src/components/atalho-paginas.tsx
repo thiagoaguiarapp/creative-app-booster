@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bike, CreditCard, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Bike, CreditCard, Fuel, Home, ListChecks, Receipt, Scale, Wallet, Wrench } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
