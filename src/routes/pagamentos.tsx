@@ -1,24 +1,37 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Banknote, CalendarClock, CreditCard, Smartphone, Wallet } from "lucide-react";
+import {
+  Banknote,
+  CalendarClock,
+  CheckCircle2,
+  CreditCard,
+  PiggyBank,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { BaixaPagamentoDialog, BotaoBaixaRapida } from "@/components/baixa-pagamento";
 import { NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { painelQueryOptions } from "@/lib/painel-query";
 import {
+  CATEGORIA_RETIRADA,
+  ehRetirada,
   faturaPorMes,
   montaPagamentos,
   parcelasEmAberto,
+  parcelasPagas,
   rotuloMes,
   totaisPorForma,
   type Forma,
 } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
+
 
 export const Route = createFileRoute("/pagamentos")({
   head: () => ({
