@@ -31,6 +31,8 @@ export type Usuario = {
   nome: string;
   telefone: string;
   metaSemanal: number;
+  limiteCartao: number;
+  vencimentoCartao: number;
   isPremium: boolean;
   isAdmin?: boolean;
   veiculos: Veiculo[];
@@ -93,6 +95,8 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     nome: String(meta["nome"] ?? "").trim(),
     telefone: String(meta["telefone"] ?? "").trim(),
     metaSemanal: metaSemanalDe(u),
+    limiteCartao: numeroMeta(meta["limiteCartao"]),
+    vencimentoCartao: numeroMeta(meta["vencimentoCartao"]),
     isPremium: meta["is_premium"] === true,
     veiculos: normalizarVeiculos(meta["veiculos"]),
   };
