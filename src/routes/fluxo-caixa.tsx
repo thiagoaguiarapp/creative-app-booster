@@ -98,10 +98,8 @@ function FluxoCaixaPage() {
     () => montaPagamentos(data.despesas, data.abastecimentos),
     [data.despesas, data.abastecimentos],
   );
-  const abertas = useMemo(
-    () => parcelasEmAberto(pagamentos, hojeIso()),
-    [pagamentos],
-  );
+  const abertas = useMemo(() => parcelasEmAberto(pagamentos), [pagamentos]);
+
   const faltaPagar = abertas.reduce((s, p) => s + p.valor, 0);
   const aReceber = useMemo(() => faltaReceber(data), [data]);
 
