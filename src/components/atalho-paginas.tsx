@@ -10,6 +10,7 @@ const paginas = [
   { title: "Abastecimento", short: "Abastec.", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", short: "Despesas", url: "/despesas", icon: Receipt },
   { title: "Pagamentos", short: "Pagam.", url: "/pagamentos", icon: CreditCard },
+  { title: "Fluxo de caixa", short: "Fluxo", url: "/fluxo-caixa", icon: Scale },
   { title: "Recebimento / Repasse", short: "Repasse", url: "/repasses", icon: Wallet },
   { title: "Manutenção", short: "Manut.", url: "/manutencao", icon: Wrench },
   { title: "Relatório", short: "Relatório", url: "/relatorio", icon: BarChart3 },
