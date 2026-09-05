@@ -275,29 +275,32 @@ function PagamentosPage() {
       </SectionCard>
 
       <SectionCard
-        title="Parcelas em aberto"
-        description={`${abertas.length} parcela${abertas.length === 1 ? "" : "s"} · ${brl(totalAberto)} a pagar`}
+        title="Contas em aberto"
+        description={`${abertas.length} conta${abertas.length === 1 ? "" : "s"} · ${brl(totalAberto)} a pagar`}
       >
         {abertas.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma parcela futura.</p>
+          <p className="text-sm text-muted-foreground">Tudo pago por aqui.</p>
         ) : (
           <div className="flex flex-col divide-y divide-border">
             {abertas.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-3 py-2.5">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">{p.descricao}</div>
-                  <div className="num text-xs text-muted-foreground">
+                  <div className="num flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                     vence {p.dataPagamento} · compra {p.data}
+                    {p.isoPagamento <= hoje && <Badge variant="destructive">vencida</Badge>}
                   </div>
                 </div>
-                <span className="num shrink-0 text-sm font-semibold text-warning">
-                  {brl(p.valor)}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="num text-sm font-semibold text-warning">{brl(p.valor)}</span>
+                  <BotaoBaixaRapida pagamento={p} />
+                </div>
               </div>
             ))}
           </div>
         )}
       </SectionCard>
+
 
       <SectionCard
         title="Lançamentos do período"
