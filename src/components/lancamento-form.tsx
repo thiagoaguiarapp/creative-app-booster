@@ -90,6 +90,13 @@ function valoresIniciais(
     }
     if (campo.tipo === "select" && campo.opcoes && out[campo.key]) {
       out[campo.key] = casaOpcao(out[campo.key]!, campo.opcoes);
+      // valor antigo "Crédito" -> decide entre à vista e parcelado pela marca (n/total)
+      if (campo.key === "pagamento" && normalizaTexto(out[campo.key]!) === "credito") {
+        const descricao = String(registro?.["descricao"] ?? registro?.["observacao"] ?? "");
+        out[campo.key] = /\(\d+\s*\/\s*\d+\)/.test(descricao)
+          ? "Crédito parcelado"
+          : "Crédito à vista";
+      }
     }
     const inicial = iniciais?.[campo.key];
     if (inicial !== undefined && (!registro || inicial.trim() !== "")) {
