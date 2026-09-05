@@ -55,8 +55,10 @@ Tudo o que foi gasto no cartão de crédito, à vista ou parcelado.
   `AbaPagamento`; `/pagamentos` passa a redirecionar para `/banco`.
 - Novo `src/lib/extrato.ts` com `montaExtrato(data)`: saídas via
   `montaPagamentos` filtrando `forma !== "Crédito"`, entradas a partir de
-  repasses/extras como já faz `src/lib/fluxo-caixa.ts`; devolve
-  `{ id, iso, data, descricao, origem, forma, tipo: "entrada" | "saida", valor }`.
+  repasses/extras como já faz `src/lib/fluxo-caixa.ts`, mais uma linha de saída
+  por parcela de crédito com baixa (usa `dataPago` da marca `[pago ...]`);
+  devolve `{ id, iso, data, descricao, origem, forma, tipo: "entrada" | "saida", valor }`
+  e o saldo acumulado.
 - Novo `src/lib/cartao.ts` com o agrupamento por fatura e o cálculo de
   limite usado/disponível (reaproveita `faturaPorMes`, `parcelasEmAberto`).
 - Limite e dia de vencimento gravados no perfil do usuário (mesmo caminho já
