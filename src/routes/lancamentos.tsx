@@ -164,7 +164,7 @@ function LancamentosPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Todos os lançamentos"
-        subtitle="Consulte, corrija ou exclua qualquer registro da planilha"
+        subtitle="Consulte, corrija ou exclua qualquer registro "
       />
 
       <div className="flex flex-col items-center gap-3">
