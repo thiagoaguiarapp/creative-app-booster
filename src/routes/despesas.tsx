@@ -133,7 +133,7 @@ function DespesasPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Despesas"
-        subtitle="Custos operacionais fora do combustível (aba DESPESA)"
+        subtitle="Custos operacionais fora do combustível "
       />
 
       <div className="flex flex-col items-center gap-3">
