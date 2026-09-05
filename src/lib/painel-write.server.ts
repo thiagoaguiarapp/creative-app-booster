@@ -1,6 +1,6 @@
 import { atualizar, inserir, remover, txt, type Linha } from "./db.server";
 import type { Tipo } from "./entry-schema";
-import { marcaCompra, somaMeses } from "./pagamentos";
+import { aplicaBaixa, marcaCompra, somaMeses } from "./pagamentos";
 import { TABELAS } from "./painel.server";
 
 
@@ -212,3 +212,18 @@ export async function excluirLancamento(
   await remover(MAPAS[tipo].tabela, row, userId);
 }
 
+
+/** marca (ou desfaz) a baixa de pagamento de uma despesa */
+export async function baixarPagamento(
+  row: string,
+  userId: string,
+  dataPago: string | null,
+): Promise<void> {
+  const { selectAll } = await import("./db.server");
+  const linhas = await selectAll(TABELAS.despesa, userId);
+  const linha = linhas.find((l) => txt(l["ID"]) === txt(row));
+  if (!linha) throw new Error("Lançamento não encontrado.");
+  const atual = txt(linha["OBS"] ?? linha["OBSERVAÇÃO"] ?? linha["DESCRICAO"] ?? "");
+  const nova = aplicaBaixa(atual, dataPago ? paraBr(dataPago) : null);
+  await atualizar(TABELAS.despesa, row, { OBS: nova }, userId);
+}
