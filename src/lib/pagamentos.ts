@@ -57,14 +57,34 @@ function paraIso(br: string) {
 /** marca gravada na observação das parcelas de crédito */
 const MARCA_COMPRA = /\s*\[compra (\d{2}\/\d{2}\/\d{4})\]/i;
 
+/** marca da baixa de pagamento */
+const MARCA_PAGO = /\s*\[pago (\d{2}\/\d{2}\/\d{4})\]/i;
+
 /** monta a marca "[compra dd/mm/aaaa]" */
 export function marcaCompra(dataBr: string): string {
   return `[compra ${dataBr}]`;
 }
 
-/** remove a marca "[compra ...]" da descrição exibida */
+/** monta a marca "[pago dd/mm/aaaa]" */
+export function marcaPago(dataBr: string): string {
+  return `[pago ${dataBr}]`;
+}
+
+/** acrescenta ou remove a marca de baixa na observação */
+export function aplicaBaixa(descricao: string, dataBr: string | null): string {
+  const limpa = (descricao ?? "").replace(MARCA_PAGO, "").trim();
+  return dataBr ? `${limpa} ${marcaPago(dataBr)}`.trim() : limpa;
+}
+
+/** remove as marcas internas da descrição exibida */
 export function limpaDescricao(descricao: string): string {
-  return (descricao ?? "").replace(MARCA_COMPRA, "").trim();
+  return (descricao ?? "").replace(MARCA_COMPRA, "").replace(MARCA_PAGO, "").trim();
+}
+
+/** data da baixa em dd/mm/aaaa ("" quando não houver) */
+export function dataPago(descricao: string): string {
+  const m = MARCA_PAGO.exec(descricao ?? "");
+  return m ? m[1]! : "";
 }
 
 /** data da compra em iso lida da marca; sem marca, usa a própria data da linha */
@@ -105,32 +125,43 @@ export function montaPagamentos(
   const lista: Pagamento[] = [
     ...despesas.map((d) => {
       const iso = isoCompra(d.descricao, d.iso);
+      const forma = normalizaForma(d.pagamento);
+      const baixa = dataPago(d.descricao);
       return {
         id: `despesa-${d.row}`,
+        row: d.row,
         origem: "Despesa" as const,
         data: paraBr(iso),
         iso,
         isoPagamento: d.iso,
         dataPagamento: d.data,
         descricao: [d.categoria, limpaDescricao(d.descricao)].filter(Boolean).join(" · "),
-        forma: normalizaForma(d.pagamento),
+        categoria: d.categoria,
+        forma,
         valor: d.valor,
+        pago: forma !== "Crédito" || baixa !== "",
+        dataPago: baixa,
       };
     }),
     ...abastecimentos.map((a) => ({
       id: `abastecimento-${a.row}`,
+      row: a.row,
       origem: "Abastecimento" as const,
       data: a.data,
       iso: a.iso,
       isoPagamento: a.iso,
       dataPagamento: a.data,
       descricao: a.posto ? `Abastecimento · ${a.posto}` : "Abastecimento",
+      categoria: "Abastecimento",
       forma: normalizaForma(a.pagamento),
       valor: a.valorPago,
+      pago: normalizaForma(a.pagamento) !== "Crédito",
+      dataPago: "",
     })),
   ];
   return lista.sort((a, b) => b.isoPagamento.localeCompare(a.isoPagamento));
 }
+
 
 
 export function totaisPorForma(pagamentos: Pagamento[]) {
