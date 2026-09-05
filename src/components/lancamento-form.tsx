@@ -314,10 +314,10 @@ function FormularioDialog({
                     setValores((atual) => ({
                       ...atual,
                       [campo.key]: v,
-                      ...(campo.key === "pagamento" && v !== "Crédito"
+                      ...(campo.key === "pagamento" && !/crédito/i.test(v)
                         ? { parcelas: "", dataPrimeiraParcela: "" }
                         : {}),
-                      ...(campo.key === "pagamento" && v === "Crédito" && !atual["dataPrimeiraParcela"]
+                      ...(campo.key === "pagamento" && /crédito/i.test(v) && !atual["dataPrimeiraParcela"]
                         ? { dataPrimeiraParcela: atual["data"] ?? "" }
                         : {}),
                     }))

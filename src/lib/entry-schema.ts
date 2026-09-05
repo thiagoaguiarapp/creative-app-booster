@@ -14,7 +14,16 @@ export type Campo = {
 };
 
 /** formas de pagamento de despesa */
-export const FORMAS_PAGAMENTO = ["Dinheiro", "Débito", "Crédito", "Pix"];
+export const FORMAS_PAGAMENTO = [
+  "Dinheiro",
+  "Débito",
+  "Pix",
+  "Crédito à vista",
+  "Crédito parcelado",
+];
+
+/** verdadeiro para "Crédito à vista" e "Crédito parcelado" */
+export const ehCredito = (forma: string): boolean => /cr[eé]dito/i.test(forma ?? "");
 
 
 export const TITULOS: Record<Tipo, string> = {
@@ -76,13 +85,13 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       key: "parcelas",
       label: "Número de parcelas",
       tipo: "number",
-      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+      somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
     },
     {
       key: "dataPrimeiraParcela",
-      label: "Data da 1ª parcela (vencimento)",
+      label: "Data do pagamento (vencimento)",
       tipo: "date",
-      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+      somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
     },
   ],
   repasse: [
@@ -109,13 +118,13 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       key: "parcelas",
       label: "Número de parcelas",
       tipo: "number",
-      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+      somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
     },
     {
       key: "dataPrimeiraParcela",
-      label: "Data da 1ª parcela (vencimento)",
+      label: "Data do pagamento (vencimento)",
       tipo: "date",
-      somenteSe: { key: "pagamento", valores: ["Crédito"] },
+      somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
     },
     { key: "observacao", label: "Observação", tipo: "text" },
   ],
