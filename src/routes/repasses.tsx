@@ -273,7 +273,7 @@ function RepassesPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Recebimento / Repasse"
-        subtitle="Conciliação dos repasses das plataformas (aba REPASSE)"
+        subtitle="Conciliação dos repasses das plataformas "
       />
 
       <div className="flex flex-col items-center gap-3">
