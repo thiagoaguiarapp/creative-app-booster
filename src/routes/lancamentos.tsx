@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Tipo } from "@/lib/entry-schema";
+import { limpaDescricao } from "@/lib/pagamentos";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
 
@@ -112,7 +113,7 @@ function LancamentosPage() {
         data: d.data,
         iso: d.iso,
         titulo: d.categoria,
-        detalhe: [d.descricao, d.pagamento].filter(Boolean).join(" · "),
+        detalhe: [limpaDescricao(d.descricao), d.pagamento].filter(Boolean).join(" · "),
         valor: d.valor,
         positivo: false,
         registro: d as unknown as Record<string, unknown> & { row: string },

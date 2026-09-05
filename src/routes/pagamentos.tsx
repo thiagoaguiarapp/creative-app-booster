@@ -1,24 +1,37 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Banknote, CalendarClock, CreditCard, Smartphone, Wallet } from "lucide-react";
+import {
+  Banknote,
+  CalendarClock,
+  CheckCircle2,
+  CreditCard,
+  PiggyBank,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { BaixaPagamentoDialog, BotaoBaixaRapida } from "@/components/baixa-pagamento";
 import { NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { painelQueryOptions } from "@/lib/painel-query";
 import {
+  CATEGORIA_RETIRADA,
+  ehRetirada,
   faturaPorMes,
   montaPagamentos,
   parcelasEmAberto,
+  parcelasPagas,
   rotuloMes,
   totaisPorForma,
   type Forma,
 } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
+
 
 export const Route = createFileRoute("/pagamentos")({
   head: () => ({
@@ -112,8 +125,15 @@ function PagamentosPage() {
   );
   const faturas = useMemo(() => faturaPorMes(todos), [todos]);
 
-  const abertas = useMemo(() => parcelasEmAberto(todos, hoje), [todos, hoje]);
+  const abertas = useMemo(() => parcelasEmAberto(todos), [todos]);
+  const pagas = useMemo(() => parcelasPagas(todos), [todos]);
   const totalAberto = abertas.reduce((s, p) => s + p.valor, 0);
+  const vencido = abertas
+    .filter((p) => p.isoPagamento <= hoje)
+    .reduce((s, p) => s + p.valor, 0);
+  const retiradas = doPeriodo
+    .filter((p) => ehRetirada(p.categoria))
+    .reduce((s, p) => s + p.valor, 0);
   const maiorFatura = Math.max(1, ...faturas.map((f) => f.total));
 
   return (
@@ -123,7 +143,7 @@ function PagamentosPage() {
         subtitle="Pelo caixa: o crédito entra no mês em que a fatura vence"
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Sai neste mês"
           value={brl(saiuNoMes)}
@@ -137,12 +157,41 @@ function PagamentosPage() {
           icon={CalendarClock}
           tone="warning"
         />
+        <StatCard
+          label="A pagar (vencido)"
+          value={brl(vencido)}
+          hint="Contas com vencimento passado e sem baixa"
+          icon={CheckCircle2}
+          tone={vencido > 0 ? "destructive" : "success"}
+        />
+        <StatCard
+          label="Retiradas do período"
+          value={brl(retiradas)}
+          hint="Dinheiro que você tirou para uso pessoal"
+          icon={PiggyBank}
+        />
       </div>
 
       <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
-        <NovoLancamento tipo="despesa" />
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <NovoLancamento tipo="despesa" />
+          <BaixaPagamentoDialog abertas={abertas} pagas={pagas} hojeIso={hoje}>
+            <Button variant="outline">
+              <CheckCircle2 className="size-4" /> Lançar pagamento
+            </Button>
+          </BaixaPagamentoDialog>
+          <NovoLancamento
+            tipo="despesa"
+            rotulo="Retirada pessoal"
+            titulo="Retirada pessoal (salário)"
+            iniciais={{ categoria: CATEGORIA_RETIRADA }}
+            variant="secondary"
+            icone={PiggyBank}
+          />
+        </div>
       </div>
+
 
       <div className="flex flex-wrap gap-2">
         {PERIODOS.map((p) => (
@@ -226,29 +275,32 @@ function PagamentosPage() {
       </SectionCard>
 
       <SectionCard
-        title="Parcelas em aberto"
-        description={`${abertas.length} parcela${abertas.length === 1 ? "" : "s"} · ${brl(totalAberto)} a pagar`}
+        title="Contas em aberto"
+        description={`${abertas.length} conta${abertas.length === 1 ? "" : "s"} · ${brl(totalAberto)} a pagar`}
       >
         {abertas.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma parcela futura.</p>
+          <p className="text-sm text-muted-foreground">Tudo pago por aqui.</p>
         ) : (
           <div className="flex flex-col divide-y divide-border">
             {abertas.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-3 py-2.5">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">{p.descricao}</div>
-                  <div className="num text-xs text-muted-foreground">
+                  <div className="num flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                     vence {p.dataPagamento} · compra {p.data}
+                    {p.isoPagamento <= hoje && <Badge variant="destructive">vencida</Badge>}
                   </div>
                 </div>
-                <span className="num shrink-0 text-sm font-semibold text-warning">
-                  {brl(p.valor)}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="num text-sm font-semibold text-warning">{brl(p.valor)}</span>
+                  <BotaoBaixaRapida pagamento={p} />
+                </div>
               </div>
             ))}
           </div>
         )}
       </SectionCard>
+
 
       <SectionCard
         title="Lançamentos do período"

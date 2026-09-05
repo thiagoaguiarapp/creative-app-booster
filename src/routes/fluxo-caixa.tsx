@@ -68,10 +68,7 @@ function prefixoMes(offset: number) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function hojeIso() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
+
 
 function FluxoCaixaPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
@@ -98,10 +95,8 @@ function FluxoCaixaPage() {
     () => montaPagamentos(data.despesas, data.abastecimentos),
     [data.despesas, data.abastecimentos],
   );
-  const abertas = useMemo(
-    () => parcelasEmAberto(pagamentos, hojeIso()),
-    [pagamentos],
-  );
+  const abertas = useMemo(() => parcelasEmAberto(pagamentos), [pagamentos]);
+
   const faltaPagar = abertas.reduce((s, p) => s + p.valor, 0);
   const aReceber = useMemo(() => faltaReceber(data), [data]);
 
