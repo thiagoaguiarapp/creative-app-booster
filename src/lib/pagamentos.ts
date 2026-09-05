@@ -188,12 +188,20 @@ export function faturaPorMes(pagamentos: Pagamento[]) {
     .sort((a, b) => a.mes.localeCompare(b.mes));
 }
 
-/** parcelas de crédito que ainda vão vencer */
-export function parcelasEmAberto(pagamentos: Pagamento[], hojeIso: string) {
+/** contas de crédito ainda sem baixa (inclui as vencidas), das mais antigas para as mais novas */
+export function parcelasEmAberto(pagamentos: Pagamento[]) {
   return pagamentos
-    .filter((p) => p.forma === "Crédito" && p.isoPagamento > hojeIso)
+    .filter((p) => p.forma === "Crédito" && !p.pago)
     .sort((a, b) => a.isoPagamento.localeCompare(b.isoPagamento));
 }
+
+/** contas de crédito já baixadas, das mais recentes para as mais antigas */
+export function parcelasPagas(pagamentos: Pagamento[]) {
+  return pagamentos
+    .filter((p) => p.forma === "Crédito" && p.pago)
+    .sort((a, b) => b.isoPagamento.localeCompare(a.isoPagamento));
+}
+
 
 export function rotuloMes(mes: string) {
   const [ano, m] = mes.split("-");
