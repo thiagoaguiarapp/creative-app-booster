@@ -26,7 +26,7 @@ const items = [
   { title: "Ganhos diários", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", url: "/despesas", icon: Receipt },
-  { title: "Pagamentos", url: "/pagamentos", icon: CreditCard },
+  { title: "Banco", url: "/banco", icon: CreditCard },
   { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet },
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
   { title: "Relatório", url: "/relatorio", icon: BarChart3 },

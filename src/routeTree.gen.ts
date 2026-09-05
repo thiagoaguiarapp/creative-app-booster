@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BancoRouteImport } from './routes/banco'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
@@ -51,6 +52,11 @@ const AdminRoute = AdminRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BancoRoute = BancoRouteImport.update({
+  id: '/banco',
+  path: '/banco',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/abastecimento': typeof AbastecimentoRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/auth': typeof AuthRoute
+  '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/abastecimento': typeof AbastecimentoRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/abastecimento'
     | '/admin'
     | '/auth'
+    | '/banco'
     | '/configuracoes'
     | '/despesas'
     | '/fluxo-caixa'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/auth'
+    | '/banco'
     | '/configuracoes'
     | '/despesas'
     | '/fluxo-caixa'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/abastecimento'
     | '/admin'
     | '/auth'
+    | '/banco'
     | '/configuracoes'
     | '/despesas'
     | '/fluxo-caixa'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   AbastecimentoRoute: typeof AbastecimentoRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BancoRoute: typeof BancoRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DespesasRoute: typeof DespesasRoute
   FluxoCaixaRoute: typeof FluxoCaixaRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/banco': {
+      id: '/banco'
+      path: '/banco'
+      fullPath: '/banco'
+      preLoaderRoute: typeof BancoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracoes': {
@@ -511,6 +531,7 @@ const rootRouteChildren: RootRouteChildren = {
   AbastecimentoRoute: AbastecimentoRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
+  BancoRoute: BancoRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DespesasRoute: DespesasRoute,
   FluxoCaixaRoute: FluxoCaixaRoute,
