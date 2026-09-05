@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Fuel,
   Pencil,
+  PiggyBank,
   Plus,
   Receipt,
   Trash2,
@@ -53,6 +54,7 @@ import {
 } from "@/lib/entry-schema";
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
+import { CATEGORIA_RETIRADA } from "@/lib/pagamentos";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { categoriasQueryOptions } from "@/lib/categorias-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
