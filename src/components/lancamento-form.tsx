@@ -57,6 +57,20 @@ import { painelQueryOptions } from "@/lib/painel-query";
 import { categoriasQueryOptions } from "@/lib/categorias-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
 
+function normalizaTexto(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+/** casa o valor salvo com uma das opções do select, sem diferenciar maiúsculas/acentos */
+function casaOpcao(valor: string, opcoes: string[]): string {
+  const alvo = normalizaTexto(valor);
+  return opcoes.find((o) => normalizaTexto(o) === alvo) ?? valor;
+}
+
 function valoresIniciais(
   tipo: Tipo,
   registro?: Record<string, unknown>,
@@ -73,6 +87,9 @@ function valoresIniciais(
       out[campo.key] = bruto ? String(bruto) : "";
     } else {
       out[campo.key] = String(bruto) === "—" ? "" : String(bruto);
+    }
+    if (campo.tipo === "select" && campo.opcoes && out[campo.key]) {
+      out[campo.key] = casaOpcao(out[campo.key]!, campo.opcoes);
     }
     const inicial = iniciais?.[campo.key];
     if (inicial !== undefined && (!registro || inicial.trim() !== "")) {
