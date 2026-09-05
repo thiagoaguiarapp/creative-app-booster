@@ -140,7 +140,7 @@ function FluxoCaixaPage() {
         <StatCard
           label="Entradas"
           value={brl(entradas)}
-          hint="Ganhos + repasses"
+          hint="Repasses recebidos + extras"
           icon={ArrowUpCircle}
           tone="success"
         />
