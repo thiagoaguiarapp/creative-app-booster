@@ -267,11 +267,11 @@ function FluxoCaixaPage() {
                     <div className="grid gap-4 pb-4 sm:grid-cols-2">
                       <div>
                         <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          Entradas por plataforma
+                          Entradas recebidas
                         </p>
                         {m.entradasPorPlataforma.length === 0 ? (
                           <p className="text-sm text-muted-foreground">
-                            Sem ganhos no mês.
+                            Nada recebido no mês.
                           </p>
                         ) : (
                           <div className="flex flex-col gap-1.5">
@@ -286,13 +286,13 @@ function FluxoCaixaPage() {
                                 </span>
                               </div>
                             ))}
-                            {m.repasses > 0 && (
-                              <div className="flex items-center justify-between gap-2 text-sm">
+                            {m.faturado > 0 && (
+                              <div className="flex items-center justify-between gap-2 border-t border-border pt-1.5 text-sm text-muted-foreground">
                                 <span className="truncate">
-                                  Repasses recebidos
+                                  Faturado no mês (a receber)
                                 </span>
-                                <span className="num shrink-0 font-medium text-success">
-                                  {brl(m.repasses)}
+                                <span className="num shrink-0">
+                                  {brl(m.faturado)}
                                 </span>
                               </div>
                             )}
