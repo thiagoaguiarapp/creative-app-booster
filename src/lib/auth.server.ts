@@ -155,6 +155,8 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
         nome: atual.nome,
         telefone: atual.telefone,
         metaSemanal: atual.metaSemanal,
+        limiteCartao: atual.limiteCartao,
+        vencimentoCartao: atual.vencimentoCartao,
         is_premium: atual.isPremium,
         veiculos: atual.veiculos,
         ...mudancas,
@@ -178,6 +180,20 @@ export async function salvarMetaSemanal(valor: number): Promise<number> {
   const salvo = await atualizarMetadata({ metaSemanal: valor });
   return salvo.metaSemanal;
 }
+
+/** Salva o limite do cartão e o dia de vencimento da fatura. */
+export async function salvarCartao(
+  limite: number,
+  vencimento: number,
+): Promise<{ limiteCartao: number; vencimentoCartao: number }> {
+  const salvo = await atualizarMetadata({
+    limiteCartao: Math.max(0, Number(limite) || 0),
+    vencimentoCartao: Math.min(31, Math.max(0, Math.trunc(Number(vencimento) || 0))),
+  });
+  return { limiteCartao: salvo.limiteCartao, vencimentoCartao: salvo.vencimentoCartao };
+}
+
+
 
 /** Salva a lista de veículos do usuário. */
 export async function salvarVeiculos(veiculos: unknown): Promise<Veiculo[]> {
