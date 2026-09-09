@@ -130,16 +130,15 @@ function RelatorioPage() {
     const combustivel = abast.reduce((s, a) => s + a.valorPago, 0);
     const litros = abast.reduce((s, a) => s + a.litros, 0);
     const km = kmPeriodo(abast);
-    // despesas de manutenção que já têm um registro equivalente na aba MANUTENCAO
-    // seriam contadas duas vezes no custo — descartamos a cópia da despesa.
-    const despesasCusto = despesas.filter((d) => {
-      if (!ehCategoriaManutencao(d.categoria)) return true;
-      return !data.manutencoes.some(
-        (m) => m.iso === d.iso && Math.abs(m.valor - d.valor) < 0.01 && m.valor > 0,
-      );
-    });
+    // manutenções que também foram lançadas como despesa seriam contadas duas
+    // vezes no custo — o valor fica só na despesa, que carrega o pagamento.
+    const duplicadas = new Set(
+      paresDuplicados(data.despesas, data.manutencoes).map((p) => p.manutencao.row),
+    );
+    const despesasCusto = despesas;
+    const manutCusto = manut.filter((m) => !duplicadas.has(m.row));
     const outras = despesasCusto.reduce((s, d) => s + d.valor, 0);
-    const manutencao = manut.reduce((s, m) => s + m.valor, 0);
+    const manutencao = manutCusto.reduce((s, m) => s + m.valor, 0);
     const custos = combustivel + outras + manutencao;
 
     const lucro = faturamento - custos;
@@ -165,7 +164,7 @@ function RelatorioPage() {
     for (const g of ganhos) if (g.iso) { const b = bucket(g.iso.slice(0, 7)); b.fat += g.faturamento; b.corridas += g.corridas; }
     for (const a of abast) if (a.iso) bucket(a.iso.slice(0, 7)).comb += a.valorPago;
     for (const d of despesasCusto) if (d.iso) bucket(d.iso.slice(0, 7)).desp += d.valor;
-    for (const m of manut) if (m.iso) bucket(m.iso.slice(0, 7)).manut += m.valor;
+    for (const m of manutCusto) if (m.iso) bucket(m.iso.slice(0, 7)).manut += m.valor;
     const porMes = [...mesesSet.entries()]
       .map(([mes, v]) => ({ mes, ...v, lucro: v.fat - v.comb - v.desp - v.manut }))
       .sort((a, b) => b.mes.localeCompare(a.mes));
