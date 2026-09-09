@@ -95,8 +95,10 @@ async function carregar(userId: string): Promise<PainelData> {
     .map((l) => {
       const litros = num(campo(l, "Volume abastecido", "LITROS"));
       const kmRodado = num(campo(l, "KM RODADO"));
-      // POSTO pode vir como "Posto · Combustível"
-      const postoBruto = normalizar(campo(l, "POSTO", "Posto"));
+      // POSTO pode vir como "Posto · Combustível" e conter a marca "[pago dd/mm/aaaa]"
+      const postoOriginal = normalizar(campo(l, "POSTO", "Posto"));
+      const baixaAbastecimento = dataPago(postoOriginal);
+      const postoBruto = limpaDescricao(postoOriginal);
       const partesPosto = postoBruto.split("·").map((p) => p.trim()).filter(Boolean);
       const posto = partesPosto.length > 1 ? partesPosto.slice(0, -1).join(" · ") : postoBruto;
       const combustivel = partesPosto.length > 1 ? partesPosto[partesPosto.length - 1]! : "";
@@ -116,6 +118,7 @@ async function carregar(userId: string): Promise<PainelData> {
         desconto: num(campo(l, "DESCONTO", "Desconto")),
         valorPago: num(campo(l, "VALOR PAGO", "VALOR")),
         pagamento: normalizar(campo(l, "CONDIÇÃO PAGAMENTO", "CONDICAO PAGAMENTO")) || "—",
+        dataPago: baixaAbastecimento,
       };
     })
     .sort(byIsoDesc);
