@@ -1,4 +1,5 @@
 import { dataBr, isoDate, num, selectAll, txt, type Linha } from "./db.server";
+import { dataPago, limpaDescricao } from "./pagamentos";
 import type { PainelData } from "./sheets-types";
 
 export const TABELAS = {

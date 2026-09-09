@@ -213,17 +213,31 @@ export async function excluirLancamento(
 }
 
 
-/** marca (ou desfaz) a baixa de pagamento de uma despesa */
+/** marca (ou desfaz) a baixa de pagamento de uma despesa ou abastecimento no cartão */
 export async function baixarPagamento(
   row: string,
   userId: string,
   dataPago: string | null,
 ): Promise<void> {
   const { selectAll } = await import("./db.server");
-  const linhas = await selectAll(TABELAS.despesa, userId);
-  const linha = linhas.find((l) => txt(l["ID"]) === txt(row));
-  if (!linha) throw new Error("Não encontrei essa conta para dar baixa. Atualize a tela e tente de novo.");
-  const atual = txt(linha["OBS"] ?? linha["OBSERVAÇÃO"] ?? linha["DESCRICAO"] ?? "");
-  const nova = aplicaBaixa(atual, dataPago ? paraBr(dataPago) : null);
-  await atualizar(TABELAS.despesa, row, { OBS: nova }, userId);
+  const marca = dataPago ? paraBr(dataPago) : null;
+
+  const despesas = await selectAll(TABELAS.despesa, userId);
+  const despesa = despesas.find((l) => txt(l["ID"]) === txt(row));
+  if (despesa) {
+    const atual = txt(despesa["OBS"] ?? despesa["OBSERVAÇÃO"] ?? despesa["DESCRICAO"] ?? "");
+    await atualizar(TABELAS.despesa, row, { OBS: aplicaBaixa(atual, marca) }, userId);
+    return;
+  }
+
+  // abastecimento: a marca fica junto do posto, única coluna de texto livre
+  const abastecimentos = await selectAll(TABELAS.abastecimento, userId);
+  const abastecimento = abastecimentos.find((l) => txt(l["ID"]) === txt(row));
+  if (abastecimento) {
+    const atual = txt(abastecimento["POSTO"] ?? abastecimento["Posto"] ?? "");
+    await atualizar(TABELAS.abastecimento, row, { POSTO: aplicaBaixa(atual, marca) }, userId);
+    return;
+  }
+
+  throw new Error("Não encontrei essa conta para dar baixa. Atualize a tela e tente de novo.");
 }
