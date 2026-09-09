@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BancoRouteImport } from './routes/banco'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as FechamentoRouteImport } from './routes/fechamento'
 import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
 import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
@@ -67,6 +68,11 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FechamentoRoute = FechamentoRouteImport.update({
+  id: '/fechamento',
+  path: '/fechamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
+  '/fechamento': typeof FechamentoRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
+  '/fechamento': typeof FechamentoRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
+  '/fechamento': typeof FechamentoRoute
   '/fluxo-caixa': typeof FluxoCaixaRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/banco'
     | '/configuracoes'
     | '/despesas'
+    | '/fechamento'
     | '/fluxo-caixa'
     | '/ganhos-diarios'
     | '/lancamentos'
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/banco'
     | '/configuracoes'
     | '/despesas'
+    | '/fechamento'
     | '/fluxo-caixa'
     | '/ganhos-diarios'
     | '/lancamentos'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/banco'
     | '/configuracoes'
     | '/despesas'
+    | '/fechamento'
     | '/fluxo-caixa'
     | '/ganhos-diarios'
     | '/lancamentos'
@@ -322,6 +334,7 @@ export interface RootRouteChildren {
   BancoRoute: typeof BancoRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DespesasRoute: typeof DespesasRoute
+  FechamentoRoute: typeof FechamentoRoute
   FluxoCaixaRoute: typeof FluxoCaixaRoute
   GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
@@ -386,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fechamento': {
+      id: '/fechamento'
+      path: '/fechamento'
+      fullPath: '/fechamento'
+      preLoaderRoute: typeof FechamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fluxo-caixa': {
@@ -534,6 +554,7 @@ const rootRouteChildren: RootRouteChildren = {
   BancoRoute: BancoRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DespesasRoute: DespesasRoute,
+  FechamentoRoute: FechamentoRoute,
   FluxoCaixaRoute: FluxoCaixaRoute,
   GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
