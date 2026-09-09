@@ -267,12 +267,11 @@ export function AbaCartao() {
                           </div>
                           <div className="flex shrink-0 items-center gap-2">
                             <span className="num text-sm font-medium">{brl(p.valor)}</span>
-                            {p.origem === "Despesa" &&
-                              (p.pago ? (
-                                <BotaoDesfazerBaixa pagamento={p} />
-                              ) : (
-                                <BotaoBaixaRapida pagamento={p} />
-                              ))}
+                            {p.pago ? (
+                              <BotaoDesfazerBaixa pagamento={p} />
+                            ) : (
+                              <BotaoBaixaRapida pagamento={p} />
+                            )}
                           </div>
                         </div>
                       ))}

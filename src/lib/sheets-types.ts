@@ -25,6 +25,8 @@ export type Abastecimento = {
   desconto: number;
   valorPago: number;
   pagamento: string;
+  /** data em que a baixa do cartão foi registrada (dd/mm/aaaa) */
+  dataPago: string;
 };
 
 export type Despesa = {

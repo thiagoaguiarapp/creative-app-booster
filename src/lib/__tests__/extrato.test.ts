@@ -16,7 +16,7 @@ const base: PainelData = {
     {
       id: "a1", row: "1", data: "03/09/2026", iso: "2026-09-03", posto: "Shell",
       combustivel: "Gasolina", odometro: 100, litros: 10, precoLitro: 6, kmRodado: 0,
-      kmPorLitro: 0, custoKm: 0, desconto: 0, valorPago: 60, pagamento: "Pix",
+      kmPorLitro: 0, custoKm: 0, desconto: 0, valorPago: 60, pagamento: "Pix", dataPago: "",
     },
   ],
   despesas: [

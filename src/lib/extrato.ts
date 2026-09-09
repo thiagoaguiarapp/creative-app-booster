@@ -92,6 +92,23 @@ export function montaExtrato(data: PainelData): Movimento[] {
     });
   }
 
+  // abastecimentos pagos no cartão: a saída acontece na data da baixa
+  for (const a of data.abastecimentos) {
+    const baixa = a.dataPago ?? "";
+    if (!baixa) continue;
+    const iso = paraIso(baixa);
+    linhas.push({
+      id: `fatura-abast-${a.row}`,
+      iso: iso || a.iso,
+      data: baixa || a.data,
+      descricao: `Pagamento de fatura · Abastecimento${a.posto ? ` · ${a.posto}` : ""}`,
+      origem: "Fatura do cartão",
+      forma: "Cartão",
+      tipo: "saida",
+      valor: a.valorPago,
+    });
+  }
+
   const ordenadas = linhas
     .filter((l) => l.iso)
     .sort((a, b) => (a.iso === b.iso ? a.id.localeCompare(b.id) : a.iso.localeCompare(b.iso)));
