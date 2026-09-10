@@ -5,13 +5,21 @@ import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { isoCompra, limpaDescricao, normalizaForma } from "@/lib/pagamentos";
+import {
+  isoCompra,
+  limpaDescricao,
+  normalizaForma,
+  numeroParcela,
+  semMarcaParcela,
+  totalParcelas,
+} from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
