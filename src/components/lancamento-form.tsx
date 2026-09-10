@@ -216,6 +216,8 @@ function FormularioDialog({
   const plataformas = usePlataformas(tipo);
   const formas = useFormas();
   const categorias = useCategorias();
+  const servicos = useServicos();
+  const [servicoOutro, setServicoOutro] = useState(false);
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
