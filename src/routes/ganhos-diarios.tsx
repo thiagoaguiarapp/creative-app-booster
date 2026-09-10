@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
