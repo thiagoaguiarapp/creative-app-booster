@@ -1,25 +1,17 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown, Droplets, Fuel, Gauge } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Droplets, Fuel, Gauge } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { cn } from "@/lib/utils";
 import { brl, type Abastecimento } from "@/lib/sheets-types";
 
-function Detalhe({ rotulo, valor }: { rotulo: string; valor: string }) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{rotulo}</p>
-      <p className="num">{valor}</p>
-    </div>
-  );
-}
 
 
 export const Route = createFileRoute("/abastecimento")({
