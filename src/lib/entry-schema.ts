@@ -110,7 +110,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       somenteSe: { key: "temDesconto", valores: ["Sim"] },
     },
     { key: "valorPago", label: "Valor pago (R$)", tipo: "money", obrigatorio: true },
-    ...camposPagamento(),
+    ...camposPagamento({ parcelamento: false }),
   ],
 
   despesa: [
