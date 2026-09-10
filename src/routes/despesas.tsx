@@ -248,10 +248,10 @@ function DespesasPage() {
                   celulas={
                     <>
                       <TableCell className="num">
-                        {paraBr(d.compraIso)}
+                        {d.data}
                         {credito && (
                           <span className="block text-xs text-muted-foreground">
-                            vence {d.data}
+                            compra {paraBr(d.compraIso)}
                           </span>
                         )}
                       </TableCell>
