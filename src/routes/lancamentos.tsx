@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento, NovoLancamentoRapido } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,7 @@ function LancamentosPage() {
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
   const [limite, setLimite] = useState(50);
+  const [abertoKey, setAbertoKey] = useState<string | null>(null);
 
   const todas = useMemo<Linha[]>(() => {
     const linhas: Linha[] = [
