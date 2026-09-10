@@ -319,7 +319,7 @@ function ManutencaoPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Manutenção"
-        subtitle="Controle por quilometragem, com alerta antes de vencer (aba MANUTENCAO)"
+        subtitle="Controle por quilometragem, com alerta antes de vencer "
       />
 
       <div className="flex flex-col items-center gap-3">
