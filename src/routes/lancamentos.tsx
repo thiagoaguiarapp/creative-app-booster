@@ -125,18 +125,19 @@ function LancamentosPage() {
         const isoCompraLinha = isoCompra(d.descricao, d.iso);
         const total = totalParcelas(d.descricao);
         const numero = numeroParcela(d.descricao);
+        const compraBr = paraDataBr(isoCompraLinha);
         const parcela =
           total > 1
-            ? `Parcela ${numero}/${total} · vence ${d.data}`
-            : isoCompraLinha !== d.iso
-              ? `vence ${d.data}`
+            ? `Parcela ${numero}/${total}${compraBr ? ` · compra ${compraBr}` : ""}`
+            : isoCompraLinha !== d.iso && compraBr
+              ? `compra ${compraBr}`
               : "";
         return {
           key: `despesa-${d.row}`,
           tipo: "despesa" as Tipo,
           rotulo: "Despesa",
-          data: paraDataBr(isoCompraLinha) || d.data,
-          iso: isoCompraLinha,
+          data: d.data,
+          iso: d.iso,
           titulo: d.categoria,
           detalhe: [semMarcaParcela(limpaDescricao(d.descricao)), d.pagamento, parcela]
             .filter(Boolean)
