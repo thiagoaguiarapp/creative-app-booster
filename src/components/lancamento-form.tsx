@@ -265,9 +265,9 @@ function FormularioDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const CAMPOS_PAGAMENTO = ["pagamento", "parcelas", "dataPrimeiraParcela"];
+  const CAMPOS_OCULTOS_SEM_PAGAMENTO = ["pagamento", "parcelas", "dataPrimeiraParcela", "valor"];
   const visivel = (campo: (typeof CAMPOS)[Tipo][number]) => {
-    if (semPagamento && CAMPOS_PAGAMENTO.includes(campo.key)) return false;
+    if (semPagamento && CAMPOS_OCULTOS_SEM_PAGAMENTO.includes(campo.key)) return false;
     return !campo.somenteSe || campo.somenteSe.valores.includes(valores[campo.somenteSe.key] ?? "");
   };
 
@@ -283,7 +283,7 @@ function FormularioDialog({
       enviaveis[campo.key] = valores[campo.key] ?? "";
     }
     if (semPagamento) {
-      for (const key of CAMPOS_PAGAMENTO) enviaveis[key] = "";
+      for (const key of CAMPOS_OCULTOS_SEM_PAGAMENTO) enviaveis[key] = "";
     }
     mutation.mutate(enviaveis);
   }
