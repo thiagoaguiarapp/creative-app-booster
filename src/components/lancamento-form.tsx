@@ -292,6 +292,7 @@ function FormularioDialog({
     return (
       <FormularioDialog
         tipo="manutencao"
+        semPagamento
         {...(seguinte.row ? { row: seguinte.row } : {})}
         {...(seguinte.registro ? { registro: seguinte.registro } : {})}
         iniciais={seguinte.iniciais}
