@@ -455,14 +455,22 @@ function FormularioDialog({
                 <Input
                   id={campo.key}
                   className="h-12 text-base sm:h-9 sm:text-sm"
-                  type={campo.tipo === "date" ? "date" : campo.tipo === "text" ? "text" : "number"}
-                  step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
+                  type={campo.tipo === "date" ? "date" : "text"}
                   inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
-                  maxLength={campo.tipo === "text" ? 120 : undefined}
+                  maxLength={campo.tipo === "text" ? 120 : campo.tipo === "date" ? undefined : 15}
+                  placeholder={campo.tipo === "money" ? "0,00" : undefined}
                   list={campo.sugestoes ? `sugestoes-${campo.key}` : undefined}
                   value={valores[campo.key] ?? ""}
-                  onChange={(e) => setValores((v) => ({ ...v, [campo.key]: e.target.value }))}
+                  onChange={(e) => {
+                    const bruto = e.target.value;
+                    const limpo =
+                      campo.tipo === "money" || campo.tipo === "number"
+                        ? bruto.replace(/[^\d.,-]/g, "")
+                        : bruto;
+                    setValores((v) => ({ ...v, [campo.key]: limpo }));
+                  }}
                 />
+
               )}
               {campo.sugestoes && (
                 <datalist id={`sugestoes-${campo.key}`}>
