@@ -73,6 +73,7 @@ function Ganhos() {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
+  const [abertoId, setAbertoId] = useState<string | null>(null);
 
   const ganhos = useMemo(() => {
     if (periodo === "custom") {
