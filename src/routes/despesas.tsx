@@ -272,7 +272,7 @@ function DespesasPage() {
                       <Detalhe rotulo="Categoria" valor={d.categoria} />
                       <Detalhe rotulo="Pagamento" valor={d.pagamento} />
                       <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
-                      <Detalhe rotulo="Vencimento" valor={credito ? d.data : d.data} />
+                      <Detalhe rotulo="Vencimento" valor={d.data} />
                       <Detalhe
                         rotulo="Parcela"
                         valor={total > 1 ? `${numeroParcela(d.descricao)}/${total}` : "Única"}
