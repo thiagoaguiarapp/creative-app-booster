@@ -305,6 +305,10 @@ function ManutencaoPage() {
     .map((m) => ({ m, s: statusManutencao(m, odometroAtual) }))
     .sort((a, b) => a.s.restante - b.s.restante);
 
+  const [historicoAberto, setHistoricoAberto] = useState<string | null>(null);
+
+  const historico = [...data.manutencoes].sort((a, b) => (a.iso < b.iso ? 1 : -1));
+
   const vencidos = itens.filter((i) => i.s.nivel === "vencido").length;
   const atencao = itens.filter((i) => i.s.nivel === "atencao").length;
   const custoPrevisto = itens
