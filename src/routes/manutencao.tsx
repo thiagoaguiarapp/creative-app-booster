@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 import { NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { salvarLancamentoFn, excluirLancamentoFn } from "@/lib/painel.functions";
 import { brl, statusManutencao, type Manutencao } from "@/lib/sheets-types";
@@ -295,6 +305,10 @@ function ManutencaoPage() {
     .map((m) => ({ m, s: statusManutencao(m, odometroAtual) }))
     .sort((a, b) => a.s.restante - b.s.restante);
 
+  const [historicoAberto, setHistoricoAberto] = useState<string | null>(null);
+
+  const historico = [...data.manutencoes].sort((a, b) => (a.iso < b.iso ? 1 : -1));
+
   const vencidos = itens.filter((i) => i.s.nivel === "vencido").length;
   const atencao = itens.filter((i) => i.s.nivel === "atencao").length;
   const custoPrevisto = itens
@@ -329,57 +343,128 @@ function ManutencaoPage() {
         />
       </div>
 
-      <SectionCard title="Plano de manutenção" description="Ordenado pelo que vence primeiro">
-        <div className="grid gap-4 md:grid-cols-2">
-          {itens.map(({ m, s }) => {
-            const info = nivelInfo[s.nivel];
-            return (
-              <article key={m.id} className="rounded-lg border border-border bg-background/40 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="font-display text-lg font-semibold">{m.servico}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {m.veiculo} · {m.data}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <Badge variant="outline" className={info.badge}>
-                      {info.label}
-                    </Badge>
-                    <AcoesManutencao registro={m} odometroAtual={odometroAtual} />
-                  </div>
-                </div>
+      <Tabs defaultValue="plano">
+        <TabsList className="w-full sm:w-auto">
+          <TabsTrigger value="plano" className="flex-1 sm:flex-none">
+            Plano
+          </TabsTrigger>
+          <TabsTrigger value="historico" className="flex-1 sm:flex-none">
+            Histórico
+          </TabsTrigger>
+        </TabsList>
 
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
-                  <div
-                    className={cn("h-full rounded-full", info.bar)}
-                    style={{ width: `${s.progresso}%` }}
+        <TabsContent value="plano">
+          <SectionCard title="Plano de manutenção" description="Ordenado pelo que vence primeiro">
+            <div className="grid gap-4 md:grid-cols-2">
+              {itens.map(({ m, s }) => {
+                const info = nivelInfo[s.nivel];
+                return (
+                  <article key={m.id} className="rounded-lg border border-border bg-background/40 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="font-display text-lg font-semibold">{m.servico}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          {m.veiculo} · {m.data}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        <Badge variant="outline" className={info.badge}>
+                          {info.label}
+                        </Badge>
+                        <AcoesManutencao registro={m} odometroAtual={odometroAtual} />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className={cn("h-full rounded-full", info.bar)}
+                        style={{ width: `${s.progresso}%` }}
+                      />
+                    </div>
+
+                    <dl className="num mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                      <div>
+                        <dt className="text-muted-foreground">Km da troca</dt>
+                        <dd className="font-medium">{m.kmTroca.toLocaleString("pt-BR")} km</dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Rodado</dt>
+                        <dd className="font-medium">{s.percorrido.toLocaleString("pt-BR")} km</dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">
+                          {s.restante <= 0 ? "Atrasado" : "Falta"}
+                        </dt>
+                        <dd className="font-medium">
+                          {Math.abs(s.restante).toLocaleString("pt-BR")} km
+                        </dd>
+                      </div>
+                      <div className="text-right">
+                        <dt className="text-muted-foreground">Último custo</dt>
+                        <dd className="font-medium">{brl(m.valor)}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                );
+              })}
+            </div>
+          </SectionCard>
+        </TabsContent>
+
+        <TabsContent value="historico">
+          <SectionCard
+            title="Histórico de manutenções"
+            description="Todas as manutenções já realizadas — toque na linha para ver os detalhes"
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Serviço</TableHead>
+                  <TableHead>Veículo</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="w-8" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {historico.map((m) => (
+                  <LinhaDetalhavel
+                    key={m.id}
+                    aberto={historicoAberto === m.id}
+                    onToggle={() => setHistoricoAberto(historicoAberto === m.id ? null : m.id)}
+                    colunas={5}
+                    celulas={
+                      <>
+                        <TableCell className="num">{m.data}</TableCell>
+                        <TableCell className="font-medium">{m.servico}</TableCell>
+                        <TableCell>{m.veiculo}</TableCell>
+                        <TableCell className="num text-right font-semibold">
+                          {brl(m.valor)}
+                        </TableCell>
+                      </>
+                    }
+                    detalhes={
+                      <>
+                        <Detalhe rotulo="Km da troca" valor={`${m.kmTroca.toLocaleString("pt-BR")} km`} />
+                        <Detalhe rotulo="Validade" valor={`${m.validadeKm.toLocaleString("pt-BR")} km`} />
+                        <Detalhe rotulo="Observação" valor={m.observacao} />
+                      </>
+                    }
+                    acoes={<AcoesManutencao registro={m} odometroAtual={odometroAtual} />}
                   />
-                </div>
-
-                <dl className="num mt-3 grid grid-cols-3 gap-2 text-xs">
-                  <div>
-                    <dt className="text-muted-foreground">Rodado</dt>
-                    <dd className="font-medium">{s.percorrido.toLocaleString("pt-BR")} km</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">
-                      {s.restante <= 0 ? "Atrasado" : "Falta"}
-                    </dt>
-                    <dd className="font-medium">
-                      {Math.abs(s.restante).toLocaleString("pt-BR")} km
-                    </dd>
-                  </div>
-                  <div className="text-right">
-                    <dt className="text-muted-foreground">Último custo</dt>
-                    <dd className="font-medium">{brl(m.valor)}</dd>
-                  </div>
-                </dl>
-              </article>
-            );
-          })}
-        </div>
-      </SectionCard>
+                ))}
+                {historico.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                      Nenhuma manutenção registrada ainda.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </SectionCard>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
