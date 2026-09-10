@@ -344,7 +344,37 @@ function FormularioDialog({
           {CAMPOS[tipo].filter(visivel).map((campo) => (
             <div key={campo.key} className="flex min-w-0 flex-col gap-2 sm:gap-1.5">
               <Label htmlFor={campo.key} className="text-sm sm:text-xs">{campo.label}</Label>
-              {campo.tipo === "select" ? (
+              {campo.key === "servico" && tipo === "manutencao" && !servicoOutro ? (
+                <Select
+                  value={valores[campo.key] ?? ""}
+                  onValueChange={(v) => {
+                    if (v === "__outro__") {
+                      setServicoOutro(true);
+                      setValores((atual) => ({ ...atual, [campo.key]: "" }));
+                      return;
+                    }
+                    setValores((atual) => ({ ...atual, [campo.key]: v }));
+                  }}
+                >
+                  <SelectTrigger id={campo.key} className="h-12 text-base sm:h-9 sm:text-sm">
+                    <SelectValue placeholder="Selecione o serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(valores[campo.key] &&
+                    !servicos.some(
+                      (s) => s.toLocaleLowerCase("pt-BR") === (valores[campo.key] ?? "").toLocaleLowerCase("pt-BR"),
+                    )
+                      ? [valores[campo.key] ?? "", ...servicos]
+                      : servicos
+                    ).map((nome) => (
+                      <SelectItem key={nome} value={nome}>
+                        {nome}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__outro__">+ Novo serviço (digitar)…</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : campo.tipo === "select" ? (
                 <Select
                   value={valores[campo.key] ?? ""}
                   onValueChange={(v) =>
