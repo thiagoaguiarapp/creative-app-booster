@@ -93,11 +93,26 @@ export function isoCompra(descricao: string, isoLinha: string): string {
   return m ? paraIso(m[1]!) || isoLinha : isoLinha;
 }
 
+/** marca de parcela "(2/6)" na observação */
+const MARCA_PARCELA = /\s*\((\d+)\s*\/\s*(\d+)\)/;
+
 /** lê "(2/6)" na observação e devolve o número da parcela (1 quando não houver) */
 export function numeroParcela(descricao: string): number {
-  const m = /\((\d+)\s*\/\s*(\d+)\)/.exec(descricao ?? "");
+  const m = MARCA_PARCELA.exec(descricao ?? "");
   return m ? Number(m[1]) : 1;
 }
+
+/** lê "(2/6)" na observação e devolve o total de parcelas (1 quando não houver) */
+export function totalParcelas(descricao: string): number {
+  const m = MARCA_PARCELA.exec(descricao ?? "");
+  return m ? Number(m[2]) : 1;
+}
+
+/** remove a marca "(n/total)" do texto exibido */
+export function semMarcaParcela(descricao: string): string {
+  return (descricao ?? "").replace(MARCA_PARCELA, "").trim();
+}
+
 
 
 function semAcento(texto: string) {
