@@ -271,68 +271,213 @@ function RelatorioPage() {
         </div>
       </SectionCard>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
-        <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
-        <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
-        <StatCard label="Recebido" value={brl(r.recebido)} hint="Repasses das plataformas" icon={Wallet} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
-        <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
-        <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
-        <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
-      </div>
-
-      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        <SectionCard title="Faturamento por plataforma">
-          <Barras itens={r.porPlataforma} total={r.faturamento} />
-        </SectionCard>
-        <SectionCard title="Despesas por categoria">
-          <Barras itens={r.porCategoria} total={r.outras} />
-        </SectionCard>
-      </div>
-
-      <SectionCard title="Resumo mensal" description="Todo o período dividido por mês">
-        <div className="-mx-3 overflow-x-auto sm:-mx-5">
-          <Table className="min-w-[600px]">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="whitespace-nowrap text-[10px] sm:text-xs">Mês</TableHead>
-                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Corridas</TableHead>
-                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Faturamento</TableHead>
-                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Combustível</TableHead>
-                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Despesas</TableHead>
-                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Manutenção</TableHead>
-                <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Lucro</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {r.porMes.map((m) => (
-                <TableRow key={m.mes}>
-                  <TableCell className="whitespace-nowrap text-[10px] font-medium sm:text-xs">{rotuloMes(m.mes)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{m.corridas || "—"}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right text-[10px] text-success sm:text-xs">{brl(m.fat)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.comb)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.desp)}</TableCell>
-                  <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.manut)}</TableCell>
-                  <TableCell className={`num whitespace-nowrap text-right text-[10px] font-semibold sm:text-xs ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
-                    {brl(m.lucro)}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {r.porMes.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-[10px] text-muted-foreground sm:text-sm">
-                    Nenhum lançamento nesse período.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+      <Tabs defaultValue="geral">
+        <div className="-mx-3 overflow-x-auto px-3 print:hidden sm:mx-0 sm:px-0">
+          <TabsList className="w-max">
+            <TabsTrigger value="geral" className="text-xs">Geral</TabsTrigger>
+            <TabsTrigger value="despesa" className="text-xs">Despesa</TabsTrigger>
+            <TabsTrigger value="manutencao" className="text-xs">Manutenção</TabsTrigger>
+            <TabsTrigger value="repasse" className="text-xs">Recebimento / Repasse</TabsTrigger>
+            <TabsTrigger value="abastecimento" className="text-xs">Abastecimento</TabsTrigger>
+          </TabsList>
         </div>
-      </SectionCard>
+
+        <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
+            <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+            <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
+            <StatCard label="Recebido" value={brl(r.recebido)} hint="Repasses das plataformas" icon={Wallet} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
+            <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
+            <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
+            <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+          </div>
+
+          <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+            <SectionCard title="Faturamento por plataforma">
+              <Barras itens={r.porPlataforma} total={r.faturamento} />
+            </SectionCard>
+            <SectionCard title="Despesas por categoria">
+              <Barras itens={r.porCategoria} total={r.outras} />
+            </SectionCard>
+          </div>
+
+          <SectionCard title="Resumo mensal" description="Todo o período dividido por mês">
+            <div className="-mx-3 overflow-x-auto sm:-mx-5">
+              <Table className="min-w-[600px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap text-[10px] sm:text-xs">Mês</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Corridas</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Faturamento</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Combustível</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Despesas</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Manutenção</TableHead>
+                    <TableHead className="whitespace-nowrap text-right text-[10px] sm:text-xs">Lucro</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {r.porMes.map((m) => (
+                    <TableRow key={m.mes}>
+                      <TableCell className="whitespace-nowrap text-[10px] font-medium sm:text-xs">{rotuloMes(m.mes)}</TableCell>
+                      <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{m.corridas || "—"}</TableCell>
+                      <TableCell className="num whitespace-nowrap text-right text-[10px] text-success sm:text-xs">{brl(m.fat)}</TableCell>
+                      <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.comb)}</TableCell>
+                      <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.desp)}</TableCell>
+                      <TableCell className="num whitespace-nowrap text-right text-[10px] sm:text-xs">{brl(m.manut)}</TableCell>
+                      <TableCell className={`num whitespace-nowrap text-right text-[10px] font-semibold sm:text-xs ${m.lucro >= 0 ? "text-success" : "text-destructive"}`}>
+                        {brl(m.lucro)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {r.porMes.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-[10px] text-muted-foreground sm:text-sm">
+                        Nenhum lançamento nesse período.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </SectionCard>
+        </TabsContent>
+
+        <TabsContent value="despesa" className="mt-3 flex flex-col gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Total de despesas" value={brl(r.outras)} icon={Receipt} tone="destructive" />
+            <StatCard label="Lançamentos" value={String(r.listas.despesas.length)} icon={Receipt} />
+            <StatCard
+              label="Média por lançamento"
+              value={brl(r.listas.despesas.length ? r.outras / r.listas.despesas.length : 0)}
+              icon={CircleDollarSign}
+            />
+            <StatCard
+              label="% do faturamento"
+              value={`${r.faturamento ? ((r.outras / r.faturamento) * 100).toFixed(1) : "0,0"}%`}
+              icon={TrendingUp}
+            />
+          </div>
+          <SectionCard title="Despesas por categoria">
+            <Barras itens={r.porCategoria} total={r.outras} />
+          </SectionCard>
+          <TabelaLista
+            titulo="Despesas do período"
+            colunas={["Data", "Categoria", "Descrição", "Pagamento", "Valor"]}
+            linhas={[...r.listas.despesas]
+              .sort((a, b) => b.iso.localeCompare(a.iso))
+              .map((d) => ({
+                id: d.id,
+                celulas: [d.data, d.categoria || "—", d.descricao || "—", d.pagamento || "—"],
+                valor: d.valor,
+              }))}
+            total={r.outras}
+          />
+        </TabsContent>
+
+        <TabsContent value="manutencao" className="mt-3 flex flex-col gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Total em manutenção" value={brl(r.manutencao)} icon={Wrench} tone="warning" />
+            <StatCard label="Serviços" value={String(r.listas.manut.length)} icon={Wrench} />
+            <StatCard
+              label="Média por serviço"
+              value={brl(r.listas.manut.length ? r.manutencao / r.listas.manut.length : 0)}
+              icon={CircleDollarSign}
+            />
+            <StatCard
+              label="Custo por km"
+              value={r.km ? brl(r.manutencao / r.km) : brl(0)}
+              icon={Gauge}
+            />
+          </div>
+          <TabelaLista
+            titulo="Manutenções do período"
+            colunas={["Data", "Veículo", "Serviço", "Km da troca", "Valor"]}
+            linhas={[...r.listas.manut]
+              .sort((a, b) => b.iso.localeCompare(a.iso))
+              .map((m) => ({
+                id: m.id,
+                celulas: [
+                  m.data,
+                  m.veiculo || "—",
+                  m.servico || "—",
+                  m.kmTroca ? `${m.kmTroca.toLocaleString("pt-BR")} km` : "—",
+                ],
+                valor: m.valor,
+              }))}
+            total={r.manutencao}
+          />
+        </TabsContent>
+
+        <TabsContent value="repasse" className="mt-3 flex flex-col gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Recebido" value={brl(r.recebido)} icon={Wallet} tone="success" />
+            <StatCard label="Faturado" value={brl(r.faturamento)} icon={CircleDollarSign} />
+            <StatCard
+              label="A receber"
+              value={brl(Math.max(0, r.faturamento - r.recebido))}
+              icon={TrendingUp}
+              tone={r.faturamento - r.recebido > 0 ? "warning" : "success"}
+            />
+            <StatCard label="Repasses" value={String(r.listas.repasses.length)} icon={Receipt} />
+          </div>
+          <SectionCard title="Faturamento por plataforma">
+            <Barras itens={r.porPlataforma} total={r.faturamento} />
+          </SectionCard>
+          <TabelaLista
+            titulo="Repasses recebidos"
+            colunas={["Data", "Aplicativo", "Forma", "Valor"]}
+            linhas={[...r.listas.repasses]
+              .sort((a, b) => b.iso.localeCompare(a.iso))
+              .map((x) => ({
+                id: x.id,
+                celulas: [x.data, x.aplicativo || "—", x.forma || "—"],
+                valor: x.valor,
+              }))}
+            total={r.recebido}
+          />
+        </TabsContent>
+
+        <TabsContent value="abastecimento" className="mt-3 flex flex-col gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Combustível" value={brl(r.combustivel)} icon={Fuel} tone="warning" />
+            <StatCard label="Litros" value={`${r.litros.toFixed(1)} L`} icon={Fuel} />
+            <StatCard
+              label="Preço médio do litro"
+              value={brl(r.litros ? r.combustivel / r.litros : 0)}
+              icon={CircleDollarSign}
+            />
+            <StatCard
+              label="Consumo médio"
+              value={`${r.litros ? (r.km / r.litros).toFixed(1) : "0,0"} km/L`}
+              hint={`${r.km.toLocaleString("pt-BR")} km rodados`}
+              icon={Gauge}
+            />
+          </div>
+          <TabelaLista
+            titulo="Abastecimentos do período"
+            colunas={["Data", "Posto", "Combustível", "Litros", "Valor"]}
+            linhas={[...r.listas.abast]
+              .sort((a, b) => b.iso.localeCompare(a.iso))
+              .map((a) => ({
+                id: a.id,
+                celulas: [
+                  a.data,
+                  a.posto || "—",
+                  a.combustivel || "—",
+                  a.litros ? `${a.litros.toFixed(2)} L` : "—",
+                ],
+                valor: a.valorPago,
+              }))}
+            total={r.combustivel}
+          />
+        </TabsContent>
+      </Tabs>
+
     </div>
   );
 }
