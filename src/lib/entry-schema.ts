@@ -13,6 +13,16 @@ export type Campo = {
   somenteSe?: { key: string; valores: string[] };
 };
 
+/** formas de recebimento sugeridas no formulário de repasse */
+export const FORMAS_RECEBIMENTO = [
+  "Dinheiro",
+  "Pix",
+  "Repasse do app",
+  "Cartão da maquininha",
+  "Gorjeta",
+  "Sobra de troco",
+];
+
 /** formas de pagamento usadas em todas as telas */
 export const FORMAS_PAGAMENTO = [
   "Dinheiro",
@@ -132,13 +142,3 @@ export function paraInputDate(br: string): string {
   const ano = y!.length === 2 ? `20${y}` : y!;
   return `${ano}-${mo!.padStart(2, "0")}-${d!.padStart(2, "0")}`;
 }
-
-/** formas de recebimento sugeridas no formulário de repasse */
-export const FORMAS_RECEBIMENTO = [
-  "Dinheiro",
-  "Pix",
-  "Repasse do app",
-  "Cartão da maquininha",
-  "Gorjeta",
-  "Sobra de troco",
-];
