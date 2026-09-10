@@ -170,6 +170,46 @@ async function gravarDespesa(valores: Record<string, string>, userId: string): P
   }
 }
 
+/**
+ * edita uma única parcela de crédito: grava a data do vencimento na linha e
+ * regrava as marcas internas "(n/total)", "[compra ...]" e "[pago ...]".
+ */
+async function editarParcela(
+  row: string,
+  valores: Record<string, string>,
+  userId: string,
+): Promise<void> {
+  const { selectAll } = await import("./db.server");
+  const linhas = await selectAll(TABELAS.despesa, userId);
+  const atual = linhas.find((l) => txt(l["ID"]) === txt(row));
+  const obsAtual = txt(atual?.["OBS"] ?? atual?.["OBSERVAÇÃO"] ?? atual?.["DESCRICAO"] ?? "");
+
+  const dataCompra = txt(valores["data"] ?? "");
+  const vencimento = txt(valores["dataPrimeiraParcela"] ?? "") || dataCompra;
+  const total = Math.max(1, Math.trunc(Number(valores["parcelas"] ?? "1")) || 1);
+  const numero = Math.min(Math.max(1, numeroParcela(obsAtual)), total);
+  const baixa = leDataPago(obsAtual);
+  const base = semMarcaParcela(limpaDescricao(txt(valores["descricao"] ?? "")));
+
+  const descricao = [
+    base,
+    total > 1 ? `(${numero}/${total})` : "",
+    dataCompra ? marcaCompra(paraBr(dataCompra)) : "",
+    baixa ? marcaPago(baixa) : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  await atualizar(
+    TABELAS.despesa,
+    row,
+    montaLinha("despesa", { ...valores, data: vencimento, descricao }),
+    userId,
+  );
+}
+
+
+
 export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
