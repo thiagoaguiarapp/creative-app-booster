@@ -106,18 +106,32 @@ function LancamentosPage() {
         positivo: false,
         registro: a as unknown as Record<string, unknown> & { row: string },
       })),
-      ...data.despesas.map((d) => ({
-        key: `despesa-${d.row}`,
-        tipo: "despesa" as Tipo,
-        rotulo: "Despesa",
-        data: d.data,
-        iso: d.iso,
-        titulo: d.categoria,
-        detalhe: [limpaDescricao(d.descricao), d.pagamento].filter(Boolean).join(" · "),
-        valor: d.valor,
-        positivo: false,
-        registro: d as unknown as Record<string, unknown> & { row: string },
-      })),
+      ...data.despesas.map((d) => {
+        const isoCompraLinha = isoCompra(d.descricao, d.iso);
+        const total = totalParcelas(d.descricao);
+        const numero = numeroParcela(d.descricao);
+        const parcela =
+          total > 1
+            ? `Parcela ${numero}/${total} · vence ${d.data}`
+            : isoCompraLinha !== d.iso
+              ? `vence ${d.data}`
+              : "";
+        return {
+          key: `despesa-${d.row}`,
+          tipo: "despesa" as Tipo,
+          rotulo: "Despesa",
+          data: paraDataBr(isoCompraLinha) || d.data,
+          iso: isoCompraLinha,
+          titulo: d.categoria,
+          detalhe: [semMarcaParcela(limpaDescricao(d.descricao)), d.pagamento, parcela]
+            .filter(Boolean)
+            .join(" · "),
+          valor: d.valor,
+          positivo: false,
+          registro: d as unknown as Record<string, unknown> & { row: string },
+        };
+      }),
+
       ...data.repasses.map((r) => ({
         key: `repasse-${r.row}`,
         tipo: "repasse" as Tipo,
