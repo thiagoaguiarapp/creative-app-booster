@@ -1,7 +1,18 @@
 import { atualizar, inserir, remover, txt, type Linha } from "./db.server";
 import type { Tipo } from "./entry-schema";
-import { aplicaBaixa, marcaCompra, somaMeses } from "./pagamentos";
+import { dataValida, paraNumeroBr } from "./numero";
+import {
+  aplicaBaixa,
+  dataPago as leDataPago,
+  limpaDescricao,
+  marcaCompra,
+  marcaPago,
+  numeroParcela,
+  semMarcaParcela,
+  somaMeses,
+} from "./pagamentos";
 import { TABELAS } from "./painel.server";
+
 
 
 type Campo = { coluna: string; tipo: "texto" | "data" | "inteiro" | "dinheiro" };
