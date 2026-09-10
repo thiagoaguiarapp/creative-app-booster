@@ -175,60 +175,41 @@ function AbastecimentoPage() {
           <TableBody>
             {recentes.map((a) => {
               const aberto = abertoId === a.id;
+              const km = kmRodadoPorRegistro.get(a.id);
               return (
-                <Fragment key={a.id}>
-                  <TableRow
-                    className="cursor-pointer"
-                    onClick={() => setAbertoId(aberto ? null : a.id)}
-                  >
-                    <TableCell className="num">{a.data}</TableCell>
-                    <TableCell className="num text-right">{a.litros.toFixed(2)}</TableCell>
-                    <TableCell className="num text-right">
-                      {mediaPorRegistro.get(a.id)?.toFixed(1) ?? "—"}
-                    </TableCell>
-                    <TableCell className="num text-right font-semibold">
-                      {brl(a.valorPago)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <ChevronDown
-                        className={cn(
-                          "size-4 text-muted-foreground transition-transform",
-                          aberto && "rotate-180",
-                        )}
-                      />
-                    </TableCell>
-                  </TableRow>
-                  {aberto && (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={5} className="bg-muted/30">
-                        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3 sm:text-sm">
-                          <Detalhe rotulo="Combustível" valor={a.combustivel || "—"} />
-                          <Detalhe rotulo="Posto" valor={a.posto || "—"} />
-                          <Detalhe rotulo="Pagamento" valor={a.pagamento || "—"} />
-                          <Detalhe rotulo="R$/L" valor={brl(a.precoLitro)} />
-                          <Detalhe
-                            rotulo="Desconto"
-                            valor={a.desconto > 0 ? brl(a.desconto) : "—"}
-                          />
-                          <Detalhe
-                            rotulo="Odômetro"
-                            valor={a.odometro.toLocaleString("pt-BR")}
-                          />
-                          <Detalhe
-                            rotulo="Km rodado"
-                            valor={(() => {
-                              const km = kmRodadoPorRegistro.get(a.id);
-                              return km && km > 0 ? `${km.toLocaleString("pt-BR")} km` : "—";
-                            })()}
-                          />
-                        </div>
-                        <div className="mt-3 flex justify-end">
-                          <AcoesLancamento tipo="abastecimento" registro={a} />
-                        </div>
+                <LinhaDetalhavel
+                  key={a.id}
+                  aberto={aberto}
+                  onToggle={() => setAbertoId(aberto ? null : a.id)}
+                  colunas={5}
+                  celulas={
+                    <>
+                      <TableCell className="num">{a.data}</TableCell>
+                      <TableCell className="num text-right">{a.litros.toFixed(2)}</TableCell>
+                      <TableCell className="num text-right">
+                        {mediaPorRegistro.get(a.id)?.toFixed(1) ?? "—"}
                       </TableCell>
-                    </TableRow>
-                  )}
-                </Fragment>
+                      <TableCell className="num text-right font-semibold">
+                        {brl(a.valorPago)}
+                      </TableCell>
+                    </>
+                  }
+                  detalhes={
+                    <>
+                      <Detalhe rotulo="Combustível" valor={a.combustivel} />
+                      <Detalhe rotulo="Posto" valor={a.posto} />
+                      <Detalhe rotulo="Pagamento" valor={a.pagamento} />
+                      <Detalhe rotulo="R$/L" valor={brl(a.precoLitro)} />
+                      <Detalhe rotulo="Desconto" valor={a.desconto > 0 ? brl(a.desconto) : "—"} />
+                      <Detalhe rotulo="Odômetro" valor={a.odometro.toLocaleString("pt-BR")} />
+                      <Detalhe
+                        rotulo="Km rodado"
+                        valor={km && km > 0 ? `${km.toLocaleString("pt-BR")} km` : "—"}
+                      />
+                    </>
+                  }
+                  acoes={<AcoesLancamento tipo="abastecimento" registro={a} />}
+                />
               );
             })}
           </TableBody>
