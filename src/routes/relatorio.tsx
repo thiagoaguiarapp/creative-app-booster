@@ -504,3 +504,60 @@ function Barras({ itens, total }: { itens: { nome: string; valor: number }[]; to
     </div>
   );
 }
+
+function TabelaLista({
+  titulo,
+  colunas,
+  linhas,
+  total,
+}: {
+  titulo: string;
+  colunas: string[];
+  linhas: { id: string; celulas: string[]; valor: number }[];
+  total: number;
+}) {
+  return (
+    <SectionCard title={titulo} description={`${linhas.length} lançamento(s) · ${brl(total)}`}>
+      <div className="-mx-3 overflow-x-auto sm:-mx-5">
+        <Table className="min-w-[560px]">
+          <TableHeader>
+            <TableRow>
+              {colunas.map((c, i) => (
+                <TableHead
+                  key={c}
+                  className={`whitespace-nowrap text-[10px] sm:text-xs ${i === colunas.length - 1 ? "text-right" : ""}`}
+                >
+                  {c}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {linhas.map((l) => (
+              <TableRow key={l.id}>
+                {l.celulas.map((c, i) => (
+                  <TableCell
+                    key={i}
+                    className={`whitespace-nowrap text-[10px] sm:text-xs ${i === 0 ? "font-medium" : "text-muted-foreground"}`}
+                  >
+                    {c}
+                  </TableCell>
+                ))}
+                <TableCell className="num whitespace-nowrap text-right text-[10px] font-semibold sm:text-xs">
+                  {brl(l.valor)}
+                </TableCell>
+              </TableRow>
+            ))}
+            {linhas.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={colunas.length} className="text-center text-[10px] text-muted-foreground sm:text-sm">
+                  Nenhum lançamento nesse período.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </SectionCard>
+  );
+}
