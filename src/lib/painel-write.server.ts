@@ -82,10 +82,15 @@ const MESES = [
   "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO",
 ];
 
-/** "aaaa-mm-dd" (input date) -> "dd/mm/aaaa" */
+/** "aaaa-mm-dd" (input date) -> "dd/mm/aaaa"; recusa data fora do formato/ano válido */
 function paraBr(valor: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt(valor));
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : txt(valor);
+  const bruto = txt(valor);
+  if (!bruto) return "";
+  if (!dataValida(bruto)) {
+    throw new Error(`Data inválida: "${bruto}". Confira o dia, o mês e o ano.`);
+  }
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(bruto);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : bruto;
 }
 
 function mesDe(valor: string): string {
@@ -94,9 +99,9 @@ function mesDe(valor: string): string {
 }
 
 function paraNumero(valor: string): number {
-  const n = Number(txt(valor).replace(/[^\d,.-]/g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : 0;
+  return paraNumeroBr(valor);
 }
+
 
 function converter(campo: Campo, valor: string): unknown {
   if (campo.tipo === "data") return paraBr(valor);
