@@ -13,7 +13,17 @@ export type Campo = {
   somenteSe?: { key: string; valores: string[] };
 };
 
-/** formas de pagamento de despesa */
+/** formas de recebimento sugeridas no formulário de repasse */
+export const FORMAS_RECEBIMENTO = [
+  "Dinheiro",
+  "Pix",
+  "Repasse do app",
+  "Cartão da maquininha",
+  "Gorjeta",
+  "Sobra de troco",
+];
+
+/** formas de pagamento usadas em todas as telas */
 export const FORMAS_PAGAMENTO = [
   "Dinheiro",
   "Débito",
@@ -24,6 +34,34 @@ export const FORMAS_PAGAMENTO = [
 
 /** verdadeiro para "Crédito à vista" e "Crédito parcelado" */
 export const ehCredito = (forma: string): boolean => /cr[eé]dito/i.test(forma ?? "");
+
+/** bloco padrão de pagamento (mesmos campos e rótulos em todas as telas) */
+export const camposPagamento = (opcoes?: { parcelamento?: boolean }): Campo[] => [
+  {
+    key: "pagamento",
+    label: "Forma de pagamento",
+    tipo: "select",
+    opcoes: opcoes?.parcelamento === false
+      ? FORMAS_PAGAMENTO.filter((f) => f !== "Crédito parcelado")
+      : FORMAS_PAGAMENTO,
+  },
+  ...(opcoes?.parcelamento === false
+    ? []
+    : ([
+        {
+          key: "parcelas",
+          label: "Número de parcelas",
+          tipo: "number",
+          somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
+        },
+        {
+          key: "dataPrimeiraParcela",
+          label: "Data do pagamento (vencimento)",
+          tipo: "date",
+          somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
+        },
+      ] as Campo[])),
+];
 
 /** tipos de combustível do abastecimento */
 export const COMBUSTIVEIS = [
@@ -72,12 +110,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       somenteSe: { key: "temDesconto", valores: ["Sim"] },
     },
     { key: "valorPago", label: "Valor pago (R$)", tipo: "money", obrigatorio: true },
-    {
-      key: "pagamento",
-      label: "Forma de pagamento",
-      tipo: "select",
-      opcoes: FORMAS_PAGAMENTO,
-    },
+    ...camposPagamento({ parcelamento: false }),
   ],
 
   despesa: [
@@ -85,31 +118,14 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "categoria", label: "Categoria", tipo: "text", obrigatorio: true },
     { key: "descricao", label: "Observação", tipo: "text" },
     { key: "valor", label: "Valor total (R$)", tipo: "money", obrigatorio: true },
-    {
-      key: "pagamento",
-      label: "Forma de pagamento",
-      tipo: "select",
-      opcoes: FORMAS_PAGAMENTO,
-    },
-    {
-      key: "parcelas",
-      label: "Número de parcelas",
-      tipo: "number",
-      somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
-    },
-    {
-      key: "dataPrimeiraParcela",
-      label: "Data do pagamento (vencimento)",
-      tipo: "date",
-      somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
-    },
+    ...camposPagamento(),
   ],
   repasse: [
 
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "valor", label: "Valor recebido (R$)", tipo: "money", obrigatorio: true },
-    { key: "forma", label: "Forma de recebimento", tipo: "text", sugestoes: "forma" },
+    { key: "forma", label: "Forma de recebimento", tipo: "select", opcoes: FORMAS_RECEBIMENTO },
   ],
   manutencao: [
     { key: "veiculo", label: "Veículo", tipo: "text", obrigatorio: true, sugestoes: "veiculo" },
@@ -118,24 +134,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "kmTroca", label: "Km da troca", tipo: "number", obrigatorio: true },
     { key: "validadeKm", label: "Validade (km)", tipo: "number", obrigatorio: true },
     { key: "valor", label: "Valor (R$)", tipo: "money" },
-    {
-      key: "pagamento",
-      label: "Forma de pagamento",
-      tipo: "select",
-      opcoes: FORMAS_PAGAMENTO,
-    },
-    {
-      key: "parcelas",
-      label: "Número de parcelas",
-      tipo: "number",
-      somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
-    },
-    {
-      key: "dataPrimeiraParcela",
-      label: "Data do pagamento (vencimento)",
-      tipo: "date",
-      somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
-    },
+    ...camposPagamento(),
     { key: "observacao", label: "Observação", tipo: "text" },
   ],
 };
@@ -149,13 +148,3 @@ export function paraInputDate(br: string): string {
   const ano = y!.length === 2 ? `20${y}` : y!;
   return `${ano}-${mo!.padStart(2, "0")}-${d!.padStart(2, "0")}`;
 }
-
-/** formas de recebimento sugeridas no formulário de repasse */
-export const FORMAS_RECEBIMENTO = [
-  "Dinheiro",
-  "Pix",
-  "Repasse do app",
-  "Cartão da maquininha",
-  "Gorjeta",
-  "Sobra de troco",
-];
