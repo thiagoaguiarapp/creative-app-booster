@@ -94,12 +94,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
       somenteSe: { key: "temDesconto", valores: ["Sim"] },
     },
     { key: "valorPago", label: "Valor pago (R$)", tipo: "money", obrigatorio: true },
-    {
-      key: "pagamento",
-      label: "Forma de pagamento",
-      tipo: "select",
-      opcoes: FORMAS_PAGAMENTO,
-    },
+    ...camposPagamento(),
   ],
 
   despesa: [
@@ -107,31 +102,14 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "categoria", label: "Categoria", tipo: "text", obrigatorio: true },
     { key: "descricao", label: "Observação", tipo: "text" },
     { key: "valor", label: "Valor total (R$)", tipo: "money", obrigatorio: true },
-    {
-      key: "pagamento",
-      label: "Forma de pagamento",
-      tipo: "select",
-      opcoes: FORMAS_PAGAMENTO,
-    },
-    {
-      key: "parcelas",
-      label: "Número de parcelas",
-      tipo: "number",
-      somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
-    },
-    {
-      key: "dataPrimeiraParcela",
-      label: "Data do pagamento (vencimento)",
-      tipo: "date",
-      somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
-    },
+    ...camposPagamento(),
   ],
   repasse: [
 
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
     { key: "valor", label: "Valor recebido (R$)", tipo: "money", obrigatorio: true },
-    { key: "forma", label: "Forma de recebimento", tipo: "text", sugestoes: "forma" },
+    { key: "forma", label: "Forma de recebimento", tipo: "select", opcoes: FORMAS_RECEBIMENTO },
   ],
   manutencao: [
     { key: "veiculo", label: "Veículo", tipo: "text", obrigatorio: true, sugestoes: "veiculo" },
