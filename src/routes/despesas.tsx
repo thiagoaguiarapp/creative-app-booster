@@ -83,6 +83,7 @@ function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
   const [busca, setBusca] = useState("");
+  const [abertoId, setAbertoId] = useState<string | null>(null);
 
   const todas = useMemo(
     () =>
