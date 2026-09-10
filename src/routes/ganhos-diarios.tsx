@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,7 @@ function Ganhos() {
   const [periodo, setPeriodo] = useState<Periodo>("hoje");
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
+  const [abertoId, setAbertoId] = useState<string | null>(null);
 
   const ganhos = useMemo(() => {
     if (periodo === "custom") {
@@ -266,7 +268,7 @@ function Ganhos() {
       </SectionCard>
 
 
-      <SectionCard title="Lançamentos" description="Últimos registros da aba DIA A DIA">
+      <SectionCard title="Lançamentos" description="Toque na linha para ver os detalhes">
         <Table>
           <TableHeader>
             <TableRow>
@@ -274,27 +276,47 @@ function Ganhos() {
               <TableHead>App</TableHead>
               <TableHead className="text-right">Rotas</TableHead>
               <TableHead className="text-right">Faturamento</TableHead>
-              
-              <TableHead className="w-24 text-right">Ações</TableHead>
+              <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {recentes.map((g) => (
-              <TableRow key={g.id}>
-                <TableCell className="num">{g.data}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{g.plataforma}</Badge>
-                </TableCell>
-                <TableCell className="num text-right">{g.corridas || "—"}</TableCell>
-                <TableCell className="num text-right font-semibold text-success">
-                  {brl(g.faturamento)}
-                </TableCell>
-                
-                <TableCell>
-                  <AcoesLancamento tipo="ganho" registro={g} />
-                </TableCell>
-              </TableRow>
-            ))}
+            {recentes.map((g) => {
+              const aberto = abertoId === g.id;
+              return (
+                <LinhaDetalhavel
+                  key={g.id}
+                  aberto={aberto}
+                  onToggle={() => setAbertoId(aberto ? null : g.id)}
+                  colunas={5}
+                  celulas={
+                    <>
+                      <TableCell className="num">{g.data}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{g.plataforma}</Badge>
+                      </TableCell>
+                      <TableCell className="num text-right">{g.corridas || "—"}</TableCell>
+                      <TableCell className="num text-right font-semibold text-success">
+                        {brl(g.faturamento)}
+                      </TableCell>
+                    </>
+                  }
+                  detalhes={
+                    <>
+                      <Detalhe rotulo="Data" valor={g.data} />
+                      <Detalhe rotulo="Aplicativo" valor={g.plataforma} />
+                      <Detalhe rotulo="Rotas / corridas" valor={String(g.corridas || 0)} />
+                      <Detalhe rotulo="Faturamento" valor={brl(g.faturamento)} />
+                      <Detalhe rotulo="Recebido" valor={brl(g.recebido)} />
+                      <Detalhe
+                        rotulo="A receber"
+                        valor={brl(Math.max(0, g.faturamento - g.recebido))}
+                      />
+                    </>
+                  }
+                  acoes={<AcoesLancamento tipo="ganho" registro={g} />}
+                />
+              );
+            })}
           </TableBody>
         </Table>
       </SectionCard>

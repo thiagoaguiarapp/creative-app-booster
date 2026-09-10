@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento, NovoLancamentoRapido } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,7 @@ function LancamentosPage() {
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
   const [limite, setLimite] = useState(50);
+  const [abertoKey, setAbertoKey] = useState<string | null>(null);
 
   const todas = useMemo<Linha[]>(() => {
     const linhas: Linha[] = [
@@ -239,7 +241,10 @@ function LancamentosPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Lançamentos" description={`${filtradas.length} registros encontrados`}>
+      <SectionCard
+        title="Lançamentos"
+        description={`${filtradas.length} registros — toque na linha para ver os detalhes`}
+      >
         <Table>
           <TableHeader>
             <TableRow>
@@ -247,34 +252,52 @@ function LancamentosPage() {
               <TableHead>Tipo</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead className="text-right">Valor</TableHead>
-              <TableHead className="w-24 text-right">Ações</TableHead>
+              <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtradas.slice(0, limite).map((l) => (
-              <TableRow key={l.key}>
-                <TableCell className="num whitespace-nowrap">{l.data}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{l.rotulo}</Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium">{l.titulo}</div>
-                  {l.detalhe && (
-                    <div className="text-xs text-muted-foreground">{l.detalhe}</div>
-                  )}
-                </TableCell>
-                <TableCell
-                  className={`num text-right font-semibold ${
-                    l.positivo ? "text-success" : "text-destructive"
-                  }`}
-                >
-                  {brl(l.valor)}
-                </TableCell>
-                <TableCell>
-                  <AcoesLancamento tipo={l.tipo} registro={l.registro} />
-                </TableCell>
-              </TableRow>
-            ))}
+            {filtradas.slice(0, limite).map((l) => {
+              const aberto = abertoKey === l.key;
+              return (
+                <LinhaDetalhavel
+                  key={l.key}
+                  aberto={aberto}
+                  onToggle={() => setAbertoKey(aberto ? null : l.key)}
+                  colunas={5}
+                  celulas={
+                    <>
+                      <TableCell className="num whitespace-nowrap">{l.data}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{l.rotulo}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{l.titulo}</div>
+                      </TableCell>
+                      <TableCell
+                        className={`num text-right font-semibold ${
+                          l.positivo ? "text-success" : "text-destructive"
+                        }`}
+                      >
+                        {brl(l.valor)}
+                      </TableCell>
+                    </>
+                  }
+                  detalhes={
+                    <>
+                      <Detalhe rotulo="Tipo" valor={l.rotulo} />
+                      <Detalhe rotulo="Data" valor={l.data} />
+                      <Detalhe rotulo="Descrição" valor={l.titulo} />
+                      <Detalhe rotulo="Detalhes" valor={l.detalhe} />
+                      <Detalhe
+                        rotulo={l.positivo ? "Entrada" : "Saída"}
+                        valor={brl(l.valor)}
+                      />
+                    </>
+                  }
+                  acoes={<AcoesLancamento tipo={l.tipo} registro={l.registro} />}
+                />
+              );
+            })}
           </TableBody>
         </Table>
 
