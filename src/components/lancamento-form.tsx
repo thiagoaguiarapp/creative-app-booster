@@ -157,6 +157,22 @@ function useFormas(): string[] {
   return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+/** Serviços já usados na tela de manutenção + categorias do admin (sem duplicar por digitação). */
+function useServicos(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const categorias = useCategorias();
+  const nomes = new Map<string, string>();
+  const add = (s?: string) => {
+    const t = s?.trim();
+    if (!t || t === "—") return;
+    const k = t.toLocaleLowerCase("pt-BR");
+    if (!nomes.has(k)) nomes.set(k, t);
+  };
+  for (const s of categorias.servicos) add(s);
+  for (const m of data?.manutencoes ?? []) add(m.servico);
+  return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
 function useInvalidarPainel() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["painel"] });
