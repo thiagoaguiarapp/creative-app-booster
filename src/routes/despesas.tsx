@@ -223,39 +223,66 @@ function DespesasPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Lançamentos">
+      <SectionCard title="Lançamentos" description="Toque na linha para ver os detalhes">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
               <TableHead>Categoria</TableHead>
               <TableHead className="text-right">Valor</TableHead>
-              <TableHead className="w-24 text-right">Ações</TableHead>
+              <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {recentes.map((d) => (
-              <TableRow key={d.id}>
-                <TableCell className="num">
-                  {paraBr(d.compraIso)}
-                  {normalizaForma(d.pagamento) === "Crédito" && (
-                    <span className="block text-xs text-muted-foreground">
-                      vence {d.data}
-                    </span>
-                  )}
-                </TableCell>
-
-                <TableCell>
-                  <Badge variant="secondary">{d.categoria}</Badge>
-                </TableCell>
-                <TableCell className="num text-right font-semibold text-destructive">
-                  {brl(d.valor)}
-                </TableCell>
-                <TableCell>
-                  <AcoesLancamento tipo="despesa" registro={d} />
-                </TableCell>
-              </TableRow>
-            ))}
+            {recentes.map((d) => {
+              const aberto = abertoId === d.id;
+              const total = totalParcelas(d.descricao);
+              const credito = normalizaForma(d.pagamento) === "Crédito";
+              return (
+                <LinhaDetalhavel
+                  key={d.id}
+                  aberto={aberto}
+                  onToggle={() => setAbertoId(aberto ? null : d.id)}
+                  colunas={4}
+                  celulas={
+                    <>
+                      <TableCell className="num">
+                        {paraBr(d.compraIso)}
+                        {credito && (
+                          <span className="block text-xs text-muted-foreground">
+                            vence {d.data}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{d.categoria}</Badge>
+                      </TableCell>
+                      <TableCell className="num text-right font-semibold text-destructive">
+                        {brl(d.valor)}
+                      </TableCell>
+                    </>
+                  }
+                  detalhes={
+                    <>
+                      <Detalhe
+                        rotulo="Descrição"
+                        valor={semMarcaParcela(d.descricao)}
+                      />
+                      <Detalhe rotulo="Categoria" valor={d.categoria} />
+                      <Detalhe rotulo="Pagamento" valor={d.pagamento} />
+                      <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
+                      <Detalhe rotulo="Vencimento" valor={credito ? d.data : d.data} />
+                      <Detalhe
+                        rotulo="Parcela"
+                        valor={total > 1 ? `${numeroParcela(d.descricao)}/${total}` : "Única"}
+                      />
+                      <Detalhe rotulo="Valor" valor={brl(d.valor)} />
+                    </>
+                  }
+                  acoes={<AcoesLancamento tipo="despesa" registro={d} />}
+                />
+              );
+            })}
             {recentes.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
