@@ -36,19 +36,23 @@ export const FORMAS_PAGAMENTO = [
 export const ehCredito = (forma: string): boolean => /cr[eé]dito/i.test(forma ?? "");
 
 /** bloco padrão de pagamento (mesmos campos e rótulos em todas as telas) */
-export const camposPagamento = (): Campo[] => [
+export const camposPagamento = (opcoes?: { parcelamento?: boolean }): Campo[] => [
   {
     key: "pagamento",
     label: "Forma de pagamento",
     tipo: "select",
-    opcoes: FORMAS_PAGAMENTO,
+    opcoes: opcoes?.parcelamento === false
+      ? FORMAS_PAGAMENTO.filter((f) => f !== "Crédito parcelado")
+      : FORMAS_PAGAMENTO,
   },
-  {
-    key: "parcelas",
-    label: "Número de parcelas",
-    tipo: "number",
-    somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
-  },
+  ...(opcoes?.parcelamento === false
+    ? []
+    : ([{
+        key: "parcelas",
+        label: "Número de parcelas",
+        tipo: "number",
+        somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
+      }] as Campo[])),
   {
     key: "dataPrimeiraParcela",
     label: "Data do pagamento (vencimento)",
