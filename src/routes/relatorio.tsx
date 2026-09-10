@@ -172,9 +172,11 @@ function RelatorioPage() {
     return {
       faturamento, corridas, recebido, combustivel, litros, km, outras,
       manutencao, custos, lucro, porPlataforma, porCategoria, porMes,
+      listas: { ganhos, abast, despesas: despesasCusto, repasses, manut: manutCusto },
       qtd: { ganhos: ganhos.length, abast: abast.length, despesas: despesas.length, repasses: repasses.length, manut: manut.length },
     };
   }, [data, de, ate]);
+
 
   const baixarCsv = () => {
     const linhas: string[][] = [
