@@ -47,18 +47,20 @@ export const camposPagamento = (opcoes?: { parcelamento?: boolean }): Campo[] =>
   },
   ...(opcoes?.parcelamento === false
     ? []
-    : ([{
-        key: "parcelas",
-        label: "Número de parcelas",
-        tipo: "number",
-        somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
-      }] as Campo[])),
-  {
-    key: "dataPrimeiraParcela",
-    label: "Data do pagamento (vencimento)",
-    tipo: "date",
-    somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
-  },
+    : ([
+        {
+          key: "parcelas",
+          label: "Número de parcelas",
+          tipo: "number",
+          somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
+        },
+        {
+          key: "dataPrimeiraParcela",
+          label: "Data do pagamento (vencimento)",
+          tipo: "date",
+          somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
+        },
+      ] as Campo[])),
 ];
 
 /** tipos de combustível do abastecimento */
