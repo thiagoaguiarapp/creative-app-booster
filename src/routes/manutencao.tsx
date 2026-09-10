@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 import { NovoLancamento } from "@/components/lancamento-form";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { Detalhe, LinhaDetalhavel } from "@/components/linha-detalhe";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { salvarLancamentoFn, excluirLancamentoFn } from "@/lib/painel.functions";
 import { brl, statusManutencao, type Manutencao } from "@/lib/sheets-types";
