@@ -282,6 +282,9 @@ function FormularioDialog({
       }
       enviaveis[campo.key] = valores[campo.key] ?? "";
     }
+    if (semPagamento) {
+      for (const key of CAMPOS_PAGAMENTO) enviaveis[key] = "";
+    }
     mutation.mutate(enviaveis);
   }
 
