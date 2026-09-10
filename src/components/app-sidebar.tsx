@@ -30,7 +30,7 @@ const items = [
   { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet },
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
   { title: "Fechamento do mês", url: "/fechamento", icon: CheckCircle2 },
-  { title: "Relatório", url: "/relatorio", icon: BarChart3 },
+  { title: "Relatórios", url: "/relatorio", icon: BarChart3 },
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },
 ];
 
