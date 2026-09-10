@@ -99,7 +99,7 @@ function DespesasPage() {
     let lista = todas;
     if (periodo !== "total") {
       const p = prefixoMes(periodo === "atual" ? 0 : -1);
-      lista = lista.filter((d) => d.compraIso.startsWith(p));
+      lista = lista.filter((d) => d.iso.startsWith(p));
     }
     if (!busca.trim()) return lista;
     const termo = normaliza(busca);
@@ -248,10 +248,10 @@ function DespesasPage() {
                   celulas={
                     <>
                       <TableCell className="num">
-                        {paraBr(d.compraIso)}
+                        {d.data}
                         {credito && (
                           <span className="block text-xs text-muted-foreground">
-                            vence {d.data}
+                            compra {paraBr(d.compraIso)}
                           </span>
                         )}
                       </TableCell>
