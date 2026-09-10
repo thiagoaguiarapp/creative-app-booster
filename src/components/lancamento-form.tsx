@@ -54,10 +54,18 @@ import {
 } from "@/lib/entry-schema";
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
-import { CATEGORIA_RETIRADA } from "@/lib/pagamentos";
+import { dataValida, emReais, paraNumeroBr } from "@/lib/numero";
+import {
+  CATEGORIA_RETIRADA,
+  isoCompra,
+  limpaDescricao,
+  semMarcaParcela,
+  totalParcelas,
+} from "@/lib/pagamentos";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { categoriasQueryOptions } from "@/lib/categorias-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
+
 
 function normalizaTexto(texto: string) {
   return texto
@@ -106,13 +114,26 @@ function valoresIniciais(
     }
 
   }
+
+  // despesa no crédito: os campos de parcela vêm das marcas internas do lançamento
+  if (tipo === "despesa" && registro && /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))) {
+    const descricao = String(registro["descricao"] ?? "");
+    const isoLinha =
+      String(registro["iso"] ?? "") || paraInputDate(String(registro["data"] ?? ""));
+    out["dataPrimeiraParcela"] = isoLinha;
+    out["data"] = isoCompra(descricao, isoLinha);
+    const total = totalParcelas(descricao);
+    if (total > 1) out["parcelas"] = String(total);
+    out["descricao"] = semMarcaParcela(limpaDescricao(descricao));
+  }
+
   return out;
 }
 
 function numeroBr(valor: string | undefined): number {
-  const n = Number(String(valor ?? "").replace(/[^\d,.-]/g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : 0;
+  return paraNumeroBr(valor);
 }
+
 
 function useCategorias() {
   const { data } = useQuery(categoriasQueryOptions());
@@ -289,22 +310,51 @@ function FormularioDialog({
     return !campo.somenteSe || campo.somenteSe.valores.includes(valores[campo.somenteSe.key] ?? "");
   };
 
+  // prévia do parcelamento (evita salvar valor errado sem perceber)
+  const parcelasPrevia = Math.max(1, Math.trunc(numeroBr(valores["parcelas"])) || 1);
+  const totalPrevia = numeroBr(valores["valor"]);
+  const previaParcelamento =
+    parcelasPrevia > 1 && totalPrevia > 0
+      ? `${parcelasPrevia}x de ${emReais(Math.floor((totalPrevia / parcelasPrevia) * 100) / 100)} · total ${emReais(totalPrevia)}`
+      : "";
+
   function enviar(e: React.FormEvent) {
     e.preventDefault();
     const enviaveis: Record<string, string> = {};
     for (const campo of CAMPOS[tipo]) {
       if (!visivel(campo)) continue;
-      if (campo.obrigatorio && !valores[campo.key]?.trim()) {
+      const valor = valores[campo.key] ?? "";
+      if (campo.obrigatorio && !valor.trim()) {
         toast.error(`Preencha "${campo.label}".`);
         return;
       }
-      enviaveis[campo.key] = valores[campo.key] ?? "";
+      if (campo.tipo === "date" && valor.trim() && !dataValida(valor)) {
+        toast.error(`Data inválida em "${campo.label}". Confira o dia, o mês e o ano.`);
+        return;
+      }
+      if ((campo.tipo === "money" || campo.tipo === "number") && valor.trim()) {
+        if (!/^-?[\d.,\s]+$/.test(valor.trim())) {
+          toast.error(`Valor inválido em "${campo.label}".`);
+          return;
+        }
+        const n = numeroBr(valor);
+        if (n < 0) {
+          toast.error(`"${campo.label}" não pode ser negativo.`);
+          return;
+        }
+        if (campo.obrigatorio && campo.tipo === "money" && n <= 0) {
+          toast.error(`Informe um valor maior que zero em "${campo.label}".`);
+          return;
+        }
+      }
+      enviaveis[campo.key] = valor;
     }
     if (semPagamento) {
       for (const key of CAMPOS_OCULTOS_SEM_PAGAMENTO) enviaveis[key] = "";
     }
     mutation.mutate(enviaveis);
   }
+
 
   if (seguinte) {
     return (
@@ -405,14 +455,22 @@ function FormularioDialog({
                 <Input
                   id={campo.key}
                   className="h-12 text-base sm:h-9 sm:text-sm"
-                  type={campo.tipo === "date" ? "date" : campo.tipo === "text" ? "text" : "number"}
-                  step={campo.tipo === "text" || campo.tipo === "date" ? undefined : "any"}
+                  type={campo.tipo === "date" ? "date" : "text"}
                   inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
-                  maxLength={campo.tipo === "text" ? 120 : undefined}
+                  maxLength={campo.tipo === "text" ? 120 : campo.tipo === "date" ? undefined : 15}
+                  placeholder={campo.tipo === "money" ? "0,00" : undefined}
                   list={campo.sugestoes ? `sugestoes-${campo.key}` : undefined}
                   value={valores[campo.key] ?? ""}
-                  onChange={(e) => setValores((v) => ({ ...v, [campo.key]: e.target.value }))}
+                  onChange={(e) => {
+                    const bruto = e.target.value;
+                    const limpo =
+                      campo.tipo === "money" || campo.tipo === "number"
+                        ? bruto.replace(/[^\d.,-]/g, "")
+                        : bruto;
+                    setValores((v) => ({ ...v, [campo.key]: limpo }));
+                  }}
                 />
+
               )}
               {campo.sugestoes && (
                 <datalist id={`sugestoes-${campo.key}`}>
@@ -439,9 +497,12 @@ function FormularioDialog({
               )}
               {campo.key === "parcelas" && (
                 <p className="text-xs text-muted-foreground">
-                  As parcelas serão lançadas mês a mês a partir da data da 1ª parcela.
+                  {previaParcelamento
+                    ? `${previaParcelamento} · a partir da data do pagamento`
+                    : "As parcelas serão lançadas mês a mês a partir da data da 1ª parcela."}
                 </p>
               )}
+
               {campo.key === "dataPrimeiraParcela" && (
                 <p className="text-xs text-muted-foreground">
                   Se vazio, usa a data da compra.

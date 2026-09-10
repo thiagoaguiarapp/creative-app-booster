@@ -11,7 +11,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Tipo } from "@/lib/entry-schema";
-import { limpaDescricao } from "@/lib/pagamentos";
+import {
+  isoCompra,
+  limpaDescricao,
+  numeroParcela,
+  semMarcaParcela,
+  totalParcelas,
+} from "@/lib/pagamentos";
+
+/** "aaaa-mm-dd" -> "dd/mm/aaaa" */
+function paraDataBr(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : "";
+}
+
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
 
@@ -106,18 +119,32 @@ function LancamentosPage() {
         positivo: false,
         registro: a as unknown as Record<string, unknown> & { row: string },
       })),
-      ...data.despesas.map((d) => ({
-        key: `despesa-${d.row}`,
-        tipo: "despesa" as Tipo,
-        rotulo: "Despesa",
-        data: d.data,
-        iso: d.iso,
-        titulo: d.categoria,
-        detalhe: [limpaDescricao(d.descricao), d.pagamento].filter(Boolean).join(" · "),
-        valor: d.valor,
-        positivo: false,
-        registro: d as unknown as Record<string, unknown> & { row: string },
-      })),
+      ...data.despesas.map((d) => {
+        const isoCompraLinha = isoCompra(d.descricao, d.iso);
+        const total = totalParcelas(d.descricao);
+        const numero = numeroParcela(d.descricao);
+        const parcela =
+          total > 1
+            ? `Parcela ${numero}/${total} · vence ${d.data}`
+            : isoCompraLinha !== d.iso
+              ? `vence ${d.data}`
+              : "";
+        return {
+          key: `despesa-${d.row}`,
+          tipo: "despesa" as Tipo,
+          rotulo: "Despesa",
+          data: paraDataBr(isoCompraLinha) || d.data,
+          iso: isoCompraLinha,
+          titulo: d.categoria,
+          detalhe: [semMarcaParcela(limpaDescricao(d.descricao)), d.pagamento, parcela]
+            .filter(Boolean)
+            .join(" · "),
+          valor: d.valor,
+          positivo: false,
+          registro: d as unknown as Record<string, unknown> & { row: string },
+        };
+      }),
+
       ...data.repasses.map((r) => ({
         key: `repasse-${r.row}`,
         tipo: "repasse" as Tipo,

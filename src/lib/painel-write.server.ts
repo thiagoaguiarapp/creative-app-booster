@@ -1,7 +1,18 @@
 import { atualizar, inserir, remover, txt, type Linha } from "./db.server";
 import type { Tipo } from "./entry-schema";
-import { aplicaBaixa, marcaCompra, somaMeses } from "./pagamentos";
+import { dataValida, paraNumeroBr } from "./numero";
+import {
+  aplicaBaixa,
+  dataPago as leDataPago,
+  limpaDescricao,
+  marcaCompra,
+  marcaPago,
+  numeroParcela,
+  semMarcaParcela,
+  somaMeses,
+} from "./pagamentos";
 import { TABELAS } from "./painel.server";
+
 
 
 type Campo = { coluna: string; tipo: "texto" | "data" | "inteiro" | "dinheiro" };
@@ -71,10 +82,15 @@ const MESES = [
   "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO",
 ];
 
-/** "aaaa-mm-dd" (input date) -> "dd/mm/aaaa" */
+/** "aaaa-mm-dd" (input date) -> "dd/mm/aaaa"; recusa data fora do formato/ano válido */
 function paraBr(valor: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt(valor));
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : txt(valor);
+  const bruto = txt(valor);
+  if (!bruto) return "";
+  if (!dataValida(bruto)) {
+    throw new Error(`Data inválida: "${bruto}". Confira o dia, o mês e o ano.`);
+  }
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(bruto);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : bruto;
 }
 
 function mesDe(valor: string): string {
@@ -83,9 +99,9 @@ function mesDe(valor: string): string {
 }
 
 function paraNumero(valor: string): number {
-  const n = Number(txt(valor).replace(/[^\d,.-]/g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : 0;
+  return paraNumeroBr(valor);
 }
+
 
 function converter(campo: Campo, valor: string): unknown {
   if (campo.tipo === "data") return paraBr(valor);
@@ -154,6 +170,46 @@ async function gravarDespesa(valores: Record<string, string>, userId: string): P
   }
 }
 
+/**
+ * edita uma única parcela de crédito: grava a data do vencimento na linha e
+ * regrava as marcas internas "(n/total)", "[compra ...]" e "[pago ...]".
+ */
+async function editarParcela(
+  row: string,
+  valores: Record<string, string>,
+  userId: string,
+): Promise<void> {
+  const { selectAll } = await import("./db.server");
+  const linhas = await selectAll(TABELAS.despesa, userId);
+  const atual = linhas.find((l) => txt(l["ID"]) === txt(row));
+  const obsAtual = txt(atual?.["OBS"] ?? atual?.["OBSERVAÇÃO"] ?? atual?.["DESCRICAO"] ?? "");
+
+  const dataCompra = txt(valores["data"] ?? "");
+  const vencimento = txt(valores["dataPrimeiraParcela"] ?? "") || dataCompra;
+  const total = Math.max(1, Math.trunc(Number(valores["parcelas"] ?? "1")) || 1);
+  const numero = Math.min(Math.max(1, numeroParcela(obsAtual)), total);
+  const baixa = leDataPago(obsAtual);
+  const base = semMarcaParcela(limpaDescricao(txt(valores["descricao"] ?? "")));
+
+  const descricao = [
+    base,
+    total > 1 ? `(${numero}/${total})` : "",
+    dataCompra ? marcaCompra(paraBr(dataCompra)) : "",
+    baixa ? marcaPago(baixa) : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  await atualizar(
+    TABELAS.despesa,
+    row,
+    montaLinha("despesa", { ...valores, data: vencimento, descricao }),
+    userId,
+  );
+}
+
+
+
 export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
@@ -163,9 +219,14 @@ export async function salvarLancamento(
   const mapa = MAPAS[tipo];
 
   if (row) {
+    if (tipo === "despesa" && /credito|crédito/i.test(txt(valores["pagamento"] ?? ""))) {
+      await editarParcela(row, valores, userId);
+      return;
+    }
     await atualizar(mapa.tabela, row, montaLinha(tipo, valores), userId);
     return;
   }
+
 
   if (tipo === "despesa") {
     await gravarDespesa(valores, userId);
