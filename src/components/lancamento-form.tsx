@@ -310,22 +310,51 @@ function FormularioDialog({
     return !campo.somenteSe || campo.somenteSe.valores.includes(valores[campo.somenteSe.key] ?? "");
   };
 
+  // prévia do parcelamento (evita salvar valor errado sem perceber)
+  const parcelasPrevia = Math.max(1, Math.trunc(numeroBr(valores["parcelas"])) || 1);
+  const totalPrevia = numeroBr(valores["valor"]);
+  const previaParcelamento =
+    parcelasPrevia > 1 && totalPrevia > 0
+      ? `${parcelasPrevia}x de ${emReais(Math.floor((totalPrevia / parcelasPrevia) * 100) / 100)} · total ${emReais(totalPrevia)}`
+      : "";
+
   function enviar(e: React.FormEvent) {
     e.preventDefault();
     const enviaveis: Record<string, string> = {};
     for (const campo of CAMPOS[tipo]) {
       if (!visivel(campo)) continue;
-      if (campo.obrigatorio && !valores[campo.key]?.trim()) {
+      const valor = valores[campo.key] ?? "";
+      if (campo.obrigatorio && !valor.trim()) {
         toast.error(`Preencha "${campo.label}".`);
         return;
       }
-      enviaveis[campo.key] = valores[campo.key] ?? "";
+      if (campo.tipo === "date" && valor.trim() && !dataValida(valor)) {
+        toast.error(`Data inválida em "${campo.label}". Confira o dia, o mês e o ano.`);
+        return;
+      }
+      if ((campo.tipo === "money" || campo.tipo === "number") && valor.trim()) {
+        if (!/^-?[\d.,\s]+$/.test(valor.trim())) {
+          toast.error(`Valor inválido em "${campo.label}".`);
+          return;
+        }
+        const n = numeroBr(valor);
+        if (n < 0) {
+          toast.error(`"${campo.label}" não pode ser negativo.`);
+          return;
+        }
+        if (campo.obrigatorio && campo.tipo === "money" && n <= 0) {
+          toast.error(`Informe um valor maior que zero em "${campo.label}".`);
+          return;
+        }
+      }
+      enviaveis[campo.key] = valor;
     }
     if (semPagamento) {
       for (const key of CAMPOS_OCULTOS_SEM_PAGAMENTO) enviaveis[key] = "";
     }
     mutation.mutate(enviaveis);
   }
+
 
   if (seguinte) {
     return (
