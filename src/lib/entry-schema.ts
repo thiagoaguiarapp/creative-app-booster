@@ -13,7 +13,7 @@ export type Campo = {
   somenteSe?: { key: string; valores: string[] };
 };
 
-/** formas de pagamento de despesa */
+/** formas de pagamento usadas em todas as telas */
 export const FORMAS_PAGAMENTO = [
   "Dinheiro",
   "Débito",
@@ -24,6 +24,28 @@ export const FORMAS_PAGAMENTO = [
 
 /** verdadeiro para "Crédito à vista" e "Crédito parcelado" */
 export const ehCredito = (forma: string): boolean => /cr[eé]dito/i.test(forma ?? "");
+
+/** bloco padrão de pagamento (mesmos campos e rótulos em todas as telas) */
+export const camposPagamento = (): Campo[] => [
+  {
+    key: "pagamento",
+    label: "Forma de pagamento",
+    tipo: "select",
+    opcoes: FORMAS_PAGAMENTO,
+  },
+  {
+    key: "parcelas",
+    label: "Número de parcelas",
+    tipo: "number",
+    somenteSe: { key: "pagamento", valores: ["Crédito parcelado"] },
+  },
+  {
+    key: "dataPrimeiraParcela",
+    label: "Data do pagamento (vencimento)",
+    tipo: "date",
+    somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
+  },
+];
 
 /** tipos de combustível do abastecimento */
 export const COMBUSTIVEIS = [
