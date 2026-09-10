@@ -11,7 +11,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Tipo } from "@/lib/entry-schema";
-import { limpaDescricao } from "@/lib/pagamentos";
+import {
+  isoCompra,
+  limpaDescricao,
+  numeroParcela,
+  semMarcaParcela,
+  totalParcelas,
+} from "@/lib/pagamentos";
+
+/** "aaaa-mm-dd" -> "dd/mm/aaaa" */
+function paraDataBr(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : "";
+}
+
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
 
