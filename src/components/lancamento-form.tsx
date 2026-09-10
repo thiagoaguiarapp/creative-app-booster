@@ -157,6 +157,22 @@ function useFormas(): string[] {
   return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+/** Serviços já usados na tela de manutenção + categorias do admin (sem duplicar por digitação). */
+function useServicos(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const categorias = useCategorias();
+  const nomes = new Map<string, string>();
+  const add = (s?: string) => {
+    const t = s?.trim();
+    if (!t || t === "—") return;
+    const k = t.toLocaleLowerCase("pt-BR");
+    if (!nomes.has(k)) nomes.set(k, t);
+  };
+  for (const s of categorias.servicos) add(s);
+  for (const m of data?.manutencoes ?? []) add(m.servico);
+  return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
 function useInvalidarPainel() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["painel"] });
@@ -200,6 +216,8 @@ function FormularioDialog({
   const plataformas = usePlataformas(tipo);
   const formas = useFormas();
   const categorias = useCategorias();
+  const servicos = useServicos();
+  const [servicoOutro, setServicoOutro] = useState(false);
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
@@ -326,7 +344,37 @@ function FormularioDialog({
           {CAMPOS[tipo].filter(visivel).map((campo) => (
             <div key={campo.key} className="flex min-w-0 flex-col gap-2 sm:gap-1.5">
               <Label htmlFor={campo.key} className="text-sm sm:text-xs">{campo.label}</Label>
-              {campo.tipo === "select" ? (
+              {campo.key === "servico" && tipo === "manutencao" && !servicoOutro ? (
+                <Select
+                  value={valores[campo.key] ?? ""}
+                  onValueChange={(v) => {
+                    if (v === "__outro__") {
+                      setServicoOutro(true);
+                      setValores((atual) => ({ ...atual, [campo.key]: "" }));
+                      return;
+                    }
+                    setValores((atual) => ({ ...atual, [campo.key]: v }));
+                  }}
+                >
+                  <SelectTrigger id={campo.key} className="h-12 text-base sm:h-9 sm:text-sm">
+                    <SelectValue placeholder="Selecione o serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(valores[campo.key] &&
+                    !servicos.some(
+                      (s) => s.toLocaleLowerCase("pt-BR") === (valores[campo.key] ?? "").toLocaleLowerCase("pt-BR"),
+                    )
+                      ? [valores[campo.key] ?? "", ...servicos]
+                      : servicos
+                    ).map((nome) => (
+                      <SelectItem key={nome} value={nome}>
+                        {nome}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__outro__">+ Novo serviço (digitar)…</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : campo.tipo === "select" ? (
                 <Select
                   value={valores[campo.key] ?? ""}
                   onValueChange={(v) =>
