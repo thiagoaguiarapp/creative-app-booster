@@ -170,6 +170,7 @@ function FormularioDialog({
   titulo,
   aberto,
   onOpenChange,
+  semPagamento = false,
 }: {
   tipo: Tipo;
   row?: string;
@@ -178,6 +179,8 @@ function FormularioDialog({
   titulo?: string;
   aberto: boolean;
   onOpenChange: (v: boolean) => void;
+  /** oculta forma de pagamento/parcelas (manutenção encadeada a uma despesa) */
+  semPagamento?: boolean;
 }) {
   const veiculos = useVeiculos();
   const [valores, setValores] = useState(() => {
