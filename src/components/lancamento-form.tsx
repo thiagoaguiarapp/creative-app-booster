@@ -114,13 +114,26 @@ function valoresIniciais(
     }
 
   }
+
+  // despesa no crédito: os campos de parcela vêm das marcas internas do lançamento
+  if (tipo === "despesa" && registro && /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))) {
+    const descricao = String(registro["descricao"] ?? "");
+    const isoLinha =
+      String(registro["iso"] ?? "") || paraInputDate(String(registro["data"] ?? ""));
+    out["dataPrimeiraParcela"] = isoLinha;
+    out["data"] = isoCompra(descricao, isoLinha);
+    const total = totalParcelas(descricao);
+    if (total > 1) out["parcelas"] = String(total);
+    out["descricao"] = semMarcaParcela(limpaDescricao(descricao));
+  }
+
   return out;
 }
 
 function numeroBr(valor: string | undefined): number {
-  const n = Number(String(valor ?? "").replace(/[^\d,.-]/g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : 0;
+  return paraNumeroBr(valor);
 }
+
 
 function useCategorias() {
   const { data } = useQuery(categoriasQueryOptions());
