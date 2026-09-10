@@ -1,24 +1,24 @@
-# Banco e Fechamento só no Premium
+# Remover forma de pagamento da atualização de manutenção vinda de despesa
 
-## Resposta sobre os valores
+## Problema
+Ao lançar uma **despesa** com categoria de manutenção (ex.: "Manutenção", "Troca de óleo"), o app abre a seguir a tela de manutenção para completar km e validade. Essa tela mostra os campos de **forma de pagamento, parcelas e data da primeira parcela** — informação que já foi preenchida na despesa, causando repetição e risco de divergência.
 
-As telas Banco e Fechamento não guardam nada próprio: elas apenas somam os lançamentos que você já registra (despesas, abastecimentos, ganhos, repasses, manutenções). Quem está no plano Free continua lançando tudo normalmente — só não enxerga essas duas telas.
+## O que será feito
 
-No momento em que a pessoa vira Premium, as telas abrem já com todo o histórico: meses anteriores, extrato, faturas do cartão, o que foi pago e o que está em aberto. Nada nasce zerado e nada precisa ser recadastrado.
+1. **Tela de manutenção encadeada (após despesa)**
+   - No fluxo em `src/components/lancamento-form.tsx` que abre a manutenção logo após salvar a despesa ("Atualizar manutenção existente" / "Registrar manutenção do serviço"), passar um parâmetro novo `semPagamento` para o formulário.
+   - Com `semPagamento` ativo, ocultar os campos `pagamento`, `parcelas` e `dataPrimeiraParcela` — a manutenção salva sem forma de pagamento (o valor/custo fica registrado apenas na despesa, sem gerar parcelas duplicadas).
+   - Manter o campo **Valor** visível com valor sugerido em branco (a despesa já guarda o valor; a manutenção pode ficar com custo zero), com o aviso atual "O valor já foi lançado na despesa — aqui atualize apenas km e validade."
 
-Única exceção: a marcação "mês conferido" do Fechamento fica guardada no próprio aparelho e só passa a existir a partir do primeiro clique.
+2. **Gravação**
+   - Nenhuma mudança na gravação: a manutenção continua sendo salva/atualizada pela mesma função de sempre, apenas sem os campos de pagamento.
 
-## O que muda
+## Não será alterado
+- O botão "Atualizar" da própria tela Manutenção (diálogo `AtualizarManutencaoDialog`) — que já não pede forma de pagamento.
+- O lançamento de manutenção direta pelo botão "Lançar manutenção" (onde a forma de pagamento continua aparecendo, pois ali não há despesa vinculada).
+- A regra de parcelas de crédito das despesas.
 
-1. Os atalhos "Banco" e "Fechamento do mês" somem da barra inferior, da linha de ícones e do menu lateral para quem está no Free.
-2. Se alguém abrir o endereço dessas telas direto, é levado para a tela de assinatura, sem prévia e sem valores.
-3. Assim que o plano vira Premium, os dois atalhos reaparecem e as telas mostram todo o histórico.
-4. A tela Premium ganha a menção dessas duas telas na lista de benefícios.
-
-## Detalhes técnicos
-
-- `src/components/atalho-paginas.tsx` e `src/components/app-sidebar.tsx`: ler `useRouteContext({ from: "__root__" }).usuario?.isPremium` e filtrar as entradas `/banco` e `/fechamento` quando falso.
-- `src/routes/banco.tsx` e `src/routes/fechamento.tsx`: no `beforeLoad`, checar o mesmo `context.usuario?.isPremium` e lançar `redirect({ to: "/premium" })` quando falso, antes do `loader` disparar a query do painel.
-- `/pagamentos` já redireciona para `/banco`, então herda a regra.
-- `src/routes/premium.tsx`: acrescentar um benefício citando Banco (extrato e cartão) e Fechamento do mês.
-- Nenhuma mudança em dados, migração ou cálculo — os valores continuam derivados dos lançamentos existentes.
+## Critérios de aceitação
+- Ao lançar despesa de manutenção e continuar para a tela de manutenção, não aparece forma de pagamento, parcelas ou data de vencimento.
+- A manutenção é salva/atualizada normalmente com data, km e validade.
+- O lançamento direto de manutenção (sem despesa) continua oferecendo forma de pagamento.
