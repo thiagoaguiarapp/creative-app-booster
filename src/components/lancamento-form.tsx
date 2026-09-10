@@ -54,10 +54,18 @@ import {
 } from "@/lib/entry-schema";
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
-import { CATEGORIA_RETIRADA } from "@/lib/pagamentos";
+import { dataValida, emReais, paraNumeroBr } from "@/lib/numero";
+import {
+  CATEGORIA_RETIRADA,
+  isoCompra,
+  limpaDescricao,
+  semMarcaParcela,
+  totalParcelas,
+} from "@/lib/pagamentos";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { categoriasQueryOptions } from "@/lib/categorias-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
+
 
 function normalizaTexto(texto: string) {
   return texto
