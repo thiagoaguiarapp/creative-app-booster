@@ -239,6 +239,7 @@ function FormularioDialog({
   const categorias = useCategorias();
   const servicos = useServicos();
   const [servicoOutro, setServicoOutro] = useState(false);
+  const [veiculoOutro, setVeiculoOutro] = useState(false);
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
