@@ -239,6 +239,7 @@ function FormularioDialog({
   const categorias = useCategorias();
   const servicos = useServicos();
   const [servicoOutro, setServicoOutro] = useState(false);
+  const [veiculoOutro, setVeiculoOutro] = useState(false);
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
@@ -394,7 +395,37 @@ function FormularioDialog({
           {CAMPOS[tipo].filter(visivel).map((campo) => (
             <div key={campo.key} className="flex min-w-0 flex-col gap-2 sm:gap-1.5">
               <Label htmlFor={campo.key} className="text-sm sm:text-xs">{campo.label}</Label>
-              {campo.key === "servico" && tipo === "manutencao" && !servicoOutro ? (
+              {campo.key === "veiculo" && !veiculoOutro && veiculos.nomes.length > 0 ? (
+                <Select
+                  value={valores[campo.key] ?? ""}
+                  onValueChange={(v) => {
+                    if (v === "__outro__") {
+                      setVeiculoOutro(true);
+                      setValores((atual) => ({ ...atual, [campo.key]: "" }));
+                      return;
+                    }
+                    setValores((atual) => ({ ...atual, [campo.key]: v }));
+                  }}
+                >
+                  <SelectTrigger id={campo.key} className="h-12 text-base sm:h-9 sm:text-sm">
+                    <SelectValue placeholder="Selecione o veículo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(valores[campo.key] &&
+                    !veiculos.nomes.some(
+                      (n) => n.toLocaleLowerCase("pt-BR") === (valores[campo.key] ?? "").toLocaleLowerCase("pt-BR"),
+                    )
+                      ? [valores[campo.key] ?? "", ...veiculos.nomes]
+                      : veiculos.nomes
+                    ).map((nome) => (
+                      <SelectItem key={nome} value={nome}>
+                        {nome}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__outro__">+ Novo veículo (digitar)…</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : campo.key === "servico" && tipo === "manutencao" && !servicoOutro ? (
                 <Select
                   value={valores[campo.key] ?? ""}
                   onValueChange={(v) => {
