@@ -179,9 +179,14 @@ export async function salvarLancamento(
   const mapa = MAPAS[tipo];
 
   if (row) {
+    if (tipo === "despesa" && /credito|crédito/i.test(txt(valores["pagamento"] ?? ""))) {
+      await editarParcela(row, valores, userId);
+      return;
+    }
     await atualizar(mapa.tabela, row, montaLinha(tipo, valores), userId);
     return;
   }
+
 
   if (tipo === "despesa") {
     await gravarDespesa(valores, userId);
