@@ -223,7 +223,16 @@ export async function salvarLancamento(
       await editarParcela(row, valores, userId);
       return;
     }
-    await atualizar(mapa.tabela, row, montaLinha(tipo, valores), userId);
+    const linha = montaLinha(tipo, valores);
+    // abastecimento: a marca "[pago dd/mm/aaaa]" mora na coluna POSTO; preserva na edição
+    if (tipo === "abastecimento" && linha["POSTO"] !== undefined) {
+      const { selectAll } = await import("./db.server");
+      const linhas = await selectAll(TABELAS.abastecimento, userId);
+      const atual = linhas.find((l) => txt(l["ID"]) === txt(row));
+      const baixa = leDataPago(txt(atual?.["POSTO"] ?? atual?.["Posto"] ?? ""));
+      if (baixa) linha["POSTO"] = `${txt(linha["POSTO"] as string)} ${marcaPago(baixa)}`.trim();
+    }
+    await atualizar(mapa.tabela, row, linha, userId);
     return;
   }
 
