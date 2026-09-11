@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Fuel,
   Pencil,
-  PiggyBank,
   Plus,
   Receipt,
   Trash2,
@@ -56,7 +55,6 @@ import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
 import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { dataValida, emReais, paraNumeroBr } from "@/lib/numero";
 import {
-  CATEGORIA_RETIRADA,
   isoCompra,
   limpaDescricao,
   semMarcaParcela,
@@ -664,15 +662,6 @@ const TIPOS_RAPIDOS: ItemRapido[] = [
   { id: "despesa", tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais", icone: Receipt },
   { id: "repasse", tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos", icone: Wallet },
   { id: "manutencao", tipo: "manutencao", rotulo: "Manutenção", desc: "Serviços e trocas", icone: Wrench },
-  {
-    id: "retirada",
-    tipo: "despesa",
-    rotulo: "Retirada pessoal (salário)",
-    desc: "Dinheiro que você tira para uso pessoal",
-    icone: PiggyBank,
-    iniciais: { categoria: CATEGORIA_RETIRADA },
-    titulo: "Retirada pessoal (salário)",
-  },
 ];
 
 function ListaTiposRapidos({ onEscolher }: { onEscolher: (item: ItemRapido) => void }) {
