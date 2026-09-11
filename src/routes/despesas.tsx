@@ -91,6 +91,8 @@ function DespesasPage() {
         ...d,
         compraIso: isoCompra(d.descricao, d.iso),
         descricao: limpaDescricao(d.descricao),
+        /** descrição original com as marcas internas, usada na edição */
+        bruta: d,
       })),
     [data.despesas],
   );
@@ -280,7 +282,7 @@ function DespesasPage() {
                       <Detalhe rotulo="Valor" valor={brl(d.valor)} />
                     </>
                   }
-                  acoes={<AcoesLancamento tipo="despesa" registro={d} />}
+                  acoes={<AcoesLancamento tipo="despesa" registro={d.bruta} />}
                 />
               );
             })}

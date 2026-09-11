@@ -47,7 +47,7 @@ export function BotaoBaixaRapida({ pagamento }: { pagamento: Pagamento }) {
       variant="outline"
       size="sm"
       disabled={baixa.isPending}
-      onClick={() => baixa.mutate({ rows: [pagamento.row], dataPago: hojeInput() })}
+      onClick={() => baixa.mutate({ rows: [pagamento.id], dataPago: hojeInput() })}
     >
       <CheckCircle2 className="size-4" /> Paguei
     </Button>
@@ -61,7 +61,7 @@ export function BotaoDesfazerBaixa({ pagamento }: { pagamento: Pagamento }) {
       variant="ghost"
       size="sm"
       disabled={baixa.isPending}
-      onClick={() => baixa.mutate({ rows: [pagamento.row], dataPago: null })}
+      onClick={() => baixa.mutate({ rows: [pagamento.id], dataPago: null })}
     >
       <Undo2 className="size-4" /> Desfazer
     </Button>
@@ -85,7 +85,7 @@ export function BaixaPagamentoDialog({
   const baixa = useBaixaPagamento();
 
   const total = abertas
-    .filter((p) => selecao.includes(p.row))
+    .filter((p) => selecao.includes(p.id))
     .reduce((s, p) => s + p.valor, 0);
 
   function alternar(row: string, marcado: boolean) {
@@ -129,12 +129,12 @@ export function BaixaPagamentoDialog({
                   const vencida = p.isoPagamento <= hojeIso;
                   return (
                     <label
-                      key={p.row}
+                      key={p.id}
                       className="flex cursor-pointer items-center gap-3 py-2.5"
                     >
                       <Checkbox
-                        checked={selecao.includes(p.row)}
-                        onCheckedChange={(v) => alternar(p.row, v === true)}
+                        checked={selecao.includes(p.id)}
+                        onCheckedChange={(v) => alternar(p.id, v === true)}
                       />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium">{p.descricao}</span>
@@ -155,7 +155,7 @@ export function BaixaPagamentoDialog({
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Já pagos</p>
                 <div className="flex flex-col divide-y divide-border">
                   {pagas.slice(0, 10).map((p) => (
-                    <div key={p.row} className="flex items-center gap-3 py-2">
+                    <div key={p.id} className="flex items-center gap-3 py-2">
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm">{p.descricao}</span>
                         <span className="num text-xs text-muted-foreground">
