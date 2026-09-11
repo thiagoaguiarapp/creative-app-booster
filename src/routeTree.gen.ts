@@ -13,15 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as BancoRouteImport } from './routes/banco'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as DespesasRouteImport } from './routes/despesas'
-import { Route as FechamentoRouteImport } from './routes/fechamento'
-import { Route as FluxoCaixaRouteImport } from './routes/fluxo-caixa'
 import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
-import { Route as PagamentosRouteImport } from './routes/pagamentos'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -55,11 +51,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BancoRoute = BancoRouteImport.update({
-  id: '/banco',
-  path: '/banco',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -68,16 +59,6 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FechamentoRoute = FechamentoRouteImport.update({
-  id: '/fechamento',
-  path: '/fechamento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FluxoCaixaRoute = FluxoCaixaRouteImport.update({
-  id: '/fluxo-caixa',
-  path: '/fluxo-caixa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GanhosDiariosRoute = GanhosDiariosRouteImport.update({
@@ -93,11 +74,6 @@ const LancamentosRoute = LancamentosRouteImport.update({
 const ManutencaoRoute = ManutencaoRouteImport.update({
   id: '/manutencao',
   path: '/manutencao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PagamentosRoute = PagamentosRouteImport.update({
-  id: '/pagamentos',
-  path: '/pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -167,15 +143,11 @@ export interface FileRoutesByFullPath {
   '/abastecimento': typeof AbastecimentoRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
-  '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
-  '/fechamento': typeof FechamentoRoute
-  '/fluxo-caixa': typeof FluxoCaixaRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
-  '/pagamentos': typeof PagamentosRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -193,15 +165,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/auth': typeof AuthRoute
-  '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
-  '/fechamento': typeof FechamentoRoute
-  '/fluxo-caixa': typeof FluxoCaixaRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
-  '/pagamentos': typeof PagamentosRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -221,15 +189,11 @@ export interface FileRoutesById {
   '/abastecimento': typeof AbastecimentoRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
-  '/banco': typeof BancoRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/despesas': typeof DespesasRoute
-  '/fechamento': typeof FechamentoRoute
-  '/fluxo-caixa': typeof FluxoCaixaRoute
   '/ganhos-diarios': typeof GanhosDiariosRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
-  '/pagamentos': typeof PagamentosRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -250,15 +214,11 @@ export interface FileRouteTypes {
     | '/abastecimento'
     | '/admin'
     | '/auth'
-    | '/banco'
     | '/configuracoes'
     | '/despesas'
-    | '/fechamento'
-    | '/fluxo-caixa'
     | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
-    | '/pagamentos'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -276,15 +236,11 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/auth'
-    | '/banco'
     | '/configuracoes'
     | '/despesas'
-    | '/fechamento'
-    | '/fluxo-caixa'
     | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
-    | '/pagamentos'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -303,15 +259,11 @@ export interface FileRouteTypes {
     | '/abastecimento'
     | '/admin'
     | '/auth'
-    | '/banco'
     | '/configuracoes'
     | '/despesas'
-    | '/fechamento'
-    | '/fluxo-caixa'
     | '/ganhos-diarios'
     | '/lancamentos'
     | '/manutencao'
-    | '/pagamentos'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -331,15 +283,11 @@ export interface RootRouteChildren {
   AbastecimentoRoute: typeof AbastecimentoRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
-  BancoRoute: typeof BancoRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DespesasRoute: typeof DespesasRoute
-  FechamentoRoute: typeof FechamentoRoute
-  FluxoCaixaRoute: typeof FluxoCaixaRoute
   GanhosDiariosRoute: typeof GanhosDiariosRoute
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
-  PagamentosRoute: typeof PagamentosRoute
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -380,13 +328,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/banco': {
-      id: '/banco'
-      path: '/banco'
-      fullPath: '/banco'
-      preLoaderRoute: typeof BancoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -399,20 +340,6 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fechamento': {
-      id: '/fechamento'
-      path: '/fechamento'
-      fullPath: '/fechamento'
-      preLoaderRoute: typeof FechamentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fluxo-caixa': {
-      id: '/fluxo-caixa'
-      path: '/fluxo-caixa'
-      fullPath: '/fluxo-caixa'
-      preLoaderRoute: typeof FluxoCaixaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ganhos-diarios': {
@@ -434,13 +361,6 @@ declare module '@tanstack/react-router' {
       path: '/manutencao'
       fullPath: '/manutencao'
       preLoaderRoute: typeof ManutencaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pagamentos': {
-      id: '/pagamentos'
-      path: '/pagamentos'
-      fullPath: '/pagamentos'
-      preLoaderRoute: typeof PagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -551,15 +471,11 @@ const rootRouteChildren: RootRouteChildren = {
   AbastecimentoRoute: AbastecimentoRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
-  BancoRoute: BancoRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DespesasRoute: DespesasRoute,
-  FechamentoRoute: FechamentoRoute,
-  FluxoCaixaRoute: FluxoCaixaRoute,
   GanhosDiariosRoute: GanhosDiariosRoute,
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
-  PagamentosRoute: PagamentosRoute,
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,
