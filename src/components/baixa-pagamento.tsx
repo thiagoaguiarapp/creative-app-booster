@@ -129,7 +129,7 @@ export function BaixaPagamentoDialog({
                   const vencida = p.isoPagamento <= hojeIso;
                   return (
                     <label
-                      key={p.row}
+                      key={p.id}
                       className="flex cursor-pointer items-center gap-3 py-2.5"
                     >
                       <Checkbox
@@ -155,7 +155,7 @@ export function BaixaPagamentoDialog({
                 <p className="mb-1 text-xs font-medium text-muted-foreground">Já pagos</p>
                 <div className="flex flex-col divide-y divide-border">
                   {pagas.slice(0, 10).map((p) => (
-                    <div key={p.row} className="flex items-center gap-3 py-2">
+                    <div key={p.id} className="flex items-center gap-3 py-2">
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm">{p.descricao}</span>
                         <span className="num text-xs text-muted-foreground">
