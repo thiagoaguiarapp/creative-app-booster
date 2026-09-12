@@ -13,6 +13,20 @@ jobs:
     - name: Checkout do código
       uses: actions/checkout@v4
 
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Instalar dependências do projeto
+      run: npm ci
+
+    - name: Compilar projeto web
+      run: npm run build
+
+    - name: Sincronizar projeto com Capacitor Android
+      run: npx cap sync android
+
     - name: Configurar JDK
       uses: actions/setup-java@v4
       with:
@@ -32,4 +46,3 @@ jobs:
       with:
         name: app-release-aab
         path: android/app/build/outputs/bundle/release/app-release.aab
-      
