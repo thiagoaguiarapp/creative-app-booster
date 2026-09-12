@@ -1,4 +1,4 @@
-- name: Upload dos arquivos estáticos
+- name: Upload dos arquivos estaticos
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # ou '.output/public'
+          path: './.output/public' # ou './dist'
