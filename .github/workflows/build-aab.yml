@@ -20,13 +20,16 @@ jobs:
         distribution: 'temurin'
 
     - name: Conceder permissão de execução para o Gradle
+      working-directory: android
       run: chmod +x gradlew
 
     - name: Gerar AAB de Release
+      working-directory: android
       run: ./gradlew bundleRelease
 
     - name: Salvar o arquivo AAB nos Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: app-release-aab
-        path: app/build/outputs/bundle/release/app-release.aab
+        path: android/app/build/outputs/bundle/release/app-release.aab
+      
