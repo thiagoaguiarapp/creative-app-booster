@@ -1,3 +1,4 @@
-- name: Decode Keystore
-  run: |
-    echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/my-release-key.jks
+- name: Upload dos arquivos estáticos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # ou '.output/public'
