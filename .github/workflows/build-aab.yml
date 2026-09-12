@@ -24,6 +24,9 @@ jobs:
     - name: Compilar projeto web
       run: npm run build
 
+    - name: Adicionar plataforma Android no Capacitor
+      run: npx cap add android || true
+
     - name: Sincronizar projeto com Capacitor Android
       run: npx cap sync android
 
