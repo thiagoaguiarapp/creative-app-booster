@@ -35,13 +35,10 @@ jobs:
       - name: Compilar projeto web
         run: npm run build
 
-      - name: Ver arquivos gerados no build
-        run: ls -la
-
       - name: Upload dos arquivos estaticos
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './.output/public'
 
       - name: Publicar no GitHub Pages
         id: deployment
