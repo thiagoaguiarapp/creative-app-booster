@@ -35,6 +35,9 @@ jobs:
       - name: Compilar projeto web
         run: npm run build
 
+      - name: Ver arquivos gerados no build
+        run: ls -la
+
       - name: Upload dos arquivos estaticos
         uses: actions/upload-pages-artifact@v3
         with:
