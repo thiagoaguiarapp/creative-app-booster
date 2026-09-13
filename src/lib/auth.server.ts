@@ -5,15 +5,12 @@ const ACCESS = "motoca_at";
 const REFRESH = "motoca_rt";
 
 function url(): string {
-  const u = process.env["MOTOCA_SUPABASE_URL"];
-  if (!u) throw new Error("Conexão com o banco não configurada (URL ausente).");
+  const u = "https://yxzwqgbtcwrtpnmfvyxe.supabase.co";
   return `${u.replace(/\/$/, "")}/auth/v1`;
 }
 
 function anon(): string {
-  const k = process.env["MOTOCA_SUPABASE_ANON_KEY"];
-  if (!k) throw new Error("Conexão com o banco não configurada (chave ausente).");
-  return k;
+  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4endxZ2J0Y3dydHBubWZ2eXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMjI0NjMsImV4cCI6MjEwMTc5ODQ2M30.GH4_HMt1TfaOx7uXWFF3azyrVQOocMMMvsKXFax298c";
 }
 
 export type Veiculo = {
@@ -77,8 +74,7 @@ async function chamar(rota: string, corpo: unknown): Promise<Record<string, unkn
 function traduzir(msg: string, status: number): string {
   const m = msg.toLowerCase();
   if (m.includes("invalid login")) return "E-mail ou senha incorretos.";
-  if (m.includes("already registered") || m.includes("already been registered"))
-    return "Já existe uma conta com esse e-mail.";
+  if (m.includes("already registered") || m.includes("already been registered")) return "Já existe uma conta com esse e-mail.";
   if (m.includes("password") && m.includes("6")) return "A senha precisa ter ao menos 6 caracteres.";
   if (m.includes("email") && m.includes("invalid")) return "E-mail inválido.";
   if (m.includes("confirm")) return "Confirme seu e-mail antes de entrar.";
@@ -184,7 +180,7 @@ export async function salvarMetaSemanal(valor: number): Promise<number> {
 /** Salva o limite do cartão e o dia de vencimento da fatura. */
 export async function salvarCartao(
   limite: number,
-  vencimento: number,
+  vencimento: number
 ): Promise<{ limiteCartao: number; vencimentoCartao: number }> {
   const salvo = await atualizarMetadata({
     limiteCartao: Math.max(0, Number(limite) || 0),
@@ -192,8 +188,6 @@ export async function salvarCartao(
   });
   return { limiteCartao: salvo.limiteCartao, vencimentoCartao: salvo.vencimentoCartao };
 }
-
-
 
 /** Salva a lista de veículos do usuário. */
 export async function salvarVeiculos(veiculos: unknown): Promise<Veiculo[]> {
