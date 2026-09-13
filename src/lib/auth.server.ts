@@ -37,8 +37,6 @@ export type Usuario = {
 
 type Tokens = { access_token?: string; refresh_token?: string };
 
-// sameSite "none" é necessário porque o app roda dentro de um iframe (preview),
-// onde cookies "lax" não são enviados ao servidor.
 const opcoesCookie = {
   httpOnly: true,
   sameSite: "none" as const,
@@ -98,7 +96,6 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
   };
 }
 
-/** Normaliza a lista de veículos guardada no user_metadata. */
 export function normalizarVeiculos(bruto: unknown): Veiculo[] {
   if (!Array.isArray(bruto)) return [];
   const lista: Veiculo[] = [];
@@ -121,20 +118,17 @@ export function normalizarVeiculos(bruto: unknown): Veiculo[] {
   return lista.slice(0, 10);
 }
 
-/** número não negativo guardado no user_metadata (0 quando ausente/ inválido) */
 function numeroMeta(bruto: unknown): number {
   const valor = Number(bruto ?? 0);
   return Number.isFinite(valor) && valor >= 0 ? valor : 0;
 }
 
-/** Lê a meta semanal armazenada no user_metadata. */
 export function metaSemanalDe(dados: Record<string, unknown>): number {
   const meta = (dados["user_metadata"] ?? {}) as Record<string, unknown>;
   const valor = Number(meta["metaSemanal"] ?? 0);
   return Number.isFinite(valor) && valor >= 0 ? valor : 0;
 }
 
-/** Atualiza o user_metadata preservando os campos existentes do perfil. */
 async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usuario> {
   const atual = await exigirUsuario();
   const token = getCookie(ACCESS);
@@ -166,18 +160,15 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
   return salvo;
 }
 
-/** Salva nome e telefone no perfil do usuário logado. */
 export async function salvarPerfil(nome: string, telefone: string): Promise<Usuario> {
   return atualizarMetadata({ nome, telefone });
 }
 
-/** Salva/atualiza a meta semanal preservando o restante do perfil. */
 export async function salvarMetaSemanal(valor: number): Promise<number> {
   const salvo = await atualizarMetadata({ metaSemanal: valor });
   return salvo.metaSemanal;
 }
 
-/** Salva o limite do cartão e o dia de vencimento da fatura. */
 export async function salvarCartao(
   limite: number,
   vencimento: number
@@ -189,14 +180,12 @@ export async function salvarCartao(
   return { limiteCartao: salvo.limiteCartao, vencimentoCartao: salvo.vencimentoCartao };
 }
 
-/** Salva a lista de veículos do usuário. */
 export async function salvarVeiculos(veiculos: unknown): Promise<Veiculo[]> {
   const lista = normalizarVeiculos(veiculos);
   const salvo = await atualizarMetadata({ veiculos: lista });
   return salvo.veiculos;
 }
 
-/** Ativa ou cancela o plano Premium (sem anúncios). */
 export async function definirPremium(ativo: boolean): Promise<boolean> {
   const salvo = await atualizarMetadata({ is_premium: ativo });
   return salvo.isPremium;
@@ -217,7 +206,6 @@ export async function cadastrar(email: string, senha: string): Promise<Usuario |
     const renovado = extrairUsuario(dados);
     return renovado ? await marcarAdmin(renovado) : null;
   }
-  // Confirmação de e-mail ativa no projeto: ainda não há sessão.
   return null;
 }
 
@@ -229,7 +217,6 @@ async function usuarioPorToken(token: string): Promise<Usuario | null> {
   return extrairUsuario((await res.json()) as Record<string, unknown>);
 }
 
-/** Marca o usuário como administrador conforme a role na tabela profiles. */
 async function marcarAdmin(u: Usuario): Promise<Usuario> {
   try {
     const { roleDe } = await import("./admin.server");
@@ -239,7 +226,6 @@ async function marcarAdmin(u: Usuario): Promise<Usuario> {
   }
 }
 
-/** Usuário da requisição atual, renovando o token quando necessário. */
 export async function usuarioAtual(): Promise<Usuario | null> {
   const access = getCookie(ACCESS);
   if (access) {
@@ -265,7 +251,6 @@ export async function exigirUsuario(): Promise<Usuario> {
   return u;
 }
 
-/** Reenvia o e-mail de confirmação de cadastro. */
 export async function reenviarConfirmacao(email: string, redirectTo: string): Promise<void> {
   const res = await fetch(`${url()}/resend?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: "POST",
@@ -278,7 +263,6 @@ export async function reenviarConfirmacao(email: string, redirectTo: string): Pr
   }
 }
 
-/** Envia o e-mail de recuperação de senha. */
 export async function recuperarSenha(email: string, redirectTo: string): Promise<void> {
   const res = await fetch(`${url()}/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: "POST",
@@ -291,7 +275,6 @@ export async function recuperarSenha(email: string, redirectTo: string): Promise
   }
 }
 
-/** Define uma nova senha usando o token do link de recuperação. */
 export async function redefinirSenha(accessToken: string, senha: string): Promise<void> {
   const res = await fetch(`${url()}/user`, {
     method: "PUT",
