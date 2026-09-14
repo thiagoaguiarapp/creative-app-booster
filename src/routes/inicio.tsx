@@ -48,9 +48,8 @@ export const Route = createFileRoute("/inicio")({
         property: "og:description",
         content: "Resumo do dia, acesso rápido e controle completo dos ganhos e gastos do entregador.",
       },
-      { property: "og:url", content: "https://creative-app-booster.lovable.app/" },
+      { name: "robots", content: "noindex" },
     ],
-    links: [{ rel: "canonical", href: "https://creative-app-booster.lovable.app/" }],
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(painelQueryOptions());
