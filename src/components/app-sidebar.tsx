@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 
-import logoAsset from "@/assets/logo.png.asset.json";
 import { sairFn } from "@/lib/auth.functions";
 
 import {
@@ -46,7 +45,7 @@ export function AppSidebar({ email, isAdmin }: { email?: string; isAdmin?: boole
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-2">
           <img
-            src={logoAsset.url}
+            src="/icon-192-v2.png"
             alt="Rota Control"
             className="size-8 shrink-0 rounded-md bg-sidebar-primary object-cover"
           />

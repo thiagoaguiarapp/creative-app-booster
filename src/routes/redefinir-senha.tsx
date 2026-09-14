@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import logoAsset from "@/assets/logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -75,7 +74,7 @@ function RedefinirSenhaPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col items-center gap-2 text-center">
-          <img src={logoAsset.url} alt="Rota Control" className="size-14 rounded-lg object-cover" />
+          <img src="/icon-192-v2.png" alt="Rota Control" className="size-14 rounded-lg object-cover" />
           <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">
             Nova senha
           </h1>
