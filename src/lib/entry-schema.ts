@@ -90,7 +90,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   ],
   abastecimento: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
-    { key: "veiculo", label: "Veículo", tipo: "text", sugestoes: "veiculo" },
+    
     { key: "combustivel", label: "Combustível utilizado", tipo: "select", opcoes: COMBUSTIVEIS, obrigatorio: true },
     { key: "posto", label: "Posto (opcional)", tipo: "text", sugestoes: "combustivel" },
     { key: "odometro", label: "Odômetro (km)", tipo: "number", obrigatorio: true },

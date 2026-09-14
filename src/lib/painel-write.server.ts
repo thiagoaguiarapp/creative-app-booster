@@ -33,12 +33,11 @@ const MAPAS: Record<Tipo, { tabela: string; mesColuna?: string; campos: Record<s
     tabela: TABELAS.abastecimento,
     campos: {
       data: { coluna: "Data", tipo: "data" },
-      veiculo: { coluna: "VEICULO", tipo: "texto" },
       posto: { coluna: "POSTO", tipo: "texto" },
       odometro: { coluna: "Odômetro total", tipo: "inteiro" },
       litros: { coluna: "Volume abastecido", tipo: "dinheiro" },
       precoLitro: { coluna: "Preço do Litro", tipo: "dinheiro" },
-      desconto: { coluna: "DESCONTO", tipo: "dinheiro" },
+      desconto: { coluna: "Desconto", tipo: "dinheiro" },
       valorPago: { coluna: "VALOR PAGO", tipo: "dinheiro" },
       pagamento: { coluna: "CONDIÇÃO PAGAMENTO", tipo: "texto" },
     },
