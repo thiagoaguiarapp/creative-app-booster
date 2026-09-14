@@ -62,7 +62,7 @@ function RedefinirSenhaPage() {
       await redefinir({ data: { accessToken: token, senha } });
       toast.success("Senha alterada! Você já está conectado.");
       await router.invalidate();
-      router.navigate({ to: "/", replace: true });
+      router.navigate({ to: "/inicio", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível alterar a senha.");
     } finally {

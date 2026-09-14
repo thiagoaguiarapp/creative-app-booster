@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const paginas = [
-  { title: "Início", short: "Início", url: "/", icon: Home },
+  { title: "Início", short: "Início", url: "/inicio", icon: Home },
   { title: "Ganhos diários", short: "Ganhos", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", short: "Abastec.", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", short: "Despesas", url: "/despesas", icon: Receipt },

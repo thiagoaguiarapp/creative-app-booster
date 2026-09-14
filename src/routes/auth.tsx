@@ -93,7 +93,7 @@ function AuthPage() {
         }
       }
       await router.invalidate();
-      router.navigate({ to: "/", replace: true });
+      router.navigate({ to: "/inicio", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível continuar.");
     } finally {

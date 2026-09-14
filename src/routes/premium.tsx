@@ -96,7 +96,7 @@ function PremiumPage() {
     await definirPremium({ data: { ativo: premium } });
     await router.invalidate();
     toast.success(mensagem);
-    if (premium) router.navigate({ to: "/" });
+    if (premium) router.navigate({ to: "/inicio" });
   };
 
   const assinar = async () => {
