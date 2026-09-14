@@ -108,6 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     const publica =
       location.pathname === "/auth" ||
       location.pathname === "/redefinir-senha" ||
+      location.pathname === "/confirmado" ||
       location.pathname === "/termos" ||
       location.pathname === "/privacidade";
     const { usuario, falhou } = await carregarSessao();
