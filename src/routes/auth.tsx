@@ -81,9 +81,13 @@ function AuthPage() {
       if (modo === "entrar") {
         await entrar({ data: { email, senha } });
       } else {
-        const { logado } = await cadastrar({ data: { email, senha } });
+        const { logado } = await cadastrar({
+          data: { email, senha, redirectTo: `${origem()}/confirmado` },
+        });
         if (!logado) {
-          toast.success("Conta criada! Confirme o e-mail para entrar.");
+          toast.success(
+            "Conta criada! Enviamos um e-mail de confirmação — veja também a caixa de spam.",
+          );
           setModo("entrar");
           return;
         }
