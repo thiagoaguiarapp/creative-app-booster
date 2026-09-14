@@ -43,3 +43,8 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 ## Outros pendentes
 
 - [ ] Domínio de e-mail `notify.rotacontrolapp.com.br` aguardando validação de DNS.
+
+## Página inicial pública (web)
+- [x] Landing em `/` só na web, apresentando o app; Android continua na tela de login.
+- [x] Painel movido para `/inicio`; menus e redirecionamentos atualizados.
+- [x] Bloco de anúncio AdSense na landing (só visitantes; falta criar o bloco no painel do AdSense e colar o ID em `ADSENSE_SLOT_LANDING`).
