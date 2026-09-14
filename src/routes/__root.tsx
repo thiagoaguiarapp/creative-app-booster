@@ -104,21 +104,33 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
     if (location.pathname.startsWith("/lovable/")) return {};
+    // No app nativo (Android/iOS) a "/" continua exigindo login;
+    // na web, "/" é a página pública de apresentação.
+    let nativo = false;
+    if (typeof window !== "undefined") {
+      try {
+        const { Capacitor } = await import("@capacitor/core");
+        nativo = Capacitor.isNativePlatform();
+      } catch {
+        nativo = false;
+      }
+    }
     // Rotas públicas: login, recuperação de senha e páginas legais.
     const publica =
       location.pathname === "/auth" ||
       location.pathname === "/redefinir-senha" ||
       location.pathname === "/confirmado" ||
       location.pathname === "/termos" ||
-      location.pathname === "/privacidade";
+      location.pathname === "/privacidade" ||
+      (location.pathname === "/" && !nativo);
     const { usuario, falhou } = await carregarSessao();
     // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
     if (falhou) return { usuario };
     if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
     }
-    if (usuario && location.pathname === "/auth") {
-      throw redirect({ to: usuario.nome ? "/" : "/perfil" });
+    if (usuario && (location.pathname === "/auth" || location.pathname === "/")) {
+      throw redirect({ to: usuario.nome ? "/inicio" : "/perfil" });
     }
     if (usuario && !usuario.nome && location.pathname !== "/perfil" && !publica) {
       throw redirect({ to: "/perfil" });
