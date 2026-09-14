@@ -136,7 +136,7 @@ function Landing() {
           ou conheça os benefícios.
         </p>
         <Button variant="outline" asChild>
-          <Link to="/premium">
+          <Link to="/auth">
             <Crown className="mr-1 size-4" /> Conhecer o Premium
           </Link>
         </Button>
