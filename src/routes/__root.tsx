@@ -18,6 +18,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { RodapeLegal } from "@/components/rodape-legal";
 import { AdBannerMobile } from "@/components/ad-banner-mobile";
+import { AdSenseInit } from "@/components/ad-sense-init";
 
 
 
