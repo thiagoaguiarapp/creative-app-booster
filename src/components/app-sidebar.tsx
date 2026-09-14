@@ -21,7 +21,7 @@ import {
 
 
 const items = [
-  { title: "Início", url: "/", icon: Home },
+  { title: "Início", url: "/inicio", icon: Home },
   { title: "Ganhos diários", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", url: "/despesas", icon: Receipt },

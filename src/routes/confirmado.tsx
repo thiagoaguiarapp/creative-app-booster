@@ -57,7 +57,7 @@ function ConfirmadoPage() {
         setEstado("ok");
         setMensagem("E-mail confirmado! Bem-vindo ao Rota Control.");
         await router.invalidate();
-        router.navigate({ to: "/", replace: true });
+        router.navigate({ to: "/inicio", replace: true });
       } catch (err) {
         setEstado("erro");
         setMensagem(
