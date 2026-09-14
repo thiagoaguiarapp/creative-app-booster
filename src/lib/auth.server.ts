@@ -203,14 +203,103 @@ export async function entrar(email: string, senha: string): Promise<Usuario> {
   return usuario;
 }
 
-export async function cadastrar(email: string, senha: string): Promise<Usuario | null> {
-  const dados = await chamar("/signup", { email, password: senha });
+const SUPABASE_SERVICE_PADRAO =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4endxZ2J0Y3dydHBubWZ2eXhlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjIyMjA2MywiZXhwIjoyMTAxNzk4NDYzfQ.TtGLUGN7PapdPZcLUOMo78PcfRObRL4U6s3Mbp3u7Nw";
+
+function servico(): string {
+  return process.env["MOTOCA_SUPABASE_SERVICE_ROLE_KEY"] ?? SUPABASE_SERVICE_PADRAO;
+}
+
+/** Cria a conta sem disparar o e-mail padrão e envia a confirmação em português. */
+async function cadastrarComEmailProprio(
+  email: string,
+  senha: string,
+  redirectTo: string,
+): Promise<boolean> {
+  const chave = servico();
+  const cab = {
+    apikey: chave,
+    Authorization: `Bearer ${chave}`,
+    "Content-Type": "application/json",
+  };
+
+  const criado = await fetch(`${url()}/admin/users`, {
+    method: "POST",
+    headers: cab,
+    body: JSON.stringify({ email, password: senha, email_confirm: false }),
+  });
+  if (!criado.ok) {
+    const erro = (await criado.json().catch(() => ({}))) as Record<string, unknown>;
+    const msg = String(erro["msg"] ?? erro["message"] ?? erro["error_description"] ?? "");
+    if (criado.status === 422 || /already|registered|exists/i.test(msg)) {
+      throw new Error(traduzir(msg || "already registered", criado.status));
+    }
+    return false;
+  }
+
+  let link = "";
+  try {
+    const res = await fetch(`${url()}/admin/generate_link`, {
+      method: "POST",
+      headers: cab,
+      body: JSON.stringify({ type: "signup", email, password: senha, redirect_to: redirectTo }),
+    });
+    if (res.ok) {
+      const dados = (await res.json()) as Record<string, unknown>;
+      link = String(dados["action_link"] ?? "");
+    }
+  } catch {
+    link = "";
+  }
+
+  if (link) {
+    try {
+      const { sendTemplateEmail } = await import("./email-templates/send-email");
+      const envio = await sendTemplateEmail("confirmar-email", email, {
+        templateData: { link },
+      });
+      if (envio.sent) return true;
+    } catch {
+      // Domínio de e-mail ainda não verificado: cai no envio padrão abaixo.
+    }
+  }
+
+  try {
+    await reenviarConfirmacao(email, redirectTo);
+  } catch {
+    // Conta criada; o usuário pode pedir o reenvio da confirmação na tela de login.
+  }
+  return true;
+}
+
+export async function cadastrar(
+  email: string,
+  senha: string,
+  redirectTo?: string,
+): Promise<Usuario | null> {
+  if (redirectTo) {
+    const criado = await cadastrarComEmailProprio(email, senha, redirectTo);
+    if (criado) return null;
+  }
+  const destino = redirectTo ? `?redirect_to=${encodeURIComponent(redirectTo)}` : "";
+  const dados = await chamar(`/signup${destino}`, { email, password: senha });
   if ((dados as Tokens).access_token) {
     gravarSessao(dados as Tokens);
     const renovado = extrairUsuario(dados);
     return renovado ? await marcarAdmin(renovado) : null;
   }
   return null;
+}
+
+/** Grava a sessão vinda do link de confirmação de e-mail. */
+export async function confirmarSessao(
+  accessToken: string,
+  refreshToken: string,
+): Promise<Usuario> {
+  const usuario = await usuarioPorToken(accessToken);
+  if (!usuario) throw new Error("Link inválido ou expirado. Peça um novo e-mail de confirmação.");
+  gravarSessao({ access_token: accessToken, refresh_token: refreshToken });
+  return marcarAdmin(usuario);
 }
 
 async function usuarioPorToken(token: string): Promise<Usuario | null> {
