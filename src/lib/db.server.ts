@@ -86,22 +86,40 @@ function filtroDono(userId?: string): string {
   return userId ? `&${COLUNA_USUARIO}=eq.${encodeURIComponent(userId)}` : "";
 }
 
-/** Busca todas as linhas de uma tabela (filtro por dono quando aplicável). */
+/** Busca todas as linhas de uma tabela, paginando de 1000 em 1000. */
 export async function selectAll<T = Linha>(tabela: string, userId?: string): Promise<T[]> {
-  const url = `${base()}/${tabela}?select=*${filtroDono(userId)}`;
-  const res = await fetch(url, { headers: headers() });
-  const dados = (await ok(res, `buscar em ${tabela}`)) as T[] | null;
-  return dados ?? [];
+  const url = `${base()}/${tabela}?select=*&order=ID.asc${filtroDono(userId)}`;
+  const todas: T[] = [];
+  const passo = 1000;
+  for (let inicio = 0; inicio < 200_000; inicio += passo) {
+    const res = await fetch(url, {
+      headers: headers({ Range: `${inicio}-${inicio + passo - 1}` }),
+    });
+    const lote = ((await ok(res, `buscar em ${tabela}`)) as T[] | null) ?? [];
+    todas.push(...lote);
+    if (lote.length < passo) break;
+  }
+  return todas;
 }
 
-/** Próximo ID sequencial da tabela. */
+/** Próximo ID sequencial da tabela (a coluna ID pode ser texto). */
 async function proximoId(tabela: string): Promise<number> {
-  const url = `${base()}/${tabela}?select=ID&order=ID.desc&limit=1`;
-  const res = await fetch(url, { headers: headers() });
-  if (!res.ok) return Date.now();
-  const arr = (await res.json().catch(() => [])) as Linha[];
-  const atual = Number(arr[0]?.["ID"] ?? 0);
-  return (Number.isFinite(atual) ? atual : 0) + 1;
+  const url = `${base()}/${tabela}?select=ID`;
+  let maior = 0;
+  const passo = 1000;
+  for (let inicio = 0; inicio < 200_000; inicio += passo) {
+    const res = await fetch(url, {
+      headers: headers({ Range: `${inicio}-${inicio + passo - 1}` }),
+    });
+    if (!res.ok) return maior > 0 ? maior + 1 : Date.now();
+    const arr = (await res.json().catch(() => [])) as Linha[];
+    for (const l of arr) {
+      const n = Number(String(l["ID"] ?? "").trim());
+      if (Number.isFinite(n) && n > maior) maior = n;
+    }
+    if (arr.length < passo) break;
+  }
+  return maior + 1;
 }
 
 /** Insere uma linha, atribuindo ID sequencial e o dono quando informado. */
