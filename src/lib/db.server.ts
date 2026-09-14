@@ -81,10 +81,14 @@ export function isoDate(valor: unknown): string {
 /* CRUD                                                                */
 /* ------------------------------------------------------------------ */
 
+/** Filtro PostgREST que restringe as linhas ao dono informado. */
+function filtroDono(userId?: string): string {
+  return userId ? `&${COLUNA_USUARIO}=eq.${encodeURIComponent(userId)}` : "";
+}
+
 /** Busca todas as linhas de uma tabela (filtro por dono quando aplicável). */
 export async function selectAll<T = Linha>(tabela: string, userId?: string): Promise<T[]> {
-  void userId;
-  const url = `${base()}/${tabela}?select=*`;
+  const url = `${base()}/${tabela}?select=*${filtroDono(userId)}`;
   const res = await fetch(url, { headers: headers() });
   const dados = (await ok(res, `buscar em ${tabela}`)) as T[] | null;
   return dados ?? [];
@@ -127,23 +131,27 @@ export async function atualizar<T = Linha>(
   dados: Linha,
   userId?: string,
 ): Promise<T> {
-  void userId;
-  const res = await fetch(`${base()}/${tabela}?ID=eq.${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    headers: headers({ Prefer: "return=representation" }),
-    body: JSON.stringify(dados),
-  });
+  const res = await fetch(
+    `${base()}/${tabela}?ID=eq.${encodeURIComponent(id)}${filtroDono(userId)}`,
+    {
+      method: "PATCH",
+      headers: headers({ Prefer: "return=representation" }),
+      body: JSON.stringify(dados),
+    },
+  );
   const arr = (await ok(res, `atualizar em ${tabela}`)) as T[];
   return (arr[0] ?? { ID: id, ...dados }) as T;
 }
 
 /** Remove uma linha pelo ID. */
 export async function remover(tabela: string, id: string, userId?: string): Promise<void> {
-  void userId;
-  const res = await fetch(`${base()}/${tabela}?ID=eq.${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    headers: headers(),
-  });
+  const res = await fetch(
+    `${base()}/${tabela}?ID=eq.${encodeURIComponent(id)}${filtroDono(userId)}`,
+    {
+      method: "DELETE",
+      headers: headers(),
+    },
+  );
   await ok(res, `deletar em ${tabela}`);
 }
 
@@ -156,8 +164,7 @@ export async function buscarBanco<T = Linha>(
   query?: string,
   userId?: string,
 ): Promise<T[]> {
-  void userId;
-  const url = `${base()}/${tabela}${query ? `?${query}` : "?select=*"}`;
+  const url = `${base()}/${tabela}${query ? `?${query}` : "?select=*"}${filtroDono(userId)}`;
   const res = await fetch(url, { headers: headers() });
   const dados = (await ok(res, `buscar em ${tabela}`)) as T[] | null;
   return dados ?? [];
