@@ -108,7 +108,7 @@ function AuthPage() {
     }
     setCarregando(true);
     try {
-      await reenviar({ data: { email, redirectTo: origem() } });
+      await reenviar({ data: { email, redirectTo: `${origem()}/confirmado` } });
       toast.success("E-mail de confirmação reenviado. Verifique sua caixa de entrada e o spam.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível reenviar o e-mail.");
