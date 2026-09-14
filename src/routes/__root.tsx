@@ -233,6 +233,7 @@ function RootComponent() {
           </div>
         </div>
       </SidebarProvider>
+      <AdSenseInit />
       <AdBannerMobile />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
