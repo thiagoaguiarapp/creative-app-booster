@@ -12,6 +12,7 @@ Hoje a rota `/` é o painel do app (exige login). A ideia: quem acessa **pelo si
   - Seção principal: nome do app, frase de impacto e chamada para cadastro
   - Blocos de funcionalidades: ganhos por plataforma, abastecimento, despesas parceladas, manutenção por km com alertas, repasses, relatórios por período
   - Bloco sobre o plano Premium (link para `/premium`)
+  - Bloco de anúncio do Google AdSense na própria página (visível só para visitantes/deslogados; usuário logado e Premium nunca veem anúncio — mesma regra já usada no app)
   - Rodapé com Termos de Uso e Política de Privacidade
 - SEO próprio: título, descrição, og:title/og:description voltados a visitantes novos.
 
