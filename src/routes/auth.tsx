@@ -194,7 +194,7 @@ function AuthPage() {
             className="underline-offset-4 hover:underline disabled:opacity-50"
             onClick={reenviarEmail}
           >
-            Reenviar e-mail de confirmação
+             {"\n"}
           </button>
         </div>
       </div>
