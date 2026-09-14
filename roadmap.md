@@ -1,8 +1,9 @@
 # Roadmap — Rota Control
 
-## Anúncios (AdMob)
+## Anúncios
 
-- [x] Remover a integração web do Google AdSense (`src/lib/adsense.ts`, `AdBanner`).
+- [x] Reativar Google AdSense no site (web) para usuários Free (`ca-pub-2715745778380480`).
+- [x] Usuários Premium não veem anúncios no site (mesma regra do app nativo).
 - [x] Instalar Capacitor (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android`) e `@capacitor-community/admob`.
 - [x] Criar `capacitor.config.ts` (appId `br.com.rotacontrolapp.app`).
 - [x] Banner AdMob inferior exibido apenas para usuários Free (`src/components/ad-banner-mobile.tsx`).

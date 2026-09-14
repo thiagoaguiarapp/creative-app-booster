@@ -18,6 +18,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { RodapeLegal } from "@/components/rodape-legal";
 import { AdBannerMobile } from "@/components/ad-banner-mobile";
+import { AdSenseInit } from "@/components/ad-sense-init";
 
 
 
@@ -201,6 +202,7 @@ function RootComponent() {
           </div>
           <RodapeLegal />
         </div>
+        <AdSenseInit />
         <Toaster richColors position="top-center" />
       </QueryClientProvider>
     );
@@ -231,6 +233,7 @@ function RootComponent() {
           </div>
         </div>
       </SidebarProvider>
+      <AdSenseInit />
       <AdBannerMobile />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
