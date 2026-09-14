@@ -52,11 +52,19 @@ export const entrarFn = createServerFn({ method: "POST" })
   });
 
 export const cadastrarFn = createServerFn({ method: "POST" })
-  .inputValidator((input: { email: string; senha: string }) => input)
+  .inputValidator((input: { email: string; senha: string; redirectTo?: string }) => input)
   .handler(async ({ data }): Promise<{ logado: boolean }> => {
     const { cadastrar } = await import("./auth.server");
-    const usuario = await cadastrar(data.email.trim(), data.senha);
+    const usuario = await cadastrar(data.email.trim(), data.senha, data.redirectTo);
     return { logado: usuario !== null };
+  });
+
+export const confirmarSessaoFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { accessToken: string; refreshToken: string }) => input)
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { confirmarSessao } = await import("./auth.server");
+    await confirmarSessao(data.accessToken, data.refreshToken);
+    return { ok: true };
   });
 
 export const sairFn = createServerFn({ method: "POST" }).handler(
