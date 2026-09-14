@@ -117,7 +117,7 @@ export async function inserir<T = Linha>(
     body: JSON.stringify(payload),
   });
   const arr = (await ok(res, `criar em ${tabela}`)) as T[];
-  return arr[0];
+  return (arr[0] ?? payload) as T;
 }
 
 /** Atualiza uma linha pelo ID. */
@@ -134,7 +134,7 @@ export async function atualizar<T = Linha>(
     body: JSON.stringify(dados),
   });
   const arr = (await ok(res, `atualizar em ${tabela}`)) as T[];
-  return arr[0];
+  return (arr[0] ?? { ID: id, ...dados }) as T;
 }
 
 /** Remove uma linha pelo ID. */
