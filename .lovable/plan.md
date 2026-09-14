@@ -1,33 +1,37 @@
-# Tela Manutenção: km no card + aba de histórico
+# Reativar Google AdSense no site (web)
 
-## Objetivo
-Melhorar a tela Manutenção em dois pontos: mostrar o km da última troca em cada card e criar uma aba "Histórico" com todas as manutenções já realizadas, em linhas com submenu de detalhes (mesmo padrão das telas Despesas/Ganhos/Abastecimento).
+O Google AdSense foi removido anteriormente quando o app migrou para o AdMob nativo do Capacitor. Agora o site também precisa exibir anúncios via AdSense, usando o script enviado (`ca-pub-2715745778380480`). O AdMob nativo continua no app Android/iOS.
 
-## O que será feito
+## 1. Criar o inicializador do AdSense web
 
-1. **Km da troca no card** (`src/routes/manutencao.tsx`)
-   - Adicionar no bloco de números do card o "Km da troca" (odômetro registrado na última vez que o serviço foi feito), junto de Rodado / Falta / Último custo.
+- Recriar `src/lib/adsense.ts` com:
+  - Constante `ADSENSE_CLIENT = "ca-pub-2715745778380480"`.
+  - Função `inicializarAdSense()` que injeta o script `adsbygoogle.js` no `<head>` apenas quando estiver em um navegador (não no app nativo do Capacitor).
+  - Garantia de que o script seja inserido apenas uma vez por sessão.
 
-2. **Abas na tela Manutenção**
-   - Aba **Plano** (atual): cards com status de vencimento, sem alteração de comportamento.
-   - Aba **Histórico** (nova): tabela com todas as manutenções já lançadas, ordenadas da mais recente para a mais antiga.
+## 2. Ativar o script em todas as páginas
 
-3. **Histórico em linhas com submenu**
-   - Usar o componente compartilhado `LinhaDetalhavel`/`Detalhe` (mesmo padrão das outras telas).
-   - Colunas da linha: Data, Serviço, Veículo, Valor.
-   - Submenu (ao tocar na linha): veículo, data, km da troca, validade (km), valor, observação e as ações **Atualizar** / **Excluir** (reutilizando `AcoesManutencao` e o diálogo de atualização já existentes).
+- Criar `src/components/ad-sense-init.tsx`: componente sem renderização visual que chama `inicializarAdSense()` dentro de `useEffect`.
+- Inserir `<AdSenseInit />` no layout raiz `src/routes/__root.tsx`, de modo que o script carregue no `<head>` de todas as rotas automaticamente.
+- Como o script é injetado no cliente, não há impacto no SSR.
 
-## Não será alterado
-- Cálculo de status/vencimento e alertas na Home.
-- Fluxo de lançar e atualizar manutenção.
-- Banco de dados (sem migração).
+## 3. Preservar o AdMob nativo
 
-## Detalhes técnicos
-- Componentes de abas: `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent` do shadcn (já usados na tela Banco).
-- Fonte de dados: `data.manutencoes` do painel (já carregado na tela), apenas ordenado por data decrescente para a aba Histórico.
+- Não alterar `src/lib/admob.ts` nem `src/components/ad-banner-mobile.tsx`.
+- O banner do AdMob continua aparecendo só no app Android/iOS para usuários Free.
+- A verificação `Capacitor.isNativePlatform()` evita que o script do AdSense seja carregado no app nativo.
 
-## Critérios de aceitação
-- Cada card do plano mostra o km da última troca.
-- A tela tem as abas "Plano" e "Histórico".
-- A aba Histórico lista todas as manutenções; tocar na linha abre o submenu com detalhes e ações.
-- Atualizar/excluir pelo histórico recalcula o plano normalmente.
+## 4. Ajustes de layout (se necessário)
+
+- Verificar se o espaçamento inferior reservado para o banner do AdMob (`--altura-banner-ads`) precisa de alguma adaptação para a web. Inicialmente não muda, porque o AdSense ainda não tem blocos de anúncio posicionados — apenas o script global está sendo carregado.
+
+## 5. Roadmap
+
+- Atualizar `roadmap.md`:
+  - Marcar "AdSense web reativado no site" como feito.
+  - Manter pendente a troca dos IDs de teste do AdMob e a configuração nativa Android.
+
+## Resultado esperado
+
+- O site/publicação carrega o script do AdSense em todas as páginas.
+- O app nativo continua usando o AdMob, sem conflitos.
