@@ -202,6 +202,7 @@ function RootComponent() {
           </div>
           <RodapeLegal />
         </div>
+        <AdSenseInit />
         <Toaster richColors position="top-center" />
       </QueryClientProvider>
     );
