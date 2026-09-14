@@ -2,16 +2,24 @@
 
 O Google AdSense foi removido anteriormente quando o app migrou para o AdMob nativo do Capacitor. Agora o site também precisa exibir anúncios via AdSense, usando o script enviado (`ca-pub-2715745778380480`). O AdMob nativo continua no app Android/iOS.
 
+## Regra de exibição
+
+- **Usuário Premium:** não vê anúncio no site, assim como já não vê no app.
+- **Usuário Free:** script do AdSense carregado no `<head>` de todas as páginas.
+- **App nativo (Android/iOS):** continua usando AdMob; o script do AdSense não é carregado.
+
 ## 1. Criar o inicializador do AdSense web
 
 - Recriar `src/lib/adsense.ts` com:
   - Constante `ADSENSE_CLIENT = "ca-pub-2715745778380480"`.
-  - Função `inicializarAdSense()` que injeta o script `adsbygoogle.js` no `<head>` apenas quando estiver em um navegador (não no app nativo do Capacitor).
+  - Função `inicializarAdSense(isPremium: boolean)` que injeta o script `adsbygoogle.js` no `<head>` apenas quando:
+    - Estiver em um navegador (não no app nativo do Capacitor).
+    - O usuário **não** for Premium.
   - Garantia de que o script seja inserido apenas uma vez por sessão.
 
 ## 2. Ativar o script em todas as páginas
 
-- Criar `src/components/ad-sense-init.tsx`: componente sem renderização visual que chama `inicializarAdSense()` dentro de `useEffect`.
+- Criar `src/components/ad-sense-init.tsx`: componente sem renderização visual que lê `isPremium` do contexto da rota raiz e chama `inicializarAdSense(isPremium)` dentro de `useEffect`.
 - Inserir `<AdSenseInit />` no layout raiz `src/routes/__root.tsx`, de modo que o script carregue no `<head>` de todas as rotas automaticamente.
 - Como o script é injetado no cliente, não há impacto no SSR.
 
@@ -33,5 +41,6 @@ O Google AdSense foi removido anteriormente quando o app migrou para o AdMob nat
 
 ## Resultado esperado
 
-- O site/publicação carrega o script do AdSense em todas as páginas.
+- O site/publicação carrega o script do AdSense em todas as páginas para usuários Free.
+- Usuários Premium não veem anúncios no site.
 - O app nativo continua usando o AdMob, sem conflitos.
