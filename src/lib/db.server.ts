@@ -81,10 +81,14 @@ export function isoDate(valor: unknown): string {
 /* CRUD                                                                */
 /* ------------------------------------------------------------------ */
 
+/** Filtro PostgREST que restringe as linhas ao dono informado. */
+function filtroDono(userId?: string): string {
+  return userId ? `&${COLUNA_USUARIO}=eq.${encodeURIComponent(userId)}` : "";
+}
+
 /** Busca todas as linhas de uma tabela (filtro por dono quando aplicável). */
 export async function selectAll<T = Linha>(tabela: string, userId?: string): Promise<T[]> {
-  void userId;
-  const url = `${base()}/${tabela}?select=*`;
+  const url = `${base()}/${tabela}?select=*${filtroDono(userId)}`;
   const res = await fetch(url, { headers: headers() });
   const dados = (await ok(res, `buscar em ${tabela}`)) as T[] | null;
   return dados ?? [];
