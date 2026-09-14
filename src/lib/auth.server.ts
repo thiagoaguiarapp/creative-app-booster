@@ -4,13 +4,17 @@ import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server
 const ACCESS = "motoca_at";
 const REFRESH = "motoca_rt";
 
+const SUPABASE_URL_PADRAO = "https://yxzwqgbtcwrtpnmfvyxe.supabase.co";
+const SUPABASE_ANON_PADRAO =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4endxZ2J0Y3dydHBubWZ2eXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMjI0NjMsImV4cCI6MjEwMTc5ODQ2M30.GH4_HMt1TfaOx7uXWFF3azyrVQOocMMMvsKXFax298c";
+
 function url(): string {
-  const u = "https://yxzwqgbtcwrtpnmfvyxe.supabase.co";
+  const u = process.env["MOTOCA_SUPABASE_URL"] ?? SUPABASE_URL_PADRAO;
   return `${u.replace(/\/$/, "")}/auth/v1`;
 }
 
 function anon(): string {
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4endxZ2J0Y3dydHBubWZ2eXhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMjI0NjMsImV4cCI6MjEwMTc5ODQ2M30.GH4_HMt1TfaOx7uXWFF3azyrVQOocMMMvsKXFax298c";
+  return process.env["MOTOCA_SUPABASE_ANON_KEY"] ?? SUPABASE_ANON_PADRAO;
 }
 
 export type Veiculo = {
