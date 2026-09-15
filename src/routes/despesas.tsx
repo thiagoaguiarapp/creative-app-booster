@@ -33,6 +33,68 @@ function paraBr(iso: string) {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
 
+type Item = Despesa & {
+  compraIso: string;
+  pagoEm: string;
+  forma: Forma;
+  bruta: Despesa;
+};
+
+/** linha da tabela de despesas com submenu de detalhes */
+function LinhaDespesa({
+  d,
+  aberto,
+  onToggle,
+}: {
+  d: Item;
+  aberto: boolean;
+  onToggle: () => void;
+}) {
+  const parcelas = totalParcelas(d.descricao);
+  const credito = d.forma === "Crédito";
+  return (
+    <LinhaDetalhavel
+      aberto={aberto}
+      onToggle={onToggle}
+      colunas={4}
+      celulas={
+        <>
+          <TableCell className="num">
+            {d.data}
+            {credito && (
+              <span className="block text-xs text-muted-foreground">
+                compra {paraBr(d.compraIso)}
+              </span>
+            )}
+          </TableCell>
+          <TableCell>
+            <Badge variant="secondary">{d.categoria}</Badge>
+          </TableCell>
+          <TableCell className="num text-right font-semibold text-destructive">
+            {brl(d.valor)}
+          </TableCell>
+        </>
+      }
+      detalhes={
+        <>
+          <Detalhe rotulo="Descrição" valor={semMarcaParcela(d.descricao)} />
+          <Detalhe rotulo="Categoria" valor={d.categoria} />
+          <Detalhe rotulo="Pagamento" valor={d.pagamento} />
+          <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
+          <Detalhe rotulo="Vencimento" valor={d.data} />
+          <Detalhe
+            rotulo="Parcela"
+            valor={parcelas > 1 ? `${numeroParcela(d.descricao)}/${parcelas}` : "Única"}
+          />
+          <Detalhe rotulo="Valor" valor={brl(d.valor)} />
+          {credito && <Detalhe rotulo="Baixa" valor={d.pagoEm || "Em aberto"} />}
+        </>
+      }
+      acoes={<AcoesLancamento tipo="despesa" registro={d.bruta} />}
+    />
+  );
+}
+
 
 export const Route = createFileRoute("/despesas")({
   head: () => ({
