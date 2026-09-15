@@ -12,20 +12,87 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  dataPago,
+  FORMAS,
   isoCompra,
   limpaDescricao,
   normalizaForma,
   numeroParcela,
   semMarcaParcela,
   totalParcelas,
+  type Forma,
 } from "@/lib/pagamentos";
+import type { Despesa } from "@/lib/sheets-types";
 import { brl } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
 function paraBr(iso: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso ?? "");
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+}
+
+type Item = Despesa & {
+  compraIso: string;
+  pagoEm: string;
+  forma: Forma;
+  bruta: Despesa;
+};
+
+/** linha da tabela de despesas com submenu de detalhes */
+function LinhaDespesa({
+  d,
+  aberto,
+  onToggle,
+}: {
+  d: Item;
+  aberto: boolean;
+  onToggle: () => void;
+}) {
+  const parcelas = totalParcelas(d.descricao);
+  const credito = d.forma === "Crédito";
+  return (
+    <LinhaDetalhavel
+      aberto={aberto}
+      onToggle={onToggle}
+      colunas={4}
+      celulas={
+        <>
+          <TableCell className="num">
+            {d.data}
+            {credito && (
+              <span className="block text-xs text-muted-foreground">
+                compra {paraBr(d.compraIso)}
+              </span>
+            )}
+          </TableCell>
+          <TableCell>
+            <Badge variant="secondary">{d.categoria}</Badge>
+          </TableCell>
+          <TableCell className="num text-right font-semibold text-destructive">
+            {brl(d.valor)}
+          </TableCell>
+        </>
+      }
+      detalhes={
+        <>
+          <Detalhe rotulo="Descrição" valor={semMarcaParcela(d.descricao)} />
+          <Detalhe rotulo="Categoria" valor={d.categoria} />
+          <Detalhe rotulo="Pagamento" valor={d.pagamento} />
+          <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
+          <Detalhe rotulo="Vencimento" valor={d.data} />
+          <Detalhe
+            rotulo="Parcela"
+            valor={parcelas > 1 ? `${numeroParcela(d.descricao)}/${parcelas}` : "Única"}
+          />
+          <Detalhe rotulo="Valor" valor={brl(d.valor)} />
+          {credito && <Detalhe rotulo="Baixa" valor={d.pagoEm || "Em aberto"} />}
+        </>
+      }
+      acoes={<AcoesLancamento tipo="despesa" registro={d.bruta} />}
+    />
+  );
 }
 
 
@@ -56,12 +123,13 @@ export const Route = createFileRoute("/despesas")({
   component: DespesasPage,
 });
 
-type Periodo = "atual" | "passado" | "total";
+type Periodo = "atual" | "passado" | "total" | "personalizado";
 
 const PERIODOS: { id: Periodo; label: string }[] = [
   { id: "atual", label: "Mês atual" },
   { id: "passado", label: "Mês passado" },
   { id: "total", label: "Total" },
+  { id: "personalizado", label: "Personalizado" },
 ];
 
 function prefixoMes(offset: number) {
@@ -82,6 +150,8 @@ function normaliza(texto: string) {
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [de, setDe] = useState("");
+  const [ate, setAte] = useState("");
   const [busca, setBusca] = useState("");
   const [abertoId, setAbertoId] = useState<string | null>(null);
 
@@ -91,6 +161,8 @@ function DespesasPage() {
         ...d,
         compraIso: isoCompra(d.descricao, d.iso),
         descricao: limpaDescricao(d.descricao),
+        pagoEm: dataPago(d.descricao),
+        forma: normalizaForma(d.pagamento),
         /** descrição original com as marcas internas, usada na edição */
         bruta: d,
       })),
@@ -99,9 +171,13 @@ function DespesasPage() {
 
   const despesas = useMemo(() => {
     let lista = todas;
-    if (periodo !== "total") {
+    if (periodo === "atual" || periodo === "passado") {
       const p = prefixoMes(periodo === "atual" ? 0 : -1);
       lista = lista.filter((d) => d.iso.startsWith(p));
+    }
+    if (periodo === "personalizado") {
+      if (de) lista = lista.filter((d) => d.iso >= de);
+      if (ate) lista = lista.filter((d) => d.iso <= ate);
     }
     if (!busca.trim()) return lista;
     const termo = normaliza(busca);
@@ -116,7 +192,7 @@ function DespesasPage() {
       ];
       return campos.some((c) => normaliza(c).includes(termo));
     });
-  }, [todas, periodo, busca]);
+  }, [todas, periodo, de, ate, busca]);
 
   const recentes = despesas.slice(0, 15);
 
@@ -132,6 +208,19 @@ function DespesasPage() {
     return { pagoNoMes: pago, aPagarDepois: depois };
   }, [despesas]);
 
+  const porForma = useMemo(
+    () =>
+      FORMAS.map((f) => {
+        const itens = despesas.filter((d) => d.forma === f);
+        const valor = itens.reduce((s, d) => s + d.valor, 0);
+        const quitado = itens
+          .filter((d) => f !== "Crédito" || d.pagoEm)
+          .reduce((s, d) => s + d.valor, 0);
+        return { forma: f, itens, valor, quitado, aberto: valor - quitado };
+      }).filter((g) => g.itens.length > 0),
+    [despesas],
+  );
+
   const categorias = Array.from(new Set(despesas.map((d) => d.categoria)))
     .map((c) => ({
       nome: c,
@@ -139,6 +228,7 @@ function DespesasPage() {
     }))
     .sort((a, b) => b.valor - a.valor)
     .slice(0, 8);
+
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -188,6 +278,41 @@ function DespesasPage() {
         </div>
       </div>
 
+      {periodo === "personalizado" && (
+        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-4">
+          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+            De
+            <Input
+              type="date"
+              value={de}
+              onChange={(e) => setDe(e.target.value)}
+              className="h-9 w-40"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+            Até
+            <Input
+              type="date"
+              value={ate}
+              onChange={(e) => setAte(e.target.value)}
+              className="h-9 w-40"
+            />
+          </label>
+          {(de || ate) && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setDe("");
+                setAte("");
+              }}
+            >
+              Limpar datas
+            </Button>
+          )}
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Total do período" value={brl(total)} icon={TrendingDown} tone="destructive" />
         <StatCard label="Lançamentos" value={String(despesas.length)} icon={Receipt} />
@@ -198,104 +323,145 @@ function DespesasPage() {
         />
       </div>
 
-      <div className="rounded-lg border border-border bg-card p-4 text-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-muted-foreground">Pago no mês da despesa</span>
-          <span className="num font-semibold">{brl(pagoNoMes)}</span>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-muted-foreground">A pagar em meses seguintes (crédito)</span>
-          <span className="num font-semibold text-warning">{brl(aPagarDepois)}</span>
-        </div>
-      </div>
+      <Tabs defaultValue="lancamentos" className="flex flex-col gap-6">
+        <TabsList className="self-start">
+          <TabsTrigger value="lancamentos">Lançamentos</TabsTrigger>
+          <TabsTrigger value="formas">Formas de pagamento</TabsTrigger>
+        </TabsList>
 
-      <SectionCard title="Por categoria">
-        <div className="flex flex-col gap-3">
-          {categorias.map((c) => (
-            <div key={c.nome} className="flex items-center gap-3">
-              <span className="w-36 shrink-0 truncate text-sm text-muted-foreground">{c.nome}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${total ? (c.valor / total) * 100 : 0}%` }}
-                />
-              </div>
-              <span className="num w-24 text-right text-sm font-medium">{brl(c.valor)}</span>
+        <TabsContent value="lancamentos" className="flex flex-col gap-6">
+          <div className="rounded-lg border border-border bg-card p-4 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-muted-foreground">Pago no mês da despesa</span>
+              <span className="num font-semibold">{brl(pagoNoMes)}</span>
             </div>
-          ))}
-        </div>
-      </SectionCard>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-muted-foreground">A pagar em meses seguintes (crédito)</span>
+              <span className="num font-semibold text-warning">{brl(aPagarDepois)}</span>
+            </div>
+          </div>
 
-      <SectionCard title="Lançamentos" description="Toque na linha para ver os detalhes">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead className="w-8" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentes.map((d) => {
-              const aberto = abertoId === d.id;
-              const total = totalParcelas(d.descricao);
-              const credito = normalizaForma(d.pagamento) === "Crédito";
-              return (
-                <LinhaDetalhavel
-                  key={d.id}
-                  aberto={aberto}
-                  onToggle={() => setAbertoId(aberto ? null : d.id)}
-                  colunas={4}
-                  celulas={
-                    <>
-                      <TableCell className="num">
-                        {d.data}
-                        {credito && (
-                          <span className="block text-xs text-muted-foreground">
-                            compra {paraBr(d.compraIso)}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{d.categoria}</Badge>
-                      </TableCell>
-                      <TableCell className="num text-right font-semibold text-destructive">
-                        {brl(d.valor)}
-                      </TableCell>
-                    </>
-                  }
-                  detalhes={
-                    <>
-                      <Detalhe
-                        rotulo="Descrição"
-                        valor={semMarcaParcela(d.descricao)}
-                      />
-                      <Detalhe rotulo="Categoria" valor={d.categoria} />
-                      <Detalhe rotulo="Pagamento" valor={d.pagamento} />
-                      <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
-                      <Detalhe rotulo="Vencimento" valor={d.data} />
-                      <Detalhe
-                        rotulo="Parcela"
-                        valor={total > 1 ? `${numeroParcela(d.descricao)}/${total}` : "Única"}
-                      />
-                      <Detalhe rotulo="Valor" valor={brl(d.valor)} />
-                    </>
-                  }
-                  acoes={<AcoesLancamento tipo="despesa" registro={d.bruta} />}
-                />
-              );
-            })}
-            {recentes.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
-                  {busca ? "Nenhuma despesa encontrada para a busca." : "Nenhuma despesa no período."}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </SectionCard>
+          <SectionCard title="Por categoria">
+            <div className="flex flex-col gap-3">
+              {categorias.map((c) => (
+                <div key={c.nome} className="flex items-center gap-3">
+                  <span className="w-36 shrink-0 truncate text-sm text-muted-foreground">
+                    {c.nome}
+                  </span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${total ? (c.valor / total) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <span className="num w-24 text-right text-sm font-medium">{brl(c.valor)}</span>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Lançamentos" description="Toque na linha para ver os detalhes">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="w-8" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentes.map((d) => (
+                  <LinhaDespesa
+                    key={d.id}
+                    d={d}
+                    aberto={abertoId === d.id}
+                    onToggle={() => setAbertoId(abertoId === d.id ? null : d.id)}
+                  />
+                ))}
+                {recentes.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
+                      {busca
+                        ? "Nenhuma despesa encontrada para a busca."
+                        : "Nenhuma despesa no período."}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </SectionCard>
+        </TabsContent>
+
+        <TabsContent value="formas" className="flex flex-col gap-6">
+          <SectionCard title="Resumo por forma de pagamento">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {porForma.map((g) => (
+                <div key={g.forma} className="rounded-lg border border-border p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{g.forma}</span>
+                    <span className="num font-semibold">{brl(g.valor)}</span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${total ? (g.valor / total) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {g.itens.length} lançamento{g.itens.length === 1 ? "" : "s"} ·{" "}
+                    {total ? Math.round((g.valor / total) * 100) : 0}% do período
+                  </p>
+                  {g.forma === "Crédito" && (
+                    <div className="mt-2 flex flex-wrap gap-4 text-xs">
+                      <span className="text-muted-foreground">
+                        Já pago <span className="num font-semibold text-foreground">{brl(g.quitado)}</span>
+                      </span>
+                      <span className="text-muted-foreground">
+                        A pagar <span className="num font-semibold text-warning">{brl(g.aberto)}</span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {porForma.length === 0 && (
+                <p className="text-sm text-muted-foreground">Nenhuma despesa no período.</p>
+              )}
+            </div>
+          </SectionCard>
+
+          {porForma.map((g) => (
+            <SectionCard
+              key={g.forma}
+              title={g.forma}
+              description={`${g.itens.length} lançamento${g.itens.length === 1 ? "" : "s"} · ${brl(g.valor)}`}
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="w-8" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {g.itens.map((d) => (
+                    <LinhaDespesa
+                      key={`${g.forma}-${d.id}`}
+                      d={d}
+                      aberto={abertoId === `${g.forma}-${d.id}`}
+                      onToggle={() =>
+                        setAbertoId(abertoId === `${g.forma}-${d.id}` ? null : `${g.forma}-${d.id}`)
+                      }
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </SectionCard>
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
