@@ -94,7 +94,7 @@ function Landing() {
           O controle completo das suas entregas
         </h1>
         <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
-          Ganhos, gastos, combustível, manutenção da moto e repasses em um só lugar.
+          Ganhos, gastos, combustível, manutenção  e repasses em um só lugar.
           Feito para quem vive na estrada e quer saber, de verdade, quanto sobra no fim do mês.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
