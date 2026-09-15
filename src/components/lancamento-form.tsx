@@ -503,7 +503,18 @@ function FormularioDialog({
                       campo.tipo === "money" || campo.tipo === "number"
                         ? bruto.replace(/[^\d.,-]/g, "")
                         : bruto;
-                    setValores((v) => ({ ...v, [campo.key]: limpo }));
+                    setValores((v) => {
+                      const prox = { ...v, [campo.key]: limpo };
+                      // ao corrigir a data da compra, o vencimento acompanha
+                      // quando estava vazio ou igual à data antiga
+                      if (campo.tipo === "date" && campo.key === "data") {
+                        const venc = v["dataPrimeiraParcela"] ?? "";
+                        if (!venc || venc === (v["data"] ?? "")) {
+                          prox["dataPrimeiraParcela"] = limpo;
+                        }
+                      }
+                      return prox;
+                    });
                   }}
                 />
 
