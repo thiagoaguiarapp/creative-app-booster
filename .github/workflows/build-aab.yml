@@ -37,8 +37,11 @@ jobs:
         run: npx cap sync android
 
       - name: Decode Keystore
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+        uses: timheuer/base64-to-file@v2
+        with:
+          fileName: 'release.keystore'
+          encodedString: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          destination: 'android/app/'
 
       - name: Build Signed AAB with Gradle
         run: |
