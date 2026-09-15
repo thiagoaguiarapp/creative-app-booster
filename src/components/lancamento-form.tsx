@@ -125,6 +125,13 @@ function valoresIniciais(
     out["descricao"] = semMarcaParcela(limpaDescricao(descricao));
   }
 
+  // datas gravadas com ano impossível (ex.: "206") abrem em branco para serem corrigidas
+  for (const campo of CAMPOS[tipo]) {
+    if (campo.tipo !== "date") continue;
+    const atual = out[campo.key];
+    if (atual && !dataValida(atual)) out[campo.key] = "";
+  }
+
   return out;
 }
 
@@ -496,7 +503,18 @@ function FormularioDialog({
                       campo.tipo === "money" || campo.tipo === "number"
                         ? bruto.replace(/[^\d.,-]/g, "")
                         : bruto;
-                    setValores((v) => ({ ...v, [campo.key]: limpo }));
+                    setValores((v) => {
+                      const prox = { ...v, [campo.key]: limpo };
+                      // ao corrigir a data da compra, o vencimento acompanha
+                      // quando estava vazio ou igual à data antiga
+                      if (campo.tipo === "date" && campo.key === "data") {
+                        const venc = v["dataPrimeiraParcela"] ?? "";
+                        if (!venc || venc === (v["data"] ?? "")) {
+                          prox["dataPrimeiraParcela"] = limpo;
+                        }
+                      }
+                      return prox;
+                    });
                   }}
                 />
 
