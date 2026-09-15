@@ -125,6 +125,13 @@ function valoresIniciais(
     out["descricao"] = semMarcaParcela(limpaDescricao(descricao));
   }
 
+  // datas gravadas com ano impossível (ex.: "206") abrem em branco para serem corrigidas
+  for (const campo of CAMPOS[tipo]) {
+    if (campo.tipo !== "date") continue;
+    const atual = out[campo.key];
+    if (atual && !dataValida(atual)) out[campo.key] = "";
+  }
+
   return out;
 }
 
