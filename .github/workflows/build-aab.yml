@@ -40,8 +40,8 @@ jobs:
         uses: timheuer/base64-to-file@v2
         with:
           fileName: 'release.keystore'
+          fileDir: 'android/app/'
           encodedString: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          destination: 'android/app/'
 
       - name: Build Signed AAB with Gradle
         run: |
