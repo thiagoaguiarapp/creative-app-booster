@@ -40,7 +40,6 @@ function AuthPage() {
   const entrar = useServerFn(entrarFn);
   const cadastrar = useServerFn(cadastrarFn);
   const recuperar = useServerFn(recuperarSenhaFn);
-  const reenviar = useServerFn(reenviarConfirmacaoFn);
 
   const [modo, setModo] = useState<Modo>("entrar");
   const [email, setEmail] = useState("");
@@ -101,21 +100,6 @@ function AuthPage() {
     }
   };
 
-  const reenviarEmail = async () => {
-    if (!email.trim()) {
-      toast.error("Informe o e-mail cadastrado para reenviar a confirmação.");
-      return;
-    }
-    setCarregando(true);
-    try {
-      await reenviar({ data: { email, redirectTo: `${origem()}/confirmado` } });
-      toast.success("E-mail de confirmação reenviado. Verifique sua caixa de entrada e o spam.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Não foi possível reenviar o e-mail.");
-    } finally {
-      setCarregando(false);
-    }
-  };
 
   const subtitulo =
     modo === "entrar"
