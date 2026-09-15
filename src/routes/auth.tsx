@@ -10,7 +10,6 @@ import {
   cadastrarFn,
   entrarFn,
   recuperarSenhaFn,
-  reenviarConfirmacaoFn,
 } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth")({
