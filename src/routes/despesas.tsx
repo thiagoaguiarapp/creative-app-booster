@@ -56,12 +56,13 @@ export const Route = createFileRoute("/despesas")({
   component: DespesasPage,
 });
 
-type Periodo = "atual" | "passado" | "total";
+type Periodo = "atual" | "passado" | "total" | "personalizado";
 
 const PERIODOS: { id: Periodo; label: string }[] = [
   { id: "atual", label: "Mês atual" },
   { id: "passado", label: "Mês passado" },
   { id: "total", label: "Total" },
+  { id: "personalizado", label: "Personalizado" },
 ];
 
 function prefixoMes(offset: number) {
@@ -82,6 +83,8 @@ function normaliza(texto: string) {
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [de, setDe] = useState("");
+  const [ate, setAte] = useState("");
   const [busca, setBusca] = useState("");
   const [abertoId, setAbertoId] = useState<string | null>(null);
 
@@ -91,6 +94,8 @@ function DespesasPage() {
         ...d,
         compraIso: isoCompra(d.descricao, d.iso),
         descricao: limpaDescricao(d.descricao),
+        pagoEm: dataPago(d.descricao),
+        forma: normalizaForma(d.pagamento),
         /** descrição original com as marcas internas, usada na edição */
         bruta: d,
       })),
@@ -99,9 +104,13 @@ function DespesasPage() {
 
   const despesas = useMemo(() => {
     let lista = todas;
-    if (periodo !== "total") {
+    if (periodo === "atual" || periodo === "passado") {
       const p = prefixoMes(periodo === "atual" ? 0 : -1);
       lista = lista.filter((d) => d.iso.startsWith(p));
+    }
+    if (periodo === "personalizado") {
+      if (de) lista = lista.filter((d) => d.iso >= de);
+      if (ate) lista = lista.filter((d) => d.iso <= ate);
     }
     if (!busca.trim()) return lista;
     const termo = normaliza(busca);
@@ -116,7 +125,7 @@ function DespesasPage() {
       ];
       return campos.some((c) => normaliza(c).includes(termo));
     });
-  }, [todas, periodo, busca]);
+  }, [todas, periodo, de, ate, busca]);
 
   const recentes = despesas.slice(0, 15);
 
@@ -132,6 +141,19 @@ function DespesasPage() {
     return { pagoNoMes: pago, aPagarDepois: depois };
   }, [despesas]);
 
+  const porForma = useMemo(
+    () =>
+      FORMAS.map((f) => {
+        const itens = despesas.filter((d) => d.forma === f);
+        const valor = itens.reduce((s, d) => s + d.valor, 0);
+        const quitado = itens
+          .filter((d) => f !== "Crédito" || d.pagoEm)
+          .reduce((s, d) => s + d.valor, 0);
+        return { forma: f, itens, valor, quitado, aberto: valor - quitado };
+      }).filter((g) => g.itens.length > 0),
+    [despesas],
+  );
+
   const categorias = Array.from(new Set(despesas.map((d) => d.categoria)))
     .map((c) => ({
       nome: c,
@@ -139,6 +161,7 @@ function DespesasPage() {
     }))
     .sort((a, b) => b.valor - a.valor)
     .slice(0, 8);
+
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
