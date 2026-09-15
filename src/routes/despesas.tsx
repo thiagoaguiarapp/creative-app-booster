@@ -213,10 +213,7 @@ function DespesasPage() {
       FORMAS.map((f) => {
         const itens = despesas.filter((d) => d.forma === f);
         const valor = itens.reduce((s, d) => s + d.valor, 0);
-        const quitado = itens
-          .filter((d) => f !== "Crédito" || d.pagoEm)
-          .reduce((s, d) => s + d.valor, 0);
-        return { forma: f, itens, valor, quitado, aberto: valor - quitado };
+        return { forma: f, itens, valor };
       }).filter((g) => g.itens.length > 0),
     [despesas],
   );
@@ -412,16 +409,6 @@ function DespesasPage() {
                     {g.itens.length} lançamento{g.itens.length === 1 ? "" : "s"} ·{" "}
                     {total ? Math.round((g.valor / total) * 100) : 0}% do período
                   </p>
-                  {g.forma === "Crédito" && (
-                    <div className="mt-2 flex flex-wrap gap-4 text-xs">
-                      <span className="text-muted-foreground">
-                        Já pago <span className="num font-semibold text-foreground">{brl(g.quitado)}</span>
-                      </span>
-                      <span className="text-muted-foreground">
-                        A pagar <span className="num font-semibold text-warning">{brl(g.aberto)}</span>
-                      </span>
-                    </div>
-                  )}
                 </div>
               ))}
               {porForma.length === 0 && (
