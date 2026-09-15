@@ -12,14 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  dataPago,
+  FORMAS,
   isoCompra,
   limpaDescricao,
   normalizaForma,
   numeroParcela,
   semMarcaParcela,
   totalParcelas,
+  type Forma,
 } from "@/lib/pagamentos";
+import type { Despesa } from "@/lib/sheets-types";
 import { brl } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
