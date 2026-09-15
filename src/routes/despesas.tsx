@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Receipt, Search, TrendingDown, Wallet, X } from "lucide-react";
+import { Fuel, Receipt, Search, TrendingDown, Wallet, Wrench, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
@@ -13,18 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  dataPago,
-  FORMAS,
-  isoCompra,
-  limpaDescricao,
-  normalizaForma,
-  numeroParcela,
-  semMarcaParcela,
-  totalParcelas,
-  type Forma,
-} from "@/lib/pagamentos";
-import type { Despesa } from "@/lib/sheets-types";
+import { FORMAS, numeroParcela, semMarcaParcela, totalParcelas } from "@/lib/pagamentos";
+import { montaDespesasUnificadas, ORIGENS, type ItemDespesa, type Origem } from "@/lib/despesas-unificadas";
 import { brl } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
@@ -33,20 +23,13 @@ function paraBr(iso: string) {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
 
-type Item = Despesa & {
-  compraIso: string;
-  pagoEm: string;
-  forma: Forma;
-  bruta: Despesa;
-};
-
-/** linha da tabela de despesas com submenu de detalhes */
+/** linha da tabela de gastos com submenu de detalhes */
 function LinhaDespesa({
   d,
   aberto,
   onToggle,
 }: {
-  d: Item;
+  d: ItemDespesa;
   aberto: boolean;
   onToggle: () => void;
 }) {
@@ -56,7 +39,7 @@ function LinhaDespesa({
     <LinhaDetalhavel
       aberto={aberto}
       onToggle={onToggle}
-      colunas={4}
+      colunas={5}
       celulas={
         <>
           <TableCell className="num">
@@ -68,8 +51,19 @@ function LinhaDespesa({
             )}
           </TableCell>
           <TableCell>
-            <Badge variant="secondary">{d.categoria}</Badge>
+            <Badge
+              variant={
+                d.origem === "Combustível"
+                  ? "default"
+                  : d.origem === "Manutenção"
+                    ? "outline"
+                    : "secondary"
+              }
+            >
+              {d.origem}
+            </Badge>
           </TableCell>
+          <TableCell className="text-sm text-muted-foreground">{d.categoria}</TableCell>
           <TableCell className="num text-right font-semibold text-destructive">
             {brl(d.valor)}
           </TableCell>
@@ -77,20 +71,23 @@ function LinhaDespesa({
       }
       detalhes={
         <>
-          <Detalhe rotulo="Descrição" valor={semMarcaParcela(d.descricao)} />
+          <Detalhe rotulo="Origem" valor={d.origem} />
           <Detalhe rotulo="Categoria" valor={d.categoria} />
-          <Detalhe rotulo="Pagamento" valor={d.pagamento} />
+          {d.descricao && <Detalhe rotulo="Descrição" valor={semMarcaParcela(d.descricao)} />}
+          {d.extras.map((e) => (
+            <Detalhe key={e.rotulo} rotulo={e.rotulo} valor={e.valor} />
+          ))}
+          {d.pagamento && <Detalhe rotulo="Pagamento" valor={d.pagamento} />}
           <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
           <Detalhe rotulo="Vencimento" valor={d.data} />
-          <Detalhe
-            rotulo="Parcela"
-            valor={parcelas > 1 ? `${numeroParcela(d.descricao)}/${parcelas}` : "Única"}
-          />
+          {parcelas > 1 && (
+            <Detalhe rotulo="Parcela" valor={`${numeroParcela(d.descricao)}/${parcelas}`} />
+          )}
           <Detalhe rotulo="Valor" valor={brl(d.valor)} />
           {credito && <Detalhe rotulo="Baixa" valor={d.pagoEm || "Em aberto"} />}
         </>
       }
-      acoes={<AcoesLancamento tipo="despesa" registro={d.bruta} />}
+      acoes={<AcoesLancamento tipo={d.tipo} registro={d.bruto} />}
     />
   );
 }
@@ -102,12 +99,14 @@ export const Route = createFileRoute("/despesas")({
       { title: "Despesas — Rota Control" },
       {
         name: "description",
-        content: "Controle de despesas operacionais do entregador por categoria e período.",
+        content:
+          "Todos os gastos do entregador em um lugar: combustível, manutenção e despesas por período.",
       },
       { property: "og:title", content: "Despesas — Rota Control" },
       {
         property: "og:description",
-        content: "Controle de despesas operacionais do entregador por categoria e período.",
+        content:
+          "Todos os gastos do entregador em um lugar: combustível, manutenção e despesas por período.",
       },
     ],
   }),
@@ -132,6 +131,13 @@ const PERIODOS: { id: Periodo; label: string }[] = [
   { id: "personalizado", label: "Personalizado" },
 ];
 
+const FILTROS_ORIGEM: { id: Origem | "todas"; label: string }[] = [
+  { id: "todas", label: "Tudo" },
+  { id: "Combustível", label: "Combustível" },
+  { id: "Manutenção", label: "Manutenção" },
+  { id: "Despesa", label: "Outras despesas" },
+];
+
 function prefixoMes(offset: number) {
   const d = new Date();
   d.setDate(1);
@@ -150,26 +156,16 @@ function normaliza(texto: string) {
 function DespesasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [origem, setOrigem] = useState<Origem | "todas">("todas");
   const [de, setDe] = useState("");
   const [ate, setAte] = useState("");
   const [busca, setBusca] = useState("");
   const [abertoId, setAbertoId] = useState<string | null>(null);
 
-  const todas = useMemo(
-    () =>
-      data.despesas.map((d) => ({
-        ...d,
-        compraIso: isoCompra(d.descricao, d.iso),
-        descricao: limpaDescricao(d.descricao),
-        pagoEm: dataPago(d.descricao),
-        forma: normalizaForma(d.pagamento),
-        /** descrição original com as marcas internas, usada na edição */
-        bruta: d,
-      })),
-    [data.despesas],
-  );
+  const todas = useMemo(() => montaDespesasUnificadas(data), [data]);
 
-  const despesas = useMemo(() => {
+  /** filtrado apenas por período — base dos cards por origem */
+  const doPeriodo = useMemo(() => {
     let lista = todas;
     if (periodo === "atual" || periodo === "passado") {
       const p = prefixoMes(periodo === "atual" ? 0 : -1);
@@ -185,6 +181,7 @@ function DespesasPage() {
       const campos = [
         d.descricao,
         d.categoria,
+        d.origem,
         d.pagamento,
         d.data,
         paraBr(d.compraIso),
@@ -194,19 +191,24 @@ function DespesasPage() {
     });
   }, [todas, periodo, de, ate, busca]);
 
+  const despesas = useMemo(
+    () => (origem === "todas" ? doPeriodo : doPeriodo.filter((d) => d.origem === origem)),
+    [doPeriodo, origem],
+  );
+
   const recentes = despesas.slice(0, 15);
 
   const total = despesas.reduce((s, d) => s + d.valor, 0);
+  const totalPeriodo = doPeriodo.reduce((s, d) => s + d.valor, 0);
 
-  const { pagoNoMes, aPagarDepois } = useMemo(() => {
-    let pago = 0;
-    let depois = 0;
-    for (const d of despesas) {
-      if (d.iso.slice(0, 7) === d.compraIso.slice(0, 7)) pago += d.valor;
-      else depois += d.valor;
-    }
-    return { pagoNoMes: pago, aPagarDepois: depois };
-  }, [despesas]);
+  const porOrigem = useMemo(
+    () =>
+      ORIGENS.map((o) => {
+        const itens = doPeriodo.filter((d) => d.origem === o);
+        return { origem: o, itens, valor: itens.reduce((s, d) => s + d.valor, 0) };
+      }),
+    [doPeriodo],
+  );
 
   const porForma = useMemo(
     () =>
@@ -231,7 +233,7 @@ function DespesasPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <PageHeader
         title="Despesas"
-        subtitle="Custos operacionais fora do combustível "
+        subtitle="Todos os gastos: combustível, manutenção e outras despesas"
       />
 
       <div className="flex flex-col items-center gap-3">
@@ -257,7 +259,7 @@ function DespesasPage() {
           <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Procurar despesa..."
+            placeholder="Procurar gasto..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className={cn("h-9 pl-9 pr-8", busca && "pr-8")}
@@ -311,13 +313,43 @@ function DespesasPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total do período" value={brl(total)} icon={TrendingDown} tone="destructive" />
-        <StatCard label="Lançamentos" value={String(despesas.length)} icon={Receipt} />
+        <StatCard
+          label="Total do período"
+          value={brl(totalPeriodo)}
+          icon={TrendingDown}
+          tone="destructive"
+        />
+        <StatCard label="Lançamentos" value={String(doPeriodo.length)} icon={Receipt} />
         <StatCard
           label="Média por lançamento"
-          value={brl(despesas.length ? total / despesas.length : 0)}
+          value={brl(doPeriodo.length ? totalPeriodo / doPeriodo.length : 0)}
           icon={Wallet}
         />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {porOrigem.map((o) => (
+          <StatCard
+            key={o.origem}
+            label={o.origem === "Despesa" ? "Outras despesas" : o.origem}
+            value={brl(o.valor)}
+            hint={`${o.itens.length} lançamento${o.itens.length === 1 ? "" : "s"}`}
+            icon={o.origem === "Combustível" ? Fuel : o.origem === "Manutenção" ? Wrench : Receipt}
+          />
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {FILTROS_ORIGEM.map((f) => (
+          <Button
+            key={f.id}
+            size="sm"
+            variant={origem === f.id ? "default" : "outline"}
+            onClick={() => setOrigem(f.id)}
+          >
+            {f.label}
+          </Button>
+        ))}
       </div>
 
       <Tabs defaultValue="lancamentos" className="flex flex-col gap-6">
@@ -327,17 +359,6 @@ function DespesasPage() {
         </TabsList>
 
         <TabsContent value="lancamentos" className="flex flex-col gap-6">
-          <div className="rounded-lg border border-border bg-card p-4 text-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-muted-foreground">Pago no mês da despesa</span>
-              <span className="num font-semibold">{brl(pagoNoMes)}</span>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-muted-foreground">A pagar em meses seguintes (crédito)</span>
-              <span className="num font-semibold text-warning">{brl(aPagarDepois)}</span>
-            </div>
-          </div>
-
           <SectionCard title="Por categoria">
             <div className="flex flex-col gap-3">
               {categorias.map((c) => (
@@ -362,6 +383,7 @@ function DespesasPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Data</TableHead>
+                  <TableHead>Origem</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead className="text-right">Valor</TableHead>
                   <TableHead className="w-8" />
@@ -378,10 +400,10 @@ function DespesasPage() {
                 ))}
                 {recentes.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">
                       {busca
-                        ? "Nenhuma despesa encontrada para a busca."
-                        : "Nenhuma despesa no período."}
+                        ? "Nenhum gasto encontrado para a busca."
+                        : "Nenhum gasto no período."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -412,7 +434,7 @@ function DespesasPage() {
                 </div>
               ))}
               {porForma.length === 0 && (
-                <p className="text-sm text-muted-foreground">Nenhuma despesa no período.</p>
+                <p className="text-sm text-muted-foreground">Nenhum gasto no período.</p>
               )}
             </div>
           </SectionCard>
@@ -427,6 +449,7 @@ function DespesasPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data</TableHead>
+                    <TableHead>Origem</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead className="w-8" />
