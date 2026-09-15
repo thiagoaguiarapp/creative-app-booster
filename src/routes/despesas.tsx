@@ -412,16 +412,6 @@ function DespesasPage() {
                     {g.itens.length} lançamento{g.itens.length === 1 ? "" : "s"} ·{" "}
                     {total ? Math.round((g.valor / total) * 100) : 0}% do período
                   </p>
-                  {g.forma === "Crédito" && (
-                    <div className="mt-2 flex flex-wrap gap-4 text-xs">
-                      <span className="text-muted-foreground">
-                        Já pago <span className="num font-semibold text-foreground">{brl(g.quitado)}</span>
-                      </span>
-                      <span className="text-muted-foreground">
-                        A pagar <span className="num font-semibold text-warning">{brl(g.aberto)}</span>
-                      </span>
-                    </div>
-                  )}
                 </div>
               ))}
               {porForma.length === 0 && (
