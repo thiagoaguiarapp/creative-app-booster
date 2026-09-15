@@ -188,14 +188,6 @@ function AuthPage() {
           >
             {modo === "entrar" ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
           </button>
-          <button
-            type="button"
-            disabled={carregando}
-            className="underline-offset-4 hover:underline disabled:opacity-50"
-            onClick={reenviarEmail}
-          >
-             {"\n"}
-          </button>
         </div>
       </div>
     </div>
