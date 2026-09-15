@@ -10,7 +10,6 @@ import {
   cadastrarFn,
   entrarFn,
   recuperarSenhaFn,
-  reenviarConfirmacaoFn,
 } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth")({
@@ -40,7 +39,6 @@ function AuthPage() {
   const entrar = useServerFn(entrarFn);
   const cadastrar = useServerFn(cadastrarFn);
   const recuperar = useServerFn(recuperarSenhaFn);
-  const reenviar = useServerFn(reenviarConfirmacaoFn);
 
   const [modo, setModo] = useState<Modo>("entrar");
   const [email, setEmail] = useState("");
@@ -101,21 +99,6 @@ function AuthPage() {
     }
   };
 
-  const reenviarEmail = async () => {
-    if (!email.trim()) {
-      toast.error("Informe o e-mail cadastrado para reenviar a confirmação.");
-      return;
-    }
-    setCarregando(true);
-    try {
-      await reenviar({ data: { email, redirectTo: `${origem()}/confirmado` } });
-      toast.success("E-mail de confirmação reenviado. Verifique sua caixa de entrada e o spam.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Não foi possível reenviar o e-mail.");
-    } finally {
-      setCarregando(false);
-    }
-  };
 
   const subtitulo =
     modo === "entrar"
@@ -187,14 +170,6 @@ function AuthPage() {
             onClick={() => setModo(modo === "entrar" ? "cadastrar" : "entrar")}
           >
             {modo === "entrar" ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
-          </button>
-          <button
-            type="button"
-            disabled={carregando}
-            className="underline-offset-4 hover:underline disabled:opacity-50"
-            onClick={reenviarEmail}
-          >
-             {"\n"}
           </button>
         </div>
       </div>
