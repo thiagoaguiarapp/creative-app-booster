@@ -213,10 +213,7 @@ function DespesasPage() {
       FORMAS.map((f) => {
         const itens = despesas.filter((d) => d.forma === f);
         const valor = itens.reduce((s, d) => s + d.valor, 0);
-        const quitado = itens
-          .filter((d) => f !== "Crédito" || d.pagoEm)
-          .reduce((s, d) => s + d.valor, 0);
-        return { forma: f, itens, valor, quitado, aberto: valor - quitado };
+        return { forma: f, itens, valor };
       }).filter((g) => g.itens.length > 0),
     [despesas],
   );
