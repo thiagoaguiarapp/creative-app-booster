@@ -118,7 +118,11 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
   if (tipo === "abastecimento") {
     const posto = txt(valores["posto"] ?? "");
     const combustivel = txt(valores["combustivel"] ?? "");
-    valores = { ...valores, posto: [posto, combustivel].filter(Boolean).join(" · ") };
+    const veiculo = txt(valores["veiculo"] ?? "");
+    valores = {
+      ...valores,
+      posto: [posto, combustivel, veiculo ? `VEIC:${veiculo}` : ""].filter(Boolean).join(" · "),
+    };
   }
   const linha: Linha = {};
   for (const [chave, campo] of Object.entries(mapa.campos)) {
