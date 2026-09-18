@@ -100,8 +100,11 @@ async function carregar(userId: string): Promise<PainelData> {
       const postoOriginal = normalizar(campo(l, "POSTO", "Posto"));
       const baixaAbastecimento = dataPago(postoOriginal);
       const postoBruto = limpaDescricao(postoOriginal);
-      const partesPosto = postoBruto.split("·").map((p) => p.trim()).filter(Boolean);
-      const posto = partesPosto.length > 1 ? partesPosto.slice(0, -1).join(" · ") : postoBruto;
+      const todasPartes = postoBruto.split("·").map((p) => p.trim()).filter(Boolean);
+      // veículo é gravado como "VEIC:NOME" dentro da coluna POSTO
+      const veiculo = (todasPartes.find((p) => /^VEIC:/i.test(p)) ?? "").replace(/^VEIC:/i, "").trim();
+      const partesPosto = todasPartes.filter((p) => !/^VEIC:/i.test(p));
+      const posto = partesPosto.length > 1 ? partesPosto.slice(0, -1).join(" · ") : (partesPosto[0] ?? "");
       const combustivel = partesPosto.length > 1 ? partesPosto[partesPosto.length - 1]! : "";
       return {
         id: idDe(l),
@@ -110,6 +113,7 @@ async function carregar(userId: string): Promise<PainelData> {
         iso: isoDate(campo(l, "Data", "DATA")),
         posto,
         combustivel,
+        veiculo,
         odometro: num(campo(l, "Odômetro total", "ODOMETRO")),
         litros,
         precoLitro: num(campo(l, "Preço do Litro", "PRECO LITRO")),

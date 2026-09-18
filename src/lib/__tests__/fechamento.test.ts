@@ -36,6 +36,7 @@ const abastecimento = (p: Partial<Abastecimento>): Abastecimento => ({
   iso: "2026-09-03",
   posto: "IPIRANGA",
   combustivel: "GASOLINA",
+  veiculo: "MOTO",
   odometro: 1000,
   litros: 10,
   precoLitro: 6,
