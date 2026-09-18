@@ -150,6 +150,29 @@ function AbastecimentoPage() {
         ))}
       </div>
 
+      {veiculos.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">Veículo:</span>
+          <Button
+            size="sm"
+            variant={veiculo === "todos" ? "default" : "outline"}
+            onClick={() => setVeiculo("todos")}
+          >
+            Todos
+          </Button>
+          {veiculos.map((v) => (
+            <Button
+              key={v}
+              size="sm"
+              variant={veiculo === v ? "default" : "outline"}
+              onClick={() => setVeiculo(v)}
+            >
+              {v}
+            </Button>
+          ))}
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label="Gasto com combustível"
@@ -208,6 +231,7 @@ function AbastecimentoPage() {
                   }
                   detalhes={
                     <>
+                      <Detalhe rotulo="Veículo" valor={a.veiculo || "—"} />
                       <Detalhe rotulo="Combustível" valor={a.combustivel} />
                       <Detalhe rotulo="Posto" valor={a.posto} />
                       <Detalhe rotulo="Pagamento" valor={a.pagamento} />
