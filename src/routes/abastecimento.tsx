@@ -87,7 +87,7 @@ function AbastecimentoPage() {
   const porVeiculo = useMemo(() => {
     if (veiculo === "todos") return data.abastecimentos;
     const alvo = veiculo.toLocaleLowerCase("pt-BR");
-    return data.abastecimentos.filter((a) => a.veiculo.toLocaleLowerCase("pt-BR") === alvo);
+    return data.abastecimentos.filter((a) => (a.veiculo ?? "").toLocaleLowerCase("pt-BR") === alvo);
   }, [data.abastecimentos, veiculo]);
 
   const lista = useMemo(() => {
@@ -105,7 +105,7 @@ function AbastecimentoPage() {
     const grupos = new Map<string, typeof data.abastecimentos>();
     for (const a of data.abastecimentos) {
       if (a.odometro <= 0) continue;
-      const chave = a.veiculo.toLocaleLowerCase("pt-BR");
+      const chave = (a.veiculo ?? "").toLocaleLowerCase("pt-BR");
       const atual = grupos.get(chave) ?? [];
       atual.push(a);
       grupos.set(chave, atual);
