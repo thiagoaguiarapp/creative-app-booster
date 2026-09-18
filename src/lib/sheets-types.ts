@@ -16,6 +16,7 @@ export type Abastecimento = {
   iso: string;
   posto: string;
   combustivel: string;
+  veiculo: string;
   odometro: number;
   litros: number;
   precoLitro: number;
