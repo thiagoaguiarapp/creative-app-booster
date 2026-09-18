@@ -71,43 +71,55 @@ function consumo(lista: Abastecimento[]) {
 
 function AbastecimentoPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const context = useRouteContext({ from: "__root__" });
   const [periodo, setPeriodo] = useState<Periodo>("atual");
+  const [veiculo, setVeiculo] = useState<string>("todos");
   const [abertoId, setAbertoId] = useState<string | null>(null);
 
+  // veículos cadastrados em Configurações + os já usados nos abastecimentos
+  const veiculos = useMemo(() => {
+    const nomes = new Set<string>();
+    for (const v of context.usuario?.veiculos ?? []) if (v.nome.trim()) nomes.add(v.nome.trim());
+    for (const a of data.abastecimentos) if (a.veiculo) nomes.add(a.veiculo);
+    return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [context.usuario?.veiculos, data.abastecimentos]);
+
+  const porVeiculo = useMemo(() => {
+    if (veiculo === "todos") return data.abastecimentos;
+    const alvo = veiculo.toLocaleLowerCase("pt-BR");
+    return data.abastecimentos.filter((a) => a.veiculo.toLocaleLowerCase("pt-BR") === alvo);
+  }, [data.abastecimentos, veiculo]);
+
   const lista = useMemo(() => {
-    if (periodo === "total") return data.abastecimentos;
+    if (periodo === "total") return porVeiculo;
     const p = prefixoMes(periodo === "atual" ? 0 : -1);
-    return data.abastecimentos.filter((a) => a.iso.startsWith(p));
-  }, [data.abastecimentos, periodo]);
+    return porVeiculo.filter((a) => a.iso.startsWith(p));
+  }, [porVeiculo, periodo]);
 
   const recentes = lista.slice(0, 15);
 
-  // km/L por registro: odômetro atual − odômetro do abastecimento anterior ÷ litros
-  const mediaPorRegistro = useMemo(() => {
-    const ordenados = [...data.abastecimentos]
-      .filter((a) => a.odometro > 0)
-      .sort((a, b) => a.odometro - b.odometro);
-    const mapa = new Map<string, number>();
-    for (let i = 1; i < ordenados.length; i++) {
-      const atual = ordenados[i]!;
-      const km = atual.odometro - ordenados[i - 1]!.odometro;
-      if (km > 0 && atual.litros > 0) mapa.set(atual.id, km / atual.litros);
+  // km rodado e km/L por registro, calculados dentro de cada veículo
+  const { mediaPorRegistro, kmRodadoPorRegistro } = useMemo(() => {
+    const media = new Map<string, number>();
+    const rodado = new Map<string, number>();
+    const grupos = new Map<string, typeof data.abastecimentos>();
+    for (const a of data.abastecimentos) {
+      if (a.odometro <= 0) continue;
+      const chave = a.veiculo.toLocaleLowerCase("pt-BR");
+      const atual = grupos.get(chave) ?? [];
+      atual.push(a);
+      grupos.set(chave, atual);
     }
-    return mapa;
-  }, [data.abastecimentos]);
-
-  // Km rodado por registro: odômetro atual − odômetro do abastecimento anterior
-  const kmRodadoPorRegistro = useMemo(() => {
-    const ordenados = [...data.abastecimentos]
-      .filter((a) => a.odometro > 0)
-      .sort((a, b) => a.odometro - b.odometro);
-    const mapa = new Map<string, number>();
-    for (let i = 1; i < ordenados.length; i++) {
-      const atual = ordenados[i]!;
-      const km = atual.odometro - ordenados[i - 1]!.odometro;
-      if (km > 0) mapa.set(atual.id, km);
+    for (const grupo of grupos.values()) {
+      const ordenados = [...grupo].sort((a, b) => a.odometro - b.odometro);
+      for (let i = 1; i < ordenados.length; i++) {
+        const atual = ordenados[i]!;
+        const km = atual.odometro - ordenados[i - 1]!.odometro;
+        if (km > 0) rodado.set(atual.id, km);
+        if (km > 0 && atual.litros > 0) media.set(atual.id, km / atual.litros);
+      }
     }
-    return mapa;
+    return { mediaPorRegistro: media, kmRodadoPorRegistro: rodado };
   }, [data.abastecimentos]);
 
   const litrosTotais = lista.reduce((s, a) => s + a.litros, 0);
