@@ -42,6 +42,8 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 
 ## Outros pendentes
 
+- [x] App Android abria a tela de login do Lovable: `capacitor.config.ts` agora aponta para `https://www.rotacontrolapp.com.br`.
+- [ ] Ajustar "Último custo" na tela Manutenção (ignorar reparo sem custo; incluir preventivo/corretivo).
 - [ ] Domínio de e-mail `notify.rotacontrolapp.com.br` aguardando validação de DNS.
 
 ## Página inicial pública (web)
