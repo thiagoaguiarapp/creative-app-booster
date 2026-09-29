@@ -5,9 +5,9 @@ const config: CapacitorConfig = {
   appName: "Rota Control",
   webDir: ".output/public",
   server: {
-    // Permite testar o app no celular apontando para o preview,
-    // sem precisar recompilar a cada alteração.
-    url: "https://id-preview--050c271a-9a2e-417d-a594-e8336c2f72c9.lovable.app",
+    // Domínio oficial de produção. Nunca usar o link de preview do Lovable,
+    // pois ele exige login na plataforma e bloqueia o app instalado.
+    url: "https://www.rotacontrolapp.com.br",
     cleartext: true,
   },
   plugins: {
