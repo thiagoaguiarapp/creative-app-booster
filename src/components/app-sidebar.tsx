@@ -29,9 +29,17 @@ const items = [
 ];
 
 export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+
+  // No celular, fecha o menu sempre que a tela muda (inclusive ao tocar na tela atual).
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [currentPath, isMobile, setOpenMobile]);
+  const fecharNoCelular = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <Sidebar collapsible="icon">
