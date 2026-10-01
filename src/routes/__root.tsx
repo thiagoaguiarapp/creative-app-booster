@@ -105,6 +105,14 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ location }) => {
     if (location.pathname.startsWith("/lovable/")) return {};
+    // Link de recuperação de senha caiu em outra página: leva para /redefinir-senha mantendo o código.
+    if (typeof window !== "undefined" && location.pathname !== "/redefinir-senha") {
+      const hash = window.location.hash;
+      if (/type=recovery/.test(hash)) {
+        window.location.replace(`/redefinir-senha${hash}`);
+        return new Promise<never>(() => {});
+      }
+    }
     // No app nativo (Android/iOS) a "/" continua exigindo login;
     // na web, "/" é a página pública de apresentação.
     let nativo = false;

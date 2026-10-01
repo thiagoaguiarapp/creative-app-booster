@@ -356,7 +356,8 @@ export async function reenviarConfirmacao(email: string, redirectTo: string): Pr
   }
 }
 
-export async function recuperarSenha(email: string, redirectTo: string): Promise<void> {
+export async function recuperarSenha(email: string, _redirectTo: string): Promise<void> {
+  const redirectTo = "https://www.rotacontrolapp.com.br/redefinir-senha";
   const res = await fetch(`${url()}/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: "POST",
     headers: { apikey: anon(), "Content-Type": "application/json" },
