@@ -242,13 +242,6 @@ export async function entrar(email: string, senha: string): Promise<Usuario> {
   return usuario;
 }
 
-const SUPABASE_SERVICE_PADRAO =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4endxZ2J0Y3dydHBubWZ2eXhlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjIyMjA2MywiZXhwIjoyMTAxNzk4NDYzfQ.TtGLUGN7PapdPZcLUOMo78PcfRObRL4U6s3Mbp3u7Nw";
-
-function servico(): string {
-  return process.env["MOTOCA_SUPABASE_SERVICE_ROLE_KEY"] ?? SUPABASE_SERVICE_PADRAO;
-}
-
 export async function cadastrar(
   email: string,
   senha: string,
