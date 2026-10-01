@@ -1,9 +1,6 @@
-import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, LogOut, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
-import { useState } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
 
-import { sairFn } from "@/lib/auth.functions";
 
 import {
   Sidebar,
@@ -31,18 +28,14 @@ const items = [
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },
 ];
 
-export function AppSidebar({ email, isAdmin }: { email?: string; isAdmin?: boolean }) {
+export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
-  const router = useRouter();
-  const sair = useServerFn(sairFn);
-  const [saindo, setSaindo] = useState(false);
-
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-3 py-4" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px) + 1.5rem)" }}>
+      <SidebarHeader className="px-3 pb-4 pt-[calc(env(safe-area-inset-top,0px)+2.5rem)] md:pt-4">
         <div className="flex items-center gap-2">
           <img
             src="/icon-192-v2.png"

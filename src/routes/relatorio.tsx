@@ -308,7 +308,7 @@ function RelatorioPage() {
           </div>
 
           <SectionCard title="Resumo mensal" description="Todo o período dividido por mês">
-            <div className="-mx-3 overflow-x-auto sm:-mx-5">
+            <div className="-mx-3 max-w-[calc(100%+1.5rem)] overflow-x-auto sm:-mx-5 sm:max-w-[calc(100%+2.5rem)]">
               <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
@@ -518,7 +518,7 @@ function TabelaLista({
 }) {
   return (
     <SectionCard title={titulo} description={`${linhas.length} lançamento(s) · ${brl(total)}`}>
-      <div className="-mx-3 overflow-x-auto sm:-mx-5">
+      <div className="-mx-3 max-w-[calc(100%+1.5rem)] overflow-x-auto sm:-mx-5 sm:max-w-[calc(100%+2.5rem)]">
         <Table className="min-w-[560px]">
           <TableHeader>
             <TableRow>
