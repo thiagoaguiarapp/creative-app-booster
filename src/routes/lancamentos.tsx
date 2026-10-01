@@ -51,7 +51,7 @@ export const Route = createFileRoute("/lancamentos")({
   },
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
-      {error.message}
+      {(error as Error).message}
     </div>
   ),
   notFoundComponent: () => <div className="p-6">Nada encontrado.</div>,

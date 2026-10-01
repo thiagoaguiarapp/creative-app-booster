@@ -57,7 +57,7 @@ export const Route = createFileRoute("/inicio")({
   },
   errorComponent: ({ error }) => (
     <div role="alert" className="p-6 text-sm text-destructive">
-      {error.message}
+      {(error as Error).message}
     </div>
   ),
   component: Home,
