@@ -16,6 +16,8 @@ export type SessaoUsuario = {
     km: number;
     padrao: boolean;
   }[];
+  plataformas: string[];
+  onboardingOk: boolean;
 } | null;
 
 export const salvarVeiculosFn = createServerFn({ method: "POST" })
@@ -23,6 +25,20 @@ export const salvarVeiculosFn = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { salvarVeiculos } = await import("./auth.server");
     await salvarVeiculos(data.veiculos);
+    return { ok: true };
+  });
+
+export const concluirOnboardingFn = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: {
+      veiculo: { nome: string; tipo: string; placa: string; km: number };
+      plataformas: string[];
+      metaSemanal: number;
+    }) => input,
+  )
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { concluirOnboarding } = await import("./auth.server");
+    await concluirOnboarding(data);
     return { ok: true };
   });
 
