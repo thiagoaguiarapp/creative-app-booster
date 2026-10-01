@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
-
+import { useEffect } from "react";
 
 import {
   Sidebar,
@@ -29,9 +29,17 @@ const items = [
 ];
 
 export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
+
+  // No celular, fecha o menu sempre que a tela muda (inclusive ao tocar na tela atual).
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [currentPath, isMobile, setOpenMobile]);
+  const fecharNoCelular = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -61,7 +69,7 @@ export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
               {items.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={currentPath === item.url} tooltip={item.title}>
-                    <Link to={item.url} className="flex items-center gap-2">
+                    <Link to={item.url} onClick={fecharNoCelular} className="flex items-center gap-2">
                       <item.icon className="size-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -81,7 +89,7 @@ export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
               isActive={currentPath === "/premium"}
               tooltip="Seja Premium — remova os anúncios"
             >
-              <Link to="/premium" className="flex items-center gap-2">
+              <Link to="/premium" onClick={fecharNoCelular} className="flex items-center gap-2">
                 <Crown className="size-4 text-primary" />
                 <span>Seja Premium</span>
               </Link>
@@ -94,7 +102,7 @@ export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
                 isActive={currentPath === "/admin"}
                 tooltip="Painel do administrador"
               >
-                <Link to="/admin" className="flex items-center gap-2">
+                <Link to="/admin" onClick={fecharNoCelular} className="flex items-center gap-2">
                   <Shield className="size-4 text-primary" />
                   <span>Administração</span>
                 </Link>
@@ -107,7 +115,7 @@ export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
               isActive={currentPath === "/configuracoes"}
               tooltip="Configurações do app"
             >
-              <Link to="/configuracoes" className="flex items-center gap-2">
+              <Link to="/configuracoes" onClick={fecharNoCelular} className="flex items-center gap-2">
                 <Settings className="size-4" />
                 <span>Configurações</span>
               </Link>
