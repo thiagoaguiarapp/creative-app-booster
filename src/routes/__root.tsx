@@ -7,6 +7,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -45,7 +46,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -103,8 +104,15 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  beforeLoad: async ({ location }) => {
-    if (location.pathname.startsWith("/lovable/")) return {};
+  beforeLoad: async ({ location }): Promise<{ usuario: SessaoUsuario }> => {
+    if (location.pathname.startsWith("/lovable/")) return { usuario: null as SessaoUsuario };
+    // Link de recuperação de senha caiu em outra página: leva para /redefinir-senha mantendo o código.
+    if (typeof window !== "undefined" && location.pathname !== "/redefinir-senha") {
+      const hash = window.location.hash;
+      if (/type=recovery/.test(hash)) {
+        throw redirect({ to: "/redefinir-senha", hash: hash.replace(/^#/, "") });
+      }
+    }
     // No app nativo (Android/iOS) a "/" continua exigindo login;
     // na web, "/" é a página pública de apresentação.
     let nativo = false;
