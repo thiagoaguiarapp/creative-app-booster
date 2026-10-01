@@ -16,7 +16,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmadoRouteImport } from './routes/confirmado'
 import { Route as DespesasRouteImport } from './routes/despesas'
-import { Route as GanhosDiariosRouteImport } from './routes/ganhos-diarios'
 import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
@@ -66,11 +65,6 @@ const ConfirmadoRoute = ConfirmadoRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GanhosDiariosRoute = GanhosDiariosRouteImport.update({
-  id: '/ganhos-diarios',
-  path: '/ganhos-diarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InicioRoute = InicioRouteImport.update({
@@ -158,7 +152,6 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
   '/despesas': typeof DespesasRoute
-  '/ganhos-diarios': typeof GanhosDiariosRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
@@ -182,7 +175,6 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
   '/despesas': typeof DespesasRoute
-  '/ganhos-diarios': typeof GanhosDiariosRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
@@ -208,7 +200,6 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
   '/despesas': typeof DespesasRoute
-  '/ganhos-diarios': typeof GanhosDiariosRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
@@ -235,7 +226,6 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/confirmado'
     | '/despesas'
-    | '/ganhos-diarios'
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
@@ -259,7 +249,6 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/confirmado'
     | '/despesas'
-    | '/ganhos-diarios'
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
@@ -284,7 +273,6 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/confirmado'
     | '/despesas'
-    | '/ganhos-diarios'
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
@@ -310,7 +298,6 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmadoRoute: typeof ConfirmadoRoute
   DespesasRoute: typeof DespesasRoute
-  GanhosDiariosRoute: typeof GanhosDiariosRoute
   InicioRoute: typeof InicioRoute
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
@@ -373,13 +360,6 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ganhos-diarios': {
-      id: '/ganhos-diarios'
-      path: '/ganhos-diarios'
-      fullPath: '/ganhos-diarios'
-      preLoaderRoute: typeof GanhosDiariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inicio': {
@@ -514,7 +494,6 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmadoRoute: ConfirmadoRoute,
   DespesasRoute: DespesasRoute,
-  GanhosDiariosRoute: GanhosDiariosRoute,
   InicioRoute: InicioRoute,
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,

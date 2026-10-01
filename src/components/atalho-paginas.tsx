@@ -1,12 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Bike, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Fuel, Home, ListChecks, Receipt, Wallet, Wrench } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const paginas = [
   { title: "Início", short: "Início", url: "/inicio", icon: Home },
-  { title: "Ganhos diários", short: "Ganhos", url: "/ganhos-diarios", icon: Bike },
   { title: "Abastecimento", short: "Abastec.", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", short: "Despesas", url: "/despesas", icon: Receipt },
   { title: "Recebimento / Repasse", short: "Repasse", url: "/repasses", icon: Wallet },

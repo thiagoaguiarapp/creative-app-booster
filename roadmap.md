@@ -54,3 +54,7 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 
 - [x] Moto do menu afastada do relógio; botão Sair movido para Configurações
 - [x] Relatório: tabelas contidas na largura do celular
+
+- [x] Remover tela Ganhos Diários
+- [x] Lançamento rápido por app na Início (com baixa em dinheiro/Pix)
+- [ ] Redesenho visual da Início (etapa 3)
