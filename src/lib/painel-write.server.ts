@@ -274,6 +274,26 @@ export async function salvarLancamento(
   }
 
   await inserir(mapa.tabela, montaLinha(tipo, valores), userId);
+
+  // taxa de repasse/adiantamento cobrada pelo app vira despesa quitada na hora
+  if (tipo === "repasse" && txt(valores["temTaxa"] ?? "") === "Sim") {
+    const taxa = paraNumero(valores["taxa"] ?? "0");
+    if (taxa > 0) {
+      const app = txt(valores["aplicativo"] ?? "").slice(0, 60);
+      await gravarDespesa(
+        {
+          data: valores["data"] ?? "",
+          categoria: "Taxa de repasse/adiantamento",
+          descricao: `Taxa de repasse/adiantamento — ${app}`,
+          valor: String(taxa.toFixed(2)),
+          pagamento: "Débito",
+          parcelas: "",
+          dataPrimeiraParcela: "",
+        },
+        userId,
+      );
+    }
+  }
 }
 
 
