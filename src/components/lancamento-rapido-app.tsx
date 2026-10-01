@@ -30,7 +30,7 @@ const isoDia = (offset: number) => {
 };
 
 /** apps do usuário, ordenados pelo uso mais recente */
-function appsDoUsuario(ganhos: Ganho[]): string[] {
+function appsDoUsuario(ganhos: Ganho[], cadastrados: string[]): string[] {
   const mapa = new Map<string, { nome: string; iso: string }>();
   for (const g of ganhos) {
     const nome = g.plataforma.trim();
@@ -39,11 +39,21 @@ function appsDoUsuario(ganhos: Ganho[]): string[] {
     const atual = mapa.get(chave);
     if (!atual || g.iso > atual.iso) mapa.set(chave, { nome, iso: g.iso });
   }
+  for (const nome of cadastrados) {
+    const chave = normalizarPlataforma(nome);
+    if (!mapa.has(chave)) mapa.set(chave, { nome, iso: "" });
+  }
   return [...mapa.values()].sort((a, b) => b.iso.localeCompare(a.iso)).map((a) => a.nome);
 }
 
-export function LancamentoRapidoApp({ ganhos }: { ganhos: Ganho[] }) {
-  const apps = useMemo(() => appsDoUsuario(ganhos), [ganhos]);
+export function LancamentoRapidoApp({
+  ganhos,
+  plataformas = [],
+}: {
+  ganhos: Ganho[];
+  plataformas?: string[];
+}) {
+  const apps = useMemo(() => appsDoUsuario(ganhos, plataformas), [ganhos, plataformas]);
   const [app, setApp] = useState<string | null>(null);
   const [novoApp, setNovoApp] = useState(false);
 

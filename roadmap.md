@@ -58,3 +58,5 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [x] Remover tela Ganhos Diários
 - [x] Lançamento rápido por app na Início (com baixa em dinheiro/Pix)
 - [ ] Redesenho visual da Início (etapa 3)
+
+- [x] Pré-cadastro em etapas para novos usuários (veículo, apps, meta)

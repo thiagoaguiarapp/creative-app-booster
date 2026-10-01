@@ -37,6 +37,8 @@ export type Usuario = {
   isPremium: boolean;
   isAdmin?: boolean;
   veiculos: Veiculo[];
+  plataformas: string[];
+  onboardingOk: boolean;
 };
 
 type Tokens = { access_token?: string; refresh_token?: string };
@@ -97,7 +99,23 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     vencimentoCartao: numeroMeta(meta["vencimentoCartao"]),
     isPremium: meta["is_premium"] === true,
     veiculos: normalizarVeiculos(meta["veiculos"]),
+    plataformas: normalizarPlataformas(meta["plataformas"]),
+    onboardingOk: meta["onboardingOk"] === true,
   };
+}
+
+export function normalizarPlataformas(bruto: unknown): string[] {
+  if (!Array.isArray(bruto)) return [];
+  const vistos = new Set<string>();
+  const lista: string[] = [];
+  for (const item of bruto) {
+    const nome = String(item ?? "").trim().slice(0, 40);
+    const chave = nome.toLowerCase();
+    if (!nome || vistos.has(chave)) continue;
+    vistos.add(chave);
+    lista.push(nome);
+  }
+  return lista.slice(0, 15);
 }
 
 export function normalizarVeiculos(bruto: unknown): Veiculo[] {
@@ -153,6 +171,8 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
         vencimentoCartao: atual.vencimentoCartao,
         is_premium: atual.isPremium,
         veiculos: atual.veiculos,
+        plataformas: atual.plataformas,
+        onboardingOk: atual.onboardingOk,
         ...mudancas,
       },
     }),
@@ -182,6 +202,25 @@ export async function salvarCartao(
     vencimentoCartao: Math.min(31, Math.max(0, Math.trunc(Number(vencimento) || 0))),
   });
   return { limiteCartao: salvo.limiteCartao, vencimentoCartao: salvo.vencimentoCartao };
+}
+
+export async function concluirOnboarding(dados: {
+  veiculo: unknown;
+  plataformas: unknown;
+  metaSemanal: number;
+}): Promise<void> {
+  const atual = await exigirUsuario();
+  const novos = normalizarVeiculos([dados.veiculo]).map((v) => ({ ...v, padrao: true }));
+  const veiculos = [
+    ...novos,
+    ...atual.veiculos.map((v) => ({ ...v, padrao: novos.length ? false : v.padrao })),
+  ].slice(0, 10);
+  await atualizarMetadata({
+    veiculos,
+    plataformas: normalizarPlataformas(dados.plataformas),
+    metaSemanal: Math.max(0, Number(dados.metaSemanal) || 0),
+    onboardingOk: true,
+  });
 }
 
 export async function salvarVeiculos(veiculos: unknown): Promise<Veiculo[]> {
