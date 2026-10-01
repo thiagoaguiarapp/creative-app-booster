@@ -42,7 +42,7 @@ export function AppSidebar({ email, isAdmin }: { email?: string; isAdmin?: boole
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-3 py-4">
+      <SidebarHeader className="px-3 py-4" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px) + 1.5rem)" }}>
         <div className="flex items-center gap-2">
           <img
             src="/icon-192-v2.png"
@@ -118,30 +118,6 @@ export function AppSidebar({ email, isAdmin }: { email?: string; isAdmin?: boole
                 <Settings className="size-4" />
                 <span>Configurações</span>
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        {!collapsed && email && (
-          <p className="truncate px-2 pt-1 text-[11px] text-muted-foreground">{email}</p>
-        )}
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip="Sair"
-              disabled={saindo}
-              onClick={async () => {
-                setSaindo(true);
-                try {
-                  await sair();
-                  await router.invalidate();
-                  router.navigate({ to: "/auth", replace: true });
-                } finally {
-                  setSaindo(false);
-                }
-              }}
-            >
-              <LogOut className="size-4" />
-              <span>Sair</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

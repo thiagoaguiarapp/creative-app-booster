@@ -237,8 +237,11 @@ function RootComponent() {
         <div className="flex min-h-screen w-full">
           <AppSidebar email={usuario.email} isAdmin={usuario.isAdmin === true} />
           <div className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
-              <SidebarTrigger />
+            <header
+              className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/80 px-4 pb-2 backdrop-blur md:h-14 md:pb-0 md:!pt-0"
+              style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.75rem)" }}
+            >
+              <SidebarTrigger className="h-11 w-11 [&_svg]:size-6" />
               <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 Rota Control
               </span>
