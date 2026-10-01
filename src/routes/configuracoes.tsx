@@ -287,7 +287,7 @@ function ConfiguracoesPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Conta" description={usuario?.email ? `Conectado como ${usuario.email}` : undefined}>
+      <SectionCard title="Conta" description={`Conectado como ${usuario?.email ?? ""}`}>
         <Button
           type="button"
           variant="outline"
