@@ -316,10 +316,6 @@ export async function cadastrar(
   senha: string,
   redirectTo?: string,
 ): Promise<Usuario | null> {
-  if (redirectTo) {
-    const criado = await cadastrarComEmailProprio(email, senha, redirectTo);
-    if (criado) return null;
-  }
   const destino = redirectTo ? `?redirect_to=${encodeURIComponent(redirectTo)}` : "";
   const dados = await chamar(`/signup${destino}`, { email, password: senha });
   if ((dados as Tokens).access_token) {
