@@ -89,6 +89,7 @@ function AuthPage() {
           setModo("entrar");
           return;
         }
+        toast.success("Conta criada! Bem-vindo ao Rota Control.");
       }
       await router.invalidate();
       router.navigate({ to: "/inicio", replace: true });
