@@ -124,8 +124,20 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
 
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "aplicativo", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
-    { key: "valor", label: "Valor recebido (R$)", tipo: "money", obrigatorio: true },
+    { key: "valor", label: "Valor faturado a receber (R$)", tipo: "money", obrigatorio: true },
     { key: "forma", label: "Forma de recebimento", tipo: "select", opcoes: FORMAS_RECEBIMENTO },
+    {
+      key: "temTaxa",
+      label: "Teve taxa de repasse / adiantamento?",
+      tipo: "select",
+      opcoes: ["Não", "Sim"],
+    },
+    {
+      key: "taxa",
+      label: "Valor da taxa (R$)",
+      tipo: "money",
+      somenteSe: { key: "temTaxa", valores: ["Sim"] },
+    },
   ],
   manutencao: [
     { key: "veiculo", label: "Veículo", tipo: "text", obrigatorio: true, sugestoes: "veiculo" },
