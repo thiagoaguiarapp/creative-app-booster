@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { BarChart3, Bike, Crown, Fuel, Home, ListChecks, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
-
+import { useEffect } from "react";
 
 import {
   Sidebar,
