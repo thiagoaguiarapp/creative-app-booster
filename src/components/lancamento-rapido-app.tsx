@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { normalizarPlataforma } from "@/lib/conciliacao";
 import { ehExtra } from "@/lib/extras";
-import { paraNumero } from "@/lib/numero";
+import { paraNumeroBr as paraNumero } from "@/lib/numero";
 import { salvarLancamentoFn } from "@/lib/painel.functions";
 import type { Ganho } from "@/lib/sheets-types";
 import { brl } from "@/lib/sheets-types";

@@ -14,6 +14,7 @@ import { formatISO, startOfWeek, endOfWeek, parseISO, addDays, format } from "da
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { NovoLancamentoRapido } from "@/components/lancamento-form";
+import { LancamentoRapidoApp } from "@/components/lancamento-rapido-app";
 import { PageHeader, SectionCard } from "@/components/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -141,6 +142,7 @@ function Home() {
 
       <div className="flex flex-col items-center gap-3">
         <AtalhoPaginas />
+        <LancamentoRapidoApp ganhos={data.ganhos} />
         <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto sm:flex-none" />
       </div>
 
