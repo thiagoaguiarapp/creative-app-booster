@@ -249,68 +249,6 @@ function servico(): string {
   return process.env["MOTOCA_SUPABASE_SERVICE_ROLE_KEY"] ?? SUPABASE_SERVICE_PADRAO;
 }
 
-/** Cria a conta sem disparar o e-mail padrão e envia a confirmação em português. */
-async function cadastrarComEmailProprio(
-  email: string,
-  senha: string,
-  redirectTo: string,
-): Promise<boolean> {
-  const chave = servico();
-  const cab = {
-    apikey: chave,
-    Authorization: `Bearer ${chave}`,
-    "Content-Type": "application/json",
-  };
-
-  const criado = await fetch(`${url()}/admin/users`, {
-    method: "POST",
-    headers: cab,
-    body: JSON.stringify({ email, password: senha, email_confirm: false }),
-  });
-  if (!criado.ok) {
-    const erro = (await criado.json().catch(() => ({}))) as Record<string, unknown>;
-    const msg = String(erro["msg"] ?? erro["message"] ?? erro["error_description"] ?? "");
-    if (criado.status === 422 || /already|registered|exists/i.test(msg)) {
-      throw new Error(traduzir(msg || "already registered", criado.status));
-    }
-    return false;
-  }
-
-  let link = "";
-  try {
-    const res = await fetch(`${url()}/admin/generate_link`, {
-      method: "POST",
-      headers: cab,
-      body: JSON.stringify({ type: "signup", email, password: senha, redirect_to: redirectTo }),
-    });
-    if (res.ok) {
-      const dados = (await res.json()) as Record<string, unknown>;
-      link = String(dados["action_link"] ?? "");
-    }
-  } catch {
-    link = "";
-  }
-
-  if (link) {
-    try {
-      const { sendTemplateEmail } = await import("./email-templates/send-email");
-      const envio = await sendTemplateEmail("confirmar-email", email, {
-        templateData: { link },
-      });
-      if (envio.sent) return true;
-    } catch {
-      // Domínio de e-mail ainda não verificado: cai no envio padrão abaixo.
-    }
-  }
-
-  try {
-    await reenviarConfirmacao(email, redirectTo);
-  } catch {
-    // Conta criada; o usuário pode pedir o reenvio da confirmação na tela de login.
-  }
-  return true;
-}
-
 export async function cadastrar(
   email: string,
   senha: string,
