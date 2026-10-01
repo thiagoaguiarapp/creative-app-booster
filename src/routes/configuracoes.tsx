@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Bike, Plus, Star, Trash2, User } from "lucide-react";
+import { Bike, LogOut, Plus, Star, Trash2, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { salvarPerfilFn, salvarVeiculosFn } from "@/lib/auth.functions";
+import { sairFn, salvarPerfilFn, salvarVeiculosFn } from "@/lib/auth.functions";
 import { salvarMetaSemanalFn } from "@/lib/metas.functions";
 
 export const Route = createFileRoute("/configuracoes")({
@@ -57,6 +57,9 @@ function ConfiguracoesPage() {
   const salvarPerfil = useServerFn(salvarPerfilFn);
   const salvarMeta = useServerFn(salvarMetaSemanalFn);
   const salvarVeiculos = useServerFn(salvarVeiculosFn);
+  const sair = useServerFn(sairFn);
+  const [saindo, setSaindo] = useState(false);
+
 
   const [nome, setNome] = useState(usuario?.nome ?? "");
   const [telefone, setTelefone] = useState(usuario?.telefone ?? "");
@@ -282,6 +285,30 @@ function ConfiguracoesPage() {
             </Button>
           </div>
         </div>
+      </SectionCard>
+
+      <SectionCard title="Conta" description={`Conectado como ${usuario?.email ?? ""}`}>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full text-destructive sm:w-auto"
+          disabled={saindo}
+          onClick={async () => {
+            if (!window.confirm("Deseja realmente sair da sua conta?")) return;
+            setSaindo(true);
+            try {
+              await sair();
+              await router.invalidate();
+              router.navigate({ to: "/auth", replace: true });
+            } catch {
+              toast.error("Não foi possível sair. Tente novamente.");
+            } finally {
+              setSaindo(false);
+            }
+          }}
+        >
+          <LogOut className="size-4" /> {saindo ? "Saindo…" : "Sair da conta"}
+        </Button>
       </SectionCard>
     </div>
   );
