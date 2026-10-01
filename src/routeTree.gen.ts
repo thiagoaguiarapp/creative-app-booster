@@ -28,7 +28,6 @@ import { Route as RepassesRouteImport } from './routes/repasses'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
-import { Route as AdminRelatoriosRouteImport } from './routes/admin.relatorios'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -127,11 +126,6 @@ const AdminAssinaturasRoute = AdminAssinaturasRouteImport.update({
   path: '/assinaturas',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -163,7 +157,6 @@ export interface FileRoutesByFullPath {
   '/repasses': typeof RepassesRoute
   '/termos': typeof TermosRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -186,7 +179,6 @@ export interface FileRoutesByTo {
   '/repasses': typeof RepassesRoute
   '/termos': typeof TermosRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -211,7 +203,6 @@ export interface FileRoutesById {
   '/repasses': typeof RepassesRoute
   '/termos': typeof TermosRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -237,7 +228,6 @@ export interface FileRouteTypes {
     | '/repasses'
     | '/termos'
     | '/admin/assinaturas'
-    | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin/'
     | '/lovable/email/transactional/preview'
@@ -260,7 +250,6 @@ export interface FileRouteTypes {
     | '/repasses'
     | '/termos'
     | '/admin/assinaturas'
-    | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin'
     | '/lovable/email/transactional/preview'
@@ -284,7 +273,6 @@ export interface FileRouteTypes {
     | '/repasses'
     | '/termos'
     | '/admin/assinaturas'
-    | '/admin/relatorios'
     | '/admin/usuarios'
     | '/admin/'
     | '/lovable/email/transactional/preview'
@@ -446,13 +434,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAssinaturasRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/relatorios': {
-      id: '/admin/relatorios'
-      path: '/relatorios'
-      fullPath: '/admin/relatorios'
-      preLoaderRoute: typeof AdminRelatoriosRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/usuarios'
@@ -472,14 +453,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAssinaturasRoute: typeof AdminAssinaturasRoute
-  AdminRelatoriosRoute: typeof AdminRelatoriosRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAssinaturasRoute: AdminAssinaturasRoute,
-  AdminRelatoriosRoute: AdminRelatoriosRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

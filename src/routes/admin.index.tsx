@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ListChecks, Loader2, Plus, Shield, Trash2, Users } from "lucide-react";
+import { Activity, ListChecks, Loader2, Plus, Shield, Trash2, UserPlus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -93,10 +93,12 @@ function AdminVisaoGeral() {
             />
             <StatCard
               label="Contas premium"
-              value={String(data.usuarios.filter((u) => u.premium).length)}
+              value={String(data.premium)}
               icon={Shield}
               tone="warning"
             />
+            <StatCard label="Cadastros no mês" value={String(data.cadastrosMes)} icon={UserPlus} />
+            <StatCard label="Ativos (7 dias)" value={String(data.ativos7d)} icon={Activity} tone="success" />
           </div>
 
           <SectionCard title="Lançamentos por módulo">
