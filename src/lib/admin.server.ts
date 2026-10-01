@@ -45,12 +45,16 @@ export type UsuarioAdmin = {
   confirmado: boolean;
   premium: boolean;
   role: string;
+  bloqueado: boolean;
 };
 
 export type ResumoAdmin = {
   usuarios: UsuarioAdmin[];
   totalUsuarios: number;
   totalLancamentos: number;
+  cadastrosMes: number;
+  ativos7d: number;
+  premium: number;
   porTabela: { nome: string; total: number }[];
   categorias: CategoriasPadrao;
 };
@@ -81,6 +85,7 @@ type UsuarioAuth = {
   email_confirmed_at?: string | null;
   confirmed_at?: string | null;
   user_metadata?: Record<string, unknown>;
+  banned_until?: string | null;
 };
 
 async function listarAuthUsers(): Promise<UsuarioAuth[]> {
@@ -203,6 +208,7 @@ export async function resumoAdmin(): Promise<ResumoAdmin> {
     confirmado: Boolean(u.email_confirmed_at ?? u.confirmed_at),
     premium: (u.user_metadata ?? {})["is_premium"] === true,
     role: roles.get(u.id) || "user",
+    bloqueado: !!u.banned_until && new Date(u.banned_until).getTime() > Date.now(),
   }));
   usuarios.sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
 
@@ -211,8 +217,14 @@ export async function resumoAdmin(): Promise<ResumoAdmin> {
     total: contagens[i] ?? 0,
   }));
 
+  const agora = new Date();
+  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString();
+  const seteDias = new Date(agora.getTime() - 7 * 864e5).toISOString();
   return {
     usuarios,
+    cadastrosMes: usuarios.filter((u) => u.criadoEm >= inicioMes).length,
+    ativos7d: usuarios.filter((u) => u.ultimoAcesso >= seteDias).length,
+    premium: usuarios.filter((u) => u.premium).length,
     totalUsuarios: usuarios.length,
     totalLancamentos: porTabela.reduce((s, t) => s + t.total, 0),
     porTabela,
@@ -220,99 +232,36 @@ export async function resumoAdmin(): Promise<ResumoAdmin> {
   };
 }
 
-/* ------------------------- Relatórios globais ------------------------- */
+/* ------------------------- Ações de suporte ------------------------- */
 
-export type TipoLancamento = "ganho" | "abastecimento" | "despesa" | "repasse" | "manutencao";
+export type AcaoUsuario = "premium" | "removerPremium" | "bloquear" | "desbloquear" | "recuperarSenha";
 
-export type LancamentoAdmin = {
-  id: string;
-  tipo: TipoLancamento;
-  iso: string;
-  categoria: string;
-  valor: number;
-  usuarioId: string;
-};
+export async function acaoUsuario(userId: string, acao: AcaoUsuario): Promise<void> {
+  const admin = await exigirAdmin();
+  if (admin.id === userId && (acao === "bloquear" || acao === "removerPremium")) {
+    throw new Error("Você não pode aplicar essa ação na sua própria conta.");
+  }
+  const res = await fetch(`${baseUrl()}/auth/v1/admin/users/${userId}`, { headers: cabecalhos() });
+  if (!res.ok) throw new Error("Usuário não encontrado.");
+  const u = (await res.json()) as UsuarioAuth;
 
-const ROTULO_TIPO: Record<TipoLancamento, string> = {
-  ganho: "Faturamento",
-  abastecimento: "Abastecimento",
-  despesa: "Despesa",
-  repasse: "Repasse",
-  manutencao: "Manutenção",
-};
+  if (acao === "recuperarSenha") {
+    if (!u.email) throw new Error("Usuário sem e-mail.");
+    const { recuperarSenha } = await import("./auth.server");
+    await recuperarSenha(u.email, "");
+    return;
+  }
 
-export const TIPOS_LANCAMENTO = (
-  Object.keys(ROTULO_TIPO) as TipoLancamento[]
-).map((t) => ({ valor: t, rotulo: ROTULO_TIPO[t] }));
-
-/** Todos os lançamentos do app (todos os usuários), já normalizados. */
-export async function lancamentosGlobais(): Promise<LancamentoAdmin[]> {
-  await exigirAdmin();
-  const { selectAll, isoDate, num, txt } = await import("./db.server");
-
-  const normalizar = (v: unknown) =>
-    txt(v).replace(/\s+/g, " ").trim().toUpperCase();
-  const pegar = (linha: Record<string, unknown>, ...nomes: string[]) => {
-    for (const n of nomes) {
-      const v = linha[n];
-      if (v !== undefined && v !== null && txt(v) !== "") return v;
-    }
-    return undefined;
-  };
-
-  const [ganhos, comb, desp, rep, manut] = await Promise.all([
-    selectAll("DIARIO"),
-    selectAll("CONTROLE COMBUSTIVEL"),
-    selectAll("DESPESAS"),
-    selectAll("REPASSE"),
-    selectAll("MANUTENCAO"),
-  ]);
-
-  const dono = (l: Record<string, unknown>) => txt(pegar(l, "USER_ID"));
-
-  const itens: LancamentoAdmin[] = [
-    ...ganhos.map((l) => ({
-      id: `ganho-${txt(l["ID"])}`,
-      tipo: "ganho" as const,
-      iso: isoDate(pegar(l, "DATA", "Data")),
-      categoria: normalizar(pegar(l, "APP", "APLICATIVO", "PLATAFORMA")) || "—",
-      valor: num(pegar(l, "FATURAMENTO")),
-      usuarioId: dono(l),
-    })),
-    ...comb.map((l) => ({
-      id: `abast-${txt(l["ID"])}`,
-      tipo: "abastecimento" as const,
-      iso: isoDate(pegar(l, "Data", "DATA")),
-      categoria: normalizar(pegar(l, "POSTO", "Posto")) || "COMBUSTÍVEL",
-      valor: num(pegar(l, "VALOR PAGO", "VALOR")),
-      usuarioId: dono(l),
-    })),
-    ...desp.map((l) => ({
-      id: `desp-${txt(l["ID"])}`,
-      tipo: "despesa" as const,
-      iso: isoDate(pegar(l, "DATA", "Data")),
-      categoria: normalizar(pegar(l, "TIPO DE GASTO", "CATEGORIA")) || "OUTROS",
-      valor: num(pegar(l, "VALOR")),
-      usuarioId: dono(l),
-    })),
-    ...rep.map((l) => ({
-      id: `rep-${txt(l["ID"])}`,
-      tipo: "repasse" as const,
-      iso: isoDate(pegar(l, "DATA", "Data")),
-      categoria: normalizar(pegar(l, "APLICATIVO", "APP")) || "—",
-      valor: num(pegar(l, "VALOR RECEBIDO", "VALOR")),
-      usuarioId: dono(l),
-    })),
-    ...manut.map((l) => ({
-      id: `manut-${txt(l["ID"])}`,
-      tipo: "manutencao" as const,
-      iso: isoDate(pegar(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
-      categoria: normalizar(pegar(l, "SERVIÇO", "SERVICO")) || "—",
-      valor: num(pegar(l, "VALOR GASTO", "VALOR")),
-      usuarioId: dono(l),
-    })),
-  ].filter((i) => i.iso !== "");
-
-  itens.sort((a, b) => b.iso.localeCompare(a.iso));
-  return itens;
+  let corpo: Record<string, unknown>;
+  if (acao === "premium" || acao === "removerPremium") {
+    corpo = { user_metadata: { ...(u.user_metadata ?? {}), is_premium: acao === "premium" } };
+  } else {
+    corpo = { ban_duration: acao === "bloquear" ? "876000h" : "none" };
+  }
+  const r = await fetch(`${baseUrl()}/auth/v1/admin/users/${userId}`, {
+    method: "PUT",
+    headers: cabecalhos(),
+    body: JSON.stringify(corpo),
+  });
+  if (!r.ok) throw new Error("Não foi possível aplicar a ação.");
 }

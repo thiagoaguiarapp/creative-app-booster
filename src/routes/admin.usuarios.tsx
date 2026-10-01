@@ -1,12 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Clock, Loader2, Shield, Users } from "lucide-react";
+import { Ban, Clock, KeyRound, Loader2, Shield, Users } from "lucide-react";
+import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
 import { SectionCard, StatCard } from "@/components/shell";
 import { Input } from "@/components/ui/input";
-import { resumoAdminFn } from "@/lib/admin.functions";
+import { Button } from "@/components/ui/button";
+import { acaoUsuarioFn, resumoAdminFn } from "@/lib/admin.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/usuarios")({
@@ -49,6 +51,38 @@ function AdminUsuarios() {
     queryKey: ["admin-resumo"],
     queryFn: () => carregar(),
   });
+
+  const executar = useServerFn(acaoUsuarioFn);
+  const qc = useQueryClient();
+  const acao = useMutation({
+    mutationFn: (v: { userId: string; acao: "premium" | "removerPremium" | "bloquear" | "desbloquear" | "recuperarSenha" }) =>
+      executar({ data: v }),
+    onSuccess: (_r, v) => {
+      qc.invalidateQueries({ queryKey: ["admin-resumo"] });
+      toast.success(v.acao === "recuperarSenha" ? "E-mail de recuperação enviado." : "Conta atualizada.");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+  function confirmar(texto: string, v: Parameters<typeof acao.mutate>[0]) {
+    if (window.confirm(texto)) acao.mutate(v);
+  }
+  type U = (typeof usuarios)[number];
+  const Acoes = ({ u }: { u: U }) => (
+    <div className="mt-2 flex flex-wrap gap-2">
+      <Button size="sm" variant="outline" disabled={acao.isPending}
+        onClick={() => confirmar(u.premium ? `Remover Premium de ${u.email}?` : `Tornar ${u.email} Premium?`, { userId: u.id, acao: u.premium ? "removerPremium" : "premium" })}>
+        <Shield className="size-3.5" /> {u.premium ? "Remover Premium" : "Tornar Premium"}
+      </Button>
+      <Button size="sm" variant="outline" disabled={acao.isPending}
+        onClick={() => confirmar(`Enviar e-mail de recuperação de senha para ${u.email}?`, { userId: u.id, acao: "recuperarSenha" })}>
+        <KeyRound className="size-3.5" /> Recuperar senha
+      </Button>
+      <Button size="sm" variant={u.bloqueado ? "outline" : "destructive"} disabled={acao.isPending}
+        onClick={() => confirmar(u.bloqueado ? `Liberar a conta ${u.email}?` : `Bloquear a conta ${u.email}? Ela não conseguirá entrar.`, { userId: u.id, acao: u.bloqueado ? "desbloquear" : "bloquear" })}>
+        <Ban className="size-3.5" /> {u.bloqueado ? "Liberar conta" : "Bloquear"}
+      </Button>
+    </div>
+  );
 
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("todos");
@@ -158,7 +192,9 @@ function AdminUsuarios() {
                       <span className="text-muted-foreground">
                         Acesso: {dataBr(u.ultimoAcesso)}
                       </span>
+                      {u.bloqueado && <span className="text-destructive">Bloqueada</span>}
                     </div>
+                    <Acoes u={u} />
                   </li>
                 ))}
               </ul>
@@ -173,6 +209,7 @@ function AdminUsuarios() {
                       <th className="py-2">Plano</th>
                       <th className="py-2">Cadastro</th>
                       <th className="py-2">Último acesso</th>
+                      <th className="py-2">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -194,7 +231,11 @@ function AdminUsuarios() {
                         </td>
                         <td className="py-2 pr-3">{u.premium ? "Premium" : "Free"}</td>
                         <td className="py-2 pr-3">{dataBr(u.criadoEm)}</td>
-                        <td className="py-2">{dataBr(u.ultimoAcesso)}</td>
+                        <td className="py-2 pr-3">{dataBr(u.ultimoAcesso)}</td>
+                        <td className="py-2">
+                          {u.bloqueado && <span className="text-xs text-destructive">Bloqueada</span>}
+                          <Acoes u={u} />
+                        </td>
                       </tr>
                     ))}
                   </tbody>

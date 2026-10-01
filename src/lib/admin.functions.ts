@@ -23,9 +23,14 @@ export const categoriasPadraoFn = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const lancamentosGlobaisFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<import("./admin.server").LancamentoAdmin[]> => {
-    const { lancamentosGlobais } = await import("./admin.server");
-    return lancamentosGlobais();
-  },
-);
+export const acaoUsuarioFn = createServerFn({ method: "POST" })
+  .inputValidator((input: { userId: string; acao: import("./admin.server").AcaoUsuario }) => {
+    const acoes = ["premium", "removerPremium", "bloquear", "desbloquear", "recuperarSenha"];
+    if (typeof input?.userId !== "string" || !acoes.includes(input.acao)) throw new Error("Dados inválidos.");
+    return input;
+  })
+  .handler(async ({ data }) => {
+    const { acaoUsuario } = await import("./admin.server");
+    await acaoUsuario(data.userId, data.acao);
+    return { ok: true };
+  });
