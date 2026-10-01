@@ -109,8 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     if (typeof window !== "undefined" && location.pathname !== "/redefinir-senha") {
       const hash = window.location.hash;
       if (/type=recovery/.test(hash)) {
-        window.location.replace(`/redefinir-senha${hash}`);
-        return new Promise<never>(() => {});
+        throw redirect({ to: "/redefinir-senha", hash: hash.replace(/^#/, "") });
       }
     }
     // No app nativo (Android/iOS) a "/" continua exigindo login;
