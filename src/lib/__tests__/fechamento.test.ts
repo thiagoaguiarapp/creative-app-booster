@@ -19,6 +19,7 @@ const manutencao = (p: Partial<Manutencao>): Manutencao => ({
   id: "1",
   row: "1",
   veiculo: "MOTO",
+  pagamento: "",
   data: "05/09/2026",
   iso: "2026-09-05",
   servico: "TROCA DE OLEO",
