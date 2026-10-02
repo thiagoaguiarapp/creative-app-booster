@@ -115,6 +115,7 @@ function ConfiguracoesPage() {
       await salvarPerfil({ data: { nome, telefone } });
       await salvarMeta({ data: { valor: Number(meta.replace(",", ".")) || 0 } });
       await router.invalidate();
+      await router.options.context.queryClient?.invalidateQueries({ queryKey: ["painel"] });
       toast.success("Dados atualizados.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível salvar seus dados.");
@@ -144,6 +145,7 @@ function ConfiguracoesPage() {
         },
       });
       await router.invalidate();
+      await router.options.context.queryClient?.invalidateQueries({ queryKey: ["painel"] });
       toast.success("Veículos salvos. Eles já aparecem nos lançamentos.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível salvar os veículos.");
@@ -244,7 +246,7 @@ function ConfiguracoesPage() {
                 </Select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor={`km-${v.id}`}>Km atual (opcional)</Label>
+                <Label htmlFor={`km-${v.id}`}>Km atual no painel (atualiza o odômetro)</Label>
                 <Input
                   id={`km-${v.id}`}
                   value={v.km}
@@ -299,6 +301,7 @@ function ConfiguracoesPage() {
             try {
               await sair();
               await router.invalidate();
+      await router.options.context.queryClient?.invalidateQueries({ queryKey: ["painel"] });
               router.navigate({ to: "/auth", replace: true });
             } catch {
               toast.error("Não foi possível sair. Tente novamente.");
