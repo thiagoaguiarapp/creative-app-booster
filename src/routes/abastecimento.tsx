@@ -233,7 +233,7 @@ function AbastecimentoPage() {
                     <>
                       <Detalhe rotulo="Veículo" valor={a.veiculo || "—"} />
                       <Detalhe rotulo="Combustível" valor={a.combustivel} />
-                      <Detalhe rotulo="Posto" valor={a.posto} />
+                      <Detalhe rotulo="Posto" valor={limpaDescricao(a.posto)} />
                       <Detalhe rotulo="Pagamento" valor={a.pagamento} />
                       <Detalhe rotulo="R$/L" valor={brl(a.precoLitro)} />
                       <Detalhe rotulo="Desconto" valor={a.desconto > 0 ? brl(a.desconto) : "—"} />

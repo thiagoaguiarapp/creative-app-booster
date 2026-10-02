@@ -179,21 +179,36 @@ export function montaPagamentos(
         dataPago: baixa,
       };
     }),
-    ...abastecimentos.map((a) => ({
-      id: `abastecimento-${a.row}`,
-      row: a.row,
-      origem: "Abastecimento" as const,
-      data: a.data,
-      iso: a.iso,
-      isoPagamento: a.iso,
-      dataPagamento: a.data,
-      descricao: a.posto ? `Abastecimento · ${a.posto}` : "Abastecimento",
-      categoria: "Abastecimento",
-      forma: normalizaForma(a.pagamento),
-      valor: a.valorPago,
-      pago: normalizaForma(a.pagamento) !== "Crédito" || (a.dataPago ?? "") !== "",
-      dataPago: a.dataPago ?? "",
-    })),
+    ...abastecimentos.flatMap((a) => {
+      const forma = normalizaForma(a.pagamento);
+      const baixa = a.dataPago ?? "";
+      const n = forma === "Crédito" ? parcelasAbastecimento(a.posto) : 1;
+      const primeira = forma === "Crédito" ? primeiraParcelaIso(a.posto) : "";
+      const base = n > 1 ? Math.floor((a.valorPago / n) * 100) / 100 : a.valorPago;
+      const resto = n > 1 ? Math.round((a.valorPago - base * n) * 100) / 100 : 0;
+      const postoLimpo = limpaDescricao(a.posto);
+      const descBase = postoLimpo ? `Abastecimento · ${postoLimpo}` : "Abastecimento";
+      return Array.from({ length: n }, (_, i) => {
+        const valor = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
+        const isoPag = primeira ? somaMeses(primeira, i) : a.iso;
+        return {
+          id: n > 1 ? `abastecimento-${a.row}-${i + 1}` : `abastecimento-${a.row}`,
+          row: a.row,
+          origem: "Abastecimento" as const,
+          data: a.data,
+          iso: a.iso,
+          isoPagamento: isoPag,
+          dataPagamento: paraBr(isoPag),
+          descricao: n > 1 ? `${descBase} (${i + 1}/${n})` : descBase,
+          categoria: "Abastecimento",
+          forma,
+          valor,
+          // a baixa do abastecimento é única: quita todas as parcelas de uma vez
+          pago: forma !== "Crédito" || baixa !== "",
+          dataPago: baixa,
+        };
+      });
+    }),
   ];
   return lista.sort((a, b) => b.isoPagamento.localeCompare(a.isoPagamento));
 }

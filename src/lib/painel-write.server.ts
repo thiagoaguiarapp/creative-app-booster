@@ -329,7 +329,10 @@ export async function baixarPagamento(
 
   const m = /^(despesa|abastecimento)-(.+)$/.exec(txt(chave));
   const origem = m?.[1] as "despesa" | "abastecimento" | undefined;
-  const row = m ? txt(m[2]) : txt(chave);
+  // abastecimento parcelado gera ids virtuais "abastecimento-<row>-<n>"; a baixa é na linha inteira
+  const row = (m ? txt(m[2]) : txt(chave)).replace(/-\d{1,2}$/, (s) =>
+    origem === "abastecimento" ? "" : s,
+  );
 
   if (origem !== "abastecimento") {
     const despesas = await selectAll(TABELAS.despesa, userId);
