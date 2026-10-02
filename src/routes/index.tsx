@@ -187,5 +187,7 @@ function Landing() {
         </div>
       </section>
     </div>
+    <LandingFooter />
+    </div>
   );
 }
