@@ -8,6 +8,8 @@ import {
   Gauge,
   Printer,
   Receipt,
+  Search,
+  X,
   TrendingUp,
   Wallet,
   Wrench,
@@ -91,6 +93,26 @@ const PRESETS = [
   { label: "Tudo", de: () => "", ate: () => "" },
 ];
 
+type TipoFiltro = "todos" | "ganho" | "abastecimento" | "despesa" | "manutencao" | "repasse";
+const TIPOS_FILTRO: TipoFiltro[] = ["todos", "ganho", "abastecimento", "despesa", "manutencao", "repasse"];
+const ROTULO_TIPO: Record<TipoFiltro, string> = {
+  todos: "Todos",
+  ganho: "Faturamento",
+  abastecimento: "Combustível",
+  despesa: "Despesas",
+  manutencao: "Manutenção",
+  repasse: "Repasses",
+};
+const ABA_DO_TIPO: Record<Exclude<TipoFiltro, "todos">, string> = {
+  ganho: "geral",
+  abastecimento: "abastecimento",
+  despesa: "despesa",
+  manutencao: "manutencao",
+  repasse: "repasse",
+};
+const normaliza = (t: string) =>
+  t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
 const MESES = [
   "jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez",
 ];
@@ -115,15 +137,40 @@ function RelatorioPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const [de, setDe] = useState(() => iso(inicioMes()));
   const [ate, setAte] = useState(() => iso(fimMes()));
+  const [busca, setBusca] = useState("");
+  const [tipo, setTipo] = useState<TipoFiltro>("todos");
+  const [veiculo, setVeiculo] = useState("");
+  const [aba, setAba] = useState("geral");
+
+  const veiculos = useMemo(() => {
+    const set = new Set<string>();
+    for (const a of data.abastecimentos) if (a.veiculo) set.add(a.veiculo);
+    for (const m of data.manutencoes) if (m.veiculo) set.add(m.veiculo);
+    return [...set].sort();
+  }, [data]);
+
+  const filtrarPor = (texto: string, t: TipoFiltro) => {
+    setBusca(texto);
+    setTipo(t);
+    if (t !== "todos") setAba(ABA_DO_TIPO[t]);
+  };
 
   const dentro = (i: string) => (!i ? false : (!de || i >= de) && (!ate || i <= ate));
 
   const r = useMemo(() => {
-    const ganhos = data.ganhos.filter((g) => (de || ate ? dentro(g.iso) : true));
-    const abast = data.abastecimentos.filter((a) => (de || ate ? dentro(a.iso) : true));
-    const despesas = data.despesas.filter((d) => (de || ate ? dentro(d.iso) : true));
-    const repasses = data.repasses.filter((x) => (de || ate ? dentro(x.iso) : true));
-    const manut = data.manutencoes.filter((m) => (de || ate ? dentro(m.iso) : true));
+    const termo = normaliza(busca);
+    const casa = (...campos: (string | undefined)[]) =>
+      !termo || campos.some((c) => normaliza(c ?? "").includes(termo));
+    const ok = (t: TipoFiltro) => tipo === "todos" || tipo === t;
+    const periodo = (i: string) => (de || ate ? dentro(i) : true);
+    const veic = (v?: string) => !veiculo || v === veiculo;
+    // filtro de veículo só se aplica a quem tem veículo (combustível/manutenção)
+    const semVeic = !veiculo;
+    const ganhos = data.ganhos.filter((g) => semVeic && ok("ganho") && periodo(g.iso) && casa(g.plataforma));
+    const abast = data.abastecimentos.filter((a) => ok("abastecimento") && periodo(a.iso) && veic(a.veiculo) && casa(a.posto, a.combustivel, a.veiculo, a.pagamento, "combustivel abastecimento"));
+    const despesas = data.despesas.filter((d) => semVeic && ok("despesa") && periodo(d.iso) && casa(d.categoria, d.descricao, d.pagamento));
+    const repasses = data.repasses.filter((x) => semVeic && ok("repasse") && periodo(x.iso) && casa(x.aplicativo, x.forma));
+    const manut = data.manutencoes.filter((m) => ok("manutencao") && periodo(m.iso) && veic(m.veiculo) && casa(m.servico, m.veiculo));
 
     const faturamento = ganhos.reduce((s, g) => s + g.faturamento, 0);
     const corridas = ganhos.reduce((s, g) => s + g.corridas, 0);
@@ -176,12 +223,15 @@ function RelatorioPage() {
       listas: { ganhos, abast, despesas: despesasCusto, repasses, manut: manutCusto },
       qtd: { ganhos: ganhos.length, abast: abast.length, despesas: despesas.length, repasses: repasses.length, manut: manut.length },
     };
-  }, [data, de, ate]);
+  }, [data, de, ate, busca, tipo, veiculo]);
 
 
   const baixarCsv = () => {
     const linhas: string[][] = [
       ["Relatório No Corre", `${de || "início"} a ${ate || "hoje"}`],
+      ...(busca || tipo !== "todos" || veiculo
+        ? [["Filtro", [busca && `busca "${busca}"`, tipo !== "todos" && ROTULO_TIPO[tipo], veiculo].filter(Boolean).join(" · ")]]
+        : []),
       [],
       ["Indicador", "Valor"],
       ["Faturamento", r.faturamento.toFixed(2)],
@@ -272,7 +322,71 @@ function RelatorioPage() {
         </div>
       </SectionCard>
 
-      <Tabs defaultValue="geral">
+      <SectionCard title="Buscar e filtrar" description="Cruze a busca com o tipo de lançamento — os totais se recalculam na hora">
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="App, posto, categoria, serviço ou descrição…"
+              className="h-10 pl-9 pr-9 text-sm"
+            />
+            {busca && (
+              <button
+                type="button"
+                aria-label="Limpar busca"
+                onClick={() => setBusca("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {TIPOS_FILTRO.map((t) => (
+              <Button
+                key={t}
+                size="sm"
+                className="h-8 text-xs"
+                variant={tipo === t ? "default" : "secondary"}
+                onClick={() => {
+                  setTipo(t);
+                  if (t !== "todos") setAba(ABA_DO_TIPO[t]);
+                }}
+              >
+                {ROTULO_TIPO[t]}
+              </Button>
+            ))}
+          </div>
+          {veiculos.length > 1 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">Veículo:</span>
+              <Button size="sm" className="h-7 text-xs" variant={!veiculo ? "default" : "outline"} onClick={() => setVeiculo("")}>Todos</Button>
+              {veiculos.map((v) => (
+                <Button key={v} size="sm" className="h-7 text-xs" variant={veiculo === v ? "default" : "outline"} onClick={() => setVeiculo(v)}>{v}</Button>
+              ))}
+            </div>
+          )}
+          {(busca || tipo !== "todos" || veiculo) && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-primary/10 px-3 py-2 text-xs">
+              <span>
+                Filtrando: {[busca && `"${busca}"`, tipo !== "todos" && ROTULO_TIPO[tipo], veiculo].filter(Boolean).join(" · ")}
+                {" — "}resultado {brl(r.lucro)} líquido
+              </span>
+              <button
+                type="button"
+                className="font-medium text-primary"
+                onClick={() => { setBusca(""); setTipo("todos"); setVeiculo(""); }}
+              >
+                Limpar filtros
+              </button>
+            </div>
+          )}
+        </div>
+      </SectionCard>
+
+      <Tabs value={aba} onValueChange={setAba}>
         <div className="-mx-3 overflow-x-auto px-3 print:hidden sm:mx-0 sm:px-0">
           <TabsList className="w-max">
             <TabsTrigger value="geral" className="text-xs">Geral</TabsTrigger>
@@ -300,10 +414,10 @@ function RelatorioPage() {
 
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
-              <Barras itens={r.porPlataforma} total={r.faturamento} />
+              <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
             </SectionCard>
             <SectionCard title="Despesas por categoria">
-              <Barras itens={r.porCategoria} total={r.outras} />
+              <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
             </SectionCard>
           </div>
 
@@ -364,7 +478,7 @@ function RelatorioPage() {
             />
           </div>
           <SectionCard title="Despesas por categoria">
-            <Barras itens={r.porCategoria} total={r.outras} />
+            <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
           </SectionCard>
           <TabelaLista
             titulo="Despesas do período"
@@ -427,7 +541,7 @@ function RelatorioPage() {
             <StatCard label="Repasses" value={String(r.listas.repasses.length)} icon={Receipt} />
           </div>
           <SectionCard title="Faturamento por plataforma">
-            <Barras itens={r.porPlataforma} total={r.faturamento} />
+            <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
           </SectionCard>
           <TabelaLista
             titulo="Repasses recebidos"
@@ -483,14 +597,30 @@ function RelatorioPage() {
   );
 }
 
-function Barras({ itens, total }: { itens: { nome: string; valor: number }[]; total: number }) {
+function Barras({
+  itens,
+  total,
+  onEscolher,
+  ativo,
+}: {
+  itens: { nome: string; valor: number }[];
+  total: number;
+  onEscolher?: (nome: string) => void;
+  ativo?: string;
+}) {
   if (itens.length === 0) {
     return <p className="text-xs text-muted-foreground sm:text-sm">Sem dados no período.</p>;
   }
   return (
     <div className="flex flex-col gap-2 sm:gap-3">
       {itens.slice(0, 8).map((i) => (
-        <div key={i.nome} className="flex items-center gap-2 sm:gap-3">
+        <button
+          type="button"
+          key={i.nome}
+          onClick={() => onEscolher?.(i.nome)}
+          title="Toque para filtrar"
+          className={`flex w-full items-center gap-2 rounded-md px-1 py-0.5 text-left transition-colors hover:bg-muted/50 sm:gap-3 ${ativo === i.nome ? "bg-primary/10" : ""}`}
+        >
           <span className="w-20 shrink-0 truncate text-[10px] text-muted-foreground sm:w-28 sm:text-sm">{i.nome}</span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
             <div
@@ -499,7 +629,7 @@ function Barras({ itens, total }: { itens: { nome: string; valor: number }[]; to
             />
           </div>
           <span className="num w-18 text-right text-[10px] font-medium sm:w-24 sm:text-sm">{brl(i.valor)}</span>
-        </div>
+        </button>
       ))}
     </div>
   );

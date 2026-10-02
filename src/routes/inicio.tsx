@@ -2,7 +2,11 @@ import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
+  Bike,
   CalendarClock,
+  ChevronRight,
+  Fuel,
+  Receipt,
   Edit3,
   HandCoins,
   Target,
@@ -16,13 +20,10 @@ import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { NovoLancamentoRapido } from "@/components/lancamento-form";
 import { LancamentoRapidoApp } from "@/components/lancamento-rapido-app";
 import { OnboardingBoasVindas } from "@/components/onboarding-boas-vindas";
-import { PageHeader, SectionCard } from "@/components/shell";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getMetaSemanalFn, salvarMetaSemanalFn } from "@/lib/metas.functions";
+import { limpaDescricao } from "@/lib/pagamentos";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl, statusManutencao } from "@/lib/sheets-types";
 import type { Abastecimento, Despesa, Ganho, Manutencao, Repasse } from "@/lib/sheets-types";
@@ -89,6 +90,7 @@ type LancamentoHoje =
   | { tipo: "despesa"; data: Despesa }
   | { tipo: "repasse"; data: Repasse };
 
+
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
   const { data: metaSemanal } = useSuspenseQuery(metaQueryOptions());
@@ -97,27 +99,40 @@ function Home() {
   const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/)[0] ?? "";
 
   const [inicioSemana, fimSemana] = semanaAtualIso();
+  const hojeIso = format(new Date(), "yyyy-MM-dd");
+
   const ganhosSemana = useMemo(
     () => data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= fimSemana),
     [data.ganhos, inicioSemana, fimSemana],
   );
   const faturamentoSemana = ganhosSemana.reduce((s, g) => s + g.faturamento, 0);
-  const metaDefinida = metaSemanal && metaSemanal > 0;
-  const progressoMeta = metaDefinida ? Math.min(100, (faturamentoSemana / metaSemanal) * 100) : 0;
-  const faltanteMeta = metaDefinida ? Math.max(0, metaSemanal - faturamentoSemana) : 0;
 
+  const hoje = useMemo(() => {
+    const g = data.ganhos.filter((x) => x.iso === hojeIso);
+    const fat = g.reduce((s, x) => s + x.faturamento, 0);
+    const entregas = g.reduce((s, x) => s + x.corridas, 0);
+    const comb = data.abastecimentos
+      .filter((x) => x.iso === hojeIso)
+      .reduce((s, x) => s + x.valorPago, 0);
+    const desp = data.despesas
+      .filter((x) => x.iso === hojeIso)
+      .reduce((s, x) => s + x.valor, 0);
+    const gastos = comb + desp;
+    return { fat, entregas, gastos, liquido: fat - gastos };
+  }, [data, hojeIso]);
 
   const recentes = useMemo(() => {
     const todos: LancamentoHoje[] = [
-      ...ganhosSemana.map((g) => ({ tipo: "ganho" as const, data: g })),
-      ...data.abastecimentos.filter((a) => a.iso >= inicioSemana && a.iso <= fimSemana).map((a) => ({ tipo: "abastecimento" as const, data: a })),
-      ...data.despesas.filter((d) => d.iso >= inicioSemana && d.iso <= fimSemana).map((d) => ({ tipo: "despesa" as const, data: d })),
-      ...data.repasses.filter((r) => r.iso >= inicioSemana && r.iso <= fimSemana).map((r) => ({ tipo: "repasse" as const, data: r })),
+      ...data.ganhos.map((g) => ({ tipo: "ganho" as const, data: g })),
+      ...data.abastecimentos.map((a) => ({ tipo: "abastecimento" as const, data: a })),
+      ...data.despesas.map((d) => ({ tipo: "despesa" as const, data: d })),
+      ...data.repasses.map((r) => ({ tipo: "repasse" as const, data: r })),
     ];
     return todos
+      .filter((t) => t.data.iso && t.data.iso <= hojeIso)
       .sort((a, b) => b.data.iso.localeCompare(a.data.iso))
-      .slice(0, 5);
-  }, [ganhosSemana, data.abastecimentos, data.despesas, data.repasses, inicioSemana, fimSemana]);
+      .slice(0, 8);
+  }, [data, hojeIso]);
 
   const manutencoesAviso = useMemo(() => {
     const ultimos = new Map<string, Manutencao>();
@@ -132,17 +147,61 @@ function Home() {
   }, [data.manutencoes, data.odometroAtual]);
 
   const vencidas = manutencoesAviso.filter((i) => i.s.nivel === "vencido");
-  const proximas = manutencoesAviso.filter((i) => i.s.nivel === "atencao");
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-8 py-2">
-      <PageHeader
-        title={`${saudacao}, ${(primeiroNome || "entregador").toUpperCase()}!`}
-        subtitle="Aqui está o resumo do seu dia de trabalho."
-      />
+    <div className="mx-auto flex max-w-5xl flex-col gap-4 py-1 sm:gap-5">
+      <div className="flex flex-col gap-0.5">
+        <h1 className="font-display text-xl font-semibold sm:text-2xl">
+          {saudacao}, {primeiroNome || "entregador"}!
+        </h1>
+        <p className="text-xs text-muted-foreground sm:text-sm">Seu resumo de hoje</p>
+      </div>
+
+      {manutencoesAviso.length > 0 && (
+        <Link
+          to="/manutencao"
+          className={cn(
+            "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs",
+            vencidas.length > 0
+              ? "border-destructive/40 bg-destructive/10 text-destructive"
+              : "border-warning/40 bg-warning/10 text-warning",
+          )}
+        >
+          {vencidas.length > 0 ? <AlertTriangle className="size-4 shrink-0" /> : <CalendarClock className="size-4 shrink-0" />}
+          <span className="min-w-0 flex-1 truncate">
+            {manutencoesAviso[0]!.m.servico}
+            {manutencoesAviso.length > 1 ? ` e mais ${manutencoesAviso.length - 1}` : ""} —{" "}
+            {vencidas.length > 0 ? "manutenção vencida" : "manutenção próxima"}
+          </span>
+          <ChevronRight className="size-4 shrink-0" />
+        </Link>
+      )}
+
+      <div className="panel p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
+            Hoje no bolso
+          </p>
+          <span className="text-[10px] text-muted-foreground sm:text-xs">
+            {hoje.entregas} entrega{hoje.entregas === 1 ? "" : "s"}
+          </span>
+        </div>
+        <p className={cn("num mt-1 font-display text-3xl font-semibold", hoje.liquido >= 0 ? "text-success" : "text-destructive")}>
+          {brl(hoje.liquido)}
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="rounded-md bg-muted/40 px-3 py-2">
+            <p className="text-[10px] text-muted-foreground">Faturado</p>
+            <p className="num text-sm font-semibold text-success">{brl(hoje.fat)}</p>
+          </div>
+          <div className="rounded-md bg-muted/40 px-3 py-2">
+            <p className="text-[10px] text-muted-foreground">Gastos</p>
+            <p className="num text-sm font-semibold text-destructive">{brl(hoje.gastos)}</p>
+          </div>
+        </div>
+      </div>
 
       <div className="flex flex-col items-center gap-3">
-        <AtalhoPaginas />
         <LancamentoRapidoApp ganhos={data.ganhos} plataformas={usuario?.plataformas ?? []} />
         <OnboardingBoasVindas
           aberto={!!usuario && !usuario.onboardingOk && usuario.veiculos.length === 0}
@@ -150,121 +209,73 @@ function Home() {
         <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto sm:flex-none" />
       </div>
 
+      <CardPerformance
+        ganhos={ganhosSemana}
+        faturamento={faturamentoSemana}
+        meta={metaSemanal}
+        inicio={inicioSemana}
+        hojeIso={hojeIso}
+      />
 
-      {manutencoesAviso.length > 0 && (
-        <SectionCard
-          title="Manutenção"
-          description={
-            vencidas.length > 0
-              ? `${vencidas.length} item${vencidas.length === 1 ? "" : "s"} vencido${vencidas.length === 1 ? "" : "s"} e ${proximas.length} próximo${proximas.length === 1 ? "" : "s"}`
-              : `${proximas.length} manutenção${proximas.length === 1 ? "" : "s"} próxima${proximas.length === 1 ? "" : "s"} de vencer`
-          }
-          className="border-warning/30 bg-warning/5"
-        >
-          <div className="grid gap-3 md:grid-cols-2">
-            {manutencoesAviso.map(({ m, s }) => {
-              const vencido = s.nivel === "vencido";
+      <div className="panel p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
+            Últimos lançamentos
+          </p>
+          <Link to="/lancamentos" className="text-xs text-primary">Ver todos</Link>
+        </div>
+        {recentes.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">Nenhum lançamento ainda.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {recentes.map((item) => {
+              const { Icone, positivo, titulo, sub, valor } = infoLancamento(item);
               return (
-                <div
-                  key={m.id}
-                  className={cn(
-                    "flex items-center justify-between rounded-lg border p-3",
-                    vencido
-                      ? "border-destructive/40 bg-destructive/10"
-                      : "border-warning/40 bg-warning/10"
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        "flex size-8 shrink-0 items-center justify-center rounded-full",
-                        vencido ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
-                      )}
-                    >
-                      {vencido ? <AlertTriangle className="size-4" /> : <CalendarClock className="size-4" />}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{m.servico}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {m.veiculo} · Troca em {m.kmTroca.toLocaleString("pt-BR")} km
-                      </p>
-                    </div>
+                <li key={`${item.tipo}-${item.data.id}`} className="flex items-center gap-3 py-2.5">
+                  <div
+                    className={cn(
+                      "flex size-9 shrink-0 items-center justify-center rounded-full",
+                      positivo ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive",
+                    )}
+                  >
+                    <Icone className="size-4" />
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold num">
-                      {vencido ? "Vencido" : "A vencer"}
-                    </p>
-                    <p className="text-xs text-muted-foreground num">
-                      {Math.abs(s.restante).toLocaleString("pt-BR")} km
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{titulo}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      {item.data.data} · {sub}
                     </p>
                   </div>
-                </div>
+                  <span className={cn("num shrink-0 text-sm font-semibold", positivo ? "text-success" : "text-destructive")}>
+                    {positivo ? "+ " : "- "}
+                    {brl(valor)}
+                  </span>
+                </li>
               );
             })}
-          </div>
-          <div className="mt-3 flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              Odômetro atual: <span className="num font-medium text-foreground">{data.odometroAtual.toLocaleString("pt-BR")} km</span>
-            </p>
-            <Button variant="outline" size="sm" className="text-xs" asChild>
-              <Link to="/manutencao">
-                Ver manutenção <Wrench className="ml-1 size-3" />
-              </Link>
-            </Button>
-          </div>
-        </SectionCard>
-      )}
-      <div className="grid gap-5">
-        <CardMetaSemanal
-          faturamento={faturamentoSemana}
-          meta={metaSemanal}
-          inicio={inicioSemana}
-          fim={fimSemana}
-        />
-        <CardGanhosSemana ganhos={ganhosSemana} inicio={inicioSemana} />
+          </ul>
+        )}
       </div>
 
-      <SectionCard title="Últimos lançamentos da semana" description="Atividades registradas nesta semana">
-        {recentes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum lançamento nesta semana.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentes.map((item) => (
-                <TableRow key={`${item.tipo}-${item.data.id}`}>
-                  <TableCell>
-                    <Badge variant="outline">{labelTipo(item.tipo)}</Badge>
-                  </TableCell>
-                  <TableCell className="text-sm">{descricaoLancamento(item)}</TableCell>
-                  <TableCell className="num text-right font-medium">{valorLancamento(item)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </SectionCard>
-
+      <div className="flex justify-center">
+        <AtalhoPaginas />
+      </div>
     </div>
   );
 }
 
-function CardMetaSemanal({
+function CardPerformance({
+  ganhos,
   faturamento,
   meta,
   inicio,
-  fim,
+  hojeIso,
 }: {
+  ganhos: Ganho[];
   faturamento: number;
   meta: number;
   inicio: string;
-  fim: string;
+  hojeIso: string;
 }) {
   const [editando, setEditando] = useState(false);
   const [valor, setValor] = useState(String(meta > 0 ? meta : ""));
@@ -274,6 +285,19 @@ function CardMetaSemanal({
   const metaDefinida = meta > 0;
   const progresso = metaDefinida ? Math.min(100, (faturamento / meta) * 100) : 0;
   const faltante = metaDefinida ? Math.max(0, meta - faturamento) : 0;
+
+  const dias = ["S", "T", "Q", "Q", "S", "S", "D"];
+  const valores = useMemo(() => {
+    const ini = parseISO(inicio);
+    const arr = Array.from({ length: 7 }, (_, i) => {
+      const dia = format(addDays(ini, i), "yyyy-MM-dd");
+      const total = ganhos.filter((g) => g.iso === dia).reduce((s, g) => s + g.faturamento, 0);
+      return { dia, label: dias[i]!, total };
+    });
+    const max = Math.max(...arr.map((d) => d.total), 1);
+    return arr.map((d) => ({ ...d, pct: (d.total / max) * 100 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ganhos, inicio]);
 
   async function handleSalvar() {
     const num = Number(valor.replace(/\./g, "").replace(",", "."));
@@ -292,66 +316,51 @@ function CardMetaSemanal({
   }
 
   return (
-    <div className="panel p-5">
+    <div className="panel p-4">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          Meta semanal
-        </p>
-        <Target className="size-4 text-primary" />
-      </div>
-      <p className={cn("num mt-3 font-display text-3xl font-semibold", metaDefinida ? "text-primary" : "text-muted-foreground")}>
-        {metaDefinida ? brl(meta) : "—"}
-      </p>
-      {metaDefinida && (
-        <div className="mt-3">
-          <Progress value={progresso} />
-          <div className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground">
-            <div className="flex items-center justify-between">
-              <span>Faturado: <span className="num font-medium text-foreground">{brl(faturamento)}</span></span>
-              <span>{progresso.toFixed(0)}%</span>
-            </div>
-            <p className="text-xs">
-              {faltante > 0
-                ? `Faltam ${brl(faltante)} para bater a meta`
-                : "Meta atingida!"}
-            </p>
-          </div>
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
+            Semana
+          </p>
+          <p className="num mt-0.5 font-display text-2xl font-semibold text-primary">{brl(faturamento)}</p>
+          <p className="text-[11px] text-muted-foreground">
+            {metaDefinida
+              ? faltante > 0
+                ? `Faltam ${brl(faltante)} da meta de ${brl(meta)}`
+                : `Meta de ${brl(meta)} batida!`
+              : "Sem meta definida"}
+          </p>
         </div>
-      )}
-      {!metaDefinida && !editando && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          Sem meta para {inicio.slice(8, 10)}/{inicio.slice(5, 7)} a {fim.slice(8, 10)}/{fim.slice(5, 7)}.
-        </p>
+        <div className="flex h-16 items-end gap-1">
+          {valores.map((v, i) => (
+            <div key={v.dia} className="flex flex-col items-center gap-1">
+              <div
+                className={cn("w-3 rounded-sm", v.dia === hojeIso ? "bg-primary" : "bg-primary/40")}
+                style={{ height: `${Math.max(6, v.pct * 0.48)}px` }}
+                title={`${brl(v.total)}`}
+              />
+              <span className={cn("text-[9px]", v.dia === hojeIso ? "font-semibold text-foreground" : "text-muted-foreground")}>
+                {v.label}
+                <span className="sr-only">{i}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {metaDefinida && (
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progresso}%` }} />
+        </div>
       )}
       {editando ? (
         <div className="mt-3 flex items-center gap-2">
-          <Input
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            placeholder="R$ 0,00"
-            className="h-8 text-sm"
-            autoFocus
-          />
-          <Button size="sm" className="h-8 text-xs" onClick={handleSalvar}>
-            Salvar
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-8 text-xs"
-            onClick={() => setEditando(false)}
-          >
-            Cancelar
-          </Button>
+          <Input value={valor} onChange={(e) => setValor(e.target.value)} placeholder="R$ 0,00" className="h-8 text-sm" autoFocus />
+          <Button size="sm" className="h-8 text-xs" onClick={handleSalvar}>Salvar</Button>
+          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setEditando(false)}>Cancelar</Button>
         </div>
       ) : (
-        <Button
-          variant="link"
-          size="sm"
-          className="mt-2 h-auto px-0 py-1 text-xs"
-          onClick={() => setEditando(true)}
-        >
-          <Edit3 className="mr-1 size-3" />
+        <Button variant="link" size="sm" className="mt-1 h-auto px-0 py-1 text-xs" onClick={() => setEditando(true)}>
+          {metaDefinida ? <Edit3 className="mr-1 size-3" /> : <Target className="mr-1 size-3" />}
           {metaDefinida ? "Editar meta" : "Definir meta"}
         </Button>
       )}
@@ -359,107 +368,15 @@ function CardMetaSemanal({
   );
 }
 
-function CardGanhosSemana({
-  ganhos,
-  inicio,
-}: {
-  ganhos: Ganho[];
-  inicio: string;
-}) {
-  const dias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-  const inicioDate = parseISO(inicio);
-
-  const valores = useMemo(() => {
-    const arr = Array.from({ length: 7 }, (_, i) => {
-      const dia = format(addDays(inicioDate, i), "yyyy-MM-dd");
-      const total = ganhos
-        .filter((g) => g.iso === dia)
-        .reduce((s, g) => s + g.faturamento, 0);
-      return { dia, label: dias[i], total };
-    });
-    const max = Math.max(...arr.map((d) => d.total), 1);
-    return arr.map((d) => ({ ...d, pct: (d.total / max) * 100 }));
-  }, [ganhos, inicioDate]);
-
-  const totalSemana = valores.reduce((s, d) => s + d.total, 0);
-
-  return (
-    <div className="panel p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Ganhos da semana
-          </p>
-          <p className="num mt-1 font-display text-2xl font-semibold text-primary">
-            {brl(totalSemana)}
-          </p>
-        </div>
-        <HandCoins className="size-5 text-primary" />
-      </div>
-      <div className="mt-4 flex h-48 items-stretch gap-2 sm:gap-4">
-        {valores.map((v) => (
-          <div key={v.dia} className="flex h-full flex-1 flex-col justify-end gap-2">
-            <span className="num text-center text-[10px] text-muted-foreground sm:text-xs">
-              {brl(v.total)}
-            </span>
-            <div className="flex min-h-0 w-full flex-1 flex-col justify-end rounded-t-md bg-muted/50 p-1">
-              <div style={{ flexGrow: Math.max(0, 100 - Math.max(4, v.pct)), flexBasis: 0 }} />
-              <div
-                className="w-full rounded-t-sm bg-primary/80 transition-all"
-                style={{ flexGrow: Math.max(4, v.pct), flexBasis: 0, minHeight: 4 }}
-                aria-label={`${v.label}: ${brl(v.total)}`}
-              />
-            </div>
-            <span className="text-center text-[10px] text-muted-foreground sm:text-xs">
-              {v.label}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function labelTipo(tipo: LancamentoHoje["tipo"]) {
-  switch (tipo) {
-    case "ganho":
-      return "Ganho";
-    case "abastecimento":
-      return "Combustível";
-    case "despesa":
-      return "Despesa";
-    case "repasse":
-      return "Repasse";
-  }
-}
-
-function descricaoLancamento(item: LancamentoHoje) {
+function infoLancamento(item: LancamentoHoje) {
   switch (item.tipo) {
     case "ganho":
-      return `${item.data.plataforma} • ${item.data.corridas || 0} corridas`;
+      return { Icone: Bike, positivo: true, titulo: item.data.plataforma || "Ganho", sub: `${item.data.corridas || 0} entregas`, valor: item.data.faturamento };
     case "abastecimento":
-      return `${item.data.litros.toFixed(2)} L • ${item.data.odometro.toFixed(0)} km`;
+      return { Icone: Fuel, positivo: false, titulo: "Abastecimento", sub: `${item.data.litros.toFixed(1)} L`, valor: item.data.valorPago };
     case "despesa":
-      return `${item.data.categoria}${item.data.descricao ? ` — ${item.data.descricao}` : ""}`;
+      return { Icone: Receipt, positivo: false, titulo: item.data.categoria || "Despesa", sub: limpaDescricao(item.data.descricao) || item.data.pagamento || "—", valor: item.data.valor };
     case "repasse":
-      return `${item.data.aplicativo} • ${item.data.forma || "—"}`;
-  }
-}
-
-function valorLancamento(item: LancamentoHoje) {
-  switch (item.tipo) {
-    case "ganho":
-      return brl(item.data.faturamento);
-    case "abastecimento":
-      return brl(item.data.valorPago);
-    case "despesa":
-      return brl(item.data.valor);
-    case "repasse":
-      return (
-        <span className="inline-flex items-center gap-1">
-          <HandCoins className="size-3 text-success" />
-          {brl(item.data.valor)}
-        </span>
-      );
+      return { Icone: HandCoins, positivo: true, titulo: `Repasse ${item.data.aplicativo}`, sub: item.data.forma || "—", valor: item.data.valor };
   }
 }
