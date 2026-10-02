@@ -28,7 +28,7 @@ const manutencao = (p: Partial<Manutencao>): Manutencao => ({
   valor: 100,
   observacao: "",
   ...p,
-});
+}) as Manutencao;
 
 const abastecimento = (p: Partial<Abastecimento>): Abastecimento => ({
   id: "1",
