@@ -3,16 +3,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidade — Rota Control" },
+      { title: "Política de Privacidade — No Corre" },
       {
         name: "description",
         content:
-          "Como o Rota Control coleta, usa e protege os dados dos entregadores, em conformidade com a LGPD.",
+          "Como o No Corre coleta, usa e protege os dados dos entregadores, em conformidade com a LGPD.",
       },
-      { property: "og:title", content: "Política de Privacidade — Rota Control" },
+      { property: "og:title", content: "Política de Privacidade — No Corre" },
       {
         property: "og:description",
-        content: "Como o Rota Control coleta, usa e protege seus dados, em conformidade com a LGPD.",
+        content: "Como o No Corre coleta, usa e protege seus dados, em conformidade com a LGPD.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

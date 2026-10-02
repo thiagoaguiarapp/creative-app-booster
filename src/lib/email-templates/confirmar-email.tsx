@@ -21,10 +21,10 @@ export function ConfirmarEmail({ link }: ConfirmarEmailProps) {
   return (
     <Html lang="pt-BR">
       <Head />
-      <Preview>Confirme seu e-mail para começar a usar o Rota Control</Preview>
+      <Preview>Confirme seu e-mail para começar a usar o No Corre</Preview>
       <Body style={body}>
         <Container style={card}>
-          <Heading style={titulo}>ROTA CONTROL</Heading>
+          <Heading style={titulo}>NO CORRE</Heading>
           <Text style={texto}>Olá! Sua conta foi criada com sucesso.</Text>
           <Text style={texto}>
             Para começar a registrar seus ganhos, gastos e repasses, confirme seu e-mail
@@ -111,7 +111,7 @@ const rodape: React.CSSProperties = {
 
 export const template: TemplateEntry = {
   component: ConfirmarEmail,
-  subject: 'Confirme seu e-mail — Rota Control',
+  subject: 'Confirme seu e-mail — No Corre',
   displayName: 'Confirmação de cadastro',
   previewData: { link: 'https://rotacontrolapp.com.br/confirmado' },
 }

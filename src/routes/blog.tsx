@@ -8,13 +8,13 @@ import { ARTIGOS_BLOG } from "@/lib/artigos-blog";
 export const Route = createFileRoute("/blog")({
   head: () => ({
     meta: [
-      { title: "Blog — Dicas para entregadores e motoristas | Rota Control" },
+      { title: "Blog — Dicas para entregadores e motoristas | No Corre" },
       {
         name: "description",
         content:
           "Dicas práticas para entregadores e motoristas de aplicativo: custo por km, lucro real, organização de repasses e manutenção preventiva da moto.",
       },
-      { property: "og:title", content: "Blog — Dicas para entregadores | Rota Control" },
+      { property: "og:title", content: "Blog — Dicas para entregadores | No Corre" },
       {
         property: "og:description",
         content:
@@ -51,7 +51,7 @@ function Blog() {
         </header>
 
         <section className="flex flex-col gap-3">
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">Blog do Rota Control</h1>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">Blog do No Corre</h1>
           <p className="text-sm text-muted-foreground sm:text-base">
             Dicas práticas para quem trabalha na rua: finanças, combustível, manutenção e
             organização dos repasses das plataformas.

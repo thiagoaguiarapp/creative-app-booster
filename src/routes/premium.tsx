@@ -21,23 +21,23 @@ export const Route = createFileRoute("/premium")({
   component: PremiumPage,
   head: () => ({
     meta: [
-      { title: "Plano Premium — Rota Control" },
+      { title: "Plano Premium — No Corre" },
       {
         name: "description",
         content:
-          "Assine o Rota Control Premium: sem anúncios, relatórios avançados e suporte prioritário para entregadores.",
+          "Assine o No Corre Premium: sem anúncios, relatórios avançados e suporte prioritário para entregadores.",
       },
-      { property: "og:title", content: "Plano Premium — Rota Control" },
+      { property: "og:title", content: "Plano Premium — No Corre" },
       {
         property: "og:description",
-        content: "Sem anúncios, relatórios avançados e suporte prioritário no Rota Control.",
+        content: "Sem anúncios, relatórios avançados e suporte prioritário no No Corre.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Plano Premium — Rota Control" },
+      { name: "twitter:title", content: "Plano Premium — No Corre" },
       {
         name: "twitter:description",
-        content: "Sem anúncios, relatórios avançados e suporte prioritário no Rota Control.",
+        content: "Sem anúncios, relatórios avançados e suporte prioritário no No Corre.",
       },
     ],
   }),
@@ -57,7 +57,7 @@ const beneficios = [
   {
     icon: Sparkles,
     titulo: "Novidades primeiro",
-    texto: "Acesso antecipado às próximas funções do Rota Control.",
+    texto: "Acesso antecipado às próximas funções do No Corre.",
   },
   {
     icon: Headphones,
@@ -168,7 +168,7 @@ function PremiumPage() {
           <Crown className="size-7 text-primary" />
         </span>
         <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">
-          {isPremium ? "Você é Premium" : "Rota Control Premium"}
+          {isPremium ? "Você é Premium" : "No Corre Premium"}
         </h1>
         <p className="max-w-md text-sm text-muted-foreground">
           {isPremium

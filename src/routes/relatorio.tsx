@@ -35,13 +35,13 @@ import { brl } from "@/lib/sheets-types";
 export const Route = createFileRoute("/relatorio")({
   head: () => ({
     meta: [
-      { title: "Relatório por período — Rota Control" },
+      { title: "Relatório por período — No Corre" },
       {
         name: "description",
         content:
           "Relatório completo por período: faturamento, combustível, despesas, manutenção e lucro líquido do entregador.",
       },
-      { property: "og:title", content: "Relatório por período — Rota Control" },
+      { property: "og:title", content: "Relatório por período — No Corre" },
       {
         property: "og:description",
         content:
@@ -181,7 +181,7 @@ function RelatorioPage() {
 
   const baixarCsv = () => {
     const linhas: string[][] = [
-      ["Relatório Rota Control", `${de || "início"} a ${ate || "hoje"}`],
+      ["Relatório No Corre", `${de || "início"} a ${ate || "hoje"}`],
       [],
       ["Indicador", "Valor"],
       ["Faturamento", r.faturamento.toFixed(2)],

@@ -7,16 +7,16 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/contato")({
   head: () => ({
     meta: [
-      { title: "Contato e suporte — Rota Control" },
+      { title: "Contato e suporte — No Corre" },
       {
         name: "description",
         content:
-          "Fale com a equipe do Rota Control: suporte por e-mail, dúvidas sobre o aplicativo, assinatura Premium e sugestões de melhoria.",
+          "Fale com a equipe do No Corre: suporte por e-mail, dúvidas sobre o aplicativo, assinatura Premium e sugestões de melhoria.",
       },
-      { property: "og:title", content: "Contato e suporte — Rota Control" },
+      { property: "og:title", content: "Contato e suporte — No Corre" },
       {
         property: "og:description",
-        content: "Fale com a equipe do Rota Control: suporte, dúvidas e sugestões.",
+        content: "Fale com a equipe do No Corre: suporte, dúvidas e sugestões.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/contato")({
 
 const PERGUNTAS = [
   {
-    pergunta: "O Rota Control é grátis?",
+    pergunta: "O No Corre é grátis?",
     resposta:
       "Sim. O plano gratuito já inclui lançamentos de ganhos, abastecimento, despesas, manutenção e relatórios. O plano Premium remove os anúncios e libera recursos extras.",
   },

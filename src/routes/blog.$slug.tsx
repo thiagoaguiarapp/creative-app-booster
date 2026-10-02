@@ -13,7 +13,7 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: `${loaderData?.titulo ?? "Artigo"} | Blog Rota Control` },
+      { title: `${loaderData?.titulo ?? "Artigo"} | Blog No Corre` },
       { name: "description", content: loaderData?.descricao ?? "" },
       { property: "og:title", content: loaderData?.titulo ?? "" },
       { property: "og:description", content: loaderData?.descricao ?? "" },
@@ -82,7 +82,7 @@ function Artigo() {
             Controle tudo isso automaticamente
           </h2>
           <p className="max-w-md text-sm text-muted-foreground">
-            O Rota Control calcula seu custo por km, organiza os repasses e avisa a hora da
+            O No Corre calcula seu custo por km, organiza os repasses e avisa a hora da
             manutenção. Grátis para começar.
           </p>
           <Button asChild>

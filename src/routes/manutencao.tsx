@@ -45,13 +45,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/manutencao")({
   head: () => ({
     meta: [
-      { title: "Manutenção — Rota Control" },
+      { title: "Manutenção — No Corre" },
       {
         name: "description",
         content:
           "Plano de manutenção por quilometragem: óleo, relação, pneus e revisões com alertas de vencimento.",
       },
-      { property: "og:title", content: "Manutenção — Rota Control" },
+      { property: "og:title", content: "Manutenção — No Corre" },
       {
         property: "og:description",
         content: "Plano de manutenção por quilometragem com alertas de vencimento.",

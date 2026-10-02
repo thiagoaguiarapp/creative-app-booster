@@ -6,12 +6,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Administração — Rota Control" },
+      { title: "Administração — No Corre" },
       {
         name: "description",
         content: "Painel do administrador: usuários, métricas globais e categorias padrão do app.",
       },
-      { property: "og:title", content: "Administração — Rota Control" },
+      { property: "og:title", content: "Administração — No Corre" },
       {
         property: "og:description",
         content: "Painel do administrador: usuários, métricas globais e categorias padrão do app.",

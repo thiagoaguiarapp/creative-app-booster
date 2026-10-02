@@ -159,9 +159,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#0d1526" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "Rota Control" },
+      { name: "apple-mobile-web-app-title", content: "No Corre" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { title: "Rota Control — Gestão do entregador" },
+      { title: "No Corre — Gestão do entregador" },
       {
         name: "description",
         content:
@@ -169,8 +169,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:title", content: "Rota Control — Gestão do entregador" },
-      { name: "twitter:title", content: "Rota Control — Gestão do entregador" },
+      { property: "og:title", content: "No Corre — Gestão do entregador" },
+      { name: "twitter:title", content: "No Corre — Gestão do entregador" },
       { property: "og:description", content: "Controle ganhos, gastos, abastecimento, manutenção e repasses das suas entregas em um só lugar." },
       { name: "twitter:description", content: "Controle ganhos, gastos, abastecimento, manutenção e repasses das suas entregas em um só lugar." },
     ],
@@ -249,7 +249,7 @@ function RootComponent() {
             >
               <SidebarTrigger className="h-11 w-11 [&_svg]:size-6" />
               <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Rota Control
+                No Corre
               </span>
             </header>
             <main className="flex-1 p-4 pb-24 md:p-8">

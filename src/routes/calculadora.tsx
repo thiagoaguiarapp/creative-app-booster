@@ -10,13 +10,13 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/calculadora")({
   head: () => ({
     meta: [
-      { title: "Calculadora de custo por km — Rota Control" },
+      { title: "Calculadora de custo por km — No Corre" },
       {
         name: "description",
         content:
           "Calculadora gratuita de custo por quilômetro para moto e carro: descubra quanto custa cada km rodado e quanto do seu faturamento vai para o veículo.",
       },
-      { property: "og:title", content: "Calculadora de custo por km — Rota Control" },
+      { property: "og:title", content: "Calculadora de custo por km — No Corre" },
       {
         property: "og:description",
         content: "Descubra grátis quanto custa cada km rodado da sua moto ou carro.",
@@ -189,7 +189,7 @@ function Calculadora() {
             No app, esse cálculo é automático
           </h2>
           <p className="max-w-md text-sm text-muted-foreground">
-            A cada abastecimento o Rota Control recalcula seu consumo e custo por km — e ainda
+            A cada abastecimento o No Corre recalcula seu consumo e custo por km — e ainda
             cruza com seus ganhos para mostrar o lucro real por dia.
           </p>
           <Button asChild>

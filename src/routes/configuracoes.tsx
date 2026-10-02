@@ -22,16 +22,16 @@ import { salvarMetaSemanalFn } from "@/lib/metas.functions";
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Configurações — Rota Control" },
+      { title: "Configurações — No Corre" },
       {
         name: "description",
         content:
           "Edite seu nome, telefone, meta semanal e cadastre os veículos usados nas entregas.",
       },
-      { property: "og:title", content: "Configurações — Rota Control" },
+      { property: "og:title", content: "Configurações — No Corre" },
       {
         property: "og:description",
-        content: "Ajuste seus dados e cadastre os veículos do Rota Control.",
+        content: "Ajuste seus dados e cadastre os veículos do No Corre.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

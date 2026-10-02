@@ -32,13 +32,13 @@ import { brl } from "@/lib/sheets-types";
 export const Route = createFileRoute("/lancamentos")({
   head: () => ({
     meta: [
-      { title: "Todos os lançamentos — Rota Control" },
+      { title: "Todos os lançamentos — No Corre" },
       {
         name: "description",
         content:
           "Consulte, edite ou exclua qualquer lançamento: ganhos, abastecimentos, despesas, repasses e manutenções.",
       },
-      { property: "og:title", content: "Todos os lançamentos — Rota Control" },
+      { property: "og:title", content: "Todos os lançamentos — No Corre" },
       {
         property: "og:description",
         content:

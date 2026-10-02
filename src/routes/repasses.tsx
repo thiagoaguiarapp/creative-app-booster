@@ -31,12 +31,12 @@ import { brl } from "@/lib/sheets-types";
 export const Route = createFileRoute("/repasses")({
   head: () => ({
     meta: [
-      { title: "Recebimento e repasse — Rota Control" },
+      { title: "Recebimento e repasse — No Corre" },
       {
         name: "description",
         content: "Acompanhe os repasses das plataformas por aplicativo, forma de recebimento e data.",
       },
-      { property: "og:title", content: "Recebimento e repasse — Rota Control" },
+      { property: "og:title", content: "Recebimento e repasse — No Corre" },
       {
         property: "og:description",
         content: "Repasses das plataformas por aplicativo, forma de recebimento e data.",
