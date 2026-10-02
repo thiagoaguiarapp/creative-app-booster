@@ -28,6 +28,10 @@ export type Abastecimento = {
   pagamento: string;
   /** data em que a baixa do cartão foi registrada (dd/mm/aaaa) */
   dataPago: string;
+  /** total de parcelas no crédito (1 quando à vista ou outra forma) */
+  parcelas: number;
+  /** vencimento da 1ª parcela em iso (aaaa-mm-dd; "" quando não houver) */
+  primeiraParcela: string;
 };
 
 export type Despesa = {

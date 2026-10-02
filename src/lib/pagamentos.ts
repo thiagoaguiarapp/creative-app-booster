@@ -182,8 +182,8 @@ export function montaPagamentos(
     ...abastecimentos.flatMap((a) => {
       const forma = normalizaForma(a.pagamento);
       const baixa = a.dataPago ?? "";
-      const n = forma === "Crédito" ? parcelasAbastecimento(a.posto) : 1;
-      const primeira = forma === "Crédito" ? primeiraParcelaIso(a.posto) : "";
+      const n = forma === "Crédito" ? Math.max(1, a.parcelas || 1) : 1;
+      const primeira = forma === "Crédito" ? (a.primeiraParcela ?? "") : "";
       const base = n > 1 ? Math.floor((a.valorPago / n) * 100) / 100 : a.valorPago;
       const resto = n > 1 ? Math.round((a.valorPago - base * n) * 100) / 100 : 0;
       const postoLimpo = limpaDescricao(a.posto);
