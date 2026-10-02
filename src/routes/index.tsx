@@ -69,7 +69,8 @@ const RECURSOS = [
 
 function Landing() {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-16 px-4 py-8 sm:py-12">
+    <div className="flex min-h-svh flex-col">
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-16 px-4 py-8 sm:py-12">
       {/* Topo */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
