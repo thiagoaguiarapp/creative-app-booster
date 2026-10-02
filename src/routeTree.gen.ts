@@ -13,8 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmadoRouteImport } from './routes/confirmado'
+import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
@@ -25,10 +28,13 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
+import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as TourRouteImport } from './routes/tour'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -51,6 +57,16 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalculadoraRoute = CalculadoraRouteImport.update({
+  id: '/calculadora',
+  path: '/calculadora',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -59,6 +75,11 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
 const ConfirmadoRoute = ConfirmadoRouteImport.update({
   id: '/confirmado',
   path: '/confirmado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DespesasRoute = DespesasRouteImport.update({
@@ -111,9 +132,19 @@ const RepassesRoute = RepassesRouteImport.update({
   path: '/repasses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TourRoute = TourRouteImport.update({
+  id: '/tour',
+  path: '/tour',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -131,6 +162,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AdminRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -143,8 +179,11 @@ export interface FileRoutesByFullPath {
   '/abastecimento': typeof AbastecimentoRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
+  '/calculadora': typeof CalculadoraRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
+  '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
@@ -155,9 +194,12 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/tour': typeof TourRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -165,8 +207,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
+  '/calculadora': typeof CalculadoraRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
+  '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
@@ -177,9 +222,12 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/tour': typeof TourRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -189,8 +237,11 @@ export interface FileRoutesById {
   '/abastecimento': typeof AbastecimentoRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/blog': typeof BlogRouteWithChildren
+  '/calculadora': typeof CalculadoraRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
+  '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
@@ -201,9 +252,12 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/tour': typeof TourRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -214,8 +268,11 @@ export interface FileRouteTypes {
     | '/abastecimento'
     | '/admin'
     | '/auth'
+    | '/blog'
+    | '/calculadora'
     | '/configuracoes'
     | '/confirmado'
+    | '/contato'
     | '/despesas'
     | '/inicio'
     | '/lancamentos'
@@ -226,9 +283,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/sobre'
     | '/termos'
+    | '/tour'
     | '/admin/assinaturas'
     | '/admin/usuarios'
+    | '/blog/$slug'
     | '/admin/'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -236,8 +296,11 @@ export interface FileRouteTypes {
     | '/'
     | '/abastecimento'
     | '/auth'
+    | '/blog'
+    | '/calculadora'
     | '/configuracoes'
     | '/confirmado'
+    | '/contato'
     | '/despesas'
     | '/inicio'
     | '/lancamentos'
@@ -248,9 +311,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/sobre'
     | '/termos'
+    | '/tour'
     | '/admin/assinaturas'
     | '/admin/usuarios'
+    | '/blog/$slug'
     | '/admin'
     | '/lovable/email/transactional/preview'
   id:
@@ -259,8 +325,11 @@ export interface FileRouteTypes {
     | '/abastecimento'
     | '/admin'
     | '/auth'
+    | '/blog'
+    | '/calculadora'
     | '/configuracoes'
     | '/confirmado'
+    | '/contato'
     | '/despesas'
     | '/inicio'
     | '/lancamentos'
@@ -271,9 +340,12 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/sobre'
     | '/termos'
+    | '/tour'
     | '/admin/assinaturas'
     | '/admin/usuarios'
+    | '/blog/$slug'
     | '/admin/'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -283,8 +355,11 @@ export interface RootRouteChildren {
   AbastecimentoRoute: typeof AbastecimentoRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRouteWithChildren
+  CalculadoraRoute: typeof CalculadoraRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmadoRoute: typeof ConfirmadoRoute
+  ContatoRoute: typeof ContatoRoute
   DespesasRoute: typeof DespesasRoute
   InicioRoute: typeof InicioRoute
   LancamentosRoute: typeof LancamentosRoute
@@ -295,7 +370,9 @@ export interface RootRouteChildren {
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
+  SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
+  TourRoute: typeof TourRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -329,6 +406,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculadora': {
+      id: '/calculadora'
+      path: '/calculadora'
+      fullPath: '/calculadora'
+      preLoaderRoute: typeof CalculadoraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -341,6 +432,13 @@ declare module '@tanstack/react-router' {
       path: '/confirmado'
       fullPath: '/confirmado'
       preLoaderRoute: typeof ConfirmadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/despesas': {
@@ -413,11 +511,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepassesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/termos': {
       id: '/termos'
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tour': {
+      id: '/tour'
+      path: '/tour'
+      fullPath: '/tour'
+      preLoaderRoute: typeof TourRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -440,6 +552,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AdminUsuariosRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
@@ -465,13 +584,26 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
+  BlogRoute: BlogRouteWithChildren,
+  CalculadoraRoute: CalculadoraRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmadoRoute: ConfirmadoRoute,
+  ContatoRoute: ContatoRoute,
   DespesasRoute: DespesasRoute,
   InicioRoute: InicioRoute,
   LancamentosRoute: LancamentosRoute,
@@ -482,7 +614,9 @@ const rootRouteChildren: RootRouteChildren = {
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
+  SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
+  TourRoute: TourRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { AdSenseSlot, ADSENSE_SLOT_LANDING } from "@/components/ad-sense-slot";
+import { LandingFooter } from "@/components/landing-footer";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
