@@ -60,6 +60,10 @@ const MARCA_COMPRA = /\s*\[compra (\d{2}\/\d{2}\/\d{4})\]/i;
 /** marca da baixa de pagamento */
 const MARCA_PAGO = /\s*\[pago (\d{2}\/\d{2}\/\d{4})\]/i;
 
+/** marcas de parcelamento do abastecimento (gravadas na coluna POSTO) */
+const MARCA_PARCELAS = /\s*\[parcelas (\d+)\]/i;
+const MARCA_PRIMEIRA = /\s*\[primeira (\d{2}\/\d{2}\/\d{4})\]/i;
+
 /** monta a marca "[compra dd/mm/aaaa]" */
 export function marcaCompra(dataBr: string): string {
   return `[compra ${dataBr}]`;
@@ -78,7 +82,24 @@ export function aplicaBaixa(descricao: string, dataBr: string | null): string {
 
 /** remove as marcas internas da descrição exibida */
 export function limpaDescricao(descricao: string): string {
-  return (descricao ?? "").replace(MARCA_COMPRA, "").replace(MARCA_PAGO, "").trim();
+  return (descricao ?? "")
+    .replace(MARCA_COMPRA, "")
+    .replace(MARCA_PAGO, "")
+    .replace(MARCA_PARCELAS, "")
+    .replace(MARCA_PRIMEIRA, "")
+    .trim();
+}
+
+/** total de parcelas do abastecimento lido da marca "[parcelas N]" (1 quando não houver) */
+export function parcelasAbastecimento(posto: string): number {
+  const m = MARCA_PARCELAS.exec(posto ?? "");
+  return m ? Math.max(1, Number(m[1])) : 1;
+}
+
+/** vencimento da 1ª parcela em iso lido da marca "[primeira dd/mm/aaaa]" ("" quando não houver) */
+export function primeiraParcelaIso(posto: string): string {
+  const m = MARCA_PRIMEIRA.exec(posto ?? "");
+  return m ? paraIso(m[1]!) : "";
 }
 
 /** data da baixa em dd/mm/aaaa ("" quando não houver) */
