@@ -172,6 +172,7 @@ async function carregar(userId: string): Promise<PainelData> {
       validadeKm: num(campo(l, "VALIDADE (KM)", "VALIDADE KM")),
       valor: num(campo(l, "VALOR GASTO", "VALOR")),
       observacao: txt(campo(l, "OBSERVAÇÃO", "OBSERVACAO", "OBS")),
+      pagamento: normalizar(campo(l, "CONDIÇÃO DE PAGAMENTO", "CONDICAO DE PAGAMENTO")),
     }))
     .sort(byIsoDesc);
 

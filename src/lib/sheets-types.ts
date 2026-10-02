@@ -66,6 +66,8 @@ export type Manutencao = {
   validadeKm: number;
   valor: number;
   observacao: string;
+  /** forma de pagamento (coluna CONDIÇÃO DE PAGAMENTO); "" quando não informada */
+  pagamento: string;
 };
 
 export type PainelData = {

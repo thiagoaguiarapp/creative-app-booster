@@ -72,6 +72,7 @@ const MAPAS: Record<Tipo, { tabela: string; mesColuna?: string; campos: Record<s
       validadeKm: { coluna: "VALIDADE (KM)", tipo: "inteiro" },
       valor: { coluna: "VALOR GASTO", tipo: "dinheiro" },
       observacao: { coluna: "OBSERVAÇÃO", tipo: "texto" },
+      pagamento: { coluna: "CONDIÇÃO DE PAGAMENTO", tipo: "texto" },
     },
   },
 };
