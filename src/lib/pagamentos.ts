@@ -60,6 +60,10 @@ const MARCA_COMPRA = /\s*\[compra (\d{2}\/\d{2}\/\d{4})\]/i;
 /** marca da baixa de pagamento */
 const MARCA_PAGO = /\s*\[pago (\d{2}\/\d{2}\/\d{4})\]/i;
 
+/** marcas de parcelamento do abastecimento (gravadas na coluna POSTO) */
+const MARCA_PARCELAS = /\s*\[parcelas (\d+)\]/i;
+const MARCA_PRIMEIRA = /\s*\[primeira (\d{2}\/\d{2}\/\d{4})\]/i;
+
 /** monta a marca "[compra dd/mm/aaaa]" */
 export function marcaCompra(dataBr: string): string {
   return `[compra ${dataBr}]`;
@@ -78,7 +82,24 @@ export function aplicaBaixa(descricao: string, dataBr: string | null): string {
 
 /** remove as marcas internas da descrição exibida */
 export function limpaDescricao(descricao: string): string {
-  return (descricao ?? "").replace(MARCA_COMPRA, "").replace(MARCA_PAGO, "").trim();
+  return (descricao ?? "")
+    .replace(MARCA_COMPRA, "")
+    .replace(MARCA_PAGO, "")
+    .replace(MARCA_PARCELAS, "")
+    .replace(MARCA_PRIMEIRA, "")
+    .trim();
+}
+
+/** total de parcelas do abastecimento lido da marca "[parcelas N]" (1 quando não houver) */
+export function parcelasAbastecimento(posto: string): number {
+  const m = MARCA_PARCELAS.exec(posto ?? "");
+  return m ? Math.max(1, Number(m[1])) : 1;
+}
+
+/** vencimento da 1ª parcela em iso lido da marca "[primeira dd/mm/aaaa]" ("" quando não houver) */
+export function primeiraParcelaIso(posto: string): string {
+  const m = MARCA_PRIMEIRA.exec(posto ?? "");
+  return m ? paraIso(m[1]!) : "";
 }
 
 /** data da baixa em dd/mm/aaaa ("" quando não houver) */
@@ -158,21 +179,36 @@ export function montaPagamentos(
         dataPago: baixa,
       };
     }),
-    ...abastecimentos.map((a) => ({
-      id: `abastecimento-${a.row}`,
-      row: a.row,
-      origem: "Abastecimento" as const,
-      data: a.data,
-      iso: a.iso,
-      isoPagamento: a.iso,
-      dataPagamento: a.data,
-      descricao: a.posto ? `Abastecimento · ${a.posto}` : "Abastecimento",
-      categoria: "Abastecimento",
-      forma: normalizaForma(a.pagamento),
-      valor: a.valorPago,
-      pago: normalizaForma(a.pagamento) !== "Crédito" || (a.dataPago ?? "") !== "",
-      dataPago: a.dataPago ?? "",
-    })),
+    ...abastecimentos.flatMap((a) => {
+      const forma = normalizaForma(a.pagamento);
+      const baixa = a.dataPago ?? "";
+      const n = forma === "Crédito" ? Math.max(1, a.parcelas || 1) : 1;
+      const primeira = forma === "Crédito" ? (a.primeiraParcela ?? "") : "";
+      const base = n > 1 ? Math.floor((a.valorPago / n) * 100) / 100 : a.valorPago;
+      const resto = n > 1 ? Math.round((a.valorPago - base * n) * 100) / 100 : 0;
+      const postoLimpo = limpaDescricao(a.posto);
+      const descBase = postoLimpo ? `Abastecimento · ${postoLimpo}` : "Abastecimento";
+      return Array.from({ length: n }, (_, i) => {
+        const valor = i === 0 ? Math.round((base + resto) * 100) / 100 : base;
+        const isoPag = primeira ? somaMeses(primeira, i) : a.iso;
+        return {
+          id: n > 1 ? `abastecimento-${a.row}-${i + 1}` : `abastecimento-${a.row}`,
+          row: a.row,
+          origem: "Abastecimento" as const,
+          data: a.data,
+          iso: a.iso,
+          isoPagamento: isoPag,
+          dataPagamento: paraBr(isoPag),
+          descricao: n > 1 ? `${descBase} (${i + 1}/${n})` : descBase,
+          categoria: "Abastecimento",
+          forma,
+          valor,
+          // a baixa do abastecimento é única: quita todas as parcelas de uma vez
+          pago: forma !== "Crédito" || baixa !== "",
+          dataPago: baixa,
+        };
+      });
+    }),
   ];
   return lista.sort((a, b) => b.isoPagamento.localeCompare(a.isoPagamento));
 }

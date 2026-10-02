@@ -43,6 +43,8 @@ const abastecimento = (p: Partial<Abastecimento>): Abastecimento => ({
   kmRodado: 100,
   kmPorLitro: 10,
   custoKm: 0.6,
+  parcelas: 1,
+  primeiraParcela: "",
   desconto: 0,
   valorPago: 60,
   pagamento: "Pix",

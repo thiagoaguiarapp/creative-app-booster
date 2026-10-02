@@ -119,9 +119,17 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
     const posto = txt(valores["posto"] ?? "");
     const combustivel = txt(valores["combustivel"] ?? "");
     const veiculo = txt(valores["veiculo"] ?? "");
+    const partes = [posto, combustivel, veiculo ? `VEIC:${veiculo}` : ""].filter(Boolean);
+    // crédito: parcelas e vencimento viram marcas "[parcelas N] [primeira dd/mm/aaaa]"
+    if (/credito|crédito/i.test(txt(valores["pagamento"] ?? ""))) {
+      const parcelas = Math.max(1, Math.trunc(Number(valores["parcelas"] ?? "1")) || 1);
+      const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
+      if (parcelas > 1) partes.push(`[parcelas ${parcelas}]`);
+      if (primeira) partes.push(`[primeira ${paraBr(primeira)}]`);
+    }
     valores = {
       ...valores,
-      posto: [posto, combustivel, veiculo ? `VEIC:${veiculo}` : ""].filter(Boolean).join(" · "),
+      posto: partes.join(" · "),
     };
   }
   const linha: Linha = {};
@@ -321,7 +329,10 @@ export async function baixarPagamento(
 
   const m = /^(despesa|abastecimento)-(.+)$/.exec(txt(chave));
   const origem = m?.[1] as "despesa" | "abastecimento" | undefined;
-  const row = m ? txt(m[2]) : txt(chave);
+  // abastecimento parcelado gera ids virtuais "abastecimento-<row>-<n>"; a baixa é na linha inteira
+  const row = (m ? txt(m[2]) : txt(chave)).replace(/-\d{1,2}$/, (s) =>
+    origem === "abastecimento" ? "" : s,
+  );
 
   if (origem !== "abastecimento") {
     const despesas = await selectAll(TABELAS.despesa, userId);

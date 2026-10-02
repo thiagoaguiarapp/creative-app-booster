@@ -10,6 +10,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { limpaDescricao } from "@/lib/pagamentos";
 import { brl, type Abastecimento } from "@/lib/sheets-types";
 
 
@@ -233,7 +234,7 @@ function AbastecimentoPage() {
                     <>
                       <Detalhe rotulo="Veículo" valor={a.veiculo || "—"} />
                       <Detalhe rotulo="Combustível" valor={a.combustivel} />
-                      <Detalhe rotulo="Posto" valor={a.posto} />
+                      <Detalhe rotulo="Posto" valor={limpaDescricao(a.posto)} />
                       <Detalhe rotulo="Pagamento" valor={a.pagamento} />
                       <Detalhe rotulo="R$/L" valor={brl(a.precoLitro)} />
                       <Detalhe rotulo="Desconto" valor={a.desconto > 0 ? brl(a.desconto) : "—"} />

@@ -1,5 +1,5 @@
 import { dataBr, isoDate, num, selectAll, txt, type Linha } from "./db.server";
-import { dataPago, limpaDescricao } from "./pagamentos";
+import { dataPago, limpaDescricao, parcelasAbastecimento, primeiraParcelaIso } from "./pagamentos";
 import type { PainelData } from "./sheets-types";
 
 export const TABELAS = {
@@ -96,9 +96,11 @@ async function carregar(userId: string): Promise<PainelData> {
     .map((l) => {
       const litros = num(campo(l, "Volume abastecido", "LITROS"));
       const kmRodado = num(campo(l, "KM RODADO"));
-      // POSTO pode vir como "Posto · Combustível" e conter a marca "[pago dd/mm/aaaa]"
+      // POSTO pode vir como "Posto · Combustível" e conter as marcas "[pago ...]", "[parcelas N]" e "[primeira ...]"
       const postoOriginal = normalizar(campo(l, "POSTO", "Posto"));
       const baixaAbastecimento = dataPago(postoOriginal);
+      const parcelasCredito = parcelasAbastecimento(postoOriginal);
+      const primeiraParcela = primeiraParcelaIso(postoOriginal);
       const postoBruto = limpaDescricao(postoOriginal);
       const todasPartes = postoBruto.split("·").map((p) => p.trim()).filter(Boolean);
       // veículo é gravado como "VEIC:NOME" dentro da coluna POSTO
@@ -124,6 +126,8 @@ async function carregar(userId: string): Promise<PainelData> {
         valorPago: num(campo(l, "VALOR PAGO", "VALOR")),
         pagamento: normalizar(campo(l, "CONDIÇÃO PAGAMENTO", "CONDICAO PAGAMENTO")) || "—",
         dataPago: baixaAbastecimento,
+        parcelas: parcelasCredito,
+        primeiraParcela,
       };
     })
     .sort(byIsoDesc);
