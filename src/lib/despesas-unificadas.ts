@@ -94,9 +94,9 @@ function itemManutencao(m: Manutencao): ItemDespesa {
     valor: m.valor,
     categoria: m.servico || "Manutenção",
     descricao: m.observacao || m.servico,
-    pagamento: "",
+    pagamento: m.pagamento ?? "",
     pagoEm: "",
-    forma: "Outros",
+    forma: m.pagamento ? normalizaForma(m.pagamento) : "Outros",
     extras: [
       { rotulo: "Veículo", valor: m.veiculo || "—" },
       { rotulo: "Serviço", valor: m.servico || "—" },
