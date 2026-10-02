@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { AdSenseSlot, ADSENSE_SLOT_LANDING } from "@/components/ad-sense-slot";
+import { LandingFooter } from "@/components/landing-footer";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -68,7 +69,8 @@ const RECURSOS = [
 
 function Landing() {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-16 px-4 py-8 sm:py-12">
+    <div className="flex min-h-svh flex-col">
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-16 px-4 py-8 sm:py-12">
       {/* Topo */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -157,6 +159,35 @@ function Landing() {
           <Link to="/auth">Criar conta grátis</Link>
         </Button>
       </section>
+
+      {/* Conteúdo público */}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-center font-display text-2xl font-semibold sm:text-3xl">
+          Aprenda a lucrar mais na rua
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Link to="/blog" className="panel flex flex-col gap-2 p-5 transition-colors hover:border-primary/40">
+            <span className="font-semibold">Blog do entregador</span>
+            <span className="text-sm text-muted-foreground">
+              Dicas de lucro real, repasses e manutenção preventiva.
+            </span>
+          </Link>
+          <Link to="/calculadora" className="panel flex flex-col gap-2 p-5 transition-colors hover:border-primary/40">
+            <span className="font-semibold">Calculadora de custo por km</span>
+            <span className="text-sm text-muted-foreground">
+              Descubra grátis quanto custa cada km da sua moto ou carro.
+            </span>
+          </Link>
+          <Link to="/tour" className="panel flex flex-col gap-2 p-5 transition-colors hover:border-primary/40">
+            <span className="font-semibold">Tour pelo app</span>
+            <span className="text-sm text-muted-foreground">
+              Veja todas as telas e recursos antes de criar sua conta.
+            </span>
+          </Link>
+        </div>
+      </section>
+    </div>
+    <LandingFooter />
     </div>
   );
 }
