@@ -17,13 +17,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Rota Control — Gestão financeira para entregadores" },
+      { title: "No Corre — Gestão financeira para entregadores" },
       {
         name: "description",
         content:
           "Controle ganhos por plataforma, abastecimento, despesas, manutenção da moto e repasses. Relatórios por período e alertas de manutenção. Grátis para começar.",
       },
-      { property: "og:title", content: "Rota Control — Gestão financeira para entregadores" },
+      { property: "og:title", content: "No Corre — Gestão financeira para entregadores" },
       {
         property: "og:description",
         content:
@@ -74,9 +74,9 @@ function Landing() {
       {/* Topo */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src="/icon-192-v2.png" alt="Logo Rota Control" className="size-10 rounded-xl" />
+          <img src="/icon-192-v2.png" alt="Logo No Corre" className="size-10 rounded-xl" />
           <span className="font-display text-lg font-semibold uppercase tracking-[0.14em]">
-            Rota Control
+            No Corre
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ function Landing() {
 
       {/* Hero */}
       <section className="flex flex-col items-center gap-6 text-center">
-        <img src="/icon-512-v2.png" alt="Rota Control" className="size-28 rounded-3xl shadow-2xl sm:size-36" />
+        <img src="/icon-512-v2.png" alt="No Corre" className="size-28 rounded-3xl shadow-2xl sm:size-36" />
         <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight sm:text-5xl">
           O controle completo das suas entregas
         </h1>
@@ -132,7 +132,7 @@ function Landing() {
         <div className="flex size-12 items-center justify-center rounded-full bg-primary/15 text-primary">
           <Crown className="size-6" />
         </div>
-        <h2 className="font-display text-2xl font-semibold">Rota Control Premium</h2>
+        <h2 className="font-display text-2xl font-semibold">No Corre Premium</h2>
         <p className="max-w-md text-sm text-muted-foreground sm:text-base">
           Sem anúncios e com todos os recursos liberados. Assine pelo app Android na Google Play
           ou conheça os benefícios.

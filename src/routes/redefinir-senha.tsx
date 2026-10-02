@@ -11,15 +11,15 @@ import { redefinirSenhaFn } from "@/lib/auth.functions";
 export const Route = createFileRoute("/redefinir-senha")({
   head: () => ({
     meta: [
-      { title: "Redefinir senha — Rota Control" },
+      { title: "Redefinir senha — No Corre" },
       {
         name: "description",
-        content: "Crie uma nova senha para voltar a acessar sua conta do Rota Control.",
+        content: "Crie uma nova senha para voltar a acessar sua conta do No Corre.",
       },
-      { property: "og:title", content: "Redefinir senha — Rota Control" },
+      { property: "og:title", content: "Redefinir senha — No Corre" },
       {
         property: "og:description",
-        content: "Crie uma nova senha para voltar a acessar sua conta do Rota Control.",
+        content: "Crie uma nova senha para voltar a acessar sua conta do No Corre.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -74,7 +74,7 @@ function RedefinirSenhaPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col items-center gap-2 text-center">
-          <img src="/icon-192-v2.png" alt="Rota Control" className="size-14 rounded-lg object-cover" />
+          <img src="/icon-192-v2.png" alt="No Corre" className="size-14 rounded-lg object-cover" />
           <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">
             Nova senha
           </h1>

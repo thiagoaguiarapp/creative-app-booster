@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "br.com.rotacontrolapp.app",
-  appName: "Rota Control",
+  appName: "No Corre",
   webDir: ".output/public",
   server: {
     // Domínio oficial de produção. Nunca usar o link de preview do Lovable,

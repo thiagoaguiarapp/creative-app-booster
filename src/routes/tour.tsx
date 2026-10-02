@@ -16,16 +16,16 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/tour")({
   head: () => ({
     meta: [
-      { title: "Tour pelo app — Rota Control" },
+      { title: "Tour pelo app — No Corre" },
       {
         name: "description",
         content:
-          "Veja como funciona o Rota Control: lançamento rápido por aplicativo, abastecimento, manutenção por km, repasses e relatórios por período.",
+          "Veja como funciona o No Corre: lançamento rápido por aplicativo, abastecimento, manutenção por km, repasses e relatórios por período.",
       },
-      { property: "og:title", content: "Tour pelo app — Rota Control" },
+      { property: "og:title", content: "Tour pelo app — No Corre" },
       {
         property: "og:description",
-        content: "Conheça as telas e recursos do Rota Control antes de criar sua conta.",
+        content: "Conheça as telas e recursos do No Corre antes de criar sua conta.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -97,7 +97,7 @@ function Tour() {
         <section className="flex flex-col gap-3">
           <h1 className="font-display text-3xl font-bold sm:text-4xl">Tour pelo aplicativo</h1>
           <p className="text-sm text-muted-foreground sm:text-base">
-            Conheça as principais telas e recursos do Rota Control antes de criar sua conta.
+            Conheça as principais telas e recursos do No Corre antes de criar sua conta.
           </p>
         </section>
 

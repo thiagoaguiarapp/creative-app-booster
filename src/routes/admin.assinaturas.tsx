@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/admin/assinaturas")({
   head: () => ({
     meta: [
-      { title: "Assinaturas — Administração Rota Control" },
+      { title: "Assinaturas — Administração No Corre" },
       {
         name: "description",
         content:
           "Status das assinaturas Premium: quem assinou, quem está no plano Free e quem pode precisar restaurar a compra.",
       },
-      { property: "og:title", content: "Assinaturas — Administração Rota Control" },
+      { property: "og:title", content: "Assinaturas — Administração No Corre" },
       {
         property: "og:description",
         content:

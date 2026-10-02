@@ -15,17 +15,17 @@ import {
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Rota Control" },
+      { title: "Entrar — No Corre" },
       {
         name: "description",
         content:
-          "Acesse sua conta do Rota Control para controlar ganhos, gastos e repasses das suas entregas.",
+          "Acesse sua conta do No Corre para controlar ganhos, gastos e repasses das suas entregas.",
       },
-      { property: "og:title", content: "Entrar — Rota Control" },
+      { property: "og:title", content: "Entrar — No Corre" },
       {
         property: "og:description",
         content:
-          "Acesse sua conta do Rota Control para controlar ganhos, gastos e repasses das suas entregas.",
+          "Acesse sua conta do No Corre para controlar ganhos, gastos e repasses das suas entregas.",
       },
     ],
   }),
@@ -89,7 +89,7 @@ function AuthPage() {
           setModo("entrar");
           return;
         }
-        toast.success("Conta criada! Bem-vindo ao Rota Control.");
+        toast.success("Conta criada! Bem-vindo ao No Corre.");
       }
       await router.invalidate();
       router.navigate({ to: "/inicio", replace: true });
@@ -112,9 +112,9 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col items-center gap-2 text-center">
-          <img src="/icon-192-v2.png" alt="Rota Control" className="size-14 rounded-lg object-cover" />
+          <img src="/icon-192-v2.png" alt="No Corre" className="size-14 rounded-lg object-cover" />
           <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            Rota Control
+            No Corre
           </h1>
           <p className="text-sm text-muted-foreground">{subtitulo}</p>
         </div>

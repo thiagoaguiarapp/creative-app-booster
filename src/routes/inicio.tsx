@@ -40,12 +40,12 @@ export const metaQueryOptions = () =>
 export const Route = createFileRoute("/inicio")({
   head: () => ({
     meta: [
-      { title: "Início — Rota Control" },
+      { title: "Início — No Corre" },
       {
         name: "description",
         content: "Resumo do dia, acesso rápido e controle completo dos ganhos e gastos do entregador.",
       },
-      { property: "og:title", content: "Início — Rota Control" },
+      { property: "og:title", content: "Início — No Corre" },
       {
         property: "og:description",
         content: "Resumo do dia, acesso rápido e controle completo dos ganhos e gastos do entregador.",

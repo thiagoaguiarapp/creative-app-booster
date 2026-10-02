@@ -46,13 +46,13 @@ export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
         <div className="flex items-center gap-2">
           <img
             src="/icon-192-v2.png"
-            alt="Rota Control"
+            alt="No Corre"
             className="size-8 shrink-0 rounded-md bg-sidebar-primary object-cover"
           />
           {!collapsed && (
             <div className="leading-tight">
               <p className="font-display text-base font-semibold uppercase tracking-wide">
-                Rota Control
+                No Corre
               </p>
               <p className="text-[11px] text-muted-foreground">Gestão do entregador</p>
             </div>

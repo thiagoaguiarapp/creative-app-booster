@@ -14,12 +14,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/admin/usuarios")({
   head: () => ({
     meta: [
-      { title: "Usuários — Administração Rota Control" },
+      { title: "Usuários — Administração No Corre" },
       {
         name: "description",
         content: "Lista completa de contas do app com busca, filtros por plano e status.",
       },
-      { property: "og:title", content: "Usuários — Administração Rota Control" },
+      { property: "og:title", content: "Usuários — Administração No Corre" },
       {
         property: "og:description",
         content: "Lista completa de contas do app com busca, filtros por plano e status.",

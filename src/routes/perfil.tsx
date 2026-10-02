@@ -11,15 +11,15 @@ import { salvarPerfilFn } from "@/lib/auth.functions";
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Completar perfil — Rota Control" },
+      { title: "Completar perfil — No Corre" },
       {
         name: "description",
-        content: "Informe seu nome e telefone para personalizar o Rota Control.",
+        content: "Informe seu nome e telefone para personalizar o No Corre.",
       },
-      { property: "og:title", content: "Completar perfil — Rota Control" },
+      { property: "og:title", content: "Completar perfil — No Corre" },
       {
         property: "og:description",
-        content: "Informe seu nome e telefone para personalizar o Rota Control.",
+        content: "Informe seu nome e telefone para personalizar o No Corre.",
       },
     ],
   }),
@@ -60,7 +60,7 @@ function PerfilPage() {
           Completar perfil
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Só falta isso para começar a usar o Rota Control.
+          Só falta isso para começar a usar o No Corre.
         </p>
 
         <form className="mt-6 flex flex-col gap-4" onSubmit={enviar}>

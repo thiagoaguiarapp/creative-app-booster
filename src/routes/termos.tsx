@@ -3,16 +3,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/termos")({
   head: () => ({
     meta: [
-      { title: "Termos de Uso — Rota Control" },
+      { title: "Termos de Uso — No Corre" },
       {
         name: "description",
         content:
-          "Termos de Uso do Rota Control: regras de utilização do aplicativo de controle financeiro para entregadores.",
+          "Termos de Uso do No Corre: regras de utilização do aplicativo de controle financeiro para entregadores.",
       },
-      { property: "og:title", content: "Termos de Uso — Rota Control" },
+      { property: "og:title", content: "Termos de Uso — No Corre" },
       {
         property: "og:description",
-        content: "Regras de utilização do Rota Control, aplicativo de controle financeiro para entregadores.",
+        content: "Regras de utilização do No Corre, aplicativo de controle financeiro para entregadores.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -37,7 +37,7 @@ function TermosPage() {
         <div>
           <h2 className="font-display text-base font-semibold text-foreground">1. Sobre o serviço</h2>
           <p>
-            O Rota Control é um aplicativo de registro e acompanhamento financeiro voltado a
+            O No Corre é um aplicativo de registro e acompanhamento financeiro voltado a
             entregadores e motoristas de aplicativo. Ele permite lançar ganhos, abastecimentos,
             despesas, manutenções e repasses, gerando relatórios a partir das informações que você
             mesmo informa.
@@ -59,7 +59,7 @@ function TermosPage() {
           </h2>
           <p>
             Os cálculos, gráficos e relatórios são gerados a partir dos dados informados por você. O
-            Rota Control não é um serviço de contabilidade nem de assessoria fiscal e não substitui a
+            No Corre não é um serviço de contabilidade nem de assessoria fiscal e não substitui a
             orientação de um profissional. Confira sempre as informações antes de tomar decisões
             financeiras.
           </p>

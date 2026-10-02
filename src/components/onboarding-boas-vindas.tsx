@@ -98,7 +98,7 @@ export function OnboardingBoasVindas({ aberto }: { aberto: boolean }) {
             {etapa === 3 && "Sua meta semanal"}
           </DialogTitle>
           <DialogDescription>
-            {etapa === 1 && "Bem-vindo ao Rota Control! Vamos preparar o app em 3 passos rápidos."}
+            {etapa === 1 && "Bem-vindo ao No Corre! Vamos preparar o app em 3 passos rápidos."}
             {etapa === 2 && "Esses apps viram botões de lançamento rápido na tela Início."}
             {etapa === 3 && "Quanto você quer faturar por semana? A barra de progresso acompanha seu dia a dia."}
           </DialogDescription>

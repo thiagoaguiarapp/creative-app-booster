@@ -8,15 +8,15 @@ import { confirmarSessaoFn } from "@/lib/auth.functions";
 export const Route = createFileRoute("/confirmado")({
   head: () => ({
     meta: [
-      { title: "E-mail confirmado — Rota Control" },
+      { title: "E-mail confirmado — No Corre" },
       {
         name: "description",
-        content: "Confirmação de e-mail da sua conta do Rota Control.",
+        content: "Confirmação de e-mail da sua conta do No Corre.",
       },
-      { property: "og:title", content: "E-mail confirmado — Rota Control" },
+      { property: "og:title", content: "E-mail confirmado — No Corre" },
       {
         property: "og:description",
-        content: "Confirmação de e-mail da sua conta do Rota Control.",
+        content: "Confirmação de e-mail da sua conta do No Corre.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -55,7 +55,7 @@ function ConfirmadoPage() {
       try {
         await confirmar({ data: { accessToken, refreshToken } });
         setEstado("ok");
-        setMensagem("E-mail confirmado! Bem-vindo ao Rota Control.");
+        setMensagem("E-mail confirmado! Bem-vindo ao No Corre.");
         await router.invalidate();
         router.navigate({ to: "/inicio", replace: true });
       } catch (err) {
@@ -74,7 +74,7 @@ function ConfirmadoPage() {
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 text-center shadow-sm">
         <img
           src="/icon-192-v2.png"
-          alt="Rota Control"
+          alt="No Corre"
           className="mx-auto size-14 rounded-lg object-cover"
         />
         <h1 className="mt-3 font-display text-2xl font-semibold uppercase tracking-wide">

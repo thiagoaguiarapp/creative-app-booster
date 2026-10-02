@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/sobre")({
   head: () => ({
     meta: [
-      { title: "Sobre nós — Rota Control" },
+      { title: "Sobre nós — No Corre" },
       {
         name: "description",
         content:
-          "Conheça o Rota Control: o aplicativo feito para entregadores e motoristas saberem quanto realmente ganham, controlando combustível, manutenção e repasses.",
+          "Conheça o No Corre: o aplicativo feito para entregadores e motoristas saberem quanto realmente ganham, controlando combustível, manutenção e repasses.",
       },
-      { property: "og:title", content: "Sobre nós — Rota Control" },
+      { property: "og:title", content: "Sobre nós — No Corre" },
       {
         property: "og:description",
         content:
@@ -69,9 +69,9 @@ function Sobre() {
         </header>
 
         <section className="flex flex-col gap-4">
-          <h1 className="font-display text-3xl font-bold sm:text-4xl">Sobre o Rota Control</h1>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">Sobre o No Corre</h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            O Rota Control nasceu de uma pergunta simples que todo entregador e motorista de
+            O No Corre nasceu de uma pergunta simples que todo entregador e motorista de
             aplicativo já se fez: <strong className="text-foreground">quanto eu realmente ganhei hoje?</strong>
           </p>
           <p className="text-sm text-muted-foreground sm:text-base">

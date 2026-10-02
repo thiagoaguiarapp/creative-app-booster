@@ -17,12 +17,12 @@ import { brl, type Abastecimento } from "@/lib/sheets-types";
 export const Route = createFileRoute("/abastecimento")({
   head: () => ({
     meta: [
-      { title: "Abastecimento — Rota Control" },
+      { title: "Abastecimento — No Corre" },
       {
         name: "description",
         content: "Histórico de abastecimentos, litros, preço por litro e consumo médio da moto.",
       },
-      { property: "og:title", content: "Abastecimento — Rota Control" },
+      { property: "og:title", content: "Abastecimento — No Corre" },
       {
         property: "og:description",
         content: "Histórico de abastecimentos, litros, preço por litro e consumo médio.",

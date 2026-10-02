@@ -76,7 +76,7 @@ export function AvisoAtualizacao() {
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             {obrigatorio
-              ? "Atualize o Rota Control para continuar usando o aplicativo."
+              ? "Atualize o No Corre para continuar usando o aplicativo."
               : "Atualize pela Play Store para ter as melhorias mais recentes."}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">

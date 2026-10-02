@@ -96,13 +96,13 @@ function LinhaDespesa({
 export const Route = createFileRoute("/despesas")({
   head: () => ({
     meta: [
-      { title: "Despesas — Rota Control" },
+      { title: "Despesas — No Corre" },
       {
         name: "description",
         content:
           "Todos os gastos do entregador em um lugar: combustível, manutenção e despesas por período.",
       },
-      { property: "og:title", content: "Despesas — Rota Control" },
+      { property: "og:title", content: "Despesas — No Corre" },
       {
         property: "og:description",
         content:
