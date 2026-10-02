@@ -119,9 +119,17 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
     const posto = txt(valores["posto"] ?? "");
     const combustivel = txt(valores["combustivel"] ?? "");
     const veiculo = txt(valores["veiculo"] ?? "");
+    const partes = [posto, combustivel, veiculo ? `VEIC:${veiculo}` : ""].filter(Boolean);
+    // crédito: parcelas e vencimento viram marcas "[parcelas N] [primeira dd/mm/aaaa]"
+    if (/credito|crédito/i.test(txt(valores["pagamento"] ?? ""))) {
+      const parcelas = Math.max(1, Math.trunc(Number(valores["parcelas"] ?? "1")) || 1);
+      const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
+      if (parcelas > 1) partes.push(`[parcelas ${parcelas}]`);
+      if (primeira) partes.push(`[primeira ${paraBr(primeira)}]`);
+    }
     valores = {
       ...valores,
-      posto: [posto, combustivel, veiculo ? `VEIC:${veiculo}` : ""].filter(Boolean).join(" · "),
+      posto: partes.join(" · "),
     };
   }
   const linha: Linha = {};
