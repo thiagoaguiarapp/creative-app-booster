@@ -60,3 +60,13 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [ ] Redesenho visual da Início (etapa 3)
 
 - [x] Pré-cadastro em etapas para novos usuários (veículo, apps, meta)
+
+## Aprovação do AdSense (conteúdo público)
+
+- [x] Página Sobre Nós (/sobre).
+- [x] Página Contato e Suporte com FAQ (/contato).
+- [x] Blog com 4 artigos originais para entregadores (/blog e /blog/:slug).
+- [x] Tour pelo app (/tour).
+- [x] Calculadora pública de custo por km (/calculadora).
+- [x] Rodapé com links para todas as páginas públicas na landing.
+- [ ] Publicar o site e reenviar para revisão no Google AdSense.
