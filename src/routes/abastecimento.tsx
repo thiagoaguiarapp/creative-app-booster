@@ -10,6 +10,7 @@ import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { limpaDescricao } from "@/lib/pagamentos";
 import { brl, type Abastecimento } from "@/lib/sheets-types";
 
 
