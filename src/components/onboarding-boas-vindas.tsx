@@ -73,6 +73,7 @@ export function OnboardingBoasVindas({ aberto }: { aberto: boolean }) {
       toast.success("Tudo pronto! Boas entregas.");
       setFechado(true);
       await router.invalidate();
+      await router.options.context.queryClient?.invalidateQueries({ queryKey: ["painel"] });
     } catch (e) {
       toast.error((e as Error).message || "Não foi possível salvar.");
     } finally {

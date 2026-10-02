@@ -180,7 +180,19 @@ async function carregar(userId: string): Promise<PainelData> {
     0,
     ...abastecimentos.map((a) => a.odometro),
     ...manutencoes.map((m) => m.kmTroca),
+    ...(await kmDosVeiculos()),
   );
 
   return { ganhos, abastecimentos, despesas, repasses, manutencoes, odometroAtual };
+}
+
+/** KM informado no cadastro/Configurações (ex.: primeiro KM do onboarding ou ajuste manual). */
+async function kmDosVeiculos(): Promise<number[]> {
+  try {
+    const { usuarioAtual } = await import("./auth.server");
+    const u = await usuarioAtual();
+    return (u?.veiculos ?? []).map((v) => v.km || 0);
+  } catch {
+    return [];
+  }
 }

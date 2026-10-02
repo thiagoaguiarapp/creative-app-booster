@@ -301,8 +301,17 @@ function ManutencaoPage() {
     if (!ultimos.has(chave)) ultimos.set(chave, m);
   }
 
+  // Último custo real: ignora atualizações sem gasto (R$ 0).
+  const ultimoCustoReal = new Map<string, number>();
+  for (const m of data.manutencoes) {
+    const chave = `${m.veiculo}|${m.servico}`.toUpperCase();
+    if (m.valor > 0 && !ultimoCustoReal.has(chave)) ultimoCustoReal.set(chave, m.valor);
+  }
+  const custoDe = (m: Manutencao) =>
+    ultimoCustoReal.get(`${m.veiculo}|${m.servico}`.toUpperCase()) ?? 0;
+
   const itens = [...ultimos.values()]
-    .map((m) => ({ m, s: statusManutencao(m, odometroAtual) }))
+    .map((m) => ({ m, s: statusManutencao(m, odometroAtual), custo: custoDe(m) }))
     .sort((a, b) => a.s.restante - b.s.restante);
 
   const [historicoAberto, setHistoricoAberto] = useState<string | null>(null);
@@ -313,7 +322,7 @@ function ManutencaoPage() {
   const atencao = itens.filter((i) => i.s.nivel === "atencao").length;
   const custoPrevisto = itens
     .filter((i) => i.s.nivel !== "ok")
-    .reduce((s, i) => s + i.m.valor, 0);
+    .reduce((s, i) => s + i.custo, 0);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -356,7 +365,7 @@ function ManutencaoPage() {
         <TabsContent value="plano">
           <SectionCard title="Plano de manutenção" description="Ordenado pelo que vence primeiro">
             <div className="grid gap-4 md:grid-cols-2">
-              {itens.map(({ m, s }) => {
+              {itens.map(({ m, s, custo }) => {
                 const info = nivelInfo[s.nivel];
                 return (
                   <article key={m.id} className="rounded-lg border border-border bg-background/40 p-4">
@@ -401,7 +410,7 @@ function ManutencaoPage() {
                       </div>
                       <div className="text-right">
                         <dt className="text-muted-foreground">Último custo</dt>
-                        <dd className="font-medium">{brl(m.valor)}</dd>
+                        <dd className="font-medium">{brl(custo)}</dd>
                       </div>
                     </dl>
                   </article>
