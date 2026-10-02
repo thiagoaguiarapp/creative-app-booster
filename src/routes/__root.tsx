@@ -131,6 +131,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       location.pathname === "/confirmado" ||
       location.pathname === "/termos" ||
       location.pathname === "/privacidade" ||
+      location.pathname === "/sobre" ||
+      location.pathname === "/contato" ||
+      location.pathname === "/tour" ||
+      location.pathname === "/calculadora" ||
+      location.pathname === "/blog" ||
+      location.pathname.startsWith("/blog/") ||
       (location.pathname === "/" && !nativo);
     const { usuario, falhou } = await carregarSessao();
     // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
