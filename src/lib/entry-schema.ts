@@ -96,7 +96,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "odometro", label: "Odômetro (km)", tipo: "number", obrigatorio: true },
     { key: "litros", label: "Litros", tipo: "number", obrigatorio: true },
     { key: "precoLitro", label: "Preço por litro (R$)", tipo: "money" },
-    { key: "temDesconto", label: "Teve desconto?", tipo: "select", opcoes: ["Não", "Sim"] },
+    { key: "temDesconto", label: "Teve desconto?", tipo: "checkbox" },
     {
       key: "descontoLitro",
       label: "Desconto por litro (R$)",
