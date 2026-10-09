@@ -231,13 +231,13 @@ function RelatorioPage() {
 
     const mesesSet = new Map<
       string,
-      { fat: number; comb: number; desp: number; manut: number; corridas: number }
+      { fat: number; comb: number; desp: number; manut: number; corridas: number; litros: number }
     >();
     const bucket = (k: string) =>
       mesesSet.get(k) ??
-      (mesesSet.set(k, { fat: 0, comb: 0, desp: 0, manut: 0, corridas: 0 }), mesesSet.get(k)!);
+      (mesesSet.set(k, { fat: 0, comb: 0, desp: 0, manut: 0, corridas: 0, litros: 0 }), mesesSet.get(k)!);
     for (const g of ganhos) if (g.iso) { const b = bucket(g.iso.slice(0, 7)); b.fat += g.faturamento; b.corridas += g.corridas; }
-    for (const a of abast) if (a.iso) bucket(a.iso.slice(0, 7)).comb += a.valorPago;
+    for (const a of abast) if (a.iso) { const b = bucket(a.iso.slice(0, 7)); b.comb += a.valorPago; b.litros += a.litros; }
     for (const d of despesasCusto) if (d.iso) bucket(d.iso.slice(0, 7)).desp += d.valor;
     for (const m of manutCusto) if (m.iso) bucket(m.iso.slice(0, 7)).manut += m.valor;
     const porMes = [...mesesSet.entries()]
@@ -288,6 +288,40 @@ function RelatorioPage() {
   };
 
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
+
+
+  const r2 = (v: number) => Math.round(v * 100) / 100;
+  const meses = [...r.porMes].reverse();
+  const graficoUnico = (titulo: string, desc: string, nome: string, cor: string, valor: (m: (typeof meses)[number]) => number, litros = false) => (
+    <SectionCard title={titulo} description={desc}>
+      {meses.every((m) => valor(m) === 0) ? (
+        <p className="text-sm text-muted-foreground">Sem dados no período.</p>
+      ) : (
+        <div className="h-64 w-full min-w-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={meses.map((m) => ({ mes: rotuloMes(m.mes), [nome]: r2(valor(m)), Litros: r2(m.litros) }))}
+              margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <Tooltip
+                formatter={(v: number, n: string) => (n === "Litros" ? `${v.toFixed(1)} L` : brl(v))}
+                contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
+              />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Line type="monotone" dataKey={nome} stroke={cor} strokeWidth={2} dot={{ r: 3 }} />
+              {litros && <Line type="monotone" dataKey="Litros" stroke="transparent" legendType="none" dot={false} activeDot={false} />}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </SectionCard>
+  );
+  const grafDespesa = graficoUnico("Evolução das despesas", "Gastos operacionais mês a mês", "Despesas", "var(--destructive)", (m) => m.desp);
+  const grafManut = graficoUnico("Evolução da manutenção", "Gastos com oficina e peças mês a mês", "Manutenção", "var(--warning, var(--chart-3))", (m) => m.manut);
+  const grafAbast = graficoUnico("Evolução do combustível", "Valor abastecido mês a mês (toque para ver os litros)", "Combustível", "var(--primary)", (m) => m.comb, true);
 
   const evolucao = (
     <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
@@ -580,7 +614,7 @@ function RelatorioPage() {
               icon={TrendingUp}
             />
           </div>
-          {evolucao}
+          {grafDespesa}
           <SectionCard title="Despesas por categoria">
             <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
           </SectionCard>
@@ -613,7 +647,7 @@ function RelatorioPage() {
               icon={Gauge}
             />
           </div>
-          {evolucao}
+          {grafManut}
           <TabelaLista
             titulo="Manutenções do período"
             colunas={["Data", "Veículo", "Serviço", "Km da troca", "Valor"]}
@@ -653,7 +687,7 @@ function RelatorioPage() {
               icon={Gauge}
             />
           </div>
-          {evolucao}
+          {grafAbast}
           <TabelaLista
             titulo="Abastecimentos do período"
             colunas={["Data", "Posto", "Combustível", "Litros", "Valor"]}
