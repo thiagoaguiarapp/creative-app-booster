@@ -13,14 +13,7 @@ type Props = {
   placeholder?: string;
 };
 
-export function CampoSenha({
-  id,
-  label,
-  value,
-  onChange,
-  autoComplete,
-  placeholder,
-}: Props) {
+export function CampoSenha({ id, label, value, onChange, autoComplete, placeholder }: Props) {
   const [mostrando, setMostrando] = useState(false);
 
   return (

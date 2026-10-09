@@ -7,11 +7,7 @@ import { CampoSenha } from "@/components/campo-senha";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  cadastrarFn,
-  entrarFn,
-  recuperarSenhaFn,
-} from "@/lib/auth.functions";
+import { cadastrarFn, entrarFn, recuperarSenhaFn } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -113,9 +109,7 @@ function AuthPage() {
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col items-center gap-2 text-center">
           <img src="/icon-192-v2.png" alt="No Corre" className="size-14 rounded-lg object-cover" />
-          <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            No Corre
-          </h1>
+          <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">No Corre</h1>
           <p className="text-sm text-muted-foreground">{subtitulo}</p>
         </div>
 
