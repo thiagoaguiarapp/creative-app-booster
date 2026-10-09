@@ -6,7 +6,7 @@ export type Campo = {
   tipo: "text" | "date" | "number" | "money" | "select" | "checkbox";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
-  sugestoes?: "plataforma" | "forma" | "veiculo" | "servico" | "combustivel";
+  sugestoes?: "plataforma" | "forma" | "veiculo" | "servico" | "combustivel" | "posto";
   /** opções fixas para tipo "select" */
   opcoes?: string[];
   /** só exibe o campo quando outro campo tem um dos valores listados */
@@ -92,7 +92,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "veiculo", label: "Veículo", tipo: "text", sugestoes: "veiculo" },
     { key: "combustivel", label: "Combustível utilizado", tipo: "select", opcoes: COMBUSTIVEIS, obrigatorio: true },
-    { key: "posto", label: "Posto (opcional)", tipo: "text", sugestoes: "combustivel" },
+    { key: "posto", label: "Posto (opcional)", tipo: "text", sugestoes: "posto" },
     { key: "odometro", label: "Odômetro (km)", tipo: "number", obrigatorio: true },
     { key: "litros", label: "Litros", tipo: "number", obrigatorio: true },
     { key: "precoLitro", label: "Preço por litro (R$)", tipo: "money" },

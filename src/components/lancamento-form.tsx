@@ -223,6 +223,19 @@ function useServicos(): string[] {
   return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+/** Postos já usados nos abastecimentos (sem duplicar por digitação). */
+function usePostos(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const nomes = new Map<string, string>();
+  for (const a of data?.abastecimentos ?? []) {
+    const t = limpaDescricao(a.posto ?? "").trim();
+    if (!t || t === "—") continue;
+    const k = t.toLocaleLowerCase("pt-BR");
+    if (!nomes.has(k)) nomes.set(k, t);
+  }
+  return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
 function useInvalidarPainel() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["painel"] });
