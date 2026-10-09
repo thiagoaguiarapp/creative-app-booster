@@ -37,34 +37,6 @@ export function AtalhoPaginas() {
         ))}
       </div>
 
-      {/* Mobile: barra fixa inferior */}
-      <nav
-        aria-label="Atalhos de navegação"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur md:hidden"
-      >
-        <div className="flex snap-x gap-1 overflow-x-auto px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
-          {paginas.map((item) => {
-            const ativo = pathname === item.url;
-            return (
-              <Link
-                key={item.url}
-                to={item.url}
-                aria-label={item.title}
-                aria-current={ativo ? "page" : undefined}
-                className={cn(
-                  "flex min-h-14 min-w-16 shrink-0 snap-start flex-col items-center justify-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-colors",
-                  ativo
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <item.icon className="size-5 shrink-0" />
-                <span className="leading-none">{item.short}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
     </>
   );
 }

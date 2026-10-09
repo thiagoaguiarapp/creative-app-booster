@@ -8,8 +8,12 @@ import {
   Fuel,
   Receipt,
   Edit3,
+  Eye,
+  EyeOff,
   HandCoins,
+  Package,
   Target,
+
 
   Wrench,
 } from "lucide-react";
@@ -106,6 +110,14 @@ function Home() {
     [data.ganhos, inicioSemana, fimSemana],
   );
   const faturamentoSemana = ganhosSemana.reduce((s, g) => s + g.faturamento, 0);
+  const gastosSemana =
+    data.abastecimentos
+      .filter((x) => x.iso >= inicioSemana && x.iso <= fimSemana)
+      .reduce((s, x) => s + x.valorPago, 0) +
+    data.despesas
+      .filter((x) => x.iso >= inicioSemana && x.iso <= fimSemana)
+      .reduce((s, x) => s + x.valor, 0);
+  const [oculto, setOculto] = useState(false);
 
   const hoje = useMemo(() => {
     const g = data.ganhos.filter((x) => x.iso === hojeIso);
@@ -177,28 +189,48 @@ function Home() {
         </Link>
       )}
 
-      <div className="panel p-4">
+      <div className="panel relative overflow-hidden border-l-4 border-l-primary p-4">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
-            Hoje no bolso
-          </p>
-          <span className="text-[10px] text-muted-foreground sm:text-xs">
-            {hoje.entregas} entrega{hoje.entregas === 1 ? "" : "s"}
-          </span>
+          <p className="text-xs text-muted-foreground">Saldo do dia</p>
+          <button
+            type="button"
+            onClick={() => setOculto((v) => !v)}
+            aria-label={oculto ? "Mostrar valores" : "Ocultar valores"}
+            className="rounded-full p-1.5 text-muted-foreground hover:text-foreground"
+          >
+            {oculto ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
         </div>
-        <p className={cn("num mt-1 font-display text-3xl font-semibold", hoje.liquido >= 0 ? "text-success" : "text-destructive")}>
-          {brl(hoje.liquido)}
+        <p className={cn("num mt-0.5 font-display text-3xl font-semibold", hoje.liquido >= 0 ? "text-foreground" : "text-destructive")}>
+          {oculto ? "R$ •••••" : brl(hoje.liquido)}
         </p>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-md bg-muted/40 px-3 py-2">
-            <p className="text-[10px] text-muted-foreground">Faturado</p>
-            <p className="num text-sm font-semibold text-success">{brl(hoje.fat)}</p>
-          </div>
-          <div className="rounded-md bg-muted/40 px-3 py-2">
-            <p className="text-[10px] text-muted-foreground">Gastos</p>
-            <p className="num text-sm font-semibold text-destructive">{brl(hoje.gastos)}</p>
-          </div>
+        <div className="mt-3 grid grid-cols-3 divide-x divide-border border-t border-border pt-3">
+          <MiniMetrica icone={Package} rotulo="Entregas hoje" valor={String(hoje.entregas)} />
+          <MiniMetrica
+            icone={Target}
+            rotulo="Ticket médio"
+            valor={oculto ? "•••" : hoje.entregas > 0 ? brl(hoje.fat / hoje.entregas) : "—"}
+          />
+          <MiniMetrica icone={Receipt} rotulo="Gasto do dia" valor={oculto ? "•••" : brl(hoje.gastos)} />
         </div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { to: "/abastecimento", label: "Abastecer", icon: Fuel },
+          { to: "/manutencao", label: "Manutenção", icon: Wrench },
+          { to: "/despesas", label: "Outros gastos", icon: Receipt },
+          { to: "/repasses", label: "Repasses", icon: HandCoins },
+        ].map((a) => (
+          <Link
+            key={a.to}
+            to={a.to}
+            className="panel flex flex-col items-center gap-1.5 px-1 py-3 text-center text-[11px] font-medium leading-tight"
+          >
+            <a.icon className="size-6 text-primary" />
+            {a.label}
+          </Link>
+        ))}
       </div>
 
       <div className="flex flex-col items-center gap-3">
@@ -206,7 +238,25 @@ function Home() {
         <OnboardingBoasVindas
           aberto={!!usuario && !usuario.onboardingOk && usuario.veiculos.length === 0}
         />
-        <NovoLancamentoRapido className="w-full shadow-lg sm:w-auto sm:flex-none" />
+        <div className="hidden md:block">
+          <NovoLancamentoRapido className="shadow-lg" />
+        </div>
+      </div>
+
+      <div className="panel p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-sm font-semibold">Resumo da semana</p>
+          <Link to="/relatorio" className="text-xs text-primary">Detalhes</Link>
+        </div>
+        <div className="grid grid-cols-3 divide-x divide-border">
+          <MiniMetrica rotulo="Faturamento" valor={oculto ? "•••" : brl(faturamentoSemana)} cor="text-success" />
+          <MiniMetrica rotulo="Despesas" valor={oculto ? "•••" : brl(gastosSemana)} cor="text-destructive" />
+          <MiniMetrica
+            rotulo="Lucro"
+            valor={oculto ? "•••" : brl(faturamentoSemana - gastosSemana)}
+            cor={faturamentoSemana - gastosSemana >= 0 ? "text-success" : "text-destructive"}
+          />
+        </div>
       </div>
 
       <CardPerformance
@@ -379,4 +429,24 @@ function infoLancamento(item: LancamentoHoje) {
     case "repasse":
       return { Icone: HandCoins, positivo: true, titulo: `Repasse ${item.data.aplicativo}`, sub: item.data.forma || "—", valor: item.data.valor };
   }
+}
+
+function MiniMetrica({
+  icone: Icone,
+  rotulo,
+  valor,
+  cor,
+}: {
+  icone?: typeof Package;
+  rotulo: string;
+  valor: string;
+  cor?: string;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5 px-2 first:pl-0 last:pr-0">
+      {Icone && <Icone className="size-4 text-primary" />}
+      <span className="truncate text-[10px] text-muted-foreground">{rotulo}</span>
+      <span className={cn("num truncate text-sm font-semibold", cor)}>{valor}</span>
+    </div>
+  );
 }

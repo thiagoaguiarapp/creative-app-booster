@@ -1,6 +1,6 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Bike, LogOut, Plus, Star, Trash2, User } from "lucide-react";
+import { Bike, ChevronRight, Crown, Fuel, LogOut, Plus, Receipt, Shield, Star, Trash2, User, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -158,6 +158,23 @@ function ConfiguracoesPage() {
     <div className="flex flex-col gap-4 sm:gap-6">
       <PageHeader title="Configurações" subtitle="Seus dados e veículos do app" />
       <AtalhoPaginas />
+
+      <div className="panel divide-y divide-border p-1 md:hidden">
+        {[
+          { to: "/premium", label: "Seja Premium", icon: Crown, destaque: true },
+          ...(usuario?.isAdmin ? [{ to: "/admin", label: "Administração", icon: Shield, destaque: true }] : []),
+          { to: "/abastecimento", label: "Abastecimento", icon: Fuel },
+          { to: "/despesas", label: "Despesas", icon: Receipt },
+          { to: "/manutencao", label: "Manutenção", icon: Wrench },
+          { to: "/repasses", label: "Recebimento / Repasse", icon: Wallet },
+        ].map((i) => (
+          <Link key={i.to} to={i.to} className="flex items-center gap-3 px-3 py-3 text-sm">
+            <i.icon className={i.destaque ? "size-4 text-primary" : "size-4 text-muted-foreground"} />
+            <span className="flex-1">{i.label}</span>
+            <ChevronRight className="size-4 text-muted-foreground" />
+          </Link>
+        ))}
+      </div>
 
       <SectionCard title="Meus dados" description="Nome, contato e meta semanal de faturamento">
         <form className="grid gap-4 sm:grid-cols-2" onSubmit={enviarPerfil}>
