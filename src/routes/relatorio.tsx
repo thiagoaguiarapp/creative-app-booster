@@ -12,7 +12,6 @@ import {
   Search,
   X,
   TrendingUp,
-  Wallet,
   Wrench,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -499,11 +498,12 @@ function RelatorioPage() {
         </div>
 
         <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
             <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
             <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
-            <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
-            <StatCard label="Recebido" value={brl(r.recebido)} hint="Repasses das plataformas" icon={Wallet} />
+            <div className="col-span-2 sm:col-span-1">
+              <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
