@@ -3,7 +3,7 @@ export type Tipo = "ganho" | "abastecimento" | "despesa" | "repasse" | "manutenc
 export type Campo = {
   key: string;
   label: string;
-  tipo: "text" | "date" | "number" | "money" | "select";
+  tipo: "text" | "date" | "number" | "money" | "select" | "checkbox";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
   sugestoes?: "plataforma" | "forma" | "veiculo" | "servico" | "combustivel";
@@ -129,8 +129,7 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
     {
       key: "temTaxa",
       label: "Teve taxa de repasse / adiantamento?",
-      tipo: "select",
-      opcoes: ["Não", "Sim"],
+      tipo: "checkbox",
     },
     {
       key: "taxa",

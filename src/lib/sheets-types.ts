@@ -53,6 +53,8 @@ export type Repasse = {
   aplicativo: string;
   valor: number;
   forma: string;
+  /** taxa de repasse/adiantamento cobrada pelo app (coluna TAXA REPASSE); 0 quando não há */
+  taxa: number;
 };
 
 export type Manutencao = {
