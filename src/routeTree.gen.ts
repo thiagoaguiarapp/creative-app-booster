@@ -19,6 +19,7 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmadoRouteImport } from './routes/confirmado'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DespesasRouteImport } from './routes/despesas'
+import { Route as EntregasRouteImport } from './routes/entregas'
 import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
@@ -85,6 +86,11 @@ const ContatoRoute = ContatoRouteImport.update({
 const DespesasRoute = DespesasRouteImport.update({
   id: '/despesas',
   path: '/despesas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntregasRoute = EntregasRouteImport.update({
+  id: '/entregas',
+  path: '/entregas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InicioRoute = InicioRouteImport.update({
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/confirmado': typeof ConfirmadoRoute
   '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
+  '/entregas': typeof EntregasRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/confirmado': typeof ConfirmadoRoute
   '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
+  '/entregas': typeof EntregasRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/confirmado': typeof ConfirmadoRoute
   '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
+  '/entregas': typeof EntregasRoute
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
@@ -274,6 +283,7 @@ export interface FileRouteTypes {
     | '/confirmado'
     | '/contato'
     | '/despesas'
+    | '/entregas'
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/confirmado'
     | '/contato'
     | '/despesas'
+    | '/entregas'
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/confirmado'
     | '/contato'
     | '/despesas'
+    | '/entregas'
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
@@ -361,6 +373,7 @@ export interface RootRouteChildren {
   ConfirmadoRoute: typeof ConfirmadoRoute
   ContatoRoute: typeof ContatoRoute
   DespesasRoute: typeof DespesasRoute
+  EntregasRoute: typeof EntregasRoute
   InicioRoute: typeof InicioRoute
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/despesas'
       fullPath: '/despesas'
       preLoaderRoute: typeof DespesasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entregas': {
+      id: '/entregas'
+      path: '/entregas'
+      fullPath: '/entregas'
+      preLoaderRoute: typeof EntregasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inicio': {
@@ -605,6 +625,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfirmadoRoute: ConfirmadoRoute,
   ContatoRoute: ContatoRoute,
   DespesasRoute: DespesasRoute,
+  EntregasRoute: EntregasRoute,
   InicioRoute: InicioRoute,
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
