@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const esquerda = [
   { title: "Início", url: "/inicio", icon: Home },
-  { title: "Entregas", url: "/lancamentos", icon: Bike },
+  { title: "Entregas", url: "/entregas", icon: Bike },
 ];
 const direita = [
   { title: "Financeiro", url: "/relatorio", icon: BarChart3 },
