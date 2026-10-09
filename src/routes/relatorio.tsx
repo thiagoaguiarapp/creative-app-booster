@@ -513,6 +513,8 @@ function RelatorioPage() {
             <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
           </div>
 
+          {evolucao}
+
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
               <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
@@ -578,6 +580,7 @@ function RelatorioPage() {
               icon={TrendingUp}
             />
           </div>
+          {evolucao}
           <SectionCard title="Despesas por categoria">
             <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
           </SectionCard>
@@ -610,6 +613,7 @@ function RelatorioPage() {
               icon={Gauge}
             />
           </div>
+          {evolucao}
           <TabelaLista
             titulo="Manutenções do período"
             colunas={["Data", "Veículo", "Serviço", "Km da troca", "Valor"]}
@@ -649,6 +653,7 @@ function RelatorioPage() {
               icon={Gauge}
             />
           </div>
+          {evolucao}
           <TabelaLista
             titulo="Abastecimentos do período"
             colunas={["Data", "Posto", "Combustível", "Litros", "Valor"]}
