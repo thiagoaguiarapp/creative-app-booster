@@ -8,7 +8,7 @@
  * reais dos seus blocos de anúncio antes de publicar na Play Store.
  */
 
-export const ADMOB_BANNER_ID_ANDROID = "ca-app-pub-3940256099942544/6300978111";
+export const ADMOB_BANNER_ID_ANDROID = "ca-app-pub-2715745778380480/4859804306";
 export const ADMOB_BANNER_ID_IOS = "ca-app-pub-3940256099942544/2934735716";
 export const ADMOB_INTERSTITIAL_ID_ANDROID = "ca-app-pub-3940256099942544/1033173712";
 export const ADMOB_INTERSTITIAL_ID_IOS = "ca-app-pub-3940256099942544/4411468910";
@@ -42,7 +42,7 @@ async function plataforma(): Promise<"android" | "ios" | "web"> {
 async function inicializar() {
   if (inicializado) return;
   const { AdMob } = await import("@capacitor-community/admob");
-  await AdMob.initialize({ initializeForTesting: true });
+  await AdMob.initialize({ initializeForTesting: false });
   inicializado = true;
 }
 
@@ -58,7 +58,7 @@ export async function mostrarBanner(): Promise<boolean> {
       adSize: BannerAdSize.ADAPTIVE_BANNER,
       position: BannerAdPosition.BOTTOM_CENTER,
       margin: 0,
-      isTesting: true,
+      isTesting: false,
     });
     bannerVisivel = true;
     return true;
@@ -90,7 +90,7 @@ export async function prepararInterstitial(): Promise<boolean> {
     const plat = await plataforma();
     await AdMob.prepareInterstitial({
       adId: plat === "ios" ? ADMOB_INTERSTITIAL_ID_IOS : ADMOB_INTERSTITIAL_ID_ANDROID,
-      isTesting: true,
+      isTesting: false,
     });
     return true;
   } catch {
