@@ -4,7 +4,6 @@ import { ArrowUpCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   CHAVE_ADIAR_AVISO,
-  LINK_PLAY_STORE,
   VERSAO_NATIVA_MAIS_RECENTE,
   VERSAO_NATIVA_MAIS_RECENTE_NOME,
   VERSAO_NATIVA_MINIMA,
