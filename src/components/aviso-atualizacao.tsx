@@ -4,11 +4,11 @@ import { ArrowUpCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   CHAVE_ADIAR_AVISO,
-  LINK_PLAY_STORE,
   VERSAO_NATIVA_MAIS_RECENTE,
   VERSAO_NATIVA_MAIS_RECENTE_NOME,
   VERSAO_NATIVA_MINIMA,
 } from "@/lib/versao-app";
+import { abrirPlayStore } from "@/lib/abrir-play-store";
 
 const UM_DIA_MS = 24 * 60 * 60 * 1000;
 
@@ -83,7 +83,7 @@ export function AvisoAtualizacao() {
             <Button
               size="sm"
               onClick={() => {
-                window.open(LINK_PLAY_STORE, "_blank");
+                void abrirPlayStore();
               }}
             >
               Atualizar agora

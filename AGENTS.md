@@ -11,3 +11,4 @@
 
 - Reuse `RepassesContent` in the Repasses route and Financeiro tab, with an optional shared date interval, to preserve a single implementation of reconciliation and editing actions.
 - Build the unified receivables list with `conciliacaoRecebimentos` and existing FIFO allocation so platform rows, summary totals, and settlement defaults share one calculation.
+- Open external links from the native app by navigating the current window, not `window.open(..., "_blank")`: Capacitor's Android WebView never creates a second window, so the click is silently dropped. Keep an https fallback for devices without the store app.
