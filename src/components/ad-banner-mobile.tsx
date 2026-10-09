@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation, useRouteContext } from "@tanstack/react-router";
+import { useRouteContext } from "@tanstack/react-router";
 
 import { ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
 
@@ -37,7 +37,7 @@ export function AdBannerMobile() {
       void esconderBanner();
       document.documentElement.style.removeProperty("--altura-banner-ads");
     };
-  }, [isPremium, noInicio]);
+  }, [isPremium]);
 
   return null;
 }
