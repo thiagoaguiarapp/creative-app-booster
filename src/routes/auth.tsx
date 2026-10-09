@@ -3,14 +3,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { CampoSenha } from "@/components/campo-senha";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  cadastrarFn,
-  entrarFn,
-  recuperarSenhaFn,
-} from "@/lib/auth.functions";
+import { cadastrarFn, entrarFn, recuperarSenhaFn } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -100,7 +97,6 @@ function AuthPage() {
     }
   };
 
-
   const subtitulo =
     modo === "entrar"
       ? "Entre para ver seus lançamentos"
@@ -113,9 +109,7 @@ function AuthPage() {
       <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col items-center gap-2 text-center">
           <img src="/icon-192-v2.png" alt="No Corre" className="size-14 rounded-lg object-cover" />
-          <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">
-            No Corre
-          </h1>
+          <h1 className="font-display text-2xl font-semibold uppercase tracking-wide">No Corre</h1>
           <p className="text-sm text-muted-foreground">{subtitulo}</p>
         </div>
 
@@ -132,17 +126,14 @@ function AuthPage() {
             />
           </div>
           {modo !== "recuperar" && (
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="senha">Senha</Label>
-              <Input
-                id="senha"
-                type="password"
-                autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                placeholder="Mínimo de 6 caracteres"
-              />
-            </div>
+            <CampoSenha
+              id="senha"
+              label="Senha"
+              value={senha}
+              onChange={setSenha}
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              placeholder="Mínimo de 6 caracteres"
+            />
           )}
           <Button type="submit" disabled={carregando}>
             {carregando

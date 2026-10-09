@@ -3,9 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { CampoSenha } from "@/components/campo-senha";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { redefinirSenhaFn } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/redefinir-senha")({
@@ -86,28 +85,22 @@ function RedefinirSenhaPage() {
         </div>
 
         <form className="mt-6 flex flex-col gap-4" onSubmit={enviar}>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="senha">Nova senha</Label>
-            <Input
-              id="senha"
-              type="password"
-              autoComplete="new-password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              placeholder="Mínimo de 6 caracteres"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="confirmar">Confirmar senha</Label>
-            <Input
-              id="confirmar"
-              type="password"
-              autoComplete="new-password"
-              value={confirmar}
-              onChange={(e) => setConfirmar(e.target.value)}
-              placeholder="Repita a nova senha"
-            />
-          </div>
+          <CampoSenha
+            id="senha"
+            label="Nova senha"
+            value={senha}
+            onChange={setSenha}
+            autoComplete="new-password"
+            placeholder="Mínimo de 6 caracteres"
+          />
+          <CampoSenha
+            id="confirmar"
+            label="Confirmar senha"
+            value={confirmar}
+            onChange={setConfirmar}
+            autoComplete="new-password"
+            placeholder="Repita a nova senha"
+          />
           <Button type="submit" disabled={carregando || !token}>
             {carregando ? "Salvando…" : "Salvar nova senha"}
           </Button>
