@@ -222,6 +222,16 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient, usuario } = Route.useRouteContext();
 
+  // O servidor não enxerga o "#..." do link de recuperação; no navegador,
+  // se o link caiu em outra página (ex.: /inicio), leva para /redefinir-senha.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (/type=recovery/.test(hash) && window.location.pathname !== "/redefinir-senha") {
+      window.location.replace(`/redefinir-senha${hash}`);
+    }
+  }, []);
+
+
   if (!usuario || !usuario.nome) {
     return (
       <QueryClientProvider client={queryClient}>
