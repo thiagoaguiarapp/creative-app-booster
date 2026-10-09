@@ -157,7 +157,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#0d1526" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "No Corre" },
@@ -241,9 +241,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider>
-        <div className="flex min-h-screen w-full">
+        <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
           <AppSidebar email={usuario.email} isAdmin={usuario.isAdmin === true} />
-          <div className="flex flex-1 flex-col">
+          <div className="flex min-w-0 flex-1 flex-col">
             <header
               className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/80 px-4 pb-2 backdrop-blur md:h-14 md:pb-0 md:!pt-0"
               style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.75rem)" }}
