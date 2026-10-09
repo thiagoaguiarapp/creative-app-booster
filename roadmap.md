@@ -10,6 +10,10 @@
 - [x] Gráfico de evolução abaixo dos cards de valores, e fora da aba Repasses e a receber.
 - [x] Remover a lupa (Buscar e filtrar) e a aba Repasses e a receber do Financeiro.
 
+## Login e conta
+
+- [x] Botão de olho para mostrar/ocultar a senha no login, no cadastro e na nova senha.
+
 ## Anúncios
 
 - [x] Configurar bloco Android específico do Início, preservando o banner das demais telas e a isenção Premium.
