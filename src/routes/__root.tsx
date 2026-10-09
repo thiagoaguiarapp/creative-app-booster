@@ -22,6 +22,7 @@ import { RodapeLegal } from "@/components/rodape-legal";
 import { AdBannerMobile } from "@/components/ad-banner-mobile";
 import { AdSenseInit } from "@/components/ad-sense-init";
 import { AvisoAtualizacao } from "@/components/aviso-atualizacao";
+import { AvisoManutencao } from "@/components/aviso-manutencao";
 
 
 
@@ -279,6 +280,7 @@ function RootComponent() {
       <AdSenseInit />
       <AdBannerMobile />
       <BarraInferior />
+      <AvisoManutencao />
       <AvisoAtualizacao />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>

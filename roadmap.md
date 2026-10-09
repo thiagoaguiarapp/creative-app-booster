@@ -93,3 +93,4 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [ ] Publicar o site e reenviar para revisão no Google AdSense.
 
 - [x] Simplificar tela Recebimento/Repasse: sem cards Faturado/Recebido, conciliação única com Dar baixa, detalhes recolhidos
+- [x] Notificação no celular de manutenção vencida/próxima (versão 1.0.6 build 7)
