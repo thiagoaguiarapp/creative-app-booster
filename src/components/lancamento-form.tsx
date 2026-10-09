@@ -424,7 +424,7 @@ function FormularioDialog({
   return (
     <Dialog open={aberto} onOpenChange={onOpenChange}>
       <DialogContent className="fixed inset-0 translate-x-0 translate-y-0 flex h-dvh max-h-dvh w-full max-w-none flex-col gap-0 rounded-none border-0 p-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[92dvh] sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:border">
-        <DialogHeader className="shrink-0 space-y-1 border-b bg-muted/30 px-5 py-4 text-left sm:px-6">
+        <DialogHeader className="shrink-0 space-y-1 border-b bg-muted/30 px-5 py-4 text-left sm:px-6" style={{ paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))" }}>
           <DialogTitle className="font-display text-lg uppercase tracking-wide sm:text-xl">
             {titulo ?? `${row ? "Editar" : "Novo"} ${TITULOS[tipo]}`}
           </DialogTitle>
@@ -656,7 +656,7 @@ function FormularioDialog({
           )}
           </div>
 
-          <DialogFooter className="shrink-0 gap-3 border-t bg-muted/30 px-5 py-5 sm:gap-2 sm:px-6 sm:py-4">
+          <DialogFooter className="shrink-0 gap-3 border-t bg-muted/30 px-5 py-5 sm:gap-2 sm:px-6 sm:py-4" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}>
             <Button
               type="button"
               variant="ghost"
