@@ -38,8 +38,11 @@ function prefixoMes(offset: number) {
 
 export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: string } }) {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const [periodoLocal, setPeriodo] = useState<Periodo>("atual");
+  const [periodoLocal, setPeriodo] = useState<Periodo>("total");
   const periodo = intervalo ? "custom" : periodoLocal;
+  const visaoTotal = periodo === "total";
+  const labelFaturado = visaoTotal ? "Faturado geral" : "Faturado no período";
+  const labelRecebido = visaoTotal ? "Recebido geral" : "Recebido no período";
   const [aberto, setAberto] = useState<string | null>(null);
   const [detalhesAbertos, setDetalhesAbertos] = useState(false);
   const [deLocal, setDe] = useState("");
@@ -138,6 +141,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
             key={p.id}
             size="sm"
             variant={periodo === p.id ? "default" : "outline"}
+             aria-pressed={periodo === p.id}
             onClick={() => setPeriodo(p.id)}
           >
             {p.label}
@@ -189,7 +193,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
 
       <SectionCard
         title="Conciliação por aplicativo"
-        description="Pendências do período e anteriores por plataforma"
+        description={visaoTotal ? "Total pendente por plataforma" : "Pendências do período e anteriores por plataforma"}
       >
         {/* Mobile cards */}
         <div className="flex flex-col gap-3 lg:hidden">
@@ -228,13 +232,13 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
 
                 <div className="grid grid-cols-3 gap-2 text-sm">
                   <div>
-                    <p className="text-[10px] text-muted-foreground">Faturado no período</p>
+                    <p className="text-[10px] text-muted-foreground">{labelFaturado}</p>
                     <p className="num font-medium">{brl(a.faturado)}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground">Recebido no período</p>
+                    <p className="text-[10px] text-muted-foreground">{labelRecebido}</p>
                     <p className="num font-medium text-success">{brl(a.recebido)}</p>
-                    {a.quitadoDepois > 0.009 && (
+                    {!visaoTotal && a.quitadoDepois > 0.009 && (
                       <p className="text-[10px] text-muted-foreground">
                         + {brl(a.quitadoDepois)} outro mês
                       </p>
@@ -309,11 +313,11 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
           <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div>
-                <p className="text-[10px] text-muted-foreground">Faturado no período</p>
+                <p className="text-[10px] text-muted-foreground">{labelFaturado}</p>
                 <p className="num font-semibold">{brl(faturado)}</p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground">Recebido no período</p>
+                <p className="text-[10px] text-muted-foreground">{labelRecebido}</p>
                 <p className="num font-semibold text-success">{brl(recebidoPlataformas)}</p>
               </div>
               <div className="text-right">
@@ -330,8 +334,8 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
             <TableHeader>
               <TableRow>
                 <TableHead>Aplicativo</TableHead>
-                <TableHead className="text-right">Faturado no período</TableHead>
-                <TableHead className="text-right">Recebido no período</TableHead>
+                <TableHead className="text-right">{labelFaturado}</TableHead>
+                <TableHead className="text-right">{labelRecebido}</TableHead>
                 <TableHead className="text-right">Total a receber</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-36 text-right">Baixa</TableHead>
@@ -368,7 +372,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                       <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
                       <TableCell className="num text-right text-success">
                         {brl(a.recebido)}
-                        {a.quitadoDepois > 0.009 && (
+                        {!visaoTotal && a.quitadoDepois > 0.009 && (
                           <span className="block text-xs text-muted-foreground">
                             + {brl(a.quitadoDepois)} recebido em outro mês
                           </span>

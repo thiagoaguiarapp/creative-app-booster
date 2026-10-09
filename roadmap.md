@@ -1,6 +1,7 @@
 # Roadmap — Rota Control
 
 ## Ajustes do Financeiro
+- [x] Abrir Recebimento/Repasse em Total, mostrando a divisão de pendências apenas ao filtrar por período.
 - [x] Unificar total a receber e incluir plataformas com pendências antigas na conciliação e em Dar baixa.
 - [x] Integrar repasses no Financeiro mantendo conciliação e ações existentes.
 - [x] Mostrar o gráfico de evolução acima das listagens por período.
