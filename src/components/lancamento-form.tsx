@@ -144,6 +144,11 @@ function valoresIniciais(
     out["temTaxa"] = Number(registro["taxa"]) > 0 ? "Sim" : "";
   }
 
+  // abastecimento: a caixa de desconto vem marcada quando já há desconto salvo
+  if (tipo === "abastecimento" && registro) {
+    out["temDesconto"] = Number(registro["desconto"]) > 0 ? "Sim" : "";
+  }
+
   // datas gravadas com ano impossível (ex.: "206") abrem em branco para serem corrigidas
   for (const campo of CAMPOS[tipo]) {
     if (campo.tipo !== "date") continue;
@@ -488,11 +493,16 @@ function FormularioDialog({
                     id={campo.key}
                     checked={(valores[campo.key] ?? "") === "Sim"}
                     onCheckedChange={(marcado) =>
-                      setValores((atual) => ({
-                        ...atual,
-                        [campo.key]: marcado ? "Sim" : "",
-                        ...(marcado ? {} : { taxa: "" }),
-                      }))
+                      setValores((atual) => {
+                        const prox = { ...atual, [campo.key]: marcado ? "Sim" : "" };
+                        // ao desmarcar, limpa os campos que dependem dessa caixa
+                        if (!marcado) {
+                          for (const c of CAMPOS[tipo]) {
+                            if (c.somenteSe?.key === campo.key) prox[c.key] = "";
+                          }
+                        }
+                        return prox;
+                      })
                     }
                   />
                   <span className="text-muted-foreground">
