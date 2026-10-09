@@ -143,6 +143,10 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
   if (tipo === "repasse" && txt(valores["temTaxa"] ?? "") !== "Sim") {
     delete linha["TAXA REPASSE"];
   }
+  // abastecimento sem desconto marcado: não grava valor na coluna Desconto
+  if (tipo === "abastecimento" && txt(valores["temDesconto"] ?? "") !== "Sim") {
+    delete linha["Desconto"];
+  }
   if (mapa.mesColuna && valores["data"]) linha[mapa.mesColuna] = mesDe(valores["data"]);
   return linha;
 }
