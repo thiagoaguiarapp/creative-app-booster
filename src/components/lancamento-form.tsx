@@ -113,6 +113,19 @@ function valoresIniciais(
 
   }
 
+  // abastecimento no crédito: parcelas e 1º vencimento vêm das marcas lidas do POSTO
+  if (tipo === "abastecimento" && registro && /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))) {
+    const total = Math.max(1, Number(registro["parcelas"]) || 1);
+    if (total > 1) {
+      out["pagamento"] = "Crédito parcelado";
+      out["parcelas"] = String(total);
+    } else {
+      out["pagamento"] = "Crédito à vista";
+    }
+    const primeira = String(registro["primeiraParcela"] ?? "");
+    if (primeira) out["dataPrimeiraParcela"] = primeira;
+  }
+
   // despesa no crédito: os campos de parcela vêm das marcas internas do lançamento
   if (tipo === "despesa" && registro && /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))) {
     const descricao = String(registro["descricao"] ?? "");
