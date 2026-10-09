@@ -156,6 +156,7 @@ async function carregar(userId: string): Promise<PainelData> {
       aplicativo: normalizar(campo(l, "APLICATIVO", "APP")) || "—",
       valor: num(campo(l, "VALOR RECEBIDO", "VALOR")),
       forma: normalizar(campo(l, "FORMA RECEBIMENTO", "FORMA")) || "—",
+      taxa: num(campo(l, "TAXA REPASSE", "TAXA")),
     }))
     .sort(byIsoDesc);
 

@@ -60,6 +60,7 @@ const MAPAS: Record<Tipo, { tabela: string; mesColuna?: string; campos: Record<s
       aplicativo: { coluna: "APLICATIVO", tipo: "texto" },
       valor: { coluna: "VALOR RECEBIDO", tipo: "dinheiro" },
       forma: { coluna: "FORMA RECEBIMENTO", tipo: "texto" },
+      taxa: { coluna: "TAXA REPASSE", tipo: "dinheiro" },
     },
   },
   manutencao: {
@@ -137,6 +138,10 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
   for (const [chave, campo] of Object.entries(mapa.campos)) {
     if (valores[chave] === undefined) continue;
     linha[campo.coluna] = converter(campo, valores[chave] ?? "");
+  }
+  // repasse sem taxa marcada: não grava valor na coluna TAXA REPASSE
+  if (tipo === "repasse" && txt(valores["temTaxa"] ?? "") !== "Sim") {
+    delete linha["TAXA REPASSE"];
   }
   if (mapa.mesColuna && valores["data"]) linha[mapa.mesColuna] = mesDe(valores["data"]);
   return linha;

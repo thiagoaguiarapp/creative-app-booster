@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
   SheetContent,
@@ -136,6 +137,11 @@ function valoresIniciais(
     const total = totalParcelas(descricao);
     if (total > 1) out["parcelas"] = String(total);
     out["descricao"] = semMarcaParcela(limpaDescricao(descricao));
+  }
+
+  // repasse: a caixa de taxa vem marcada quando o lançamento já tem taxa salva
+  if (tipo === "repasse" && registro) {
+    out["temTaxa"] = Number(registro["taxa"]) > 0 ? "Sim" : "";
   }
 
   // datas gravadas com ano impossível (ex.: "206") abrem em branco para serem corrigidas
@@ -473,6 +479,26 @@ function FormularioDialog({
                     <SelectItem value="__outro__">+ Novo serviço (digitar)…</SelectItem>
                   </SelectContent>
                 </Select>
+              ) : campo.tipo === "checkbox" ? (
+                <label
+                  htmlFor={campo.key}
+                  className="flex h-12 cursor-pointer items-center gap-3 rounded-md border border-input bg-background px-3 text-sm sm:h-9"
+                >
+                  <Checkbox
+                    id={campo.key}
+                    checked={(valores[campo.key] ?? "") === "Sim"}
+                    onCheckedChange={(marcado) =>
+                      setValores((atual) => ({
+                        ...atual,
+                        [campo.key]: marcado ? "Sim" : "",
+                        ...(marcado ? {} : { taxa: "" }),
+                      }))
+                    }
+                  />
+                  <span className="text-muted-foreground">
+                    {(valores[campo.key] ?? "") === "Sim" ? "Sim" : "Não"}
+                  </span>
+                </label>
               ) : campo.tipo === "select" ? (
                 <Select
                   value={valores[campo.key] ?? ""}
