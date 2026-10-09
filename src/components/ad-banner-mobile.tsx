@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useLocation, useRouteContext } from "@tanstack/react-router";
+import { useRouteContext } from "@tanstack/react-router";
 
-import { ADMOB_BANNER_INICIO_ID_ANDROID, ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
+import { ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
 
 /**
  * Banner do AdMob ancorado na parte inferior, exibido apenas para usuários
@@ -14,7 +14,6 @@ import { ADMOB_BANNER_INICIO_ID_ANDROID, ALTURA_BANNER, esconderBanner, mostrarB
 export function AdBannerMobile() {
   const context = useRouteContext({ from: "__root__" });
   const isPremium = context.usuario?.isPremium ?? false;
-  const noInicio = useLocation({ select: (location) => location.pathname === "/inicio" });
 
   useEffect(() => {
     let ativo = true;
@@ -25,7 +24,7 @@ export function AdBannerMobile() {
       return;
     }
 
-    void mostrarBanner(noInicio ? ADMOB_BANNER_INICIO_ID_ANDROID : undefined).then((exibiu) => {
+    void mostrarBanner().then((exibiu) => {
       if (!ativo || !exibiu) return;
       document.documentElement.style.setProperty(
         "--altura-banner-ads",
@@ -38,7 +37,7 @@ export function AdBannerMobile() {
       void esconderBanner();
       document.documentElement.style.removeProperty("--altura-banner-ads");
     };
-  }, [isPremium, noInicio]);
+  }, [isPremium]);
 
   return null;
 }
