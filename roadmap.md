@@ -68,6 +68,7 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [x] Remover tela Ganhos Diários
 - [x] Lançamento rápido por app na Início (com baixa em dinheiro/Pix)
 - [x] Início: card mostra "Faturado hoje" e rótulo "Saldo líquido do dia"
+- [x] Início: botão de repasse rotulado "Adiantamento / Repasse" (duas linhas, cabe no celular)
 - [ ] Redesenho visual da Início (etapa 3)
 
 - [x] Pré-cadastro em etapas para novos usuários (veículo, apps, meta)

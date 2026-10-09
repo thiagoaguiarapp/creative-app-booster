@@ -94,6 +94,20 @@ type LancamentoHoje =
   | { tipo: "despesa"; data: Despesa }
   | { tipo: "repasse"; data: Repasse };
 
+type AtalhoRapido = {
+  to: "/abastecimento" | "/manutencao" | "/despesas" | "/repasses";
+  label: string;
+  label2?: string;
+  icon: typeof Fuel;
+};
+
+const atalhosRapidos: AtalhoRapido[] = [
+  { to: "/abastecimento", label: "Abastecer", icon: Fuel },
+  { to: "/manutencao", label: "Manutenção", icon: Wrench },
+  { to: "/despesas", label: "Lançar despesa", icon: Receipt },
+  { to: "/repasses", label: "Adiantamento", label2: "Repasse", icon: HandCoins },
+];
+
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
@@ -223,19 +237,22 @@ function Home() {
       </div>
 
       <div className="grid grid-cols-4 gap-2">
-        {[
-          { to: "/abastecimento", label: "Abastecer", icon: Fuel },
-          { to: "/manutencao", label: "Manutenção", icon: Wrench },
-          { to: "/despesas", label: "Lançar despesa", icon: Receipt },
-          { to: "/repasses", label: "Repasses", icon: HandCoins },
-        ].map((a) => (
+        {atalhosRapidos.map((a) => (
           <Link
             key={a.to}
             to={a.to}
             className="panel flex flex-col items-center gap-1.5 px-1 py-3 text-center text-[11px] font-medium leading-tight"
           >
             <a.icon className="size-6 text-primary" />
-            {a.label}
+            <span>
+              {a.label}
+              {a.label2 ? (
+                <>
+                  <br />
+                  {a.label2}
+                </>
+              ) : null}
+            </span>
           </Link>
         ))}
       </div>
