@@ -79,3 +79,5 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [x] Calculadora pública de custo por km (/calculadora).
 - [x] Rodapé com links para todas as páginas públicas na landing.
 - [ ] Publicar o site e reenviar para revisão no Google AdSense.
+
+- [x] Simplificar tela Recebimento/Repasse: sem cards Faturado/Recebido, conciliação única com Dar baixa, detalhes recolhidos
