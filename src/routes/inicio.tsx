@@ -191,7 +191,7 @@ function Home() {
 
       <div className="panel relative overflow-hidden border-l-4 border-l-primary p-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">Saldo do dia</p>
+          <p className="text-xs text-muted-foreground">Saldo líquido do dia</p>
           <button
             type="button"
             onClick={() => setOculto((v) => !v)}
@@ -204,6 +204,13 @@ function Home() {
         <p className={cn("num mt-0.5 font-display text-3xl font-semibold", hoje.liquido >= 0 ? "text-foreground" : "text-destructive")}>
           {oculto ? "R$ •••••" : brl(hoje.liquido)}
         </p>
+        <p className="text-[11px] text-muted-foreground">Faturamento de hoje menos os gastos de hoje</p>
+        <div className="mt-2 flex items-center justify-between rounded-md bg-success/15 px-2.5 py-1.5">
+          <span className="text-[11px] text-muted-foreground">Faturado hoje</span>
+          <span className="num text-sm font-semibold text-success">
+            {oculto ? "R$ •••••" : brl(hoje.fat)}
+          </span>
+        </div>
         <div className="mt-3 grid grid-cols-3 divide-x divide-border border-t border-border pt-3">
           <MiniMetrica icone={Package} rotulo="Entregas hoje" valor={String(hoje.entregas)} />
           <MiniMetrica
