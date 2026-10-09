@@ -725,7 +725,7 @@ export function NovoLancamentoRapido({
   trigger,
 }: {
   className?: string;
-  trigger?: (abrir: () => void) => React.ReactNode;
+  trigger?: (abrir: () => void) => import("react").ReactNode;
 }) {
   const [menu, setMenu] = useState(false);
   const [item, setItem] = useState<ItemRapido | null>(null);
