@@ -2,15 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Bike,
-  ChevronDown,
   CircleDollarSign,
   Download,
   Fuel,
   Gauge,
   Printer,
   Receipt,
-  Search,
-  X,
   TrendingUp,
   Wrench,
 } from "lucide-react";
@@ -26,15 +23,9 @@ import {
   YAxis,
 } from "recharts";
 
-import { RepassesContent } from "@/components/repasses-content";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -158,7 +149,6 @@ function RelatorioPage() {
   const [tipo, setTipo] = useState<TipoFiltro>("todos");
   const [veiculo, setVeiculo] = useState("");
   const [aba, setAba] = useState("geral");
-  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
 
   const filtrosAtivos = [
     busca.trim() && `"${busca.trim()}"`,
@@ -178,7 +168,7 @@ function RelatorioPage() {
   const filtrarPor = (texto: string, t: TipoFiltro) => {
     setBusca(texto);
     setTipo(t);
-    setFiltrosAbertos(true);
+
     if (t !== "todos") setAba(ABA_DO_TIPO[t]);
   };
 
@@ -418,107 +408,25 @@ function RelatorioPage() {
       </SectionCard>
 
 
-      <Collapsible
-        open={filtrosAbertos}
-        onOpenChange={setFiltrosAbertos}
-        className="panel overflow-hidden"
-      >
-        <CollapsibleTrigger className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted/40 sm:px-5 sm:py-3">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
-            <Search className="size-4" />
+      {filtrando && (
+        <div className="panel flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
+          <span className="min-w-0">
+            Filtrando: {resumoFiltros}
+            {" — "}resultado {brl(r.lucro)} líquido
           </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-display text-sm font-semibold uppercase tracking-wide sm:text-lg">
-              Buscar e filtrar
-            </span>
-            <span className="block truncate text-[10px] text-muted-foreground sm:text-xs">
-              {filtrando
-                ? `Filtrando: ${resumoFiltros}`
-                : "Toque para buscar por app, posto, categoria ou serviço"}
-            </span>
-          </span>
-          {filtrando && (
-            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
-              {filtrosAtivos.length}
-            </span>
-          )}
-          <ChevronDown
-            className={cn(
-              "size-4 shrink-0 text-muted-foreground transition-transform",
-              filtrosAbertos && "rotate-180",
-            )}
-          />
-        </CollapsibleTrigger>
-
-        {filtrando && (
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-primary/10 px-3 py-2 text-xs">
-            <span className="min-w-0">
-              {resumoFiltros}
-              {" — "}resultado {brl(r.lucro)} líquido
-            </span>
-            <button
-              type="button"
-              className="shrink-0 font-medium text-primary"
-              onClick={() => {
-                setBusca("");
-                setTipo("todos");
-                setVeiculo("");
-              }}
-            >
-              Limpar filtros
-            </button>
-          </div>
-        )}
-
-        <CollapsibleContent>
-          <div className="flex flex-col gap-3 border-t border-border p-3 sm:p-5">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="App, posto, categoria, serviço ou descrição…"
-                className="h-10 pl-9 pr-9 text-sm"
-              />
-              {busca && (
-                <button
-                  type="button"
-                  aria-label="Limpar busca"
-                  onClick={() => setBusca("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {TIPOS_FILTRO.map((t) => (
-                <Button
-                  key={t}
-                  size="sm"
-                  className="h-8 text-xs"
-                  variant={tipo === t ? "default" : "secondary"}
-                  onClick={() => {
-                    setTipo(t);
-                    if (t !== "todos") setAba(ABA_DO_TIPO[t]);
-                  }}
-                >
-                  {ROTULO_TIPO[t]}
-                </Button>
-              ))}
-            </div>
-            {veiculos.length > 1 && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs text-muted-foreground">Veículo:</span>
-                <Button size="sm" className="h-7 text-xs" variant={!veiculo ? "default" : "outline"} onClick={() => setVeiculo("")}>Todos</Button>
-                {veiculos.map((v) => (
-                  <Button key={v} size="sm" className="h-7 text-xs" variant={veiculo === v ? "default" : "outline"} onClick={() => setVeiculo(v)}>{v}</Button>
-                ))}
-              </div>
-            )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+          <button
+            type="button"
+            className="shrink-0 font-medium text-primary"
+            onClick={() => {
+              setBusca("");
+              setTipo("todos");
+              setVeiculo("");
+            }}
+          >
+            Limpar filtros
+          </button>
+        </div>
+      )}
 
       <Tabs value={aba} onValueChange={setAba}>
         <div className="-mx-3 overflow-x-auto px-3 print:hidden sm:mx-0 sm:px-0">
@@ -526,7 +434,6 @@ function RelatorioPage() {
             <TabsTrigger value="geral" className="text-xs">Geral</TabsTrigger>
             <TabsTrigger value="despesa" className="text-xs">Despesa</TabsTrigger>
             <TabsTrigger value="manutencao" className="text-xs">Manutenção</TabsTrigger>
-            <TabsTrigger value="repasse" className="text-xs">Repasses e a receber</TabsTrigger>
             <TabsTrigger value="abastecimento" className="text-xs">Abastecimento</TabsTrigger>
           </TabsList>
         </div>
@@ -667,9 +574,6 @@ function RelatorioPage() {
           />
         </TabsContent>
 
-        <TabsContent value="repasse" className="mt-3 min-w-0">
-          <RepassesContent intervalo={{ de, ate }} />
-        </TabsContent>
 
         <TabsContent value="abastecimento" className="mt-3 flex flex-col gap-3 sm:gap-4">
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">

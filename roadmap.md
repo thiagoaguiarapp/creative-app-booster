@@ -6,6 +6,7 @@
 - [x] Incluir Todos os lançamentos no Perfil para edição.
 - [x] Recolher a gaveta "Buscar e filtrar" por padrão, com lupa e indicador de filtros ativos.
 - [x] Gráfico de evolução abaixo dos cards de valores, e fora da aba Repasses e a receber.
+- [x] Remover a lupa (Buscar e filtrar) e a aba Repasses e a receber do Financeiro.
 
 ## Anúncios
 
