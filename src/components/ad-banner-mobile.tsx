@@ -14,7 +14,6 @@ import { ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
 export function AdBannerMobile() {
   const context = useRouteContext({ from: "__root__" });
   const isPremium = context.usuario?.isPremium ?? false;
-  const noInicio = useLocation({ select: (location) => location.pathname === "/inicio" });
 
   useEffect(() => {
     let ativo = true;
@@ -25,7 +24,7 @@ export function AdBannerMobile() {
       return;
     }
 
-    void mostrarBanner(noInicio ? ADMOB_BANNER_INICIO_ID_ANDROID : undefined).then((exibiu) => {
+    void mostrarBanner().then((exibiu) => {
       if (!ativo || !exibiu) return;
       document.documentElement.style.setProperty(
         "--altura-banner-ads",
