@@ -5,6 +5,7 @@
 - [x] Mostrar o gráfico de evolução acima das listagens por período.
 - [x] Incluir Todos os lançamentos no Perfil para edição.
 - [x] Recolher a gaveta "Buscar e filtrar" por padrão, com lupa e indicador de filtros ativos.
+- [x] Gráfico de evolução abaixo dos cards de valores, e fora da aba Repasses e a receber.
 
 ## Anúncios
 

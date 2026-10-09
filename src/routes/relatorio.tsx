@@ -290,6 +290,40 @@ function RelatorioPage() {
 
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
+  const evolucao = (
+    <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
+      {r.porMes.length < 1 ? (
+        <p className="text-sm text-muted-foreground">Sem dados no período.</p>
+      ) : (
+        <div className="h-64 w-full min-w-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={[...r.porMes].reverse().map((m) => ({
+                mes: rotuloMes(m.mes),
+                Faturamento: Math.round(m.fat * 100) / 100,
+                Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
+                Lucro: Math.round(m.lucro * 100) / 100,
+              }))}
+              margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <Tooltip
+                formatter={(v: number) => brl(v)}
+                contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
+              />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Line type="monotone" dataKey="Faturamento" stroke="var(--primary)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Custos" stroke="var(--destructive)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="Lucro" stroke="var(--success, var(--chart-2))" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </SectionCard>
+  );
+
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-3 sm:gap-4 lg:gap-6">
       <PageHeader
@@ -350,37 +384,6 @@ function RelatorioPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
-        {r.porMes.length < 1 ? (
-          <p className="text-sm text-muted-foreground">Sem dados no período.</p>
-        ) : (
-          <div className="h-64 w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={[...r.porMes].reverse().map((m) => ({
-                  mes: rotuloMes(m.mes),
-                  Faturamento: Math.round(m.fat * 100) / 100,
-                  Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
-                  Lucro: Math.round(m.lucro * 100) / 100,
-                }))}
-                margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <Tooltip
-                  formatter={(v: number) => brl(v)}
-                  contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="Faturamento" stroke="var(--primary)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="Custos" stroke="var(--destructive)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="Lucro" stroke="var(--success, var(--chart-2))" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </SectionCard>
 
       <Collapsible
         open={filtrosAbertos}
@@ -510,6 +513,8 @@ function RelatorioPage() {
             <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
           </div>
 
+          {evolucao}
+
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
               <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
@@ -575,6 +580,7 @@ function RelatorioPage() {
               icon={TrendingUp}
             />
           </div>
+          {evolucao}
           <SectionCard title="Despesas por categoria">
             <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
           </SectionCard>
@@ -607,6 +613,7 @@ function RelatorioPage() {
               icon={Gauge}
             />
           </div>
+          {evolucao}
           <TabelaLista
             titulo="Manutenções do período"
             colunas={["Data", "Veículo", "Serviço", "Km da troca", "Valor"]}
@@ -646,6 +653,7 @@ function RelatorioPage() {
               icon={Gauge}
             />
           </div>
+          {evolucao}
           <TabelaLista
             titulo="Abastecimentos do período"
             colunas={["Data", "Posto", "Combustível", "Litros", "Valor"]}
