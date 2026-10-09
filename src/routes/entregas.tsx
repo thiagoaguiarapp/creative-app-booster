@@ -145,9 +145,9 @@ function EntregasPage() {
 
       <SectionCard
         title={`${lista.length} registro(s)`}
-        description={
-          periodo === "personalizado" ? `Buscando de ${brData(de)} até ${brData(ate)}` : undefined
-        }
+        {...(periodo === "personalizado"
+          ? { description: `Buscando de ${brData(de)} até ${brData(ate)}` }
+          : {})}
       >
         <div className="mb-3">
           <NovoLancamento tipo="ganho" />
