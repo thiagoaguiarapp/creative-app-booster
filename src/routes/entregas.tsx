@@ -79,7 +79,7 @@ function EntregasPage() {
       <PageHeader title="Entregas" subtitle="Suas corridas e entregas por app." />
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1.7fr_1fr_1fr]">
-        <div className="col-span-2 min-w-0 rounded-xl border border-border bg-primary/10 p-3 sm:col-span-1 sm:row-span-2">
+        <div className="col-span-2 min-w-0 rounded-xl border border-border bg-primary/10 p-3 sm:col-span-1">
           <p className="text-[11px] text-muted-foreground">Faturado</p>
           <p className="whitespace-nowrap text-2xl font-semibold tracking-tight sm:text-[1.75rem]">
             {brl(total)}
