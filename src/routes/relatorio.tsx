@@ -26,6 +26,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { RepassesContent } from "@/components/repasses-content";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
@@ -47,13 +48,13 @@ import { brl } from "@/lib/sheets-types";
 export const Route = createFileRoute("/relatorio")({
   head: () => ({
     meta: [
-      { title: "Relatório por período — No Corre" },
+      { title: "Financeiro — No Corre" },
       {
         name: "description",
         content:
           "Relatório completo por período: faturamento, combustível, despesas, manutenção e lucro líquido do entregador.",
       },
-      { property: "og:title", content: "Relatório por período — No Corre" },
+      { property: "og:title", content: "Financeiro — No Corre" },
       {
         property: "og:description",
         content:
@@ -273,9 +274,9 @@ function RelatorioPage() {
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:gap-4 lg:gap-6">
+    <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-3 sm:gap-4 lg:gap-6">
       <PageHeader
-        title="Relatório por período"
+        title="Financeiro"
         subtitle="Consolidado de ganhos, custos e lucro líquido"
         action={
           <div className="flex gap-2 print:hidden">
@@ -330,6 +331,38 @@ function RelatorioPage() {
             </p>
           </div>
         </div>
+      </SectionCard>
+
+      <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
+        {r.porMes.length < 1 ? (
+          <p className="text-sm text-muted-foreground">Sem dados no período.</p>
+        ) : (
+          <div className="h-64 w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={[...r.porMes].reverse().map((m) => ({
+                  mes: rotuloMes(m.mes),
+                  Faturamento: Math.round(m.fat * 100) / 100,
+                  Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
+                  Lucro: Math.round(m.lucro * 100) / 100,
+                }))}
+                margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                <Tooltip
+                  formatter={(v: number) => brl(v)}
+                  contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
+                />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line type="monotone" dataKey="Faturamento" stroke="var(--primary)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="Custos" stroke="var(--destructive)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="Lucro" stroke="var(--success, var(--chart-2))" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </SectionCard>
 
       <SectionCard title="Buscar e filtrar" description="Cruze a busca com o tipo de lançamento — os totais se recalculam na hora">
@@ -402,7 +435,7 @@ function RelatorioPage() {
             <TabsTrigger value="geral" className="text-xs">Geral</TabsTrigger>
             <TabsTrigger value="despesa" className="text-xs">Despesa</TabsTrigger>
             <TabsTrigger value="manutencao" className="text-xs">Manutenção</TabsTrigger>
-            <TabsTrigger value="repasse" className="text-xs">Recebimento / Repasse</TabsTrigger>
+            <TabsTrigger value="repasse" className="text-xs">Repasses e a receber</TabsTrigger>
             <TabsTrigger value="abastecimento" className="text-xs">Abastecimento</TabsTrigger>
           </TabsList>
         </div>
@@ -538,33 +571,8 @@ function RelatorioPage() {
           />
         </TabsContent>
 
-        <TabsContent value="repasse" className="mt-3 flex flex-col gap-3 sm:gap-4">
-          <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
-            <StatCard label="Recebido" value={brl(r.recebido)} icon={Wallet} tone="success" />
-            <StatCard label="Faturado" value={brl(r.faturamento)} icon={CircleDollarSign} />
-            <StatCard
-              label="A receber"
-              value={brl(Math.max(0, r.faturamento - r.recebido))}
-              icon={TrendingUp}
-              tone={r.faturamento - r.recebido > 0 ? "warning" : "success"}
-            />
-            <StatCard label="Repasses" value={String(r.listas.repasses.length)} icon={Receipt} />
-          </div>
-          <SectionCard title="Faturamento por plataforma">
-            <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
-          </SectionCard>
-          <TabelaLista
-            titulo="Repasses recebidos"
-            colunas={["Data", "Aplicativo", "Forma", "Valor"]}
-            linhas={[...r.listas.repasses]
-              .sort((a, b) => b.iso.localeCompare(a.iso))
-              .map((x) => ({
-                id: x.id,
-                celulas: [x.data, x.aplicativo || "—", x.forma || "—"],
-                valor: x.valor,
-              }))}
-            total={r.recebido}
-          />
+        <TabsContent value="repasse" className="mt-3 min-w-0">
+          <RepassesContent intervalo={{ de, ate }} />
         </TabsContent>
 
         <TabsContent value="abastecimento" className="mt-3 flex flex-col gap-3 sm:gap-4">
@@ -603,37 +611,7 @@ function RelatorioPage() {
         </TabsContent>
       </Tabs>
 
-      <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
-        {r.porMes.length < 1 ? (
-          <p className="text-sm text-muted-foreground">Sem dados no período.</p>
-        ) : (
-          <div className="h-64 w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={[...r.porMes].reverse().map((m) => ({
-                  mes: rotuloMes(m.mes),
-                  Faturamento: Math.round(m.fat * 100) / 100,
-                  Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
-                  Lucro: Math.round(m.lucro * 100) / 100,
-                }))}
-                margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-                <Tooltip
-                  formatter={(v: number) => brl(v)}
-                  contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="Faturamento" stroke="var(--primary)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="Custos" stroke="var(--destructive)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="Lucro" stroke="var(--success, var(--chart-2))" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </SectionCard>
+
     </div>
   );
 }
