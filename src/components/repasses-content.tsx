@@ -4,8 +4,6 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
-  HandCoins,
-  History,
 } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 
@@ -17,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { normalizarPlataforma, quitacaoPorApp, saldoPorPlataforma } from "@/lib/conciliacao";
+import { conciliacaoRecebimentos, normalizarPlataforma, saldoPorPlataforma } from "@/lib/conciliacao";
 import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -90,102 +88,11 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
 
   const norm = normalizarPlataforma;
 
-  const quitacao = useMemo(
-    () => quitacaoPorApp(data.ganhos, data.repasses, filtra),
+  const porApp = useMemo(
+    () => conciliacaoRecebimentos(data.ganhos, data.repasses, filtra, corte),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.ganhos, data.repasses, periodo, de, ate, prefixo],
+    [data.ganhos, data.repasses, periodo, de, ate, prefixo, corte],
   );
-
-  const porApp = useMemo(() => {
-    const mapa = new Map<string, { app: string; faturado: number; recebido: number }>();
-    const pegar = (nome: string) => {
-      const chave = norm(nome);
-      let item = mapa.get(chave);
-      if (!item) {
-        item = { app: nome.trim() || "—", faturado: 0, recebido: 0 };
-        mapa.set(chave, item);
-      }
-      return item;
-    };
-    for (const g of ganhos) {
-      if (ehExtra(g.plataforma)) continue;
-      pegar(g.plataforma).faturado += g.faturamento;
-    }
-    for (const r of repasses) {
-      if (ehExtra(r.aplicativo)) continue;
-      pegar(r.aplicativo).recebido += r.valor;
-    }
-    return Array.from(mapa.values())
-      .map((i) => {
-        const q = quitacao.get(norm(i.app));
-        // o que já foi quitado desse faturado, mesmo que o repasse tenha caído em outro mês
-        const quitado = q?.quitado ?? i.recebido;
-        const quitadoDepois = q?.quitadoDepois ?? 0;
-        return {
-          ...i,
-          quitado,
-          quitadoDepois,
-          pendente: Math.max(0, i.faturado - quitado),
-        };
-      })
-      .filter((i) => i.faturado !== 0 || i.recebido !== 0)
-      .sort((a, b) => b.faturado - a.faturado || b.recebido - a.recebido);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ganhos, repasses, quitacao]);
-
-  // pendência de meses anteriores considerando quitação cronológica (FIFO)
-  const anterioresSoAntigos = useMemo(
-    () =>
-      corte
-        ? quitacaoPorApp(
-            data.ganhos,
-            data.repasses.filter((r) => r.iso < corte),
-            (iso) => iso < corte,
-          )
-        : new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>(),
-    [data.ganhos, data.repasses, corte],
-  );
-  const anterioresComTudo = useMemo(
-    () =>
-      corte
-        ? quitacaoPorApp(data.ganhos, data.repasses, (iso) => iso < corte)
-        : new Map<string, { app: string; faturado: number; quitado: number; quitadoDepois: number }>(),
-    [data.ganhos, data.repasses, corte],
-  );
-
-  // conciliação: o que sobrou do recebido no mês abate a pendência antiga do mesmo app
-  const conciliacao = useMemo(() => {
-    const chaves = new Set([
-      ...porApp.map((a) => norm(a.app)),
-      ...anterioresComTudo.keys(),
-    ]);
-    return Array.from(chaves).map((chave) => {
-      const mes = porApp.find((a) => norm(a.app) === chave);
-      const antigo = anterioresComTudo.get(chave);
-      const app = mes?.app ?? antigo?.app ?? "—";
-      const faturadoMes = mes?.faturado ?? 0;
-      const recebidoMes = mes?.recebido ?? 0;
-      const pendenteMes = mes?.pendente ?? Math.max(0, faturadoMes - recebidoMes);
-      const soAntigos = anterioresSoAntigos.get(chave);
-      const pendenteAnterior = Math.max(
-        0,
-        (soAntigos?.faturado ?? 0) - (soAntigos?.quitado ?? 0),
-      );
-      const restanteAnterior = Math.max(0, (antigo?.faturado ?? 0) - (antigo?.quitado ?? 0));
-      const abatido = Math.max(0, pendenteAnterior - restanteAnterior);
-      return {
-        app,
-        faturadoMes,
-        recebidoMes,
-        pendenteAnterior,
-        abatido,
-        restanteAnterior,
-        pendenteMes,
-        total: pendenteMes + restanteAnterior,
-      };
-    }).sort((a, b) => b.total - a.total || b.pendenteAnterior - a.pendenteAnterior);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [porApp, anterioresSoAntigos, anterioresComTudo, corte]);
 
   const saldoPlataformas = useMemo(
     () => saldoPorPlataforma(data.ganhos, data.repasses),
@@ -195,9 +102,9 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
   const totalRecebidoAMais = saldoPlataformas.reduce((s, p) => s + Math.max(0, -p.saldo), 0);
   const saldoLiquidoGeral = totalAReceberSaldo - totalRecebidoAMais;
 
-  const restanteAnteriorTotal = conciliacao.reduce((s, a) => s + a.restanteAnterior, 0);
+  const restanteAnteriorTotal = porApp.reduce((s, a) => s + a.restanteAnterior, 0);
 
-  const pendenteTotal = conciliacao.reduce((s, a) => s + a.pendenteMes, 0);
+  const pendenteTotal = porApp.reduce((s, a) => s + a.pendenteMes, 0);
   const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
 
   const porForma = useMemo(() => {
@@ -270,43 +177,25 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="A receber (mês)"
-          value={brl(pendenteTotal)}
-          icon={Clock}
-          tone="warning"
-          hint="Pendências do período selecionado"
-        />
-        {corte && (
-          <StatCard
-            label="A receber (meses anteriores)"
-            value={brl(restanteAnteriorTotal)}
-            icon={History}
-            tone="warning"
-            hint={`Total geral a receber: ${brl(aReceberGeral)}`}
-          />
-        )}
-        <StatCard
-          label="Ganho extra"
-          value={brl(gorjetas + sobraTroco)}
-          icon={HandCoins}
-          tone="success"
-          hint={`Gorjeta ${brl(gorjetas)} · Sobra de troco ${brl(sobraTroco)}`}
-        />
-      </div>
+      <StatCard
+        label="Total a receber"
+        value={brl(aReceberGeral)}
+        icon={Clock}
+        tone="warning"
+        hint={corte
+          ? `Do período: ${brl(pendenteTotal)} · Anteriores: ${brl(restanteAnteriorTotal)}`
+          : "Todas as pendências das plataformas"}
+      />
 
       <SectionCard
         title="Conciliação por aplicativo"
-        description="O que cada app faturou, o que já pagou e o que ainda falta — com botão para dar baixa"
+        description="Pendências do período e anteriores por plataforma"
       >
         {/* Mobile cards */}
         <div className="flex flex-col gap-3 lg:hidden">
           {porApp.map((a) => {
-            const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
-            const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
-            const parcial = !quitado && a.quitado > 0.009;
-            const ant = conciliacao.find((c) => norm(c.app) === norm(a.app));
+                        const quitado = a.pendente <= 0.009;
+            const parcial = !quitado && (a.quitado > 0.009 || a.recebido > 0.009);
 
             const baixas = repasses
               .filter((r) => norm(r.aplicativo) === norm(a.app))
@@ -318,9 +207,9 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                 className="flex flex-col gap-3 rounded-lg border border-border/60 p-3"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    className="flex min-w-0 items-center gap-1.5 text-left font-medium hover:text-primary"
+                  <Button
+                    variant="ghost"
+                    className="h-auto min-w-0 justify-start gap-1.5 p-0 text-left font-medium"
                     onClick={() => setAberto(expandido ? null : norm(a.app))}
                     aria-expanded={expandido}
                   >
@@ -331,7 +220,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                     {baixas.length > 0 && (
                       <span className="text-xs text-muted-foreground">({baixas.length})</span>
                     )}
-                  </button>
+                  </Button>
                   <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
                     {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
                   </Badge>
@@ -339,11 +228,11 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
 
                 <div className="grid grid-cols-3 gap-2 text-sm">
                   <div>
-                    <p className="text-[10px] text-muted-foreground">Faturado</p>
+                    <p className="text-[10px] text-muted-foreground">Faturado no período</p>
                     <p className="num font-medium">{brl(a.faturado)}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground">Recebido</p>
+                    <p className="text-[10px] text-muted-foreground">Recebido no período</p>
                     <p className="num font-medium text-success">{brl(a.recebido)}</p>
                     {a.quitadoDepois > 0.009 && (
                       <p className="text-[10px] text-muted-foreground">
@@ -352,7 +241,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-[10px] text-muted-foreground">Falta</p>
+                    <p className="text-[10px] text-muted-foreground">Total a receber</p>
                     <p
                       className={`num font-semibold ${
                         a.pendente > 0.009
@@ -367,14 +256,14 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                   </div>
                 </div>
 
-                {ant && ant.restanteAnterior > 0.009 && (
-                  <p className="text-xs text-warning">
-                    + {brl(ant.restanteAnterior)} de meses anteriores
-                  </p>
+                {corte && a.pendente > 0.009 && (
+                  <div className="flex flex-wrap justify-between gap-2 border-t border-border/60 pt-2 text-xs">
+                    <span className="text-muted-foreground">Do período: {brl(a.pendenteMes)}</span>
+                    <span className="text-warning">Anteriores: {brl(a.restanteAnterior)}</span>
+                  </div>
                 )}
 
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs text-muted-foreground">{pct}% quitado</span>
+                <div className="flex items-center justify-end gap-2">
                   {!quitado && (
                     <NovoLancamento
                       tipo="repasse"
@@ -420,16 +309,16 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
           <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div>
-                <p className="text-[10px] text-muted-foreground">Faturado</p>
+                <p className="text-[10px] text-muted-foreground">Faturado no período</p>
                 <p className="num font-semibold">{brl(faturado)}</p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground">Recebido</p>
+                <p className="text-[10px] text-muted-foreground">Recebido no período</p>
                 <p className="num font-semibold text-success">{brl(recebidoPlataformas)}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] text-muted-foreground">Falta</p>
-                <p className="num font-semibold text-warning">{brl(pendenteTotal)}</p>
+                <p className="text-[10px] text-muted-foreground">Total a receber</p>
+                <p className="num font-semibold text-warning">{brl(aReceberGeral)}</p>
               </div>
             </div>
           </div>
@@ -441,21 +330,18 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
             <TableHeader>
               <TableRow>
                 <TableHead>Aplicativo</TableHead>
-                <TableHead className="text-right">Faturado</TableHead>
-                <TableHead className="text-right">Recebido</TableHead>
-                <TableHead className="text-right">Falta receber</TableHead>
-                <TableHead className="w-24 text-right">%</TableHead>
+                <TableHead className="text-right">Faturado no período</TableHead>
+                <TableHead className="text-right">Recebido no período</TableHead>
+                <TableHead className="text-right">Total a receber</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-36 text-right">Baixa</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {porApp.map((a) => {
-                const pct = a.faturado > 0 ? Math.min(100, Math.round((a.quitado / a.faturado) * 100)) : 100;
-                const quitado = a.faturado > 0.009 ? a.pendente <= 0.009 : a.recebido > 0.009;
-                const parcial = !quitado && a.quitado > 0.009;
-                const ant = conciliacao.find((c) => norm(c.app) === norm(a.app));
-
+                                const quitado = a.pendente <= 0.009;
+                const parcial = !quitado && (a.quitado > 0.009 || a.recebido > 0.009);
+    
                 const baixas = repasses
                   .filter((r) => norm(r.aplicativo) === norm(a.app))
                   .sort((x, y) => y.iso.localeCompare(x.iso));
@@ -464,9 +350,9 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                   <Fragment key={a.app}>
                     <TableRow key={a.app}>
                       <TableCell className="font-medium">
-                        <button
-                          type="button"
-                          className="flex items-center gap-1.5 text-left hover:text-primary"
+                        <Button
+                          variant="ghost"
+                          className="h-auto justify-start gap-1.5 p-0 text-left"
                           onClick={() => setAberto(expandido ? null : norm(a.app))}
                           aria-expanded={expandido}
                         >
@@ -477,7 +363,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                           {baixas.length > 0 && (
                             <span className="text-xs text-muted-foreground">({baixas.length})</span>
                           )}
-                        </button>
+                        </Button>
                       </TableCell>
                       <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
                       <TableCell className="num text-right text-success">
@@ -493,13 +379,13 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                         className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
                       >
                         {brl(a.pendente)}
-                        {ant && ant.restanteAnterior > 0.009 && (
-                          <span className="block text-xs text-warning">
-                            + {brl(ant.restanteAnterior)} de meses anteriores
+                        {corte && a.pendente > 0.009 && (
+                          <span className="block text-xs text-muted-foreground">
+                            Período: {brl(a.pendenteMes)}<br />
+                            <span className="text-warning">Anteriores: {brl(a.restanteAnterior)}</span>
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="num text-right text-muted-foreground">{pct}%</TableCell>
                       <TableCell>
                         <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
                           {quitado ? "Quitado" : parcial ? "Parcial" : "Pendente"}
@@ -526,7 +412,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                     </TableRow>
                     {expandido && (
                       <TableRow key={`${a.app}-baixas`} className="bg-muted/30 hover:bg-muted/30">
-                        <TableCell colSpan={7} className="p-0">
+                        <TableCell colSpan={6} className="p-0">
                           {baixas.length === 0 ? (
                             <p className="px-4 py-3 text-sm text-muted-foreground">
                               Nenhuma baixa registrada para {a.app} neste período.
@@ -559,25 +445,20 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                   {brl(recebidoPlataformas)}
                 </TableCell>
                 <TableCell className="num text-right font-semibold text-warning">
-                  {brl(pendenteTotal)}
+                  {brl(aReceberGeral)}
                 </TableCell>
-                <TableCell />
                 <TableCell />
                 <TableCell />
               </TableRow>
             </TableBody>
           </Table>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Quando o app paga o mês passado junto com o atual, o valor recebido a mais abate
-          automaticamente a dívida antiga. A receber no total: <strong>{brl(aReceberGeral)}</strong>.
-        </p>
       </SectionCard>
 
       <div className="rounded-lg border border-border/60">
-        <button
-          type="button"
-          className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left text-sm font-medium hover:text-primary"
+        <Button
+          variant="ghost"
+          className="h-auto w-full justify-between gap-2 whitespace-normal px-4 py-3 text-left text-sm font-medium"
           onClick={() => setDetalhesAbertos((v) => !v)}
           aria-expanded={detalhesAbertos}
         >
@@ -585,7 +466,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
           <ChevronRight
             className={`size-4 shrink-0 transition-transform ${detalhesAbertos ? "rotate-90" : ""}`}
           />
-        </button>
+        </Button>
 
         {detalhesAbertos && (
           <div className="flex flex-col gap-4 border-t border-border/60 p-4">
