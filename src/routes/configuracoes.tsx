@@ -159,7 +159,7 @@ function ConfiguracoesPage() {
       <PageHeader title="Configurações" subtitle="Seus dados e veículos do app" />
       <AtalhoPaginas />
 
-      <div className="panel divide-y divide-border p-1 md:hidden">
+      <div className="panel divide-y divide-border p-1">
         {[
           { to: "/premium", label: "Seja Premium", icon: Crown, destaque: true },
           ...(usuario?.isAdmin ? [{ to: "/admin", label: "Administração", icon: Shield, destaque: true }] : []),
@@ -167,6 +167,7 @@ function ConfiguracoesPage() {
           { to: "/despesas", label: "Despesas", icon: Receipt },
           { to: "/manutencao", label: "Manutenção", icon: Wrench },
           { to: "/repasses", label: "Recebimento / Repasse", icon: Wallet },
+          { to: "/lancamentos", label: "Todos os lançamentos", icon: Receipt },
         ].map((i) => (
           <Link key={i.to} to={i.to} className="flex items-center gap-3 px-3 py-3 text-sm">
             <i.icon className={i.destaque ? "size-4 text-primary" : "size-4 text-muted-foreground"} />
