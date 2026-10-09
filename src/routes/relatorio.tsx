@@ -26,7 +26,6 @@ import {
   YAxis,
 } from "recharts";
 
-import { RepassesContent } from "@/components/repasses-content";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
@@ -158,7 +157,6 @@ function RelatorioPage() {
   const [tipo, setTipo] = useState<TipoFiltro>("todos");
   const [veiculo, setVeiculo] = useState("");
   const [aba, setAba] = useState("geral");
-  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
 
   const filtrosAtivos = [
     busca.trim() && `"${busca.trim()}"`,
@@ -178,7 +176,7 @@ function RelatorioPage() {
   const filtrarPor = (texto: string, t: TipoFiltro) => {
     setBusca(texto);
     setTipo(t);
-    setFiltrosAbertos(true);
+
     if (t !== "todos") setAba(ABA_DO_TIPO[t]);
   };
 
