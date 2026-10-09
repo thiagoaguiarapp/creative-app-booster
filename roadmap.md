@@ -1,9 +1,9 @@
 # Roadmap — Rota Control
 
 ## Ajustes do Financeiro
-- [ ] Integrar repasses no Financeiro mantendo conciliação e ações existentes.
-- [ ] Mostrar o gráfico de evolução acima das listagens por período.
-- [ ] Incluir Todos os lançamentos no Perfil para edição.
+- [x] Integrar repasses no Financeiro mantendo conciliação e ações existentes.
+- [x] Mostrar o gráfico de evolução acima das listagens por período.
+- [x] Incluir Todos os lançamentos no Perfil para edição.
 
 ## Anúncios
 
