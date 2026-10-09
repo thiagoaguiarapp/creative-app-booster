@@ -430,3 +430,23 @@ function infoLancamento(item: LancamentoHoje) {
       return { Icone: HandCoins, positivo: true, titulo: `Repasse ${item.data.aplicativo}`, sub: item.data.forma || "—", valor: item.data.valor };
   }
 }
+
+function MiniMetrica({
+  icone: Icone,
+  rotulo,
+  valor,
+  cor,
+}: {
+  icone?: typeof Package;
+  rotulo: string;
+  valor: string;
+  cor?: string;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5 px-2 first:pl-0 last:pr-0">
+      {Icone && <Icone className="size-4 text-primary" />}
+      <span className="truncate text-[10px] text-muted-foreground">{rotulo}</span>
+      <span className={cn("num truncate text-sm font-semibold", cor)}>{valor}</span>
+    </div>
+  );
+}
