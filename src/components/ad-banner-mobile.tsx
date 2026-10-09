@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useRouteContext } from "@tanstack/react-router";
 
-import { ADMOB_BANNER_INICIO_ID_ANDROID, ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
+import { ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
 
 /**
  * Banner do AdMob ancorado na parte inferior, exibido apenas para usuários
