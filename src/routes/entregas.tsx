@@ -4,6 +4,13 @@ import { useMemo, useState } from "react";
 
 import { AcoesLancamento, NovoLancamento } from "@/components/lancamento-form";
 import { PageHeader, SectionCard } from "@/components/shell";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  filtrarEntregas,
+  isoLocal,
+  type PeriodoEntregas,
+} from "@/lib/entregas-filtro";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
@@ -28,41 +35,34 @@ export const Route = createFileRoute("/entregas")({
   component: EntregasPage,
 });
 
-type Periodo = "hoje" | "semana" | "mes" | "tudo";
+const PERIODOS: [PeriodoEntregas, string][] = [
+  ["hoje", "Hoje"],
+  ["semana", "Semana"],
+  ["mes", "Mês"],
+  ["tudo", "Tudo"],
+  ["personalizado", "Personalizado"],
+];
 
-function isoLocal(d: Date) {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-
-function inicioPeriodo(p: Periodo): string {
-  const d = new Date();
-  if (p === "hoje") return isoLocal(d);
-  if (p === "semana") {
-    const dia = (d.getDay() + 6) % 7; // segunda = 0
-    d.setDate(d.getDate() - dia);
-    return isoLocal(d);
-  }
-  if (p === "mes") return isoLocal(new Date(d.getFullYear(), d.getMonth(), 1));
-  return "";
+function brData(s: string) {
+  return s ? s.split("-").reverse().join("/") : "—";
 }
 
 function EntregasPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const [periodo, setPeriodo] = useState<Periodo>("semana");
+  const [periodo, setPeriodo] = useState<PeriodoEntregas>("semana");
   const [app, setApp] = useState("todos");
+  const [de, setDe] = useState(() => isoLocal(new Date()));
+  const [ate, setAte] = useState(() => isoLocal(new Date()));
 
   const apps = useMemo(
     () => Array.from(new Set(data.ganhos.map((g) => g.plataforma).filter(Boolean))).sort(),
     [data.ganhos],
   );
 
-  const lista = useMemo(() => {
-    const ini = inicioPeriodo(periodo);
-    return data.ganhos
-      .filter((g) => (!ini || (g.iso ?? "") >= ini) && (app === "todos" || g.plataforma === app))
-      .sort((a, b) => (b.iso ?? "").localeCompare(a.iso ?? ""));
-  }, [data.ganhos, periodo, app]);
+  const lista = useMemo(
+    () => filtrarEntregas(data.ganhos, { periodo, app, de, ate }),
+    [data.ganhos, periodo, app, de, ate],
+  );
 
   const total = lista.reduce((s, g) => s + (g.faturamento || 0), 0);
   const qtd = lista.reduce((s, g) => s + (Number(g.corridas) || 0), 0);
@@ -96,19 +96,42 @@ function EntregasPage() {
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {(
-          [
-            ["hoje", "Hoje"],
-            ["semana", "Semana"],
-            ["mes", "Mês"],
-            ["tudo", "Tudo"],
-          ] as [Periodo, string][]
-        ).map(([p, r]) => (
+        {PERIODOS.map(([p, r]) => (
           <button key={p} type="button" className={chip(periodo === p)} onClick={() => setPeriodo(p)}>
             {r}
           </button>
         ))}
       </div>
+
+      {periodo === "personalizado" && (
+        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-3">
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="entregas-de" className="text-xs text-muted-foreground">
+              Do dia
+            </Label>
+            <Input
+              id="entregas-de"
+              type="date"
+              value={de}
+              onChange={(e) => setDe(e.target.value)}
+              className="h-9 w-40 text-sm"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="entregas-ate" className="text-xs text-muted-foreground">
+              Até o dia
+            </Label>
+            <Input
+              id="entregas-ate"
+              type="date"
+              value={ate}
+              onChange={(e) => setAte(e.target.value)}
+              className="h-9 w-40 text-sm"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-2 overflow-x-auto pb-1">
         <button type="button" className={chip(app === "todos")} onClick={() => setApp("todos")}>
           Todos os apps
@@ -120,7 +143,12 @@ function EntregasPage() {
         ))}
       </div>
 
-      <SectionCard title={`${lista.length} registro(s)`}>
+      <SectionCard
+        title={`${lista.length} registro(s)`}
+        {...(periodo === "personalizado"
+          ? { description: `Buscando de ${brData(de)} até ${brData(ate)}` }
+          : {})}
+      >
         <div className="mb-3">
           <NovoLancamento tipo="ganho" />
         </div>
