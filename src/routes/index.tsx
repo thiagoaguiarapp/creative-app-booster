@@ -24,6 +24,8 @@ export const Route = createFileRoute("/")({
           "Controle ganhos por plataforma, abastecimento, despesas, manutenção da moto e repasses. Relatórios por período e alertas de manutenção. Grátis para começar.",
       },
       { property: "og:title", content: "No Corre — Gestão financeira para entregadores" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         property: "og:description",
         content:
