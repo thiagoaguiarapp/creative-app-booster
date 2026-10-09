@@ -301,7 +301,8 @@ function RelatorioPage() {
 
 
   const r2 = (v: number) => Math.round(v * 100) / 100;
-  const meses = [...r.porMes].reverse();
+  const meses = r.serie;
+  const quando = r.diario ? "dia a dia" : "mês a mês";
   const graficoUnico = (titulo: string, desc: string, nome: string, cor: string, valor: (m: (typeof meses)[number]) => number, litros = false) => (
     <SectionCard title={titulo} description={desc}>
       {meses.every((m) => valor(m) === 0) ? (
@@ -310,7 +311,7 @@ function RelatorioPage() {
         <div className="h-64 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={meses.map((m) => ({ mes: rotuloMes(m.mes), [nome]: r2(valor(m)), Litros: r2(m.litros) }))}
+              data={meses.map((m) => ({ mes: m.rotulo, [nome]: r2(valor(m)), Litros: r2(m.litros) }))}
               margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -321,7 +322,7 @@ function RelatorioPage() {
                 contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey={nome} stroke={cor} strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey={nome} stroke={cor} strokeWidth={2} dot={r.diario ? false : { r: 3 }} />
               {litros && <Line type="monotone" dataKey="Litros" stroke="transparent" legendType="none" dot={false} activeDot={false} />}
             </LineChart>
           </ResponsiveContainer>
@@ -329,20 +330,20 @@ function RelatorioPage() {
       )}
     </SectionCard>
   );
-  const grafDespesa = graficoUnico("Evolução das despesas", "Gastos operacionais mês a mês", "Despesas", "var(--destructive)", (m) => m.desp);
-  const grafManut = graficoUnico("Evolução da manutenção", "Gastos com oficina e peças mês a mês", "Manutenção", "var(--warning, var(--chart-3))", (m) => m.manut);
-  const grafAbast = graficoUnico("Evolução do combustível", "Valor abastecido mês a mês (toque para ver os litros)", "Combustível", "var(--primary)", (m) => m.comb, true);
+  const grafDespesa = graficoUnico("Evolução das despesas", `Gastos operacionais ${quando}`, "Despesas", "var(--destructive)", (m) => m.desp);
+  const grafManut = graficoUnico("Evolução da manutenção", `Gastos com oficina e peças ${quando}`, "Manutenção", "var(--warning, var(--chart-3))", (m) => m.manut);
+  const grafAbast = graficoUnico("Evolução do combustível", `Valor abastecido ${quando} (toque para ver os litros)`, "Combustível", "var(--primary)", (m) => m.comb, true);
 
   const evolucao = (
-    <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
+    <SectionCard title="Evolução" description={`Faturamento, custos e lucro ${quando}`}>
       {r.porMes.length < 1 ? (
         <p className="text-sm text-muted-foreground">Sem dados no período.</p>
       ) : (
         <div className="h-64 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={[...r.porMes].reverse().map((m) => ({
-                mes: rotuloMes(m.mes),
+              data={r.serie.map((m) => ({
+                mes: m.rotulo,
                 Faturamento: Math.round(m.fat * 100) / 100,
                 Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
                 Lucro: Math.round(m.lucro * 100) / 100,
