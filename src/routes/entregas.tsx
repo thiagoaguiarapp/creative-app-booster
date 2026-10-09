@@ -78,17 +78,21 @@ function EntregasPage() {
     <div className="mx-auto w-full max-w-3xl min-w-0 space-y-4">
       <PageHeader title="Entregas" subtitle="Suas corridas e entregas por app." />
 
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          ["Faturado", brl(total)],
-          ["Entregas", String(qtd)],
-          ["Ticket médio", qtd > 0 ? brl(ticket) : "—"],
-        ].map(([r, v]) => (
-          <div key={r} className="min-w-0 rounded-xl border border-border bg-card p-3">
-            <p className="text-[11px] text-muted-foreground">{r}</p>
-            <p className="truncate text-base font-semibold">{v}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1.7fr_1fr_1fr]">
+        <div className="col-span-2 min-w-0 rounded-xl border border-border bg-primary/10 p-3 sm:col-span-1 sm:row-span-2">
+          <p className="text-[11px] text-muted-foreground">Faturado</p>
+          <p className="whitespace-nowrap text-2xl font-semibold tracking-tight sm:text-[1.75rem]">
+            {brl(total)}
+          </p>
+        </div>
+        <div className="min-w-0 rounded-xl border border-border bg-card p-3">
+          <p className="text-[11px] text-muted-foreground">Entregas</p>
+          <p className="truncate text-lg font-semibold">{qtd}</p>
+        </div>
+        <div className="min-w-0 rounded-xl border border-border bg-card p-3">
+          <p className="text-[11px] text-muted-foreground">Ticket médio</p>
+          <p className="truncate text-lg font-semibold">{qtd > 0 ? brl(ticket) : "—"}</p>
+        </div>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
