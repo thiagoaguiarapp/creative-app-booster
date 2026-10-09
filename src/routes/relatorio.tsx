@@ -166,6 +166,11 @@ function RelatorioPage() {
   }, [data]);
 
   const filtrarPor = (texto: string, t: TipoFiltro) => {
+    if (busca === texto) {
+      setBusca("");
+      setTipo("todos");
+      return;
+    }
     setBusca(texto);
     setTipo(t);
 
@@ -334,6 +339,16 @@ function RelatorioPage() {
   const grafManut = graficoUnico("Evolução da manutenção", `Gastos com oficina e peças ${quando}`, "Manutenção", "var(--warning, var(--chart-3))", (m) => m.manut);
   const grafAbast = graficoUnico("Evolução do combustível", `Valor abastecido ${quando} (toque para ver os litros)`, "Combustível", "var(--primary)", (m) => m.comb, true);
 
+  const limparAqui = busca ? (
+    <button
+      type="button"
+      onClick={() => { setBusca(""); setTipo("todos"); }}
+      className="mt-3 inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium text-primary"
+    >
+      ✕ Limpar filtro "{busca}"
+    </button>
+  ) : null;
+
   const evolucao = (
     <SectionCard title="Evolução" description={`Faturamento, custos e lucro ${quando}`}>
       {r.porMes.length < 1 ? (
@@ -480,9 +495,11 @@ function RelatorioPage() {
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
               <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
+              {limparAqui}
             </SectionCard>
             <SectionCard title="Despesas por categoria">
               <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
+              {limparAqui}
             </SectionCard>
           </div>
 
@@ -545,6 +562,7 @@ function RelatorioPage() {
           {grafDespesa}
           <SectionCard title="Despesas por categoria">
             <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
+              {limparAqui}
           </SectionCard>
           <TabelaLista
             titulo="Despesas do período"
