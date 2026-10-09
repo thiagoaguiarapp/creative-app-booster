@@ -3,10 +3,10 @@
 // aparelhos com versão antiga recebam o aviso de atualização.
 
 /** versionCode publicado atualmente na Play Store (android/app/build.gradle). */
-export const VERSAO_NATIVA_MAIS_RECENTE = 7;
+export const VERSAO_NATIVA_MAIS_RECENTE = 8;
 
 /** versionName exibido para o usuário. */
-export const VERSAO_NATIVA_MAIS_RECENTE_NOME = "1.0.6";
+export const VERSAO_NATIVA_MAIS_RECENTE_NOME = "1.0.7";
 
 /**
  * Versão mínima aceita. Aparelhos abaixo disso veem um aviso obrigatório
