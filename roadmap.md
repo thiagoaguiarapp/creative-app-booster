@@ -1,5 +1,10 @@
 # Roadmap — Rota Control
 
+## Ajustes do Financeiro
+- [x] Integrar repasses no Financeiro mantendo conciliação e ações existentes.
+- [x] Mostrar o gráfico de evolução acima das listagens por período.
+- [x] Incluir Todos os lançamentos no Perfil para edição.
+
 ## Anúncios
 
 - [x] Reativar Google AdSense no site (web) para usuários Free (`ca-pub-2715745778380480`).
