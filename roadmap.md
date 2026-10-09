@@ -12,6 +12,7 @@
 
 ## Anúncios
 
+- [x] Configurar bloco Android específico do Início, preservando o banner das demais telas e a isenção Premium.
 - [x] Reativar Google AdSense no site (web) para usuários Free (`ca-pub-2715745778380480`).
 - [x] Usuários Premium não veem anúncios no site (mesma regra do app nativo).
 - [x] Instalar Capacitor (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android`) e `@capacitor-community/admob`.
