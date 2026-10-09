@@ -94,6 +94,20 @@ type LancamentoHoje =
   | { tipo: "despesa"; data: Despesa }
   | { tipo: "repasse"; data: Repasse };
 
+type AtalhoRapido = {
+  to: "/abastecimento" | "/manutencao" | "/despesas" | "/repasses";
+  label: string;
+  label2?: string;
+  icon: typeof Fuel;
+};
+
+const atalhosRapidos: AtalhoRapido[] = [
+  { to: "/abastecimento", label: "Abastecer", icon: Fuel },
+  { to: "/manutencao", label: "Manutenção", icon: Wrench },
+  { to: "/despesas", label: "Lançar despesa", icon: Receipt },
+  { to: "/repasses", label: "Adiantamento", label2: "Repasse", icon: HandCoins },
+];
+
 
 function Home() {
   const { data } = useSuspenseQuery(painelQueryOptions());
