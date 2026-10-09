@@ -720,7 +720,13 @@ function ListaTiposRapidos({ onEscolher }: { onEscolher: (item: ItemRapido) => v
 }
 
 /** Botão único que abre um menu rápido para escolher o tipo de lançamento. */
-export function NovoLancamentoRapido({ className }: { className?: string }) {
+export function NovoLancamentoRapido({
+  className,
+  trigger,
+}: {
+  className?: string;
+  trigger?: (abrir: () => void) => React.ReactNode;
+}) {
   const [menu, setMenu] = useState(false);
   const [item, setItem] = useState<ItemRapido | null>(null);
   const isMobile = useIsMobile();
@@ -732,13 +738,17 @@ export function NovoLancamentoRapido({ className }: { className?: string }) {
 
   return (
     <>
-      <Button
-        size="lg"
-        onClick={() => setMenu(true)}
-        {...(className ? { className } : {})}
-      >
-        <Plus className="size-5" /> Novo lançamento
-      </Button>
+      {trigger ? (
+        trigger(() => setMenu(true))
+      ) : (
+        <Button
+          size="lg"
+          onClick={() => setMenu(true)}
+          {...(className ? { className } : {})}
+        >
+          <Plus className="size-5" /> Novo lançamento
+        </Button>
+      )}
 
       {isMobile ? (
         <Sheet open={menu} onOpenChange={setMenu}>
