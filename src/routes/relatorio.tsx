@@ -166,6 +166,11 @@ function RelatorioPage() {
   }, [data]);
 
   const filtrarPor = (texto: string, t: TipoFiltro) => {
+    if (busca === texto) {
+      setBusca("");
+      setTipo("todos");
+      return;
+    }
     setBusca(texto);
     setTipo(t);
 
@@ -234,9 +239,29 @@ function RelatorioPage() {
       .map(([mes, v]) => ({ mes, ...v, lucro: v.fat - v.comb - v.desp - v.manut }))
       .sort((a, b) => b.mes.localeCompare(a.mes));
 
+    // série do gráfico: dia a dia quando o período cabe em ~2 meses, senão mês a mês
+    const vazio = () => ({ fat: 0, comb: 0, desp: 0, manut: 0, corridas: 0, litros: 0 });
+    const diario = !!de && !!ate && (new Date(ate).getTime() - new Date(de).getTime()) / 864e5 <= 62;
+    let serie: { mes: string; rotulo: string; fat: number; comb: number; desp: number; manut: number; corridas: number; litros: number; lucro: number }[];
+    if (diario) {
+      const dias = new Map<string, ReturnType<typeof vazio>>();
+      const d0 = new Date(`${de}T12:00:00`);
+      const d1 = new Date(`${ate}T12:00:00`);
+      for (let d = d0; d <= d1; d = new Date(d.getTime() + 864e5)) {
+        dias.set(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`, vazio());
+      }
+      for (const g of ganhos) { const b = dias.get(g.iso); if (b) { b.fat += g.faturamento; b.corridas += g.corridas; } }
+      for (const a of abast) { const b = dias.get(a.iso); if (b) { b.comb += a.valorPago; b.litros += a.litros; } }
+      for (const x of despesasCusto) { const b = dias.get(x.iso); if (b) b.desp += x.valor; }
+      for (const m of manutCusto) { const b = dias.get(m.iso); if (b) b.manut += m.valor; }
+      serie = [...dias.entries()].map(([k, v]) => ({ mes: k, rotulo: `${k.slice(8, 10)}/${k.slice(5, 7)}`, ...v, lucro: v.fat - v.comb - v.desp - v.manut }));
+    } else {
+      serie = [...porMes].reverse().map((m) => ({ ...m, rotulo: rotuloMes(m.mes) }));
+    }
+
     return {
       faturamento, corridas, recebido, combustivel, litros, km, outras,
-      manutencao, custos, lucro, porPlataforma, porCategoria, porMes,
+      manutencao, custos, lucro, porPlataforma, porCategoria, porMes, serie, diario,
       listas: { ganhos, abast, despesas: despesasCusto, repasses, manut: manutCusto },
       qtd: { ganhos: ganhos.length, abast: abast.length, despesas: despesas.length, repasses: repasses.length, manut: manut.length },
     };
@@ -281,7 +306,8 @@ function RelatorioPage() {
 
 
   const r2 = (v: number) => Math.round(v * 100) / 100;
-  const meses = [...r.porMes].reverse();
+  const meses = r.serie;
+  const quando = r.diario ? "dia a dia" : "mês a mês";
   const graficoUnico = (titulo: string, desc: string, nome: string, cor: string, valor: (m: (typeof meses)[number]) => number, litros = false) => (
     <SectionCard title={titulo} description={desc}>
       {meses.every((m) => valor(m) === 0) ? (
@@ -290,7 +316,7 @@ function RelatorioPage() {
         <div className="h-64 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={meses.map((m) => ({ mes: rotuloMes(m.mes), [nome]: r2(valor(m)), Litros: r2(m.litros) }))}
+              data={meses.map((m) => ({ mes: m.rotulo, [nome]: r2(valor(m)), Litros: r2(m.litros) }))}
               margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -301,7 +327,7 @@ function RelatorioPage() {
                 contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey={nome} stroke={cor} strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey={nome} stroke={cor} strokeWidth={2} dot={r.diario ? false : { r: 3 }} />
               {litros && <Line type="monotone" dataKey="Litros" stroke="transparent" legendType="none" dot={false} activeDot={false} />}
             </LineChart>
           </ResponsiveContainer>
@@ -309,20 +335,30 @@ function RelatorioPage() {
       )}
     </SectionCard>
   );
-  const grafDespesa = graficoUnico("Evolução das despesas", "Gastos operacionais mês a mês", "Despesas", "var(--destructive)", (m) => m.desp);
-  const grafManut = graficoUnico("Evolução da manutenção", "Gastos com oficina e peças mês a mês", "Manutenção", "var(--warning, var(--chart-3))", (m) => m.manut);
-  const grafAbast = graficoUnico("Evolução do combustível", "Valor abastecido mês a mês (toque para ver os litros)", "Combustível", "var(--primary)", (m) => m.comb, true);
+  const grafDespesa = graficoUnico("Evolução das despesas", `Gastos operacionais ${quando}`, "Despesas", "var(--destructive)", (m) => m.desp);
+  const grafManut = graficoUnico("Evolução da manutenção", `Gastos com oficina e peças ${quando}`, "Manutenção", "var(--warning, var(--chart-3))", (m) => m.manut);
+  const grafAbast = graficoUnico("Evolução do combustível", `Valor abastecido ${quando} (toque para ver os litros)`, "Combustível", "var(--primary)", (m) => m.comb, true);
+
+  const limparAqui = busca ? (
+    <button
+      type="button"
+      onClick={() => { setBusca(""); setTipo("todos"); }}
+      className="mt-3 inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium text-primary"
+    >
+      ✕ Limpar filtro "{busca}"
+    </button>
+  ) : null;
 
   const evolucao = (
-    <SectionCard title="Evolução" description="Faturamento, custos e lucro mês a mês">
+    <SectionCard title="Evolução" description={`Faturamento, custos e lucro ${quando}`}>
       {r.porMes.length < 1 ? (
         <p className="text-sm text-muted-foreground">Sem dados no período.</p>
       ) : (
         <div className="h-64 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
-              data={[...r.porMes].reverse().map((m) => ({
-                mes: rotuloMes(m.mes),
+              data={r.serie.map((m) => ({
+                mes: m.rotulo,
                 Faturamento: Math.round(m.fat * 100) / 100,
                 Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
                 Lucro: Math.round(m.lucro * 100) / 100,
@@ -459,9 +495,11 @@ function RelatorioPage() {
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
               <Barras itens={r.porPlataforma} total={r.faturamento} onEscolher={(n) => filtrarPor(n, "todos")} ativo={busca} />
+              {limparAqui}
             </SectionCard>
             <SectionCard title="Despesas por categoria">
               <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
+              {limparAqui}
             </SectionCard>
           </div>
 
@@ -524,6 +562,7 @@ function RelatorioPage() {
           {grafDespesa}
           <SectionCard title="Despesas por categoria">
             <Barras itens={r.porCategoria} total={r.outras} onEscolher={(n) => filtrarPor(n, "despesa")} ativo={busca} />
+              {limparAqui}
           </SectionCard>
           <TabelaLista
             titulo="Despesas do período"
