@@ -76,7 +76,7 @@ function EntregasPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl min-w-0 space-y-4">
-      <PageHeader title="Entregas" description="Suas corridas e entregas por app." />
+      <PageHeader title="Entregas" subtitle="Suas corridas e entregas por app." />
 
       <div className="grid grid-cols-3 gap-2">
         {[
