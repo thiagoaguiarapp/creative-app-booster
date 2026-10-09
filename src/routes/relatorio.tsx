@@ -382,69 +382,107 @@ function RelatorioPage() {
         )}
       </SectionCard>
 
-      <SectionCard title="Buscar e filtrar" description="Cruze a busca com o tipo de lançamento — os totais se recalculam na hora">
-        <div className="flex flex-col gap-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="App, posto, categoria, serviço ou descrição…"
-              className="h-10 pl-9 pr-9 text-sm"
-            />
-            {busca && (
-              <button
-                type="button"
-                aria-label="Limpar busca"
-                onClick={() => setBusca("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-              >
-                <X className="size-4" />
-              </button>
+      <Collapsible
+        open={filtrosAbertos}
+        onOpenChange={setFiltrosAbertos}
+        className="panel overflow-hidden"
+      >
+        <CollapsibleTrigger className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted/40 sm:px-5 sm:py-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/15 text-primary">
+            <Search className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-display text-sm font-semibold uppercase tracking-wide sm:text-lg">
+              Buscar e filtrar
+            </span>
+            <span className="block truncate text-[10px] text-muted-foreground sm:text-xs">
+              {filtrando
+                ? `Filtrando: ${resumoFiltros}`
+                : "Toque para buscar por app, posto, categoria ou serviço"}
+            </span>
+          </span>
+          {filtrando && (
+            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+              {filtrosAtivos.length}
+            </span>
+          )}
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform",
+              filtrosAbertos && "rotate-180",
             )}
+          />
+        </CollapsibleTrigger>
+
+        {filtrando && (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-primary/10 px-3 py-2 text-xs">
+            <span className="min-w-0">
+              {resumoFiltros}
+              {" — "}resultado {brl(r.lucro)} líquido
+            </span>
+            <button
+              type="button"
+              className="shrink-0 font-medium text-primary"
+              onClick={() => {
+                setBusca("");
+                setTipo("todos");
+                setVeiculo("");
+              }}
+            >
+              Limpar filtros
+            </button>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {TIPOS_FILTRO.map((t) => (
-              <Button
-                key={t}
-                size="sm"
-                className="h-8 text-xs"
-                variant={tipo === t ? "default" : "secondary"}
-                onClick={() => {
-                  setTipo(t);
-                  if (t !== "todos") setAba(ABA_DO_TIPO[t]);
-                }}
-              >
-                {ROTULO_TIPO[t]}
-              </Button>
-            ))}
-          </div>
-          {veiculos.length > 1 && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Veículo:</span>
-              <Button size="sm" className="h-7 text-xs" variant={!veiculo ? "default" : "outline"} onClick={() => setVeiculo("")}>Todos</Button>
-              {veiculos.map((v) => (
-                <Button key={v} size="sm" className="h-7 text-xs" variant={veiculo === v ? "default" : "outline"} onClick={() => setVeiculo(v)}>{v}</Button>
+        )}
+
+        <CollapsibleContent>
+          <div className="flex flex-col gap-3 border-t border-border p-3 sm:p-5">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="App, posto, categoria, serviço ou descrição…"
+                className="h-10 pl-9 pr-9 text-sm"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  aria-label="Limpar busca"
+                  onClick={() => setBusca("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {TIPOS_FILTRO.map((t) => (
+                <Button
+                  key={t}
+                  size="sm"
+                  className="h-8 text-xs"
+                  variant={tipo === t ? "default" : "secondary"}
+                  onClick={() => {
+                    setTipo(t);
+                    if (t !== "todos") setAba(ABA_DO_TIPO[t]);
+                  }}
+                >
+                  {ROTULO_TIPO[t]}
+                </Button>
               ))}
             </div>
-          )}
-          {(busca || tipo !== "todos" || veiculo) && (
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-primary/10 px-3 py-2 text-xs">
-              <span>
-                Filtrando: {[busca && `"${busca}"`, tipo !== "todos" && ROTULO_TIPO[tipo], veiculo].filter(Boolean).join(" · ")}
-                {" — "}resultado {brl(r.lucro)} líquido
-              </span>
-              <button
-                type="button"
-                className="font-medium text-primary"
-                onClick={() => { setBusca(""); setTipo("todos"); setVeiculo(""); }}
-              >
-                Limpar filtros
-              </button>
-            </div>
-          )}
-        </div>
-      </SectionCard>
+            {veiculos.length > 1 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground">Veículo:</span>
+                <Button size="sm" className="h-7 text-xs" variant={!veiculo ? "default" : "outline"} onClick={() => setVeiculo("")}>Todos</Button>
+                {veiculos.map((v) => (
+                  <Button key={v} size="sm" className="h-7 text-xs" variant={veiculo === v ? "default" : "outline"} onClick={() => setVeiculo(v)}>{v}</Button>
+                ))}
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <Tabs value={aba} onValueChange={setAba}>
         <div className="-mx-3 overflow-x-auto px-3 print:hidden sm:mx-0 sm:px-0">
