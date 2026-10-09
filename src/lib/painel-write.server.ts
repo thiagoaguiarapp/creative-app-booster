@@ -241,8 +241,22 @@ export async function salvarLancamento(
       const { selectAll } = await import("./db.server");
       const linhas = await selectAll(TABELAS.abastecimento, userId);
       const atual = linhas.find((l) => txt(l["ID"]) === txt(row));
-      const baixa = leDataPago(txt(atual?.["POSTO"] ?? atual?.["Posto"] ?? ""));
-      if (baixa) linha["POSTO"] = `${txt(linha["POSTO"] as string)} ${marcaPago(baixa)}`.trim();
+      const postoAtual = txt(atual?.["POSTO"] ?? atual?.["Posto"] ?? "");
+      let postoNovo = txt(linha["POSTO"] as string);
+      // edição sem os campos de parcela: preserva as marcas "[parcelas N]" e "[primeira ...]"
+      if (/credito|crédito/i.test(txt(valores["pagamento"] ?? ""))) {
+        if (!/\[parcelas \d+\]/i.test(postoNovo)) {
+          const m = /\[parcelas \d+\]/i.exec(postoAtual);
+          if (m) postoNovo = `${postoNovo} ${m[0]}`;
+        }
+        if (!/\[primeira \d{2}\/\d{2}\/\d{4}\]/i.test(postoNovo)) {
+          const m = /\[primeira \d{2}\/\d{2}\/\d{4}\]/i.exec(postoAtual);
+          if (m) postoNovo = `${postoNovo} ${m[0]}`;
+        }
+      }
+      const baixa = leDataPago(postoAtual);
+      if (baixa) postoNovo = `${postoNovo} ${marcaPago(baixa)}`.trim();
+      linha["POSTO"] = postoNovo.trim();
     }
     await atualizar(mapa.tabela, row, linha, userId);
     return;
