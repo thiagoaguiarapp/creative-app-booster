@@ -279,6 +279,7 @@ function FormularioDialog({
   const plataformas = usePlataformas(tipo);
   const formas = useFormas();
   const categorias = useCategorias();
+  const postos = usePostos();
   const servicos = useServicos();
   const [servicoOutro, setServicoOutro] = useState(false);
   const [veiculoOutro, setVeiculoOutro] = useState(false);
@@ -589,7 +590,9 @@ function FormularioDialog({
                         ? categorias.servicos
                         : campo.sugestoes === "combustivel"
                           ? categorias.combustiveis
-                          : plataformas
+                          : campo.sugestoes === "posto"
+                            ? postos
+                            : plataformas
                   ).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}
