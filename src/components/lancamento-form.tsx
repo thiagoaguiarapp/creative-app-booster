@@ -505,9 +505,7 @@ function FormularioDialog({
                       })
                     }
                   />
-                  <span className="text-muted-foreground">
-                    {(valores[campo.key] ?? "") === "Sim" ? "Sim" : "Não"}
-                  </span>
+                  <span className="text-muted-foreground">Sim</span>
                 </label>
               ) : campo.tipo === "select" ? (
                 <Select
