@@ -227,7 +227,7 @@ function Home() {
           { to: "/abastecimento", label: "Abastecer", icon: Fuel },
           { to: "/manutencao", label: "Manutenção", icon: Wrench },
           { to: "/despesas", label: "Lançar despesa", icon: Receipt },
-          { to: "/repasses", label: "Repasses", icon: HandCoins },
+          { to: "/repasses", label: "Adiantamento/Repasse", icon: HandCoins },
         ].map((a) => (
           <Link
             key={a.to}
