@@ -36,6 +36,6 @@ describe("conciliação unificada de recebimentos", () => {
       ganho("Gorjeta", "2026-10-01", 20),
     ], [repasse("99", "2026-10-02", 120)], () => true, null);
     expect(lista).toHaveLength(1);
-    expect(lista[0]).toMatchObject({ restanteAnterior: 0, pendente: 30 });
+    expect(lista[0]).toMatchObject({ faturado: 150, recebido: 120, restanteAnterior: 0, pendente: 30 });
   });
 });
