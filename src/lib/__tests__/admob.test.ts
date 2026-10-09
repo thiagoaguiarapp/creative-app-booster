@@ -14,7 +14,9 @@ vi.mock("@capacitor-community/admob", () => ({
   BannerAdSize: { ADAPTIVE_BANNER: "ADAPTIVE_BANNER" },
 }));
 
-import { ADMOB_BANNER_INICIO_ID_ANDROID, mostrarBanner } from "../admob";
+import { ADMOB_BANNER_ID_ANDROID, mostrarBanner } from "../admob";
+
+const BANNER_RODAPE = "ca-app-pub-2715745778380480/4859804306";
 
 describe("banner Android por tela", () => {
   beforeEach(() => {
@@ -22,18 +24,18 @@ describe("banner Android por tela", () => {
     mocks.showBanner.mockClear();
   });
 
-  it("envia o bloco informado para o Início", async () => {
-    expect(await mostrarBanner(ADMOB_BANNER_INICIO_ID_ANDROID)).toBe(true);
+  it("envia o bloco do rodapé também quando um bloco é informado", async () => {
+    expect(await mostrarBanner(ADMOB_BANNER_ID_ANDROID)).toBe(true);
     expect(mocks.showBanner).toHaveBeenCalledWith(expect.objectContaining({
-      adId: "ca-app-pub-2715745778380480/4345848739",
+      adId: BANNER_RODAPE,
       isTesting: false,
     }));
   });
 
-  it("preserva o banner das demais telas", async () => {
+  it("usa o mesmo bloco do rodapé nas demais telas", async () => {
     await mostrarBanner();
     expect(mocks.showBanner).toHaveBeenCalledWith(expect.objectContaining({
-      adId: "ca-app-pub-2715745778380480/4859804306",
+      adId: BANNER_RODAPE,
     }));
   });
 });
