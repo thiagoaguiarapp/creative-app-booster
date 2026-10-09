@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Bike,
+  ChevronDown,
   CircleDollarSign,
   Download,
   Fuel,
@@ -30,6 +31,11 @@ import { RepassesContent } from "@/components/repasses-content";
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -44,6 +50,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { paresDuplicados } from "@/lib/fechamento";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/relatorio")({
   head: () => ({
@@ -152,6 +159,15 @@ function RelatorioPage() {
   const [tipo, setTipo] = useState<TipoFiltro>("todos");
   const [veiculo, setVeiculo] = useState("");
   const [aba, setAba] = useState("geral");
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
+
+  const filtrosAtivos = [
+    busca.trim() && `"${busca.trim()}"`,
+    tipo !== "todos" && ROTULO_TIPO[tipo],
+    veiculo,
+  ].filter(Boolean) as string[];
+  const filtrando = filtrosAtivos.length > 0;
+  const resumoFiltros = filtrosAtivos.join(" · ");
 
   const veiculos = useMemo(() => {
     const set = new Set<string>();
@@ -163,6 +179,7 @@ function RelatorioPage() {
   const filtrarPor = (texto: string, t: TipoFiltro) => {
     setBusca(texto);
     setTipo(t);
+    setFiltrosAbertos(true);
     if (t !== "todos") setAba(ABA_DO_TIPO[t]);
   };
 
