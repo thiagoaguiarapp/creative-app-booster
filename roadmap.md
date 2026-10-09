@@ -1,6 +1,7 @@
 # Roadmap — Rota Control
 
 ## Ajustes do Financeiro
+- [ ] Unificar total a receber e incluir plataformas com pendências antigas na conciliação e em Dar baixa.
 - [x] Integrar repasses no Financeiro mantendo conciliação e ações existentes.
 - [x] Mostrar o gráfico de evolução acima das listagens por período.
 - [x] Incluir Todos os lançamentos no Perfil para edição.
