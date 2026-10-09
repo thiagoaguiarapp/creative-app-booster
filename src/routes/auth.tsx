@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { CampoSenha } from "@/components/campo-senha";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,7 +101,6 @@ function AuthPage() {
     }
   };
 
-
   const subtitulo =
     modo === "entrar"
       ? "Entre para ver seus lançamentos"
@@ -132,17 +132,14 @@ function AuthPage() {
             />
           </div>
           {modo !== "recuperar" && (
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="senha">Senha</Label>
-              <Input
-                id="senha"
-                type="password"
-                autoComplete={modo === "entrar" ? "current-password" : "new-password"}
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                placeholder="Mínimo de 6 caracteres"
-              />
-            </div>
+            <CampoSenha
+              id="senha"
+              label="Senha"
+              value={senha}
+              onChange={setSenha}
+              autoComplete={modo === "entrar" ? "current-password" : "new-password"}
+              placeholder="Mínimo de 6 caracteres"
+            />
           )}
           <Button type="submit" disabled={carregando}>
             {carregando
