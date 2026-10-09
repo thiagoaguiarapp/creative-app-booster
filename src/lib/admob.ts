@@ -4,11 +4,12 @@
  * Só funciona dentro do aplicativo Android/iOS compilado.
  * No navegador e no preview, todas as funções são no-op.
  *
- * IDs abaixo são os oficiais de TESTE do Google. Substitua pelos IDs
- * reais dos seus blocos de anúncio antes de publicar na Play Store.
+ * Banners Android usam os blocos reais. iOS e interstitial ainda usam
+ * os IDs de teste do Google; interstitial não está ativo nas telas.
  */
 
 export const ADMOB_BANNER_ID_ANDROID = "ca-app-pub-2715745778380480/4859804306";
+export const ADMOB_BANNER_INICIO_ID_ANDROID = "ca-app-pub-2715745778380480/4345848739";
 export const ADMOB_BANNER_ID_IOS = "ca-app-pub-3940256099942544/2934735716";
 export const ADMOB_INTERSTITIAL_ID_ANDROID = "ca-app-pub-3940256099942544/1033173712";
 export const ADMOB_INTERSTITIAL_ID_IOS = "ca-app-pub-3940256099942544/4411468910";
@@ -47,14 +48,14 @@ async function inicializar() {
 }
 
 /** Exibe o banner ancorado na parte inferior da tela. */
-export async function mostrarBanner(): Promise<boolean> {
+export async function mostrarBanner(adIdAndroid = ADMOB_BANNER_ID_ANDROID): Promise<boolean> {
   if (!(await ehAppNativo())) return false;
   try {
     await inicializar();
     const { AdMob, BannerAdPosition, BannerAdSize } = await import("@capacitor-community/admob");
     const plat = await plataforma();
     await AdMob.showBanner({
-      adId: plat === "ios" ? ADMOB_BANNER_ID_IOS : ADMOB_BANNER_ID_ANDROID,
+      adId: plat === "ios" ? ADMOB_BANNER_ID_IOS : adIdAndroid,
       adSize: BannerAdSize.ADAPTIVE_BANNER,
       position: BannerAdPosition.BOTTOM_CENTER,
       margin: 0,
