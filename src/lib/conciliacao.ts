@@ -153,6 +153,50 @@ export type SaldoPlataforma = {
   saldo: number;
 };
 
+/** Uma única lista para o período e as dívidas anteriores, já abatidas por FIFO. */
+export function conciliacaoRecebimentos(
+  ganhos: Ganho[],
+  repasses: Repasse[],
+  noPeriodo: (iso: string) => boolean,
+  corte: string | null,
+) {
+  const atuais = quitacaoPorApp(ganhos, repasses, noPeriodo);
+  const antigos = corte ? quitacaoPorApp(ganhos, repasses, (iso) => iso < corte) : null;
+  const movimentos = new Map<string, { app: string; recebido: number }>();
+  for (const g of ganhos) {
+    if (ehExtra(g.plataforma) || !noPeriodo(g.iso)) continue;
+    movimentos.set(normalizarPlataforma(g.plataforma), { app: g.plataforma, recebido: 0 });
+  }
+  for (const r of repasses) {
+    if (ehExtra(r.aplicativo) || !noPeriodo(r.iso)) continue;
+    const chave = normalizarPlataforma(r.aplicativo);
+    const item = movimentos.get(chave) ?? { app: r.aplicativo, recebido: 0 };
+    item.recebido += r.valor;
+    movimentos.set(chave, item);
+  }
+  const chaves = new Set([...movimentos.keys(), ...(antigos?.keys() ?? [])]);
+  return Array.from(chaves).map((chave) => {
+    const atual = atuais.get(chave);
+    const anterior = antigos?.get(chave);
+    const movimento = movimentos.get(chave);
+    const faturado = atual?.faturado ?? 0;
+    const quitado = atual?.quitado ?? 0;
+    const pendenteMes = Math.max(0, faturado - quitado);
+    const restanteAnterior = Math.max(0, (anterior?.faturado ?? 0) - (anterior?.quitado ?? 0));
+    return {
+      app: movimento?.app ?? anterior?.app ?? atual?.app ?? "—",
+      faturado,
+      recebido: movimento?.recebido ?? 0,
+      quitado,
+      quitadoDepois: atual?.quitadoDepois ?? 0,
+      pendenteMes,
+      restanteAnterior,
+      pendente: pendenteMes + restanteAnterior,
+    };
+  }).filter((a) => movimentos.has(normalizarPlataforma(a.app)) || a.pendente > 0.009)
+    .sort((a, b) => b.pendente - a.pendente || a.app.localeCompare(b.app, "pt-BR"));
+}
+
 /** Saldo histórico (sem filtro de período) por plataforma: faturado - recebido. */
 export function saldoPorPlataforma(ganhos: Ganho[], repasses: Repasse[]): SaldoPlataforma[] {
   const mapa = new Map<string, SaldoPlataforma>();

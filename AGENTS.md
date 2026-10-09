@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Reuse `RepassesContent` in the Repasses route and Financeiro tab, with an optional shared date interval, to preserve a single implementation of reconciliation and editing actions.
+- Build the unified receivables list with `conciliacaoRecebimentos` and existing FIFO allocation so platform rows, summary totals, and settlement defaults share one calculation.
