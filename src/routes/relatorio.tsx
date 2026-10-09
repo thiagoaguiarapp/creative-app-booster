@@ -12,7 +12,6 @@ import {
   Search,
   X,
   TrendingUp,
-  Wallet,
   Wrench,
 } from "lucide-react";
 import { useMemo, useState } from "react";
