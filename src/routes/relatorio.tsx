@@ -234,9 +234,29 @@ function RelatorioPage() {
       .map(([mes, v]) => ({ mes, ...v, lucro: v.fat - v.comb - v.desp - v.manut }))
       .sort((a, b) => b.mes.localeCompare(a.mes));
 
+    // série do gráfico: dia a dia quando o período cabe em ~2 meses, senão mês a mês
+    const vazio = () => ({ fat: 0, comb: 0, desp: 0, manut: 0, corridas: 0, litros: 0 });
+    const diario = !!de && !!ate && (new Date(ate).getTime() - new Date(de).getTime()) / 864e5 <= 62;
+    let serie: { mes: string; rotulo: string; fat: number; comb: number; desp: number; manut: number; corridas: number; litros: number; lucro: number }[];
+    if (diario) {
+      const dias = new Map<string, ReturnType<typeof vazio>>();
+      const d0 = new Date(`${de}T12:00:00`);
+      const d1 = new Date(`${ate}T12:00:00`);
+      for (let d = d0; d <= d1; d = new Date(d.getTime() + 864e5)) {
+        dias.set(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`, vazio());
+      }
+      for (const g of ganhos) { const b = dias.get(g.iso); if (b) { b.fat += g.faturamento; b.corridas += g.corridas; } }
+      for (const a of abast) { const b = dias.get(a.iso); if (b) { b.comb += a.valorPago; b.litros += a.litros; } }
+      for (const x of despesasCusto) { const b = dias.get(x.iso); if (b) b.desp += x.valor; }
+      for (const m of manutCusto) { const b = dias.get(m.iso); if (b) b.manut += m.valor; }
+      serie = [...dias.entries()].map(([k, v]) => ({ mes: k, rotulo: `${k.slice(8, 10)}/${k.slice(5, 7)}`, ...v, lucro: v.fat - v.comb - v.desp - v.manut }));
+    } else {
+      serie = [...porMes].reverse().map((m) => ({ ...m, rotulo: rotuloMes(m.mes) }));
+    }
+
     return {
       faturamento, corridas, recebido, combustivel, litros, km, outras,
-      manutencao, custos, lucro, porPlataforma, porCategoria, porMes,
+      manutencao, custos, lucro, porPlataforma, porCategoria, porMes, serie, diario,
       listas: { ganhos, abast, despesas: despesasCusto, repasses, manut: manutCusto },
       qtd: { ganhos: ganhos.length, abast: abast.length, despesas: despesas.length, repasses: repasses.length, manut: manut.length },
     };
