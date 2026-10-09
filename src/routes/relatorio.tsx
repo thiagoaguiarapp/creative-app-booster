@@ -2,15 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Bike,
-  ChevronDown,
   CircleDollarSign,
   Download,
   Fuel,
   Gauge,
   Printer,
   Receipt,
-  Search,
-  X,
   TrendingUp,
   Wrench,
 } from "lucide-react";
@@ -29,11 +26,6 @@ import {
 import { AtalhoPaginas } from "@/components/atalho-paginas";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
