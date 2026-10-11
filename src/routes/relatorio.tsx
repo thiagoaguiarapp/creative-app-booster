@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Bike,
   CircleDollarSign,
@@ -390,6 +390,9 @@ function RelatorioPage() {
         subtitle="Consolidado de ganhos, custos e lucro líquido"
         action={
           <div className="flex gap-2 print:hidden">
+            <Button variant="outline" size="sm" asChild className="px-2 sm:px-3">
+              <Link to="/contas-a-pagar">Contas a pagar</Link>
+            </Button>
             <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
               <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
             </Button>
