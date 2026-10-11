@@ -318,6 +318,7 @@ function FormularioDialog({
     onSuccess: async (_r, v) => {
       await invalidar();
       toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
+      if (!row) void import("@/lib/admob").then((m) => m.registrarLancamentoParaAnuncio());
       if (tipo === "despesa" && !row && ehCategoriaManutencao(v["categoria"] ?? "")) {
         const servico = (v["descricao"] ?? "").trim() || (v["categoria"] ?? "").trim();
         const ativa = acharManutencaoAtiva(painel?.manutencoes ?? [], servico);

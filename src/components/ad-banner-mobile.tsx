@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouteContext } from "@tanstack/react-router";
 
-import { ALTURA_BANNER, esconderBanner, mostrarBanner } from "@/lib/admob";
+import { ALTURA_BANNER, definirUsuarioFree, esconderBanner, mostrarBanner } from "@/lib/admob";
 
 /**
  * Banner do AdMob ancorado na parte inferior, exibido apenas para usuários
@@ -17,6 +17,8 @@ export function AdBannerMobile() {
 
   useEffect(() => {
     let ativo = true;
+    definirUsuarioFree(!isPremium && !!context.usuario);
+
 
     if (isPremium) {
       void esconderBanner();

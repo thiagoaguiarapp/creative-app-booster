@@ -10,7 +10,7 @@
 
 export const ADMOB_BANNER_ID_ANDROID = "ca-app-pub-2715745778380480/4859804306";
 export const ADMOB_BANNER_ID_IOS = "ca-app-pub-3940256099942544/2934735716";
-export const ADMOB_INTERSTITIAL_ID_ANDROID = "ca-app-pub-3940256099942544/1033173712";
+export const ADMOB_INTERSTITIAL_ID_ANDROID = "ca-app-pub-2715745778380480/4347672561";
 export const ADMOB_INTERSTITIAL_ID_IOS = "ca-app-pub-3940256099942544/4411468910";
 
 /** Altura reservada no rodapé para o banner (dp). */
@@ -107,5 +107,39 @@ export async function mostrarInterstitial(): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+/** Lançamentos salvos entre um intersticial e outro. */
+export const LANCAMENTOS_POR_INTERSTICIAL = 3;
+/** Intervalo mínimo entre intersticiais (ms). */
+export const INTERVALO_MIN_INTERSTICIAL_MS = 5 * 60 * 1000;
+
+let usuarioFree = false;
+let contadorLancamentos = 0;
+let ultimoIntersticial = 0;
+
+/** Informado pelo controlador de anúncios: só usuários Free veem intersticial. */
+export function definirUsuarioFree(free: boolean) {
+  usuarioFree = free;
+}
+
+/** Decide se deve exibir o intersticial após um lançamento (regra pura). */
+export function deveMostrarIntersticial(contador: number, ultimo: number, agora: number): boolean {
+  return (
+    contador >= LANCAMENTOS_POR_INTERSTICIAL && agora - ultimo >= INTERVALO_MIN_INTERSTICIAL_MS
+  );
+}
+
+/** Chamado após salvar um lançamento novo. */
+export async function registrarLancamentoParaAnuncio(): Promise<void> {
+  if (!usuarioFree) return;
+  contadorLancamentos += 1;
+  const agora = Date.now();
+  if (!deveMostrarIntersticial(contadorLancamentos, ultimoIntersticial, agora)) return;
+  if (!(await prepararInterstitial())) return;
+  if (await mostrarInterstitial()) {
+    contadorLancamentos = 0;
+    ultimoIntersticial = agora;
   }
 }
