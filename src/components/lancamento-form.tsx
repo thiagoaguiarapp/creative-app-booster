@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { CreditCard, List } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Bike,
@@ -746,7 +747,13 @@ const TIPOS_RAPIDOS: ItemRapido[] = [
   { id: "manutencao", tipo: "manutencao", rotulo: "Manutenção", desc: "Serviços e trocas", icone: Wrench },
 ];
 
-function ListaTiposRapidos({ onEscolher }: { onEscolher: (item: ItemRapido) => void }) {
+function ListaTiposRapidos({
+  onEscolher,
+  onFechar,
+}: {
+  onEscolher: (item: ItemRapido) => void;
+  onFechar?: () => void;
+}) {
   return (
     <div className="grid gap-2 overflow-y-auto pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       {TIPOS_RAPIDOS.map((item) => (
@@ -766,6 +773,22 @@ function ListaTiposRapidos({ onEscolher }: { onEscolher: (item: ItemRapido) => v
           <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
         </button>
       ))}
+      <div className="grid grid-cols-2 gap-2 pt-1">
+        <Link
+          to="/lancamentos"
+          onClick={onFechar}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium hover:bg-accent/50"
+        >
+          <List className="size-4 text-primary" /> Todos os lançamentos
+        </Link>
+        <Link
+          to="/contas-a-pagar"
+          onClick={onFechar}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium hover:bg-accent/50"
+        >
+          <CreditCard className="size-4 text-primary" /> Contas a pagar
+        </Link>
+      </div>
     </div>
   );
 }
