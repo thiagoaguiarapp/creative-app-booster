@@ -67,7 +67,9 @@ export function AvisoAtualizacao() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+    <div
+      className="fixed inset-x-0 z-50 p-3 bottom-[calc(var(--altura-banner-ads,0px)+4.5rem)] md:bottom-[var(--altura-banner-ads,0px)]"
+    >
       <div className="mx-auto flex w-full max-w-md items-start gap-3 rounded-xl border border-border bg-card p-4 shadow-lg">
         <ArrowUpCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">

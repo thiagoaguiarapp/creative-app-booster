@@ -39,3 +39,14 @@ describe("banner Android por tela", () => {
     }));
   });
 });
+import { deveMostrarIntersticial, ADMOB_INTERSTITIAL_ID_ANDROID } from "@/lib/admob";
+describe("intersticial", () => {
+  it("usa o bloco real", () => {
+    expect(ADMOB_INTERSTITIAL_ID_ANDROID).toBe("ca-app-pub-2715745778380480/4347672561");
+  });
+  it("só após 3 lançamentos e 5 min", () => {
+    expect(deveMostrarIntersticial(2, 0, 10 * 60_000)).toBe(false);
+    expect(deveMostrarIntersticial(3, 0, 10 * 60_000)).toBe(true);
+    expect(deveMostrarIntersticial(3, 8 * 60_000, 10 * 60_000)).toBe(false);
+  });
+});
