@@ -17,6 +17,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmadoRouteImport } from './routes/confirmado'
+import { Route as ContasAPagarRouteImport } from './routes/contas-a-pagar'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DespesasRouteImport } from './routes/despesas'
 import { Route as EntregasRouteImport } from './routes/entregas'
@@ -76,6 +77,11 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
 const ConfirmadoRoute = ConfirmadoRouteImport.update({
   id: '/confirmado',
   path: '/confirmado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContasAPagarRoute = ContasAPagarRouteImport.update({
+  id: '/contas-a-pagar',
+  path: '/contas-a-pagar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -189,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/calculadora': typeof CalculadoraRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
+  '/contas-a-pagar': typeof ContasAPagarRoute
   '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
   '/entregas': typeof EntregasRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/calculadora': typeof CalculadoraRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
+  '/contas-a-pagar': typeof ContasAPagarRoute
   '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
   '/entregas': typeof EntregasRoute
@@ -249,6 +257,7 @@ export interface FileRoutesById {
   '/calculadora': typeof CalculadoraRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmado': typeof ConfirmadoRoute
+  '/contas-a-pagar': typeof ContasAPagarRoute
   '/contato': typeof ContatoRoute
   '/despesas': typeof DespesasRoute
   '/entregas': typeof EntregasRoute
@@ -281,6 +290,7 @@ export interface FileRouteTypes {
     | '/calculadora'
     | '/configuracoes'
     | '/confirmado'
+    | '/contas-a-pagar'
     | '/contato'
     | '/despesas'
     | '/entregas'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/calculadora'
     | '/configuracoes'
     | '/confirmado'
+    | '/contas-a-pagar'
     | '/contato'
     | '/despesas'
     | '/entregas'
@@ -340,6 +351,7 @@ export interface FileRouteTypes {
     | '/calculadora'
     | '/configuracoes'
     | '/confirmado'
+    | '/contas-a-pagar'
     | '/contato'
     | '/despesas'
     | '/entregas'
@@ -371,6 +383,7 @@ export interface RootRouteChildren {
   CalculadoraRoute: typeof CalculadoraRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmadoRoute: typeof ConfirmadoRoute
+  ContasAPagarRoute: typeof ContasAPagarRoute
   ContatoRoute: typeof ContatoRoute
   DespesasRoute: typeof DespesasRoute
   EntregasRoute: typeof EntregasRoute
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       path: '/confirmado'
       fullPath: '/confirmado'
       preLoaderRoute: typeof ConfirmadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contas-a-pagar': {
+      id: '/contas-a-pagar'
+      path: '/contas-a-pagar'
+      fullPath: '/contas-a-pagar'
+      preLoaderRoute: typeof ContasAPagarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -623,6 +643,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculadoraRoute: CalculadoraRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmadoRoute: ConfirmadoRoute,
+  ContasAPagarRoute: ContasAPagarRoute,
   ContatoRoute: ContatoRoute,
   DespesasRoute: DespesasRoute,
   EntregasRoute: EntregasRoute,
