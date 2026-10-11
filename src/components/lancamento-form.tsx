@@ -829,14 +829,17 @@ export function NovoLancamentoRapido({
           <SheetContent
             side="bottom"
             className="flex max-h-[85dvh] flex-col gap-4 rounded-t-2xl px-4 pb-4 pt-3"
-            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+            style={{
+              bottom: "var(--altura-banner-ads, 0px)",
+              paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
+            }}
           >
             <div className="mx-auto h-1.5 w-10 shrink-0 rounded-full bg-muted" />
             <SheetHeader className="space-y-1 text-left">
               <SheetTitle>Novo lançamento</SheetTitle>
               <SheetDescription>Escolha o que você quer registrar.</SheetDescription>
             </SheetHeader>
-            <ListaTiposRapidos onEscolher={escolher} />
+            <ListaTiposRapidos onEscolher={escolher} onFechar={() => setMenu(false)} />
           </SheetContent>
         </Sheet>
       ) : (
@@ -846,7 +849,7 @@ export function NovoLancamentoRapido({
               <DialogTitle>Novo lançamento</DialogTitle>
               <DialogDescription>Escolha o que você quer registrar.</DialogDescription>
             </DialogHeader>
-            <ListaTiposRapidos onEscolher={escolher} />
+            <ListaTiposRapidos onEscolher={escolher} onFechar={() => setMenu(false)} />
           </DialogContent>
         </Dialog>
       )}
