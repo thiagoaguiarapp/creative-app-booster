@@ -78,6 +78,7 @@ function PremiumPage() {
   const [preco, setPreco] = useState<string>(PRECO_PADRAO);
   const [assinando, setAssinando] = useState(false);
   const [restaurando, setRestaurando] = useState(false);
+  const [erroDetalhe, setErroDetalhe] = useState<string | null>(null);
 
   useEffect(() => {
     let ativo = true;
@@ -101,6 +102,7 @@ function PremiumPage() {
 
   const assinar = async () => {
     setAssinando(true);
+    setErroDetalhe(null);
     try {
       const r = await comprarAssinatura();
       if (r.ok && r.premium) {
@@ -120,6 +122,7 @@ function PremiumPage() {
         await sincronizar(true, "Premium ativado em modo demonstração.");
         return;
       }
+      setErroDetalhe(r.detalhes || r.mensagem || "Erro sem detalhes.");
       toast.error(r.mensagem ?? "Não foi possível concluir a compra.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao processar a assinatura.");
@@ -144,6 +147,7 @@ function PremiumPage() {
         toast.info("Restauração disponível apenas no aplicativo instalado.");
         return;
       }
+      setErroDetalhe(r.detalhes || r.mensagem || "Erro sem detalhes.");
       toast.error(r.mensagem ?? "Não foi possível restaurar as compras.");
     } finally {
       setRestaurando(false);
@@ -216,6 +220,27 @@ function PremiumPage() {
             <RotateCcw className="mr-1 size-4" />
             {restaurando ? "Restaurando…" : "Restaurar compras"}
           </Button>
+
+          {erroDetalhe && (
+            <div className="flex flex-col gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+              <p className="text-xs font-semibold text-destructive">Detalhes do erro (diagnóstico)</p>
+              <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all text-[11px] text-foreground">
+                {erroDetalhe}
+              </pre>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  void navigator.clipboard
+                    ?.writeText(erroDetalhe)
+                    .then(() => toast.success("Detalhes copiados."))
+                    .catch(() => toast.error("Não foi possível copiar."));
+                }}
+              >
+                Copiar detalhes do erro
+              </Button>
+            </div>
+          )}
 
           {!nativo && (
             <p className="flex items-start gap-2 text-xs text-muted-foreground">
