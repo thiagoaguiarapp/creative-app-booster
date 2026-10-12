@@ -61,7 +61,7 @@ async function chaveApi(): Promise<string | undefined> {
   const env = import.meta.env as Record<string, string | undefined>;
   return plat === "ios"
     ? env["VITE_REVENUECAT_IOS_KEY"]
-    : (env["VITE_REVENUECAT_ANDROID_KEY"] || "goog_UZGBTMOLlYbFO5IicBemPQEbCfr");
+    : (env["VITE_REVENUECAT_ANDROID_KEY"] || "goog_UZGBTMoLLYbFO5IicBemPQEbCfr");
 }
 
 async function configurar() {
