@@ -69,6 +69,12 @@ async function configurar() {
   const { Purchases } = await import("@revenuecat/purchases-capacitor");
   const apiKey = await chaveApi();
   if (!apiKey) throw new Error("Chave do RevenueCat não configurada.");
+  try {
+    const { LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
+    await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+  } catch {
+    /* opcional */
+  }
   await Purchases.configure({ apiKey });
   configurado = true;
 }
@@ -120,6 +126,6 @@ export async function restaurarCompras(): Promise<ResultadoCompra> {
     const { customerInfo } = await Purchases.restorePurchases();
     return { ok: true, premium: temPremium(customerInfo) };
   } catch (err) {
-    return { ok: false, motivo: "erro", mensagem: (err as Error)?.message };
+    return { ok: false, motivo: "erro", mensagem: (err as Error)?.message, detalhes: detalharErro(err) };
   }
 }
