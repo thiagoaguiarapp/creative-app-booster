@@ -15,7 +15,33 @@ export const PRODUTO_MENSAL = "rota_control_premium_mensal";
 
 export type ResultadoCompra =
   | { ok: true; premium: boolean }
-  | { ok: false; motivo: "indisponivel" | "cancelado" | "erro"; mensagem?: string | undefined };
+  | {
+      ok: false;
+      motivo: "indisponivel" | "cancelado" | "erro";
+      mensagem?: string | undefined;
+      detalhes?: string | undefined;
+    };
+
+/** Converte o erro do RevenueCat em texto completo para diagnóstico. */
+export function detalharErro(err: unknown): string {
+  if (!err) return "";
+  const e = err as Record<string, unknown>;
+  const campos: Record<string, unknown> = {
+    message: e["message"],
+    code: e["code"],
+    readableErrorCode: e["readableErrorCode"],
+    underlyingErrorMessage: e["underlyingErrorMessage"],
+  };
+  const data = e["data"];
+  if (data) campos["data"] = data;
+  try {
+    const extras = JSON.parse(JSON.stringify(err, Object.getOwnPropertyNames(err as object)));
+    campos["raw"] = extras;
+  } catch {
+    campos["raw"] = String(err);
+  }
+  return JSON.stringify(campos, null, 2);
+}
 
 let configurado = false;
 
@@ -81,7 +107,7 @@ export async function comprarAssinatura(): Promise<ResultadoCompra> {
   } catch (err) {
     const e = err as { code?: string; userCancelled?: boolean; message?: string };
     if (e?.userCancelled) return { ok: false, motivo: "cancelado" };
-    return { ok: false, motivo: "erro", mensagem: e?.message };
+    return { ok: false, motivo: "erro", mensagem: e?.message, detalhes: detalharErro(err) };
   }
 }
 
