@@ -121,7 +121,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
         <NovoLancamento tipo="repasse" />
       </div>
 
-      {!intervalo && <div className="flex flex-wrap items-end gap-2">
+      {!intervalo && aba === "historico" && <div className="flex flex-wrap items-end gap-2">
         {PERIODOS.map((p) => (
           <Button
             key={p.id}
@@ -214,7 +214,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                         const quitado = a.pendente <= 0.009;
             const parcial = !quitado && (a.quitado > 0.009 || a.recebido > 0.009);
 
-            const baixas = repasses
+            const baixas = data.repasses
               .filter((r) => norm(r.aplicativo) === norm(a.app))
               .sort((x, y) => y.iso.localeCompare(x.iso));
             const expandido = aberto === norm(a.app);
@@ -325,7 +325,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                                 const quitado = a.pendente <= 0.009;
                 const parcial = !quitado && (a.quitado > 0.009 || a.recebido > 0.009);
     
-                const baixas = repasses
+                const baixas = data.repasses
                   .filter((r) => norm(r.aplicativo) === norm(a.app))
                   .sort((x, y) => y.iso.localeCompare(x.iso));
                 const expandido = aberto === norm(a.app);
