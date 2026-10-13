@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { conciliacaoRecebimentos, normalizarPlataforma } from "@/lib/conciliacao";
+import { conciliacaoRecebimentos, normalizarPlataforma, saldoPorPlataforma } from "@/lib/conciliacao";
 import { ehExtra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -93,8 +93,21 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
     [data.ganhos, data.repasses],
   );
 
+  // Saldo histórico sem corte: permite saber quando a plataforma pagou a mais.
+  const saldosHistoricos = useMemo(
+    () => saldoPorPlataforma(data.ganhos, data.repasses),
+    [data.ganhos, data.repasses],
+  );
+  const saldoPorApp = useMemo(() => {
+    const mapa = new Map<string, number>();
+    for (const s of saldosHistoricos) mapa.set(norm(s.app), s.saldo);
+    return mapa;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saldosHistoricos]);
+  const saldoDe = (app: string, pendente: number) => saldoPorApp.get(norm(app)) ?? pendente;
+
   const aReceberGeral = porApp.reduce((s, a) => s + a.pendenteMes + a.restanteAnterior, 0);
-  const recebidoAMais = porApp.reduce((s, a) => s + Math.max(0, -a.pendente), 0);
+  const recebidoAMais = saldosHistoricos.reduce((s, a) => s + Math.max(0, -a.saldo), 0);
 
   const porForma = useMemo(() => {
     const mapa = new Map<string, { forma: string; valor: number }>();
