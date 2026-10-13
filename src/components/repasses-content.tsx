@@ -87,16 +87,13 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
 
   const norm = normalizarPlataforma;
 
+  // Saldo é sempre a posição de hoje (todo o histórico), independente do filtro.
   const porApp = useMemo(
-    () => conciliacaoRecebimentos(data.ganhos, data.repasses, filtra, corte),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data.ganhos, data.repasses, periodo, de, ate, prefixo, corte],
+    () => conciliacaoRecebimentos(data.ganhos, data.repasses, () => true, null),
+    [data.ganhos, data.repasses],
   );
 
-  const restanteAnteriorTotal = porApp.reduce((s, a) => s + a.restanteAnterior, 0);
-
-  const pendenteTotal = porApp.reduce((s, a) => s + a.pendenteMes, 0);
-  const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
+  const aReceberGeral = porApp.reduce((s, a) => s + a.pendenteMes + a.restanteAnterior, 0);
   const recebidoAMais = porApp.reduce((s, a) => s + Math.max(0, -a.pendente), 0);
 
   const porForma = useMemo(() => {
@@ -196,9 +193,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
           value={brl(aReceberGeral)}
           icon={Clock}
           tone="warning"
-          hint={corte
-            ? `Do período: ${brl(pendenteTotal)} · Anteriores: ${brl(restanteAnteriorTotal)}`
-            : "O que as plataformas ainda te devem"}
+          hint="O que as plataformas te devem hoje"
         />
         <StatCard
           label="Recebido a mais"
@@ -248,42 +243,22 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground">{labelFaturado}</p>
-                    <p className="num font-medium">{brl(a.faturado)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground">{labelRecebido}</p>
-                    <p className="num font-medium text-success">{brl(a.recebido)}</p>
-                    {!visaoTotal && a.quitadoDepois > 0.009 && (
-                      <p className="text-[10px] text-muted-foreground">
-                        + {brl(a.quitadoDepois)} outro mês
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] text-muted-foreground">Total a receber</p>
-                    <p
-                      className={`num font-semibold ${
-                        a.pendente > 0.009
-                          ? "text-warning"
-                          : a.pendente < -0.009
-                            ? "text-primary"
-                            : "text-muted-foreground"
-                      }`}
-                    >
-                      {brl(a.pendente)}
-                    </p>
-                  </div>
+                <div className="flex items-center justify-between text-sm">
+                  <p className="text-xs text-muted-foreground">
+                    {a.pendente < -0.009 ? "Recebido a mais" : "Saldo hoje"}
+                  </p>
+                  <p
+                    className={`num font-semibold ${
+                      a.pendente > 0.009
+                        ? "text-warning"
+                        : a.pendente < -0.009
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                    }`}
+                  >
+                    {brl(Math.abs(a.pendente))}
+                  </p>
                 </div>
-
-                {corte && a.pendente > 0.009 && (
-                  <div className="flex flex-wrap justify-between gap-2 border-t border-border/60 pt-2 text-xs">
-                    <span className="text-muted-foreground">Do período: {brl(a.pendenteMes)}</span>
-                    <span className="text-warning">Anteriores: {brl(a.restanteAnterior)}</span>
-                  </div>
-                )}
 
                 <div className="flex items-center justify-end gap-2">
                   {!quitado && (
@@ -328,21 +303,9 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
               </div>
             );
           })}
-          <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div>
-                <p className="text-[10px] text-muted-foreground">{labelFaturado}</p>
-                <p className="num font-semibold">{brl(faturado)}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground">{labelRecebido}</p>
-                <p className="num font-semibold text-success">{brl(recebidoPlataformas)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] text-muted-foreground">Total a receber</p>
-                <p className="num font-semibold text-warning">{brl(aReceberGeral)}</p>
-              </div>
-            </div>
+          <div className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 p-3 text-sm">
+            <p className="text-muted-foreground">Total a receber hoje</p>
+            <p className="num font-semibold text-warning">{brl(aReceberGeral)}</p>
           </div>
         </div>
 
@@ -352,9 +315,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
             <TableHeader>
               <TableRow>
                 <TableHead>Aplicativo</TableHead>
-                <TableHead className="text-right">{labelFaturado}</TableHead>
-                <TableHead className="text-right">{labelRecebido}</TableHead>
-                <TableHead className="text-right">Total a receber</TableHead>
+                <TableHead className="text-right">Saldo hoje</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-36 text-right">Baixa</TableHead>
               </TableRow>
@@ -387,26 +348,10 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
                           )}
                         </Button>
                       </TableCell>
-                      <TableCell className="num text-right">{brl(a.faturado)}</TableCell>
-                      <TableCell className="num text-right text-success">
-                        {brl(a.recebido)}
-                        {!visaoTotal && a.quitadoDepois > 0.009 && (
-                          <span className="block text-xs text-muted-foreground">
-                            + {brl(a.quitadoDepois)} recebido em outro mês
-                          </span>
-                        )}
-                      </TableCell>
-
                       <TableCell
                         className={`num text-right ${a.pendente > 0.009 ? "text-warning" : a.pendente < -0.009 ? "text-primary" : "text-muted-foreground"}`}
                       >
                         {brl(a.pendente)}
-                        {corte && a.pendente > 0.009 && (
-                          <span className="block text-xs text-muted-foreground">
-                            Período: {brl(a.pendenteMes)}<br />
-                            <span className="text-warning">Anteriores: {brl(a.restanteAnterior)}</span>
-                          </span>
-                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant={quitado ? "default" : parcial ? "secondary" : "outline"}>
@@ -462,10 +407,6 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
               })}
               <TableRow>
                 <TableCell className="font-semibold">Total</TableCell>
-                <TableCell className="num text-right font-semibold">{brl(faturado)}</TableCell>
-                <TableCell className="num text-right font-semibold text-success">
-                  {brl(recebidoPlataformas)}
-                </TableCell>
                 <TableCell className="num text-right font-semibold text-warning">
                   {brl(aReceberGeral)}
                 </TableCell>
