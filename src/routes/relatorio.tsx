@@ -45,13 +45,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/relatorio")({
   head: () => ({
     meta: [
-      { title: "Financeiro — No Corre" },
+      { title: "Relatório — No Corre" },
       {
         name: "description",
         content:
           "Relatório completo por período: faturamento, combustível, despesas, manutenção e lucro líquido do entregador.",
       },
-      { property: "og:title", content: "Financeiro — No Corre" },
+      { property: "og:title", content: "Relatório — No Corre" },
       {
         property: "og:description",
         content:
