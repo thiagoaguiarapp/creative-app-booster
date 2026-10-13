@@ -72,11 +72,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
     [data.ganhos, periodo, de, ate, prefixo],
   );
 
-  const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 15);
-
-  // regra: gorjeta, caixinha e sobra de troco só contam quando lançadas em Ganhos diários.
-  const gorjetas = ganhos.filter((g) => ehGorjeta(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
-  const sobraTroco = ganhos.filter((g) => ehSobra(g.plataforma)).reduce((s, g) => s + g.faturamento, 0);
+  const recentes = [...repasses].sort((a, b) => b.iso.localeCompare(a.iso));
 
   const extrasNoRepasse = repasses.filter((r) => ehExtra(r.aplicativo));
   const extrasNoRepasseValor = extrasNoRepasse.reduce((s, r) => s + r.valor, 0);
@@ -97,18 +93,11 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
     [data.ganhos, data.repasses, periodo, de, ate, prefixo, corte],
   );
 
-  const saldoPlataformas = useMemo(
-    () => saldoPorPlataforma(data.ganhos, data.repasses),
-    [data.ganhos, data.repasses],
-  );
-  const totalAReceberSaldo = saldoPlataformas.reduce((s, p) => s + Math.max(0, p.saldo), 0);
-  const totalRecebidoAMais = saldoPlataformas.reduce((s, p) => s + Math.max(0, -p.saldo), 0);
-  const saldoLiquidoGeral = totalAReceberSaldo - totalRecebidoAMais;
-
   const restanteAnteriorTotal = porApp.reduce((s, a) => s + a.restanteAnterior, 0);
 
-  const pendenteTotal = porApp.reduce((s, a) => s + a.pendenteMes, 0);
-  const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
+  const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendenteMes), 0);
+  const aReceberGeral = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
+  const recebidoAMais = porApp.reduce((s, a) => s + Math.max(0, -a.pendente), 0);
 
   const porForma = useMemo(() => {
     const mapa = new Map<string, { forma: string; valor: number }>();
@@ -181,19 +170,48 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
         </div>
       )}
 
-      <StatCard
-        label="Total a receber"
-        value={brl(aReceberGeral)}
-        icon={Clock}
-        tone="warning"
-        hint={corte
-          ? `Do período: ${brl(pendenteTotal)} · Anteriores: ${brl(restanteAnteriorTotal)}`
-          : "Todas as pendências das plataformas"}
-      />
+      <div role="tablist" aria-label="Seções" className="grid grid-cols-2 gap-1 rounded-lg border border-border/60 bg-muted/30 p-1">
+        {([
+          { id: "saldo", label: "Saldo" },
+          { id: "historico", label: "Histórico de recebimentos" },
+        ] as const).map((t) => (
+          <Button
+            key={t.id}
+            role="tab"
+            aria-selected={aba === t.id}
+            size="sm"
+            variant={aba === t.id ? "default" : "ghost"}
+            className="whitespace-normal"
+            onClick={() => setAba(t.id)}
+          >
+            {t.label}
+          </Button>
+        ))}
+      </div>
+
+      {aba === "saldo" && <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <StatCard
+          label="Total a receber"
+          value={brl(aReceberGeral)}
+          icon={Clock}
+          tone="warning"
+          hint={corte
+            ? `Do período: ${brl(pendenteTotal)} · Anteriores: ${brl(restanteAnteriorTotal)}`
+            : "O que as plataformas ainda te devem"}
+        />
+        <StatCard
+          label="Recebido a mais"
+          value={brl(recebidoAMais)}
+          icon={CheckCircle2}
+          tone="success"
+          hint="Quando a plataforma pagou além do faturado"
+        />
+      </div>
 
       <SectionCard
-        title="Conciliação por aplicativo"
-        description={visaoTotal ? "Total pendente por plataforma" : "Pendências do período e anteriores por plataforma"}
+        title="Saldo por aplicativo"
+        description="Quanto cada plataforma te deve ou pagou a mais"
       >
         {/* Mobile cards */}
         <div className="flex flex-col gap-3 lg:hidden">
@@ -458,107 +476,49 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
           </Table>
         </div>
       </SectionCard>
+      </>}
 
-      <div className="rounded-lg border border-border/60">
-        <Button
-          variant="ghost"
-          className="h-auto w-full justify-between gap-2 whitespace-normal px-4 py-3 text-left text-sm font-medium"
-          onClick={() => setDetalhesAbertos((v) => !v)}
-          aria-expanded={detalhesAbertos}
-        >
-          <span>Detalhes do período (saldo histórico e formas de recebimento)</span>
-          <ChevronRight
-            className={`size-4 shrink-0 transition-transform ${detalhesAbertos ? "rotate-90" : ""}`}
-          />
-        </Button>
+      {aba === "historico" && <>
+      <StatCard
+        label={visaoTotal ? "Total recebido" : "Recebido no período"}
+        value={brl(recebidoPlataformas)}
+        icon={CheckCircle2}
+        tone="success"
+        hint={`${repasses.filter((r) => !ehExtra(r.aplicativo)).length} recebimento(s)`}
+      />
 
-        {detalhesAbertos && (
-          <div className="flex flex-col gap-4 border-t border-border/60 p-4">
-            {saldoPlataformas.length > 0 && (
-              <SectionCard
-                title="Saldo nas plataformas"
-                description="Situação acumulada de todo o histórico: tudo que foi faturado no app menos tudo que já foi recebido"
-              >
-                <div className="mb-3 grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-lg border border-border/60 p-3">
-                    <p className="text-xs text-muted-foreground">Total a receber</p>
-                    <p className="num text-lg font-semibold text-warning">{brl(totalAReceberSaldo)}</p>
+      <SectionCard
+        title="Por forma de recebimento"
+        description="Como o dinheiro entrou no período"
+      >
+        {porForma.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum recebimento no período.</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {porForma.map((f) => {
+              const pct = recebidoPlataformas > 0 ? Math.round((f.valor / recebidoPlataformas) * 100) : 0;
+              return (
+                <div key={f.forma} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{f.forma}</span>
+                    <span className="num text-muted-foreground">
+                      {brl(f.valor)} · {pct}%
+                    </span>
                   </div>
-                  <div className="rounded-lg border border-border/60 p-3">
-                    <p className="text-xs text-muted-foreground">Recebido a mais</p>
-                    <p className="num text-lg font-semibold text-success">{brl(totalRecebidoAMais)}</p>
-                  </div>
-                  <div className="rounded-lg border border-border/60 p-3">
-                    <p className="text-xs text-muted-foreground">Saldo líquido</p>
-                    <p className="num text-lg font-semibold">{brl(saldoLiquidoGeral)}</p>
+                  <div className="h-2 rounded-full bg-muted">
+                    <div className="h-2 rounded-full bg-primary" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
-
-                <div className="flex flex-col gap-3">
-                  {saldoPlataformas.map((s) => {
-                    const aReceber = s.saldo > 0.009;
-                    const aMais = s.saldo < -0.009;
-                    return (
-                      <div
-                        key={`saldo-m-${s.app}`}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-border/60 p-3"
-                      >
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium">{s.app}</span>
-                          <span
-                            className={`text-xs ${
-                              aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
-                            }`}
-                          >
-                            {aReceber ? "A receber" : aMais ? "Recebido a mais" : "Em dia"}
-                          </span>
-                        </div>
-                        <p
-                          className={`num font-semibold ${
-                            aReceber ? "text-warning" : aMais ? "text-success" : "text-muted-foreground"
-                          }`}
-                        >
-                          {brl(Math.abs(s.saldo))}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </SectionCard>
-            )}
-
-            <SectionCard
-              title="Por forma de recebimento"
-              description="Como o dinheiro entrou no período"
-            >
-              {porForma.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nenhum recebimento no período.</p>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {porForma.map((f) => {
-                    const pct = recebidoPlataformas > 0 ? Math.round((f.valor / recebidoPlataformas) * 100) : 0;
-                    return (
-                      <div key={f.forma} className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium">{f.forma}</span>
-                          <span className="num text-muted-foreground">
-                            {brl(f.valor)} · {pct}%
-                          </span>
-                        </div>
-                        <div className="h-2 rounded-full bg-muted">
-                          <div className="h-2 rounded-full bg-primary" style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </SectionCard>
+              );
+            })}
           </div>
         )}
-      </div>
+      </SectionCard>
 
-      <SectionCard title="Últimos repasses">
+      <SectionCard title="Extrato de recebimentos" description="Tudo que caiu na sua conta no período">
+        {recentes.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum recebimento no período.</p>
+        )}
         {/* Mobile cards */}
         <div className="flex flex-col gap-3 lg:hidden">
           {recentes.map((r) => (
@@ -611,6 +571,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
           </Table>
         </div>
       </SectionCard>
+      </>}
     </div>
   );
 }
