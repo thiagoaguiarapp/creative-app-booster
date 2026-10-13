@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { conciliacaoRecebimentos, normalizarPlataforma, saldoPorPlataforma } from "@/lib/conciliacao";
-import { ehExtra, ehGorjeta, ehSobra } from "@/lib/extras";
+import { conciliacaoRecebimentos, normalizarPlataforma } from "@/lib/conciliacao";
+import { ehExtra } from "@/lib/extras";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
 
@@ -44,7 +44,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
   const labelFaturado = visaoTotal ? "Faturado geral" : "Faturado no período";
   const labelRecebido = visaoTotal ? "Recebido geral" : "Recebido no período";
   const [aberto, setAberto] = useState<string | null>(null);
-  const [detalhesAbertos, setDetalhesAbertos] = useState(false);
+  const [aba, setAba] = useState<"saldo" | "historico">("saldo");
   const [deLocal, setDe] = useState("");
   const [ateLocal, setAte] = useState("");
   const de = intervalo?.de ?? deLocal;
@@ -95,8 +95,8 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
 
   const restanteAnteriorTotal = porApp.reduce((s, a) => s + a.restanteAnterior, 0);
 
-  const pendenteTotal = porApp.reduce((s, a) => s + Math.max(0, a.pendenteMes), 0);
-  const aReceberGeral = porApp.reduce((s, a) => s + Math.max(0, a.pendente), 0);
+  const pendenteTotal = porApp.reduce((s, a) => s + a.pendenteMes, 0);
+  const aReceberGeral = pendenteTotal + restanteAnteriorTotal;
   const recebidoAMais = porApp.reduce((s, a) => s + Math.max(0, -a.pendente), 0);
 
   const porForma = useMemo(() => {
