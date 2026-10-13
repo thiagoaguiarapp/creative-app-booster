@@ -45,13 +45,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/relatorio")({
   head: () => ({
     meta: [
-      { title: "Financeiro — No Corre" },
+      { title: "Relatório — No Corre" },
       {
         name: "description",
         content:
           "Relatório completo por período: faturamento, combustível, despesas, manutenção e lucro líquido do entregador.",
       },
-      { property: "og:title", content: "Financeiro — No Corre" },
+      { property: "og:title", content: "Relatório — No Corre" },
       {
         property: "og:description",
         content:
@@ -386,7 +386,7 @@ function RelatorioPage() {
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-3 sm:gap-4 lg:gap-6">
       <PageHeader
-        title="Financeiro"
+        title="Relatório"
         subtitle="Consolidado de ganhos, custos e lucro líquido"
         action={
           <div className="flex gap-2 print:hidden">
