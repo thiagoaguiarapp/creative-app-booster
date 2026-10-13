@@ -9,7 +9,7 @@ const esquerda = [
   { title: "Entregas", url: "/entregas", icon: Bike },
 ];
 const direita = [
-  { title: "Financeiro", url: "/relatorio", icon: BarChart3 },
+  { title: "Relatório", url: "/relatorio", icon: BarChart3 },
   { title: "Perfil", url: "/configuracoes", icon: User },
 ];
 
