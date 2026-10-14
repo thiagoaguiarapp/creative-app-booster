@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { salvarOuEnfileirar } from "@/lib/offline";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { CreditCard, List } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
