@@ -23,6 +23,8 @@ import { AdBannerMobile } from "@/components/ad-banner-mobile";
 import { AdSenseInit } from "@/components/ad-sense-init";
 import { AvisoAtualizacao } from "@/components/aviso-atualizacao";
 import { AvisoManutencao } from "@/components/aviso-manutencao";
+import { SincroniaOffline } from "@/components/sincronia-offline";
+import { guardarSessao, lerSessaoLocal } from "@/lib/offline";
 
 
 
@@ -97,12 +99,15 @@ async function carregarSessao(): Promise<{ usuario: SessaoUsuario; falhou: boole
     try {
       const usuario = await sessaoFn();
       ultimaSessao = usuario;
+      guardarSessao(usuario ?? null);
       return { usuario, falhou: false };
     } catch {
       if (tentativa === 0) await new Promise((r) => setTimeout(r, 400));
     }
   }
-  return { usuario: (ultimaSessao ?? null) as SessaoUsuario, falhou: true };
+  // Sem internet ao abrir o app: usa a última sessão guardada no aparelho.
+  const local = ultimaSessao ?? lerSessaoLocal<SessaoUsuario>() ?? null;
+  return { usuario: local as SessaoUsuario, falhou: true };
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -281,6 +286,7 @@ function RootComponent() {
       <AdBannerMobile />
       <BarraInferior />
       <AvisoManutencao />
+      <SincroniaOffline />
       <AvisoAtualizacao />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>

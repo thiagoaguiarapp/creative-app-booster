@@ -1,3 +1,4 @@
+import { salvarOuEnfileirar } from "@/lib/offline";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Zap } from "lucide-react";
@@ -122,19 +123,20 @@ function ModalRapido({
     if (invalido) return;
     setSalvando(true);
     try {
-      await salvar({
-        data: {
-          tipo: "ganho",
-          valores: { data, plataforma: nome.trim(), corridas, faturamento: faturado },
-        },
+      const r1 = await salvarOuEnfileirar(salvar, {
+        tipo: "ganho",
+        valores: { data, plataforma: nome.trim(), corridas, faturamento: faturado },
       });
       if (valorMaos > 0) {
-        await salvar({
-          data: {
-            tipo: "repasse",
-            valores: { data, aplicativo: nome.trim(), valor: emMaos, forma },
-          },
+        await salvarOuEnfileirar(salvar, {
+          tipo: "repasse",
+          valores: { data, aplicativo: nome.trim(), valor: emMaos, forma },
         });
+      }
+      if (r1.offline) {
+        toast.success("Sem internet: lançamento guardado no aparelho. Será enviado quando a conexão voltar.");
+        onClose();
+        return;
       }
       await queryClient.invalidateQueries({ queryKey: ["painel"] });
       toast.success(

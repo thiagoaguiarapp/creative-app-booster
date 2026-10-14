@@ -314,11 +314,16 @@ function FormularioDialog({
       : undefined;
 
   const mutation = useMutation({
+    networkMode: "always",
     mutationFn: (v: Record<string, string>) =>
-      salvar({ data: row ? { tipo, valores: v, row } : { tipo, valores: v } }),
-    onSuccess: async (_r, v) => {
-      await invalidar();
-      toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
+      salvarOuEnfileirar(salvar, row ? { tipo, valores: v, row } : { tipo, valores: v }),
+    onSuccess: async (r, v) => {
+      if (r.offline) {
+        toast.success("Sem internet: lançamento guardado no aparelho. Será enviado quando a conexão voltar.");
+      } else {
+        await invalidar();
+        toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
+      }
       if (!row) void import("@/lib/admob").then((m) => m.registrarLancamentoParaAnuncio());
       if (tipo === "despesa" && !row && ehCategoriaManutencao(v["categoria"] ?? "")) {
         const servico = (v["descricao"] ?? "").trim() || (v["categoria"] ?? "").trim();
