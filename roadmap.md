@@ -94,3 +94,7 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 
 - [x] Simplificar tela Recebimento/Repasse: sem cards Faturado/Recebido, conciliação única com Dar baixa, detalhes recolhidos
 - [x] Notificação no celular de manutenção vencida/próxima (versão 1.0.6 build 7)
+
+## Offline
+- [x] Nível 2: fila de lançamentos sem internet, cópia local dos dados e sessão.
+- [ ] Abrir o app do zero sem internet (exige página guardada no aparelho / novo AAB).
