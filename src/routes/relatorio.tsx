@@ -564,7 +564,7 @@ function RelatorioPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="despesa" className="mt-3 flex flex-col gap-3 sm:gap-4">
+        <TabsContent value="despesa" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Total de despesas" value={brl(r.outras)} icon={Receipt} tone="destructive" />
             <StatCard label="Lançamentos" value={String(r.listas.despesas.length)} icon={Receipt} />
@@ -598,7 +598,7 @@ function RelatorioPage() {
           />
         </TabsContent>
 
-        <TabsContent value="manutencao" className="mt-3 flex flex-col gap-3 sm:gap-4">
+        <TabsContent value="manutencao" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Total em manutenção" value={brl(r.manutencao)} icon={Wrench} tone="warning" />
             <StatCard label="Serviços" value={String(r.listas.manut.length)} icon={Wrench} />
@@ -634,7 +634,7 @@ function RelatorioPage() {
         </TabsContent>
 
 
-        <TabsContent value="abastecimento" className="mt-3 flex flex-col gap-3 sm:gap-4">
+        <TabsContent value="abastecimento" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Combustível" value={brl(r.combustivel)} icon={Fuel} tone="warning" />
             <StatCard label="Litros" value={`${r.litros.toFixed(1)} L`} icon={Fuel} />
