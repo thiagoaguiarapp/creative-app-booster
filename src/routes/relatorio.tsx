@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import {
   Bike,
   CircleDollarSign,
+  Crown,
   Download,
   Fuel,
   Gauge,
@@ -143,6 +144,7 @@ function kmPeriodo(abast: { odometro: number; kmRodado: number }[]) {
 
 function RelatorioPage() {
   const { data } = useSuspenseQuery(painelQueryOptions());
+  const premium = useRouteContext({ from: "__root__" }).usuario?.isPremium ?? false;
   const [de, setDe] = useState(() => iso(inicioMes()));
   const [ate, setAte] = useState(() => iso(fimMes()));
   const [busca, setBusca] = useState("");
@@ -393,12 +395,16 @@ function RelatorioPage() {
             <Button variant="outline" size="sm" asChild className="px-2 sm:px-3">
               <Link to="/contas-a-pagar">Contas a pagar</Link>
             </Button>
-            <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
-              <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
-            </Button>
-            <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
-              <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
-            </Button>
+            {premium && (
+              <>
+                <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
+                  <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
+                </Button>
+                <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
+                  <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
+                </Button>
+              </>
+            )}
           </div>
         }
       />
@@ -471,11 +477,22 @@ function RelatorioPage() {
         <div className="-mx-3 overflow-x-auto px-3 print:hidden sm:mx-0 sm:px-0">
           <TabsList className="w-max">
             <TabsTrigger value="geral" className="text-xs">Geral</TabsTrigger>
-            <TabsTrigger value="despesa" className="text-xs">Despesa</TabsTrigger>
-            <TabsTrigger value="manutencao" className="text-xs">Manutenção</TabsTrigger>
-            <TabsTrigger value="abastecimento" className="text-xs">Abastecimento</TabsTrigger>
+            <TabsTrigger value="despesa" className="text-xs">Despesa{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
+            <TabsTrigger value="manutencao" className="text-xs">Manutenção{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
+            <TabsTrigger value="abastecimento" className="text-xs">Abastecimento{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
           </TabsList>
         </div>
+
+        {!premium && aba !== "geral" && (
+          <div className="mt-3 flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center">
+            <Crown className="size-8 text-primary" />
+            <p className="font-semibold">Recurso Premium</p>
+            <p className="text-sm text-muted-foreground">
+              Veja o detalhamento de despesas, manutenção e abastecimento, com gráficos, médias e listas completas.
+            </p>
+            <Button asChild><Link to="/premium">Desbloquear Premium</Link></Button>
+          </div>
+        )}
 
         <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
@@ -547,7 +564,7 @@ function RelatorioPage() {
           </SectionCard>
         </TabsContent>
 
-        <TabsContent value="despesa" className="mt-3 flex flex-col gap-3 sm:gap-4">
+        <TabsContent value="despesa" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Total de despesas" value={brl(r.outras)} icon={Receipt} tone="destructive" />
             <StatCard label="Lançamentos" value={String(r.listas.despesas.length)} icon={Receipt} />
@@ -581,7 +598,7 @@ function RelatorioPage() {
           />
         </TabsContent>
 
-        <TabsContent value="manutencao" className="mt-3 flex flex-col gap-3 sm:gap-4">
+        <TabsContent value="manutencao" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Total em manutenção" value={brl(r.manutencao)} icon={Wrench} tone="warning" />
             <StatCard label="Serviços" value={String(r.listas.manut.length)} icon={Wrench} />
@@ -617,7 +634,7 @@ function RelatorioPage() {
         </TabsContent>
 
 
-        <TabsContent value="abastecimento" className="mt-3 flex flex-col gap-3 sm:gap-4">
+        <TabsContent value="abastecimento" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Combustível" value={brl(r.combustivel)} icon={Fuel} tone="warning" />
             <StatCard label="Litros" value={`${r.litros.toFixed(1)} L`} icon={Fuel} />
