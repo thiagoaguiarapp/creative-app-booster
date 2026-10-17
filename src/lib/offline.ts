@@ -96,7 +96,7 @@ export async function salvarOuEnfileirar(
 
 let sincronizando = false;
 
-/** Envia a fila em ordem. Para no primeiro erro de rede; descarta itens rejeitados pelo servidor. */
+/** Envia em ordem; só remove itens confirmados e mantém a fila no primeiro erro. */
 export async function sincronizarFila(
   salvar: (a: { data: ItemFila["payload"] }) => Promise<unknown>,
 ): Promise<{ enviados: number; falhas: number }> {
@@ -112,7 +112,7 @@ export async function sincronizarFila(
       } catch (e) {
         if (ehErroDeRede(e)) break;
         falhas++;
-        console.error("Lançamento offline rejeitado", item, e);
+        break;
       }
       salvarFila(lerFila().filter((i) => i.id !== item.id));
     }

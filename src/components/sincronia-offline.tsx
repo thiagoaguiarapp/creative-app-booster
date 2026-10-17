@@ -23,7 +23,7 @@ export function SincroniaOffline() {
         await queryClient.invalidateQueries({ queryKey: ["painel"] });
         toast.success(`${r.enviados} lançamento(s) feitos sem internet foram enviados.`);
       }
-      if (r.falhas > 0) toast.error(`${r.falhas} lançamento(s) não puderam ser salvos.`);
+      if (r.falhas > 0) toast.error("Não foi possível enviar. Os lançamentos continuam guardados no aparelho e serão reenviados automaticamente.", { id: "sincronia-offline-erro" });
     };
     const ficouOnline = () => {
       setOnline(true);
