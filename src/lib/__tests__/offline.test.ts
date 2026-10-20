@@ -51,7 +51,7 @@ describe("sincronização offline sem perda de lançamentos", () => {
     expect(falhar).toHaveBeenCalledTimes(5);
     expect(await sincronizarFila(falhar)).toEqual({ enviados: 0, falhas: 0 });
     expect(falhar).toHaveBeenCalledTimes(5);
-    const [item] = lerFila();
+    const item = lerFila()[0]!;
     expect(itemTravado(item)).toBe(true);
     descartarItem(item.id);
     expect(lerFila()).toEqual([]);
