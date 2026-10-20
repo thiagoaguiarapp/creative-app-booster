@@ -113,7 +113,11 @@ function valoresIniciais(
     if (inicial !== undefined && (!registro || inicial.trim() !== "")) {
       out[campo.key] = inicial;
     }
-
+    // lançamento novo: a data já vem com o dia de hoje (o usuário pode alterar)
+    if (!registro && campo.key === "data" && campo.tipo === "date" && !out[campo.key]) {
+      const d = new Date();
+      out[campo.key] = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
   }
 
   // abastecimento no crédito: parcelas e 1º vencimento vêm das marcas lidas do POSTO
@@ -441,8 +445,8 @@ function FormularioDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={enviar} className="flex min-h-0 flex-1 flex-col">
-          <div className="grid min-h-0 flex-1 gap-5 overflow-y-auto px-5 py-6 sm:grid-cols-2 sm:gap-4 sm:px-6">
+        <form onSubmit={enviar} className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <div className="grid gap-5 px-5 py-6 sm:grid-cols-2 sm:gap-4 sm:px-6">
           {CAMPOS[tipo].filter(visivel).map((campo) => (
             <div key={campo.key} className="flex min-w-0 flex-col gap-2 sm:gap-1.5">
               <Label htmlFor={campo.key} className="text-sm sm:text-xs">{campo.label}</Label>
