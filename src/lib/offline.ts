@@ -5,6 +5,8 @@ export type ItemFila = {
   id: string;
   criadoEm: number;
   payload: { tipo: Tipo; valores: Record<string, string>; row?: string };
+  tentativas?: number;
+  ultimoErro?: string;
 };
 
 const CHAVE_FILA = "nocorre:fila-offline";
@@ -96,7 +98,22 @@ export async function salvarOuEnfileirar(
 
 let sincronizando = false;
 
-/** Envia em ordem; só remove itens confirmados e mantém a fila no primeiro erro. */
+/** Após este número de recusas do servidor, o item para de ser reenviado sozinho. */
+export const MAX_TENTATIVAS = 5;
+
+export function itemTravado(item: ItemFila): boolean {
+  return (item.tentativas ?? 0) >= MAX_TENTATIVAS;
+}
+
+/** Remove um item da fila (ação do usuário para lançamentos travados). */
+export function descartarItem(id: string) {
+  salvarFila(lerFila().filter((i) => i.id !== id));
+}
+
+/**
+ * Envia em ordem; só remove itens confirmados. Um item recusado pelo servidor
+ * continua guardado (com contador de tentativas) e não impede os seguintes.
+ */
 export async function sincronizarFila(
   salvar: (a: { data: ItemFila["payload"] }) => Promise<unknown>,
 ): Promise<{ enviados: number; falhas: number }> {
@@ -106,15 +123,22 @@ export async function sincronizarFila(
   let falhas = 0;
   try {
     for (const item of lerFila()) {
+      if (itemTravado(item)) continue;
       try {
         await salvar({ data: item.payload });
         enviados++;
+        salvarFila(lerFila().filter((i) => i.id !== item.id));
       } catch (e) {
         if (ehErroDeRede(e)) break;
         falhas++;
-        break;
+        salvarFila(
+          lerFila().map((i) =>
+            i.id === item.id
+              ? { ...i, tentativas: (i.tentativas ?? 0) + 1, ultimoErro: String((e as Error)?.message ?? e) }
+              : i,
+          ),
+        );
       }
-      salvarFila(lerFila().filter((i) => i.id !== item.id));
     }
   } finally {
     sincronizando = false;

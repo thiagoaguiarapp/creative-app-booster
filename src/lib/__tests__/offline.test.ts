@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { enfileirar, lerFila, salvarOuEnfileirar, sincronizarFila, type ItemFila } from "../offline";
+import { descartarItem, enfileirar, itemTravado, lerFila, salvarOuEnfileirar, sincronizarFila, type ItemFila } from "../offline";
 
 const ganho: ItemFila["payload"] = { tipo: "ganho", valores: { valor: "50" } };
 const despesa: ItemFila["payload"] = { tipo: "despesa", valores: { valor: "20" } };
@@ -21,15 +21,13 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("sincronização offline sem perda de lançamentos", () => {
   it.each(["Servidor indisponível: 503", "Limite de gravações: 429", "Sessão expirada", "Dados inválidos"])(
-    "mantém o lançamento e os seguintes após %s e permite nova tentativa",
+    "mantém os lançamentos após %s e permite nova tentativa",
     async (mensagem) => {
       enfileirar(ganho);
       enfileirar(despesa);
-      const original = lerFila();
       const falhar = vi.fn().mockRejectedValue(new Error(mensagem));
-      expect(await sincronizarFila(falhar)).toEqual({ enviados: 0, falhas: 1 });
-      expect(falhar).toHaveBeenCalledTimes(1);
-      expect(lerFila()).toEqual(original);
+      expect(await sincronizarFila(falhar)).toEqual({ enviados: 0, falhas: 2 });
+      expect(lerFila().map((i) => i.payload)).toEqual([ganho, despesa]);
 
       const salvar = vi.fn().mockResolvedValue(undefined);
       expect(await sincronizarFila(salvar)).toEqual({ enviados: 2, falhas: 0 });
@@ -37,6 +35,27 @@ describe("sincronização offline sem perda de lançamentos", () => {
       expect(lerFila()).toEqual([]);
     },
   );
+
+  it("um lançamento recusado não impede o envio dos seguintes", async () => {
+    enfileirar(ganho);
+    enfileirar(despesa);
+    const salvar = vi.fn().mockRejectedValueOnce(new Error("Data inválida")).mockResolvedValueOnce(undefined);
+    expect(await sincronizarFila(salvar)).toEqual({ enviados: 1, falhas: 1 });
+    expect(lerFila().map((item) => item.payload)).toEqual([ganho]);
+  });
+
+  it("para de reenviar sozinho após 5 recusas, mas mantém guardado até o usuário descartar", async () => {
+    enfileirar(ganho);
+    const falhar = vi.fn().mockRejectedValue(new Error("Data inválida"));
+    for (let i = 0; i < 5; i++) await sincronizarFila(falhar);
+    expect(falhar).toHaveBeenCalledTimes(5);
+    expect(await sincronizarFila(falhar)).toEqual({ enviados: 0, falhas: 0 });
+    expect(falhar).toHaveBeenCalledTimes(5);
+    const [item] = lerFila();
+    expect(itemTravado(item)).toBe(true);
+    descartarItem(item.id);
+    expect(lerFila()).toEqual([]);
+  });
 
   it("remove somente o confirmado quando o próximo falha", async () => {
     enfileirar(ganho);
