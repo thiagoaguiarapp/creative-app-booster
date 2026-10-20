@@ -133,6 +133,7 @@ function ModalRapido({
           valores: { data, aplicativo: nome.trim(), valor: emMaos, forma },
         });
       }
+      void import("@/lib/admob").then((m) => m.registrarLancamentoParaAnuncio());
       if (r1.offline) {
         toast.success("Sem internet: lançamento guardado no aparelho. Será enviado quando a conexão voltar.");
         onClose();
