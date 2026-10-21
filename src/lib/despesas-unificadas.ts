@@ -52,7 +52,8 @@ function itemDespesa(d: Despesa): ItemDespesa {
     pagamento: d.pagamento,
     pagoEm: dataPago(d.descricao),
     forma: normalizaForma(d.pagamento),
-    extras: [],
+    extras:
+      d.vencimento && d.vencimentoIso !== d.iso ? [{ rotulo: "Vencimento", valor: d.vencimento }] : [],
     bruto: d as unknown as Record<string, unknown> & { row: string },
   };
 }
