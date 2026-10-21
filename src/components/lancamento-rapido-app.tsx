@@ -116,8 +116,7 @@ function ModalRapido({
 
   const valorFat = paraNumero(faturado);
   const valorMaos = paraNumero(emMaos);
-  const invalido =
-    !nome.trim() || valorFat <= 0 || valorMaos < 0 || valorMaos > valorFat + 0.001;
+  const invalido = !nome.trim() || valorFat <= 0 || valorMaos < 0;
 
   const gravar = async () => {
     if (invalido) return;
@@ -213,7 +212,9 @@ function ModalRapido({
               </div>
             )}
             {valorMaos > valorFat + 0.001 && (
-              <p className="text-xs text-destructive">Não pode ser maior que o faturado.</p>
+              <p className="text-xs text-muted-foreground">
+                Recebido a mais (gorjeta/troco): <strong>{brl(valorMaos - valorFat)}</strong>
+              </p>
             )}
             {valorMaos > 0 && valorMaos <= valorFat && (
               <p className={cn("text-xs text-muted-foreground")}>
