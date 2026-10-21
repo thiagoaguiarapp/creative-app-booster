@@ -43,6 +43,9 @@ export type Despesa = {
   categoria: string;
   descricao: string;
   pagamento: string;
+  /** data gravada na linha: vencimento da parcela no crédito (igual a iso fora dele) */
+  vencimentoIso?: string;
+  vencimento?: string;
 };
 
 export type Repasse = {

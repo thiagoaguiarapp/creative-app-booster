@@ -137,6 +137,7 @@ function valoresIniciais(
   if (tipo === "despesa" && registro && /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))) {
     const descricao = String(registro["descricao"] ?? "");
     const isoLinha =
+      String(registro["vencimentoIso"] ?? "") ||
       String(registro["iso"] ?? "") || paraInputDate(String(registro["data"] ?? ""));
     out["dataPrimeiraParcela"] = isoLinha;
     out["data"] = isoCompra(descricao, isoLinha);
