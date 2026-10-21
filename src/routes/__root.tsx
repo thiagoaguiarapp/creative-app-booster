@@ -24,6 +24,7 @@ import { AdSenseInit } from "@/components/ad-sense-init";
 import { AvisoAtualizacao } from "@/components/aviso-atualizacao";
 import { AvisoManutencao } from "@/components/aviso-manutencao";
 import { SincroniaOffline } from "@/components/sincronia-offline";
+import { BotaoVoltarAndroid } from "@/components/botao-voltar-android";
 import { guardarSessao, lerSessaoLocal } from "@/lib/offline";
 
 
@@ -287,6 +288,7 @@ function RootComponent() {
       <BarraInferior />
       <AvisoManutencao />
       <SincroniaOffline />
+      <BotaoVoltarAndroid />
       <AvisoAtualizacao />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
