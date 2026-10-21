@@ -1,3 +1,4 @@
+import { isoCompra } from "./pagamentos";
 import { dataBr, isoDate, num, selectAll, txt, type Linha } from "./db.server";
 import { dataPago, limpaDescricao, parcelasAbastecimento, primeiraParcelaIso } from "./pagamentos";
 import type { PainelData } from "./sheets-types";
@@ -134,16 +135,24 @@ async function carregar(userId: string): Promise<PainelData> {
 
   const despesas = rDesp
     .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
-    .map((l) => ({
+    .map((l) => {
+      // crédito: a linha guarda o vencimento; a despesa conta na data da compra
+      const vencimentoIso = isoDate(campo(l, "DATA", "Data"));
+      const obs = txt(campo(l, "OBS", "OBSERVAÇÃO", "DESCRICAO"));
+      const iso = isoCompra(obs, vencimentoIso);
+      return {
       id: idDe(l),
       row: idDe(l),
-      data: dataBr(campo(l, "DATA", "Data")),
-      iso: isoDate(campo(l, "DATA", "Data")),
+      data: iso === vencimentoIso ? dataBr(campo(l, "DATA", "Data")) : iso.split("-").reverse().join("/"),
+      iso,
+      vencimentoIso,
+      vencimento: dataBr(campo(l, "DATA", "Data")),
       valor: num(campo(l, "VALOR")),
       categoria: normalizar(campo(l, "TIPO DE GASTO", "CATEGORIA")) || "Outros",
       descricao: txt(campo(l, "OBS", "OBSERVAÇÃO", "DESCRICAO")),
       pagamento: normalizar(campo(l, "CONDIÇÃO DE PAGAMENTO", "CONDICAO DE PAGAMENTO")) || "—",
-    }))
+      };
+    })
     .sort(byIsoDesc);
 
   const repasses = rRep
