@@ -44,9 +44,9 @@ function LinhaDespesa({
         <>
           <TableCell className="num">
             {d.data}
-            {credito && (
+            {credito && d.extras.find((e) => e.rotulo === "Vencimento") && (
               <span className="block text-xs text-muted-foreground">
-                compra {paraBr(d.compraIso)}
+                vence {d.extras.find((e) => e.rotulo === "Vencimento")?.valor}
               </span>
             )}
           </TableCell>
