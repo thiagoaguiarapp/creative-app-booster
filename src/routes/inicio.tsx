@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { getMetaSemanalFn, salvarMetaSemanalFn } from "@/lib/metas.functions";
 import { limpaDescricao } from "@/lib/pagamentos";
 import { painelQueryOptions } from "@/lib/painel-query";
+import { resumoSemanaPorDia, totaisSemana } from "@/lib/resumo-semana";
 import { brl, statusManutencao } from "@/lib/sheets-types";
 import type { Abastecimento, Despesa, Ganho, Manutencao, Repasse } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,8 @@ export const Route = createFileRoute("/inicio")({
         content: "Resumo do dia, acesso rápido e controle completo dos ganhos e gastos do entregador.",
       },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: ({ context }) => {
@@ -123,14 +126,12 @@ function Home() {
     () => data.ganhos.filter((g) => g.iso >= inicioSemana && g.iso <= fimSemana),
     [data.ganhos, inicioSemana, fimSemana],
   );
-  const faturamentoSemana = ganhosSemana.reduce((s, g) => s + g.faturamento, 0);
-  const gastosSemana =
-    data.abastecimentos
-      .filter((x) => x.iso >= inicioSemana && x.iso <= fimSemana)
-      .reduce((s, x) => s + x.valorPago, 0) +
-    data.despesas
-      .filter((x) => x.iso >= inicioSemana && x.iso <= fimSemana)
-      .reduce((s, x) => s + x.valor, 0);
+  const resumoSemana = useMemo(
+    () => totaisSemana(resumoSemanaPorDia(data, inicioSemana)),
+    [data, inicioSemana],
+  );
+  const faturamentoSemana = resumoSemana.faturamento;
+  const gastosSemana = resumoSemana.gastos;
   const [oculto, setOculto] = useState(false);
 
   const hoje = useMemo(() => {
@@ -270,7 +271,9 @@ function Home() {
       <div className="panel p-4">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-sm font-semibold">Resumo da semana</p>
-          <Link to="/relatorio" className="text-xs text-primary">Detalhes</Link>
+          <Button asChild variant="link" size="sm" className="h-auto px-0 text-xs">
+            <Link to="/resumo-semana">Detalhes</Link>
+          </Button>
         </div>
         <div className="grid grid-cols-3 divide-x divide-border">
           <MiniMetrica rotulo="Faturamento" valor={oculto ? "•••" : brl(faturamentoSemana)} cor="text-success" />
