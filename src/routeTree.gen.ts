@@ -30,6 +30,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as RepassesRouteImport } from './routes/repasses'
+import { Route as ResumoSemanaRouteImport } from './routes/resumo-semana'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as TourRouteImport } from './routes/tour'
@@ -144,6 +145,11 @@ const RepassesRoute = RepassesRouteImport.update({
   path: '/repasses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResumoSemanaRoute = ResumoSemanaRouteImport.update({
+  id: '/resumo-semana',
+  path: '/resumo-semana',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SobreRoute = SobreRouteImport.update({
   id: '/sobre',
   path: '/sobre',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/resumo-semana': typeof ResumoSemanaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/tour': typeof TourRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/resumo-semana': typeof ResumoSemanaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/tour': typeof TourRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/relatorio': typeof RelatorioRoute
   '/repasses': typeof RepassesRoute
+  '/resumo-semana': typeof ResumoSemanaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/tour': typeof TourRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/resumo-semana'
     | '/sobre'
     | '/termos'
     | '/tour'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/resumo-semana'
     | '/sobre'
     | '/termos'
     | '/tour'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/relatorio'
     | '/repasses'
+    | '/resumo-semana'
     | '/sobre'
     | '/termos'
     | '/tour'
@@ -396,6 +408,7 @@ export interface RootRouteChildren {
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RelatorioRoute: typeof RelatorioRoute
   RepassesRoute: typeof RepassesRoute
+  ResumoSemanaRoute: typeof ResumoSemanaRoute
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
   TourRoute: typeof TourRoute
@@ -551,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepassesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/resumo-semana': {
+      id: '/resumo-semana'
+      path: '/resumo-semana'
+      fullPath: '/resumo-semana'
+      preLoaderRoute: typeof ResumoSemanaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sobre': {
       id: '/sobre'
       path: '/sobre'
@@ -656,6 +676,7 @@ const rootRouteChildren: RootRouteChildren = {
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RelatorioRoute: RelatorioRoute,
   RepassesRoute: RepassesRoute,
+  ResumoSemanaRoute: ResumoSemanaRoute,
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
   TourRoute: TourRoute,
