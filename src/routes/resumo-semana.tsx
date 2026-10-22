@@ -21,7 +21,7 @@ export const Route = createFileRoute("/resumo-semana")({
     { name: "robots", content: "noindex" },
   ] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(painelQueryOptions()),
-  errorComponent: ({ error }) => <div role="alert" className="p-6 text-sm text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div role="alert" className="p-6 text-sm text-destructive">{error instanceof Error ? error.message : "Não foi possível carregar o resumo da semana."}</div>,
   component: ResumoSemanaPage,
 });
 
