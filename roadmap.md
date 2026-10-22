@@ -1,5 +1,8 @@
 # Roadmap — Rota Control
 
+## Detalhes da semana
+- [ ] Abrir uma subtela pelo botão Detalhes da Início com faturamento e gastos por dia, mantendo os totais do resumo.
+
 ## Ajustes do Financeiro
 - [x] Abrir Recebimento/Repasse em Total, mostrando a divisão de pendências apenas ao filtrar por período.
 - [x] Unificar total a receber e incluir plataformas com pendências antigas na conciliação e em Dar baixa.
