@@ -1,7 +1,8 @@
 # Roadmap — Rota Control
 
 ## Detalhes da semana
-- [ ] Abrir uma subtela pelo botão Detalhes da Início com faturamento e gastos por dia, mantendo os totais do resumo.
+- [x] Abrir uma subtela pelo botão Detalhes da Início com faturamento e gastos por dia, mantendo os totais do resumo (4 testes passaram).
+- [ ] Conferir a subtela com dados reais na sessão do usuário (sem sessão autenticada disponível no ambiente de teste).
 
 ## Ajustes do Financeiro
 - [x] Abrir Recebimento/Repasse em Total, mostrando a divisão de pendências apenas ao filtrar por período.
