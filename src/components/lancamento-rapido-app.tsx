@@ -216,6 +216,10 @@ function ModalRapido({
               </p>
             )}
           </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="rap-cor">Entregas / corridas (opcional)</Label>
+            <Input id="rap-cor" inputMode="numeric" value={corridas} onChange={(e) => setCorridas(e.target.value.replace(/\D/g, ""))} placeholder="0" />
+          </div>
         </div>
         <DialogFooter>
           <Button className="h-11 w-full" disabled={invalido || salvando} onClick={gravar}>
