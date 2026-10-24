@@ -82,6 +82,8 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [x] Menu lateral do site: item "Entregas" abrindo a tela de entregas
 - [x] Entregas: card "Faturado" maior que os demais, com o valor por extenso (sem cortar)
 - [x] Entregas: opção "Personalizado" para buscar por intervalo de datas específico
+- [x] Lançamento de ganho: Faturamento antes de Rotas/corridas; corridas por último (formulário e lançamento rápido)
+- [x] Manutenção: botões Atualizar/Excluir em linha própria, sem cobrir o nome do serviço
 - [ ] Redesenho visual da Início (etapa 3)
 
 - [x] Pré-cadastro em etapas para novos usuários (veículo, apps, meta)
