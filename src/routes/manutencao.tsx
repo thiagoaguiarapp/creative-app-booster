@@ -412,6 +412,10 @@ function ManutencaoPage() {
                         <dd className="font-medium">{brl(custo)}</dd>
                       </div>
                     </dl>
+
+                    <div className="mt-4 border-t border-border/60 pt-3">
+                      <AcoesManutencao registro={m} odometroAtual={odometroAtual} />
+                    </div>
                   </article>
                 );
               })}
