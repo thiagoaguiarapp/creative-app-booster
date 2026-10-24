@@ -159,19 +159,22 @@ function EntregasPage() {
             {lista.map((g) => {
               const n = Number(g.corridas) || 0;
               return (
-                <li key={g.row} className="flex items-center gap-3 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{g.plataforma || "Sem app"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {g.data} · {n} entrega(s)
-                      {n > 0 ? ` · ${brl(g.faturamento / n)}/entrega` : ""}
-                    </p>
+                <li key={g.row} className="min-w-0 space-y-3 py-4">
+                  <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <p className="min-w-0 break-words font-medium">{g.plataforma || "Sem app"}</p>
+                    <p className="shrink-0 font-semibold text-primary">{brl(g.faturamento)}</p>
                   </div>
-                  <p className="shrink-0 font-semibold text-primary">{brl(g.faturamento)}</p>
-                  <AcoesLancamento
-                    tipo="ganho"
-                    registro={g as unknown as Record<string, unknown> & { row: string }}
-                  />
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <span>{g.data}</span>
+                    <span>{n} entrega(s)</span>
+                    {n > 0 && <span>{brl(g.faturamento / n)}/entrega</span>}
+                  </div>
+                  <div className="min-w-0 border-t border-border/60 pt-3">
+                    <AcoesLancamento
+                      tipo="ganho"
+                      registro={g as unknown as Record<string, unknown> & { row: string }}
+                    />
+                  </div>
                 </li>
               );
             })}
