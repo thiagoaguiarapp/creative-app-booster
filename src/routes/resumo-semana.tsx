@@ -33,6 +33,11 @@ function ResumoSemanaPage() {
   const hojeIso = format(hoje, "yyyy-MM-dd");
   const dias = resumoSemanaPorDia(data, format(inicio, "yyyy-MM-dd"));
   const total = totaisSemana(dias);
+  const iniIso = format(inicio, "yyyy-MM-dd");
+  const fimIso = format(fim, "yyyy-MM-dd");
+  const naSemana = (iso: string) => iso >= iniIso && iso <= fimIso;
+  const entregas = data.ganhos.filter((g) => naSemana(g.iso)).reduce((s, g) => s + g.corridas, 0);
+  const combustivel = data.abastecimentos.filter((a) => naSemana(a.iso)).reduce((s, a) => s + a.valorPago, 0);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 py-1">
@@ -50,6 +55,12 @@ function ResumoSemanaPage() {
         <Valor rotulo="Faturamento" valor={total.faturamento} cor="text-success" />
         <Valor rotulo="Gastos" valor={total.gastos} cor="text-destructive" />
         <Valor rotulo="Lucro" valor={total.lucro} cor={total.lucro >= 0 ? "text-success" : "text-destructive"} />
+      </section>
+      <section className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Mais da semana">
+        <Info rotulo="Entregas" texto={String(entregas)} />
+        <Info rotulo="Ticket médio" texto={entregas > 0 ? brl(total.faturamento / entregas) : "—"} />
+        <Info rotulo="Combustível" texto={brl(combustivel)} />
+        <Info rotulo="Outras despesas" texto={brl(total.gastos - combustivel)} />
       </section>
 
       <section aria-labelledby="dias-semana">
@@ -70,6 +81,15 @@ function ResumoSemanaPage() {
           ))}
         </ul>
       </section>
+    </div>
+  );
+}
+
+function Info({ rotulo, texto }: { rotulo: string; texto: string }) {
+  return (
+    <div className="panel min-w-0 p-3">
+      <p className="text-[11px] text-muted-foreground">{rotulo}</p>
+      <p className="num truncate text-sm font-semibold">{texto}</p>
     </div>
   );
 }
