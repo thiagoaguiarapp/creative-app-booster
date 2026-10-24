@@ -394,7 +394,11 @@ function CardPerformance({
 
   return (
     <div className="panel p-4">
-      <div className="flex items-start justify-between gap-3">
+      <Link
+        to="/resumo-semana"
+        aria-label="Abrir resumo completo da semana"
+        className="flex items-start justify-between gap-3 rounded-md"
+      >
         <div>
           <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
             Semana
@@ -406,6 +410,9 @@ function CardPerformance({
                 ? `Faltam ${brl(faltante)} da meta de ${brl(meta)}`
                 : `Meta de ${brl(meta)} batida!`
               : "Sem meta definida"}
+          </p>
+          <p className="mt-1 flex items-center text-[11px] font-medium text-primary">
+            Ver semana completa <ChevronRight className="size-3" />
           </p>
         </div>
         <div className="flex h-16 items-end gap-1">
@@ -423,7 +430,7 @@ function CardPerformance({
             </div>
           ))}
         </div>
-      </div>
+      </Link>
       {metaDefinida && (
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
           <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progresso}%` }} />
