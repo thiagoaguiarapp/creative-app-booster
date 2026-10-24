@@ -54,7 +54,9 @@ export function LinhaDetalhavel({
             <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3 sm:text-sm">
               {detalhes}
             </div>
-            {acoes && <div className="mt-3 flex justify-end">{acoes}</div>}
+            {acoes && (
+              <div className="mt-4 border-t border-border/60 pt-3">{acoes}</div>
+            )}
           </TableCell>
         </TableRow>
       )}

@@ -907,25 +907,25 @@ export function AcoesLancamento({
   });
 
   return (
-    <div className="flex justify-end gap-1">
+    <div className="flex w-full flex-wrap gap-2">
       <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Editar lançamento"
+        variant="outline"
+        size="sm"
+        className="min-w-36 flex-1 sm:flex-none"
         onClick={() => setAberto(true)}
       >
-        <Pencil className="size-4" />
+        <Pencil className="size-4" /> Editar
       </Button>
       <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Excluir lançamento"
+        variant="outline"
+        size="sm"
+        className="min-w-36 flex-1 sm:flex-none"
         disabled={remover.isPending}
         onClick={() => {
           if (confirm("Excluir este lançamento da planilha?")) remover.mutate();
         }}
       >
-        <Trash2 className="size-4 text-destructive" />
+        <Trash2 className="size-4 text-destructive" /> Excluir
       </Button>
       {aberto && (
         <FormularioDialog

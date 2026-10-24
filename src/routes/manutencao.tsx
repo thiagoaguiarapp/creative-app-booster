@@ -258,24 +258,26 @@ function AcoesManutencao({
 
   return (
     <>
-      <div className="flex items-center gap-1">
+      <div className="flex w-full flex-wrap gap-2">
         <Button
           size="sm"
-          className="h-7 gap-1 text-xs"
+          variant="outline"
+          className="min-w-36 flex-1 sm:flex-none"
           onClick={() => setEditando(true)}
         >
           <Pencil className="size-3" /> Atualizar
         </Button>
         <Button
-          variant="ghost"
-          size="icon"
+          variant="outline"
+          size="sm"
+          className="min-w-36 flex-1 sm:flex-none"
           aria-label="Excluir manutenção"
           disabled={remover.isPending}
           onClick={() => {
             if (confirm("Excluir este registro de manutenção?")) remover.mutate();
           }}
         >
-          <Trash2 className="size-4 text-destructive" />
+          <Trash2 className="size-4 text-destructive" /> Excluir
         </Button>
       </div>
       {editando && (
