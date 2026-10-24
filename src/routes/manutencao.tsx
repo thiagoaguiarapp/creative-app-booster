@@ -378,12 +378,9 @@ function ManutencaoPage() {
                           {m.veiculo} · {m.data}
                         </p>
                       </div>
-                      <div className="flex shrink-0 flex-col items-end gap-2">
-                        <Badge variant="outline" className={info.badge}>
-                          {info.label}
-                        </Badge>
-                        <AcoesManutencao registro={m} odometroAtual={odometroAtual} />
-                      </div>
+                      <Badge variant="outline" className={cn("shrink-0", info.badge)}>
+                        {info.label}
+                      </Badge>
                     </div>
 
                     <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
