@@ -186,15 +186,9 @@ function ModalRapido({
               <Input type="date" value={data} onChange={(e) => setData(e.target.value)} className="h-9" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="grid gap-1.5">
-              <Label htmlFor="rap-fat">Faturado (R$)</Label>
-              <Input id="rap-fat" inputMode="decimal" value={faturado} onChange={(e) => setFaturado(e.target.value)} placeholder="0,00" autoFocus={!novoApp} />
-            </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="rap-cor">Entregas</Label>
-              <Input id="rap-cor" inputMode="numeric" value={corridas} onChange={(e) => setCorridas(e.target.value.replace(/\D/g, ""))} placeholder="0" />
-            </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="rap-fat">Faturado (R$)</Label>
+            <Input id="rap-fat" inputMode="decimal" value={faturado} onChange={(e) => setFaturado(e.target.value)} placeholder="0,00" autoFocus={!novoApp} />
           </div>
           <div className="grid gap-1.5 rounded-lg border border-border p-3">
             <Label htmlFor="rap-maos">Recebido em mãos (opcional)</Label>
@@ -221,6 +215,10 @@ function ModalRapido({
                 A receber do app: <strong>{brl(valorFat - valorMaos)}</strong>
               </p>
             )}
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="rap-cor">Entregas / corridas (opcional)</Label>
+            <Input id="rap-cor" inputMode="numeric" value={corridas} onChange={(e) => setCorridas(e.target.value.replace(/\D/g, ""))} placeholder="0" />
           </div>
         </div>
         <DialogFooter>

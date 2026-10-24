@@ -85,8 +85,8 @@ export const CAMPOS: Record<Tipo, Campo[]> = {
   ganho: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
     { key: "plataforma", label: "Aplicativo", tipo: "text", obrigatorio: true, sugestoes: "plataforma" },
-    { key: "corridas", label: "Rotas / corridas", tipo: "number" },
     { key: "faturamento", label: "Faturamento (R$)", tipo: "money", obrigatorio: true },
+    { key: "corridas", label: "Rotas / corridas", tipo: "number" },
   ],
   abastecimento: [
     { key: "data", label: "Data", tipo: "date", obrigatorio: true },
