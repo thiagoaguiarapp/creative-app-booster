@@ -153,11 +153,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
     }
+    // No app nativo, "/" e "/nocorre" continuam levando direto ao painel;
+    // na web, o usuário logado pode navegar pelo portal normalmente.
     if (
       usuario &&
       (location.pathname === "/auth" ||
-        location.pathname === "/" ||
-        location.pathname === "/nocorre")
+        (nativo &&
+          (location.pathname === "/" || location.pathname === "/nocorre")))
     ) {
       throw redirect({ to: usuario.nome ? "/inicio" : "/perfil" });
     }

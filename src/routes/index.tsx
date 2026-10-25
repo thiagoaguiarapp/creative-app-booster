@@ -63,6 +63,7 @@ const APPS = [
 ];
 
 function Portal() {
+  const { usuario } = Route.useRouteContext();
   return (
     <div className="flex min-h-svh flex-col">
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-14 px-4 py-8 sm:py-12">
@@ -76,9 +77,19 @@ function Portal() {
               Rota Control
             </span>
           </div>
-          <Button variant="ghost" asChild>
-            <Link to="/auth">Entrar no No Corre</Link>
-          </Button>
+          {usuario?.nome ? (
+            <Button variant="ghost" asChild>
+              <Link to="/inicio">Abrir o painel</Link>
+            </Button>
+          ) : usuario ? (
+            <Button variant="ghost" asChild>
+              <Link to="/perfil">Completar cadastro</Link>
+            </Button>
+          ) : (
+            <Button variant="ghost" asChild>
+              <Link to="/auth">Entrar no No Corre</Link>
+            </Button>
+          )}
         </header>
 
         {/* Hero */}
