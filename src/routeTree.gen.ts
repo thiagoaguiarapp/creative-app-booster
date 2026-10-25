@@ -24,6 +24,7 @@ import { Route as EntregasRouteImport } from './routes/entregas'
 import { Route as InicioRouteImport } from './routes/inicio'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
+import { Route as NocorreRouteImport } from './routes/nocorre'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -113,6 +114,11 @@ const LancamentosRoute = LancamentosRouteImport.update({
 const ManutencaoRoute = ManutencaoRouteImport.update({
   id: '/manutencao',
   path: '/manutencao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NocorreRoute = NocorreRouteImport.update({
+  id: '/nocorre',
+  path: '/nocorre',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
+  '/nocorre': typeof NocorreRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
+  '/nocorre': typeof NocorreRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -272,6 +280,7 @@ export interface FileRoutesById {
   '/inicio': typeof InicioRoute
   '/lancamentos': typeof LancamentosRoute
   '/manutencao': typeof ManutencaoRoute
+  '/nocorre': typeof NocorreRoute
   '/perfil': typeof PerfilRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -306,6 +315,7 @@ export interface FileRouteTypes {
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
+    | '/nocorre'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
+    | '/nocorre'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -369,6 +380,7 @@ export interface FileRouteTypes {
     | '/inicio'
     | '/lancamentos'
     | '/manutencao'
+    | '/nocorre'
     | '/perfil'
     | '/premium'
     | '/privacidade'
@@ -402,6 +414,7 @@ export interface RootRouteChildren {
   InicioRoute: typeof InicioRoute
   LancamentosRoute: typeof LancamentosRoute
   ManutencaoRoute: typeof ManutencaoRoute
+  NocorreRoute: typeof NocorreRoute
   PerfilRoute: typeof PerfilRoute
   PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -520,6 +533,13 @@ declare module '@tanstack/react-router' {
       path: '/manutencao'
       fullPath: '/manutencao'
       preLoaderRoute: typeof ManutencaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nocorre': {
+      id: '/nocorre'
+      path: '/nocorre'
+      fullPath: '/nocorre'
+      preLoaderRoute: typeof NocorreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -670,6 +690,7 @@ const rootRouteChildren: RootRouteChildren = {
   InicioRoute: InicioRoute,
   LancamentosRoute: LancamentosRoute,
   ManutencaoRoute: ManutencaoRoute,
+  NocorreRoute: NocorreRoute,
   PerfilRoute: PerfilRoute,
   PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,

@@ -145,14 +145,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       location.pathname === "/calculadora" ||
       location.pathname === "/blog" ||
       location.pathname.startsWith("/blog/") ||
-      (location.pathname === "/" && !nativo);
+      (location.pathname === "/" && !nativo) ||
+      (location.pathname === "/nocorre" && !nativo);
     const { usuario, falhou } = await carregarSessao();
     // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
     if (falhou) return { usuario };
     if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
     }
-    if (usuario && (location.pathname === "/auth" || location.pathname === "/")) {
+    if (
+      usuario &&
+      (location.pathname === "/auth" ||
+        location.pathname === "/" ||
+        location.pathname === "/nocorre")
+    ) {
       throw redirect({ to: usuario.nome ? "/inicio" : "/perfil" });
     }
     if (usuario && !usuario.nome && location.pathname !== "/perfil" && !publica) {
