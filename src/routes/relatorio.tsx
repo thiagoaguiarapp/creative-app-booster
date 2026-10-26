@@ -2,17 +2,19 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import {
   Bike,
+  ChevronRight,
   CircleDollarSign,
   Crown,
   Download,
   Fuel,
   Gauge,
+  Lock,
   Printer,
   Receipt,
   TrendingUp,
   Wrench,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -30,6 +32,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   Table,
   TableBody,
   TableCell,
@@ -38,6 +47,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { montaDespesasUnificadas } from "@/lib/despesas-unificadas";
 import { paresDuplicados } from "@/lib/fechamento";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
@@ -151,6 +161,7 @@ function RelatorioPage() {
   const [tipo, setTipo] = useState<TipoFiltro>("todos");
   const [veiculo, setVeiculo] = useState("");
   const [aba, setAba] = useState("geral");
+  const [detalhe, setDetalhe] = useState<DetalheCard>(null);
 
   const filtrosAtivos = [
     busca.trim() && `"${busca.trim()}"`,
@@ -305,6 +316,83 @@ function RelatorioPage() {
   };
 
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
+
+  // Lançamentos que formam o valor de cada card da aba Geral.
+  // "custos" usa a lista unificada (sem duplicar manutenção lançada como
+  // despesa) e respeita o mesmo filtro de veículo do total do card.
+  const detalheInfo = useMemo((): { titulo: string; total: number; linhas: LinhaDetalhe[] } | null => {
+    if (!detalhe) return null;
+    if (detalhe === "faturamento") {
+      return {
+        titulo: "Faturamento",
+        total: r.faturamento,
+        linhas: [...r.listas.ganhos]
+          .sort((a, b) => b.iso.localeCompare(a.iso))
+          .map((g) => ({
+            id: g.row,
+            data: g.data,
+            texto: g.plataforma || "Sem app",
+            sub: g.corridas ? `${g.corridas} entrega(s)` : "",
+            valor: g.faturamento,
+          })),
+      };
+    }
+    if (detalhe === "combustivel") {
+      return {
+        titulo: "Combustível",
+        total: r.combustivel,
+        linhas: [...r.listas.abast]
+          .sort((a, b) => b.iso.localeCompare(a.iso))
+          .map((a) => ({
+            id: a.row,
+            data: a.data,
+            texto: [a.combustivel, a.posto].filter(Boolean).join(" · ") || "Abastecimento",
+            sub: a.litros ? `${a.litros.toFixed(1)} L` : "",
+            valor: a.valorPago,
+          })),
+      };
+    }
+    if (detalhe === "manutencao") {
+      return {
+        titulo: "Manutenção",
+        total: r.manutencao,
+        linhas: [...r.listas.manut]
+          .sort((a, b) => b.iso.localeCompare(a.iso))
+          .map((m) => ({
+            id: m.row,
+            data: m.data,
+            texto: m.servico || "Manutenção",
+            sub: m.veiculo || "",
+            valor: m.valor,
+          })),
+      };
+    }
+    // custos: mesmo universo do card "Custo total"
+    const itens = montaDespesasUnificadas(data).filter((it) => {
+      if (!dentro(it.iso)) return false;
+      if (veiculo) {
+        if (it.tipo === "despesa") return false;
+        const v = (it.bruto as { veiculo?: string }).veiculo;
+        if (v !== veiculo) return false;
+      }
+      if (tipo === "despesa") return it.tipo === "despesa";
+      if (tipo === "abastecimento") return it.tipo === "abastecimento";
+      if (tipo === "manutencao") return it.tipo === "manutencao";
+      if (tipo === "ganho" || tipo === "repasse") return false;
+      return true;
+    });
+    return {
+      titulo: "Custo total",
+      total: r.custos,
+      linhas: itens.map((it) => ({
+        id: it.id,
+        data: it.data,
+        texto: it.categoria || it.origem,
+        sub: it.descricao || it.origem,
+        valor: it.valor,
+      })),
+    };
+  }, [detalhe, r, data, de, ate, tipo, veiculo]);
 
 
   const r2 = (v: number) => Math.round(v * 100) / 100;
@@ -496,8 +584,12 @@ function RelatorioPage() {
 
         <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
-            <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
-            <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+            <CardClicavel onAbrir={() => setDetalhe("faturamento")}>
+              <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
+            </CardClicavel>
+            <CardClicavel onAbrir={() => setDetalhe("custos")}>
+              <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+            </CardClicavel>
             <div className="col-span-2 sm:col-span-1">
               <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
             </div>
@@ -506,8 +598,12 @@ function RelatorioPage() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
             <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
-            <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
-            <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+            <CardClicavel onAbrir={() => setDetalhe("combustivel")}>
+              <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
+            </CardClicavel>
+            <CardClicavel onAbrir={() => setDetalhe("manutencao")}>
+              <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+            </CardClicavel>
           </div>
 
           {evolucao}
@@ -671,8 +767,116 @@ function RelatorioPage() {
         </TabsContent>
       </Tabs>
 
+      <Sheet open={detalhe !== null} onOpenChange={(aberto) => !aberto && setDetalhe(null)}>
+        <SheetContent
+          side="bottom"
+          className="mx-auto flex max-h-[85dvh] w-full max-w-2xl flex-col gap-0 rounded-t-2xl p-0"
+        >
+          {detalheInfo && (
+            <DetalheSheet info={detalheInfo} premium={premium} periodo={`${de || "início"} a ${ate || "hoje"}`} />
+          )}
+        </SheetContent>
+      </Sheet>
 
     </div>
+  );
+}
+
+type DetalheCard = "faturamento" | "custos" | "combustivel" | "manutencao" | null;
+
+type LinhaDetalhe = {
+  id: string;
+  data: string;
+  texto: string;
+  sub: string;
+  valor: number;
+};
+
+/** Card de resumo que abre a gaveta com a origem do valor. */
+function CardClicavel({ children, onAbrir }: { children: ReactNode; onAbrir: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onAbrir}
+      aria-label="Ver de onde vem este valor"
+      className="group relative min-w-0 text-left transition-transform active:scale-[0.98]"
+    >
+      {children}
+      <span className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/70 group-hover:text-primary sm:text-[10px]">
+        Detalhes <ChevronRight className="size-3" />
+      </span>
+    </button>
+  );
+}
+
+/** Gaveta com os lançamentos que formam o valor do card. Lista completa é Premium. */
+function DetalheSheet({
+  info,
+  premium,
+  periodo,
+}: {
+  info: { titulo: string; total: number; linhas: LinhaDetalhe[] };
+  premium: boolean;
+  periodo: string;
+}) {
+  const visiveis = premium ? info.linhas : info.linhas.slice(0, 3);
+  const escondidos = info.linhas.length - visiveis.length;
+
+  return (
+    <>
+      <SheetHeader className="border-b border-border px-4 py-3 pr-12 text-left sm:px-6">
+        <SheetTitle className="font-display text-base uppercase tracking-wide sm:text-lg">
+          {info.titulo}
+        </SheetTitle>
+        <SheetDescription className="text-xs">
+          {periodo} · {info.linhas.length} lançamento(s) · total {brl(info.total)}
+        </SheetDescription>
+      </SheetHeader>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-6">
+        {info.linhas.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            Nenhum lançamento neste período.
+          </p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {visiveis.map((l, i) => (
+              <li
+                key={l.id}
+                className={cn(
+                  "flex items-baseline justify-between gap-3 py-2.5",
+                  !premium && i === visiveis.length - 1 && escondidos > 0 && "blur-[3px]",
+                )}
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{l.texto}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {l.data}
+                    {l.sub ? ` · ${l.sub}` : ""}
+                  </p>
+                </div>
+                <p className="num shrink-0 text-sm font-semibold">{brl(l.valor)}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {!premium && escondidos > 0 && (
+          <div className="mt-2 flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 text-center">
+            <Lock className="size-5 text-primary" />
+            <p className="text-sm font-semibold">
+              Mais {escondidos} lançamento(s) escondido(s)
+            </p>
+            <p className="text-xs text-muted-foreground">
+              No Premium você vê a lista completa de onde vem cada valor do relatório.
+            </p>
+            <Button asChild size="sm" className="mt-1">
+              <Link to="/premium">Desbloquear Premium</Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
