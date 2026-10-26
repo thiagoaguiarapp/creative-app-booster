@@ -113,7 +113,7 @@ export const template: TemplateEntry = {
   component: ConfirmarEmail,
   subject: 'Confirme seu e-mail — No Corre',
   displayName: 'Confirmação de cadastro',
-  previewData: { link: 'https://rotacontrolapp.com.br/confirmado' },
+  previewData: { link: 'https://nocorre.rotacontrolapp.com.br/confirmado' },
 }
 
 export default ConfirmarEmail

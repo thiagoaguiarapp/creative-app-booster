@@ -5,9 +5,10 @@ const config: CapacitorConfig = {
   appName: "No Corre",
   webDir: ".output/public",
   server: {
-    // Domínio oficial de produção. Nunca usar o link de preview do Lovable,
-    // pois ele exige login na plataforma e bloqueia o app instalado.
-    url: "https://www.rotacontrolapp.com.br",
+    // Domínio oficial do No Corre (subdomínio próprio da Rota Control).
+    // Nunca usar link de preview do Lovable nem o domínio antigo em Vercel:
+    // o app instalado precisa abrir sempre a versão publicada deste projeto.
+    url: "https://nocorre.rotacontrolapp.com.br",
     cleartext: true,
   },
   plugins: {

@@ -26,6 +26,7 @@ import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as ManutencaoRouteImport } from './routes/manutencao'
 import { Route as NocorreRouteImport } from './routes/nocorre'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
@@ -127,6 +128,11 @@ const PerfilRoute = PerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/manutencao': typeof ManutencaoRoute
   '/nocorre': typeof NocorreRoute
   '/perfil': typeof PerfilRoute
+  '/portal': typeof PortalRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -255,6 +262,7 @@ export interface FileRoutesByTo {
   '/manutencao': typeof ManutencaoRoute
   '/nocorre': typeof NocorreRoute
   '/perfil': typeof PerfilRoute
+  '/portal': typeof PortalRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/manutencao': typeof ManutencaoRoute
   '/nocorre': typeof NocorreRoute
   '/perfil': typeof PerfilRoute
+  '/portal': typeof PortalRoute
   '/premium': typeof PremiumRoute
   '/privacidade': typeof PrivacidadeRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
     | '/manutencao'
     | '/nocorre'
     | '/perfil'
+    | '/portal'
     | '/premium'
     | '/privacidade'
     | '/redefinir-senha'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/manutencao'
     | '/nocorre'
     | '/perfil'
+    | '/portal'
     | '/premium'
     | '/privacidade'
     | '/redefinir-senha'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/manutencao'
     | '/nocorre'
     | '/perfil'
+    | '/portal'
     | '/premium'
     | '/privacidade'
     | '/redefinir-senha'
@@ -428,6 +440,7 @@ export interface RootRouteChildren {
   ManutencaoRoute: typeof ManutencaoRoute
   NocorreRoute: typeof NocorreRoute
   PerfilRoute: typeof PerfilRoute
+  PortalRoute: typeof PortalRoute
   PremiumRoute: typeof PremiumRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
@@ -560,6 +573,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/premium': {
@@ -712,6 +732,7 @@ const rootRouteChildren: RootRouteChildren = {
   ManutencaoRoute: ManutencaoRoute,
   NocorreRoute: NocorreRoute,
   PerfilRoute: PerfilRoute,
+  PortalRoute: PortalRoute,
   PremiumRoute: PremiumRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
