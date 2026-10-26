@@ -2,11 +2,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import {
   Bike,
+  ChevronRight,
   CircleDollarSign,
   Crown,
   Download,
   Fuel,
   Gauge,
+  Lock,
   Printer,
   Receipt,
   TrendingUp,
@@ -30,6 +32,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   Table,
   TableBody,
   TableCell,
@@ -38,6 +47,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { montaDespesasUnificadas } from "@/lib/despesas-unificadas";
 import { paresDuplicados } from "@/lib/fechamento";
 import { painelQueryOptions } from "@/lib/painel-query";
 import { brl } from "@/lib/sheets-types";
