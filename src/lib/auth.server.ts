@@ -322,9 +322,13 @@ export async function reenviarConfirmacao(email: string, redirectTo: string): Pr
   }
 }
 
-export async function recuperarSenha(email: string, _redirectTo: string): Promise<void> {
-  const redirectTo = "https://www.rotacontrolapp.com.br/redefinir-senha";
-  const res = await fetch(`${url()}/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
+export async function recuperarSenha(email: string, redirectTo: string): Promise<void> {
+  // Usa o endereço de onde o pedido veio; sem ele, cai no domínio oficial do No Corre.
+  const destino =
+    redirectTo && /^https?:\/\//.test(redirectTo)
+      ? redirectTo
+      : "https://nocorre.rotacontrolapp.com.br/redefinir-senha";
+  const res = await fetch(`${url()}/recover?redirect_to=${encodeURIComponent(destino)}`, {
     method: "POST",
     headers: { apikey: anon(), "Content-Type": "application/json" },
     body: JSON.stringify({ email }),

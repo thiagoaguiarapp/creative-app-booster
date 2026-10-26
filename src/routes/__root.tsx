@@ -148,15 +148,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       location.pathname === "/blog" ||
       location.pathname.startsWith("/blog/") ||
       (location.pathname === "/" && !nativo) ||
-      (location.pathname === "/nocorre" && !nativo);
+      (location.pathname === "/nocorre" && !nativo) ||
+      (location.pathname === "/portal" && !nativo);
     const { usuario, falhou } = await carregarSessao();
     // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
     if (falhou) return { usuario };
     if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
     }
-    // No app nativo, "/" e "/nocorre" continuam levando direto ao painel;
-    // na web, o usuário logado pode navegar pelo portal normalmente.
+    // No app nativo, a raiz leva direto ao painel; na web, o usuário logado
+    // pode ver a página do No Corre e o portal da Rota Control normalmente.
     if (
       usuario &&
       (location.pathname === "/auth" ||

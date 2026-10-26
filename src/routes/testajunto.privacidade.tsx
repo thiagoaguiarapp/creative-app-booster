@@ -104,8 +104,8 @@ function TestaJuntoPrivacidade() {
         </div>
       </section>
 
-      <Link to="/" className="text-sm text-primary underline-offset-4 hover:underline">
-        Voltar ao início
+      <Link to="/portal" className="text-sm text-primary underline-offset-4 hover:underline">
+        Voltar ao portal Rota Control
       </Link>
     </div>
   );
