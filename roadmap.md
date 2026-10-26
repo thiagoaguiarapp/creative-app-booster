@@ -1,5 +1,9 @@
 # Roadmap — Rota Control
 
+## Relatório
+- [x] Cards de Faturamento, Custo total, Combustível e Manutenção abrem gaveta com a origem do valor; lista completa só Premium, Free vê prévia de 3 com convite.
+- [ ] Conferir a gaveta de detalhes com dados reais na sessão do usuário (sem sessão autenticada disponível no ambiente de teste).
+
 ## Detalhes da semana
 - [x] Abrir uma subtela pelo botão Detalhes da Início com faturamento e gastos por dia, mantendo os totais do resumo (4 testes passaram).
 - [ ] Conferir a subtela com dados reais na sessão do usuário (sem sessão autenticada disponível no ambiente de teste).
