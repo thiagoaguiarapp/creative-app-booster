@@ -26,6 +26,7 @@ import { AvisoManutencao } from "@/components/aviso-manutencao";
 import { SincroniaOffline } from "@/components/sincronia-offline";
 import { BotaoVoltarAndroid } from "@/components/botao-voltar-android";
 import { guardarSessao, lerSessaoLocal } from "@/lib/offline";
+import { destinoEntradaApp } from "@/lib/entrada-app";
 
 
 
@@ -151,20 +152,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       (location.pathname === "/nocorre" && !nativo) ||
       (location.pathname === "/portal" && !nativo);
     const { usuario, falhou } = await carregarSessao();
+    // A conta conectada entra no painel também no primeiro carregamento
+    // do servidor, que ainda não consegue identificar o Capacitor.
+    const destino = destinoEntradaApp(location.pathname, usuario);
+    if (destino) throw redirect({ to: destino });
     // Falha de rede: não desloga nem redireciona, apenas mantém a tela atual.
     if (falhou) return { usuario };
     if (!usuario && !publica) {
       throw redirect({ to: "/auth" });
-    }
-    // No app nativo, a raiz leva direto ao painel; na web, o usuário logado
-    // pode ver a página do No Corre e o portal da Rota Control normalmente.
-    if (
-      usuario &&
-      (location.pathname === "/auth" ||
-        (nativo &&
-          (location.pathname === "/" || location.pathname === "/nocorre")))
-    ) {
-      throw redirect({ to: usuario.nome ? "/inicio" : "/perfil" });
     }
     if (usuario && !usuario.nome && location.pathname !== "/perfil" && !publica) {
       throw redirect({ to: "/perfil" });
