@@ -39,6 +39,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as TestajuntoPrivacidadeRouteImport } from './routes/testajunto.privacidade'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -191,6 +192,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BlogRoute,
 } as any)
+const TestajuntoPrivacidadeRoute = TestajuntoPrivacidadeRouteImport.update({
+  id: '/testajunto/privacidade',
+  path: '/testajunto/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
   '/admin/': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
   '/admin': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
   '/admin/': typeof AdminIndexRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/usuarios'
     | '/blog/$slug'
+    | '/testajunto/privacidade'
     | '/admin/'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/usuarios'
     | '/blog/$slug'
+    | '/testajunto/privacidade'
     | '/admin'
     | '/lovable/email/transactional/preview'
   id:
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '/admin/assinaturas'
     | '/admin/usuarios'
     | '/blog/$slug'
+    | '/testajunto/privacidade'
     | '/admin/'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -425,6 +437,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
   TourRoute: typeof TourRoute
+  TestajuntoPrivacidadeRoute: typeof TestajuntoPrivacidadeRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof BlogRoute
     }
+    '/testajunto/privacidade': {
+      id: '/testajunto/privacidade'
+      path: '/testajunto/privacidade'
+      fullPath: '/testajunto/privacidade'
+      preLoaderRoute: typeof TestajuntoPrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -701,6 +721,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
   TourRoute: TourRoute,
+  TestajuntoPrivacidadeRoute: TestajuntoPrivacidadeRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
