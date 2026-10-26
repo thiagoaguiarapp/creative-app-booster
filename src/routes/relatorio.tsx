@@ -161,6 +161,7 @@ function RelatorioPage() {
   const [tipo, setTipo] = useState<TipoFiltro>("todos");
   const [veiculo, setVeiculo] = useState("");
   const [aba, setAba] = useState("geral");
+  const [detalhe, setDetalhe] = useState<DetalheCard>(null);
 
   const filtrosAtivos = [
     busca.trim() && `"${busca.trim()}"`,
