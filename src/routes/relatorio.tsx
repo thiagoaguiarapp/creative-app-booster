@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Wrench,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -793,7 +793,7 @@ type LinhaDetalhe = {
 };
 
 /** Card de resumo que abre a gaveta com a origem do valor. */
-function CardClicavel({ children, onAbrir }: { children: React.ReactNode; onAbrir: () => void }) {
+function CardClicavel({ children, onAbrir }: { children: ReactNode; onAbrir: () => void }) {
   return (
     <button
       type="button"
