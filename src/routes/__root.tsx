@@ -139,6 +139,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       location.pathname === "/confirmado" ||
       location.pathname === "/termos" ||
       location.pathname === "/privacidade" ||
+      location.pathname === "/testajunto/privacidade" ||
+
       location.pathname === "/sobre" ||
       location.pathname === "/contato" ||
       location.pathname === "/tour" ||
