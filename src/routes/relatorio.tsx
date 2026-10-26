@@ -317,6 +317,83 @@ function RelatorioPage() {
 
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
+  // Lançamentos que formam o valor de cada card da aba Geral.
+  // "custos" usa a lista unificada (sem duplicar manutenção lançada como
+  // despesa) e respeita o mesmo filtro de veículo do total do card.
+  const detalheInfo = useMemo((): { titulo: string; total: number; linhas: LinhaDetalhe[] } | null => {
+    if (!detalhe) return null;
+    if (detalhe === "faturamento") {
+      return {
+        titulo: "Faturamento",
+        total: r.faturamento,
+        linhas: [...r.listas.ganhos]
+          .sort((a, b) => b.iso.localeCompare(a.iso))
+          .map((g) => ({
+            id: g.row,
+            data: g.data,
+            texto: g.plataforma || "Sem app",
+            sub: g.corridas ? `${g.corridas} entrega(s)` : "",
+            valor: g.faturamento,
+          })),
+      };
+    }
+    if (detalhe === "combustivel") {
+      return {
+        titulo: "Combustível",
+        total: r.combustivel,
+        linhas: [...r.listas.abast]
+          .sort((a, b) => b.iso.localeCompare(a.iso))
+          .map((a) => ({
+            id: a.row,
+            data: a.data,
+            texto: [a.combustivel, a.posto].filter(Boolean).join(" · ") || "Abastecimento",
+            sub: a.litros ? `${a.litros.toFixed(1)} L` : "",
+            valor: a.valorPago,
+          })),
+      };
+    }
+    if (detalhe === "manutencao") {
+      return {
+        titulo: "Manutenção",
+        total: r.manutencao,
+        linhas: [...r.listas.manut]
+          .sort((a, b) => b.iso.localeCompare(a.iso))
+          .map((m) => ({
+            id: m.row,
+            data: m.data,
+            texto: m.servico || "Manutenção",
+            sub: m.veiculo || "",
+            valor: m.valor,
+          })),
+      };
+    }
+    // custos: mesmo universo do card "Custo total"
+    const itens = montaDespesasUnificadas(data).filter((it) => {
+      if (!dentro(it.iso)) return false;
+      if (veiculo) {
+        if (it.tipo === "despesa") return false;
+        const v = (it.bruto as { veiculo?: string }).veiculo;
+        if (v !== veiculo) return false;
+      }
+      if (tipo === "despesa") return it.tipo === "despesa";
+      if (tipo === "abastecimento") return it.tipo === "abastecimento";
+      if (tipo === "manutencao") return it.tipo === "manutencao";
+      if (tipo === "ganho" || tipo === "repasse") return false;
+      return true;
+    });
+    return {
+      titulo: "Custo total",
+      total: r.custos,
+      linhas: itens.map((it) => ({
+        id: it.id,
+        data: it.data,
+        texto: it.categoria || it.origem,
+        sub: it.descricao || it.origem,
+        valor: it.valor,
+      })),
+    };
+  }, [detalhe, r, data, de, ate, tipo, veiculo]);
+
 
   const r2 = (v: number) => Math.round(v * 100) / 100;
   const meses = r.serie;
