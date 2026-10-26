@@ -584,8 +584,12 @@ function RelatorioPage() {
 
         <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
-            <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
-            <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+            <CardClicavel onAbrir={() => setDetalhe("faturamento")}>
+              <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
+            </CardClicavel>
+            <CardClicavel onAbrir={() => setDetalhe("custos")}>
+              <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+            </CardClicavel>
             <div className="col-span-2 sm:col-span-1">
               <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
             </div>
@@ -594,8 +598,12 @@ function RelatorioPage() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             <StatCard label="Corridas" value={String(r.corridas)} hint={`Ticket médio ${brl(r.corridas ? r.faturamento / r.corridas : 0)}`} icon={Bike} />
             <StatCard label="KM rodados" value={`${r.km.toLocaleString("pt-BR")} km`} hint={`${r.litros.toFixed(1)} L abastecidos`} icon={Gauge} />
-            <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
-            <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+            <CardClicavel onAbrir={() => setDetalhe("combustivel")}>
+              <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
+            </CardClicavel>
+            <CardClicavel onAbrir={() => setDetalhe("manutencao")}>
+              <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+            </CardClicavel>
           </div>
 
           {evolucao}
