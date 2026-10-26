@@ -106,6 +106,7 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 - [ ] Abrir o app do zero sem internet (exige página guardada no aparelho / novo AAB).
 
 ## Subdomínio próprio por app
+- [x] Preparar próximo AAB como versão 1.0.11, código 12; aviso de versão publicada permanece inalterado até a disponibilidade na loja.
 - [x] Conta conectada em `/` e `/nocorre` abre Início (ou Perfil incompleto), inclusive no carregamento inicial sem identificação nativa; regra coberta por testes.
 - [x] `nocorre.rotacontrolapp.com.br` conectado e ativo neste projeto (domínio primário).
 - [x] `/` passou a ser a página do No Corre; portal da Rota Control movido para `/portal`; `/nocorre` redireciona para `/`.
