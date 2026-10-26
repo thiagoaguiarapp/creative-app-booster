@@ -767,8 +767,116 @@ function RelatorioPage() {
         </TabsContent>
       </Tabs>
 
+      <Sheet open={detalhe !== null} onOpenChange={(aberto) => !aberto && setDetalhe(null)}>
+        <SheetContent
+          side="bottom"
+          className="mx-auto flex max-h-[85dvh] w-full max-w-2xl flex-col gap-0 rounded-t-2xl p-0"
+        >
+          {detalheInfo && (
+            <DetalheSheet info={detalheInfo} premium={premium} periodo={`${de || "início"} a ${ate || "hoje"}`} />
+          )}
+        </SheetContent>
+      </Sheet>
 
     </div>
+  );
+}
+
+type DetalheCard = "faturamento" | "custos" | "combustivel" | "manutencao" | null;
+
+type LinhaDetalhe = {
+  id: string;
+  data: string;
+  texto: string;
+  sub: string;
+  valor: number;
+};
+
+/** Card de resumo que abre a gaveta com a origem do valor. */
+function CardClicavel({ children, onAbrir }: { children: React.ReactNode; onAbrir: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onAbrir}
+      aria-label="Ver de onde vem este valor"
+      className="group relative min-w-0 text-left transition-transform active:scale-[0.98]"
+    >
+      {children}
+      <span className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/70 group-hover:text-primary sm:text-[10px]">
+        Detalhes <ChevronRight className="size-3" />
+      </span>
+    </button>
+  );
+}
+
+/** Gaveta com os lançamentos que formam o valor do card. Lista completa é Premium. */
+function DetalheSheet({
+  info,
+  premium,
+  periodo,
+}: {
+  info: { titulo: string; total: number; linhas: LinhaDetalhe[] };
+  premium: boolean;
+  periodo: string;
+}) {
+  const visiveis = premium ? info.linhas : info.linhas.slice(0, 3);
+  const escondidos = info.linhas.length - visiveis.length;
+
+  return (
+    <>
+      <SheetHeader className="border-b border-border px-4 py-3 pr-12 text-left sm:px-6">
+        <SheetTitle className="font-display text-base uppercase tracking-wide sm:text-lg">
+          {info.titulo}
+        </SheetTitle>
+        <SheetDescription className="text-xs">
+          {periodo} · {info.linhas.length} lançamento(s) · total {brl(info.total)}
+        </SheetDescription>
+      </SheetHeader>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 sm:px-6">
+        {info.linhas.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            Nenhum lançamento neste período.
+          </p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {visiveis.map((l, i) => (
+              <li
+                key={l.id}
+                className={cn(
+                  "flex items-baseline justify-between gap-3 py-2.5",
+                  !premium && i === visiveis.length - 1 && escondidos > 0 && "blur-[3px]",
+                )}
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{l.texto}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {l.data}
+                    {l.sub ? ` · ${l.sub}` : ""}
+                  </p>
+                </div>
+                <p className="num shrink-0 text-sm font-semibold">{brl(l.valor)}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {!premium && escondidos > 0 && (
+          <div className="mt-2 flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 text-center">
+            <Lock className="size-5 text-primary" />
+            <p className="text-sm font-semibold">
+              Mais {escondidos} lançamento(s) escondido(s)
+            </p>
+            <p className="text-xs text-muted-foreground">
+              No Premium você vê a lista completa de onde vem cada valor do relatório.
+            </p>
+            <Button asChild size="sm" className="mt-1">
+              <Link to="/premium">Desbloquear Premium</Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
