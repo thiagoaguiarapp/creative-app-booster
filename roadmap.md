@@ -61,7 +61,7 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 
 ## Outros pendentes
 
-- [x] App Android abria a tela de login do Lovable: `capacitor.config.ts` agora aponta para `https://www.rotacontrolapp.com.br`.
+- [x] App Android abria a tela de login do Lovable: `capacitor.config.ts` agora aponta para `https://nocorre.rotacontrolapp.com.br`.
 - [x] Substituir o ícone padrão do Android pelo ícone oficial do Rota Control em todas as densidades.
 - [x] Botão "Atualizar agora" do aviso de atualização não abria a Play Store: o app agora abre a loja direto (com a página web como reserva).
 - [ ] Ajustar "Último custo" na tela Manutenção (ignorar reparo sem custo; incluir preventivo/corretivo).
@@ -104,3 +104,12 @@ O valor acima é o App ID de **teste**. Troque pelo App ID real do seu painel do
 ## Offline
 - [x] Nível 2: fila de lançamentos sem internet, cópia local dos dados e sessão.
 - [ ] Abrir o app do zero sem internet (exige página guardada no aparelho / novo AAB).
+
+## Subdomínio próprio por app
+- [x] `nocorre.rotacontrolapp.com.br` conectado e ativo neste projeto (domínio primário).
+- [x] `/` passou a ser a página do No Corre; portal da Rota Control movido para `/portal`; `/nocorre` redireciona para `/`.
+- [x] `capacitor.config.ts` aponta para `https://nocorre.rotacontrolapp.com.br` (app instalado hoje ainda abre o site antigo em Vercel — precisa de novo AAB).
+- [x] Link de recuperação de senha usa o endereço de origem em vez do domínio antigo.
+- [ ] Gerar novo AAB com o endereço do subdomínio e enviar à Play Store.
+- [ ] Portal da Rota Control em projeto e domínio próprios (`rotacontrolapp.com.br`, hoje apontando para Vercel).
+- [ ] TestaJunto com subdomínio próprio (`testajunto.rotacontrolapp.com.br`) no projeto dele.
