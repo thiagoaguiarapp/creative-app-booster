@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   showBanner: vi.fn().mockResolvedValue(undefined),
   initialize: vi.fn().mockResolvedValue(undefined),
+  removeBanner: vi.fn().mockResolvedValue(undefined),
 }));
+
 
 vi.mock("@capacitor/core", () => ({
   Capacitor: { isNativePlatform: () => true, getPlatform: () => "android" },
@@ -14,7 +16,16 @@ vi.mock("@capacitor-community/admob", () => ({
   BannerAdSize: { ADAPTIVE_BANNER: "ADAPTIVE_BANNER" },
 }));
 
-import { ADMOB_BANNER_ID_ANDROID, mostrarBanner } from "../admob";
+import {
+  ADMOB_BANNER_ID_ANDROID,
+  esconderBanner,
+  mostrarBanner,
+  pausarBanner,
+  retomarBanner,
+} from "../admob";
+
+const esperaUmPouco = () => new Promise((resolver) => setTimeout(resolver, 20));
+
 
 const BANNER_RODAPE = "ca-app-pub-2715745778380480/4859804306";
 
@@ -48,5 +59,32 @@ describe("intersticial", () => {
     expect(deveMostrarIntersticial(2, 0, 10 * 60_000)).toBe(false);
     expect(deveMostrarIntersticial(3, 0, 10 * 60_000)).toBe(true);
     expect(deveMostrarIntersticial(3, 8 * 60_000, 10 * 60_000)).toBe(false);
+  });
+});
+
+describe("banner enquanto uma lista de opções está aberta", () => {
+  beforeEach(() => {
+    vi.stubGlobal("window", {});
+    mocks.showBanner.mockClear();
+    mocks.removeBanner.mockClear();
+  });
+
+  it("tira o banner da tela ao abrir e devolve ao fechar", async () => {
+    await mostrarBanner();
+    pausarBanner();
+    await esperaUmPouco();
+    expect(mocks.removeBanner).toHaveBeenCalled();
+    retomarBanner();
+    await esperaUmPouco();
+    expect(mocks.showBanner).toHaveBeenCalledTimes(2);
+  });
+
+  it("não mostra o banner ao fechar se ele nunca foi exibido", async () => {
+    await esconderBanner();
+    mocks.showBanner.mockClear();
+    pausarBanner();
+    retomarBanner();
+    await esperaUmPouco();
+    expect(mocks.showBanner).not.toHaveBeenCalled();
   });
 });

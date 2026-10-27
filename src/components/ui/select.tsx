@@ -5,8 +5,44 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { pausarBanner, retomarBanner } from "@/lib/admob";
 
-const Select = SelectPrimitive.Root;
+/**
+ * Root do seletor com um ajuste a mais: enquanto a lista de opções está
+ * aberta, o banner de anúncio nativo sai da tela para não cobrir as últimas
+ * opções (ex.: "Forma de pagamento"). O banner volta ao fechar.
+ */
+const Select = ({
+  onOpenChange,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Root>) => {
+  const abertoRef = React.useRef(false);
+
+  React.useEffect(
+    () => () => {
+      if (abertoRef.current) {
+        abertoRef.current = false;
+        retomarBanner();
+      }
+    },
+    [],
+  );
+
+  return (
+    <SelectPrimitive.Root
+      {...props}
+      onOpenChange={(aberto) => {
+        if (aberto !== abertoRef.current) {
+          abertoRef.current = aberto;
+          if (aberto) pausarBanner();
+          else retomarBanner();
+        }
+        onOpenChange?.(aberto);
+      }}
+    />
+  );
+};
+
 
 const SelectGroup = SelectPrimitive.Group;
 
