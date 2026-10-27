@@ -66,6 +66,7 @@ export async function mostrarBanner(adIdAndroid = ADMOB_BANNER_ID_ANDROID): Prom
       isTesting: false,
     });
     bannerVisivel = true;
+    bannerAtivo = true;
     return true;
   } catch {
     // AdMob indisponível — o app continua funcionando sem anúncio.
@@ -73,8 +74,8 @@ export async function mostrarBanner(adIdAndroid = ADMOB_BANNER_ID_ANDROID): Prom
   }
 }
 
-/** Remove o banner (usado quando o usuário vira Premium ou sai da tela). */
-export async function esconderBanner(): Promise<void> {
+/** Tira o banner da tela sem desativá-lo (usado pelas camadas abertas). */
+async function removerBannerDaTela(): Promise<void> {
   if (!bannerVisivel) return;
   try {
     const { AdMob } = await import("@capacitor-community/admob");
@@ -85,6 +86,28 @@ export async function esconderBanner(): Promise<void> {
     bannerVisivel = false;
   }
 }
+
+/** Remove o banner (usado quando o usuário vira Premium ou sai da tela). */
+export async function esconderBanner(): Promise<void> {
+  bannerAtivo = false;
+  await removerBannerDaTela();
+}
+
+/**
+ * Esconde o banner enquanto uma camada (seletor, menu) está aberta, para o
+ * anúncio nativo não cobrir as opções. O banner volta quando a camada fecha.
+ */
+export function pausarBanner(): void {
+  camadasAbertas += 1;
+  void removerBannerDaTela();
+}
+
+/** Devolve o banner quando a última camada aberta é fechada. */
+export function retomarBanner(): void {
+  camadasAbertas = Math.max(0, camadasAbertas - 1);
+  if (camadasAbertas === 0 && bannerAtivo && !bannerVisivel) void mostrarBanner();
+}
+
 
 /** Pré-carrega um interstitial (etapa futura, já preparada). */
 export async function prepararInterstitial(): Promise<boolean> {
