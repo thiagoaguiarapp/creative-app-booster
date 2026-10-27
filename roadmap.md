@@ -1,5 +1,9 @@
 # Roadmap — Rota Control
 
+## Reconhecimento de manutenção na despesa
+- [x] Ampliar reconhecimento pela categoria e descrição, ignorando acentos e maiúsculas, reutilizando planos existentes; 27 testes passaram.
+- [ ] Conferir despesa → manutenção com dados reais (sem sessão autenticada disponível no ambiente).
+
 ## Relatório
 - [x] Cards de Faturamento, Custo total, Combustível e Manutenção abrem gaveta com a origem do valor; lista completa só Premium, Free vê prévia de 3 com convite.
 - [ ] Conferir a gaveta de detalhes com dados reais na sessão do usuário (sem sessão autenticada disponível no ambiente de teste).
