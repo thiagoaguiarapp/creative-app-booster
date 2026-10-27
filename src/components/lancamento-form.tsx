@@ -679,7 +679,7 @@ function FormularioDialog({
           )}
           </div>
 
-          <DialogFooter className="shrink-0 gap-3 border-t bg-muted/30 px-5 py-5 sm:gap-2 sm:px-6 sm:py-4" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}>
+          <DialogFooter className="shrink-0 gap-3 border-t bg-muted/30 px-5 py-5 sm:gap-2 sm:px-6 sm:py-4" style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px) + var(--altura-banner-ads, 0px))" }}>
             <Button
               type="button"
               variant="ghost"
