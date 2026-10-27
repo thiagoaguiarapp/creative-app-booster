@@ -51,7 +51,7 @@ export function reconhecerManutencaoDespesa(
   categoria: string,
   descricao: string,
   veiculo?: string,
-): { servico: string; ativa?: Manutencao } | undefined {
+): { servico: string; ativa: Manutencao | undefined } | undefined {
   const ativa = acharManutencaoAtiva(lista, descricao, veiculo)
     ?? acharManutencaoAtiva(lista, categoria, veiculo);
   if (!ativa && !ehCategoriaManutencao(categoria) && !ehCategoriaManutencao(descricao)) {
