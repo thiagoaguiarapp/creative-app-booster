@@ -1,3 +1,4 @@
+import { vibrarConfirmacao } from "@/lib/preferencias";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { salvarOuEnfileirar } from "@/lib/offline";
 import { Link, useRouteContext } from "@tanstack/react-router";
@@ -328,6 +329,7 @@ function FormularioDialog({
         toast.success("Sem internet: lançamento guardado no aparelho. Será enviado quando a conexão voltar.");
       } else {
         await invalidar();
+        vibrarConfirmacao();
         toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
       }
       if (!row) void import("@/lib/admob").then((m) => m.registrarLancamentoParaAnuncio());

@@ -25,6 +25,7 @@ import { AvisoAtualizacao } from "@/components/aviso-atualizacao";
 import { AvisoManutencao } from "@/components/aviso-manutencao";
 import { SincroniaOffline } from "@/components/sincronia-offline";
 import { BotaoVoltarAndroid } from "@/components/botao-voltar-android";
+import { aplicarPreferencias, lerPreferencias } from "@/lib/preferencias";
 import { guardarSessao, lerSessaoLocal } from "@/lib/offline";
 import { destinoEntradaApp } from "@/lib/entrada-app";
 
@@ -234,6 +235,11 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient, usuario } = Route.useRouteContext();
+
+  // Aplica cor, tema, fonte e privacidade escolhidos pelo usuário.
+  useEffect(() => {
+    aplicarPreferencias(lerPreferencias());
+  }, []);
 
   // O servidor não enxerga o "#..." do link de recuperação; no navegador,
   // se o link caiu em outra página (ex.: /inicio), leva para /redefinir-senha.

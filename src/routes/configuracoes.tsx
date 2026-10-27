@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { PreferenciasApp } from "@/components/preferencias-app";
 import { PageHeader, SectionCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -176,6 +177,8 @@ function ConfiguracoesPage() {
           </Link>
         ))}
       </div>
+
+      <PreferenciasApp />
 
       <SectionCard title="Meus dados" description="Nome, contato e meta semanal de faturamento">
         <form className="grid gap-4 sm:grid-cols-2" onSubmit={enviarPerfil}>
