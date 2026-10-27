@@ -1,3 +1,4 @@
+import { vibrarConfirmacao } from "@/lib/preferencias";
 import { salvarOuEnfileirar } from "@/lib/offline";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -139,6 +140,7 @@ function ModalRapido({
         return;
       }
       await queryClient.invalidateQueries({ queryKey: ["painel"] });
+      vibrarConfirmacao();
       toast.success(
         valorMaos > 0
           ? `${nome.trim()}: ${brl(valorFat)} lançado, ${brl(valorMaos)} já baixado em ${forma}.`
