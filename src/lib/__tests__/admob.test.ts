@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   showBanner: vi.fn().mockResolvedValue(undefined),
   initialize: vi.fn().mockResolvedValue(undefined),
+  removeBanner: vi.fn().mockResolvedValue(undefined),
 }));
+
 
 vi.mock("@capacitor/core", () => ({
   Capacitor: { isNativePlatform: () => true, getPlatform: () => "android" },
@@ -14,7 +16,16 @@ vi.mock("@capacitor-community/admob", () => ({
   BannerAdSize: { ADAPTIVE_BANNER: "ADAPTIVE_BANNER" },
 }));
 
-import { ADMOB_BANNER_ID_ANDROID, mostrarBanner } from "../admob";
+import {
+  ADMOB_BANNER_ID_ANDROID,
+  esconderBanner,
+  mostrarBanner,
+  pausarBanner,
+  retomarBanner,
+} from "../admob";
+
+const esperaUmPouco = () => new Promise((resolver) => setTimeout(resolver, 20));
+
 
 const BANNER_RODAPE = "ca-app-pub-2715745778380480/4859804306";
 
