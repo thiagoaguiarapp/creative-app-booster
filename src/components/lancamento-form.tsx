@@ -56,7 +56,7 @@ import {
   type Tipo,
 } from "@/lib/entry-schema";
 import { EXTRAS_SUGERIDOS, ehExtra } from "@/lib/extras";
-import { acharManutencaoAtiva, ehCategoriaManutencao } from "@/lib/manutencao-link";
+import { acharManutencaoAtiva, reconhecerManutencaoDespesa } from "@/lib/manutencao-link";
 import { dataValida, emReais, paraNumeroBr } from "@/lib/numero";
 import {
   isoCompra,
@@ -223,7 +223,7 @@ function useServicos(): string[] {
   const add = (s?: string) => {
     const t = s?.trim();
     if (!t || t === "—") return;
-    const k = t.toLocaleLowerCase("pt-BR");
+    const k = normalizaTexto(t);
     if (!nomes.has(k)) nomes.set(k, t);
   };
   for (const s of categorias.servicos) add(s);
@@ -333,12 +333,20 @@ function FormularioDialog({
         toast.success(row ? "Lançamento atualizado na planilha." : "Lançamento salvo na planilha.");
       }
       if (!row) void import("@/lib/admob").then((m) => m.registrarLancamentoParaAnuncio());
-      if (tipo === "despesa" && !row && ehCategoriaManutencao(v["categoria"] ?? "")) {
-        const servico = (v["descricao"] ?? "").trim() || (v["categoria"] ?? "").trim();
-        const ativa = acharManutencaoAtiva(painel?.manutencoes ?? [], servico);
+      const manutencao = tipo === "despesa" && !row
+        ? reconhecerManutencaoDespesa(
+            painel?.manutencoes ?? [],
+            v["categoria"] ?? "",
+            v["descricao"] ?? "",
+            veiculos.padrao,
+          )
+        : undefined;
+      if (manutencao) {
+        const { servico, ativa } = manutencao;
         const base: Record<string, string> = {
           data: v["data"] ?? "",
           servico,
+          veiculo: ativa?.veiculo || veiculos.padrao,
         };
         setSeguinte(
           ativa

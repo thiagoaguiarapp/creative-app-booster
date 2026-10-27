@@ -5,16 +5,21 @@ function normalizar(v: string): string {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
+
+const TERMOS_MANUTENCAO = /\b(manuten\w*|oficina\w*|revisao|revisoes|peca\w*|servico\w*|oleo\w*|mecanic\w*|pneu\w*|freio\w*|pastilha\w*|relacao|relacoes|corrente\w*|filtro\w*|vela\w*|bateria\w*|suspensao|amortecedor\w*|alinhamento\w*|balanceamento\w*|embreagem\w*|correia\w*|rolamento\w*|escapamento\w*|radiador\w*|arrefecimento|lubrific\w*)\b/;
 
 /** categorias de despesa que representam um serviço de manutenção */
 export function ehCategoriaManutencao(categoria: string): boolean {
   const c = normalizar(categoria);
-  if (!c) return false;
-  return ["manuten", "oficina", "revisao", "peca", "troca de oleo", "mecanic"].some((p) =>
-    c.includes(p),
-  );
+  return TERMOS_MANUTENCAO.test(c);
+}
+
+function contemServico(texto: string, servico: string): boolean {
+  return ` ${texto} `.includes(` ${servico} `);
 }
 
 /** procura uma manutenção já ativa com o mesmo serviço (e veículo, quando informado) */
@@ -29,10 +34,30 @@ export function acharManutencaoAtiva(
   const candidatas = lista.filter((m) => {
     const ms = normalizar(m.servico);
     if (!ms) return false;
-    const bate = ms === s || ms.includes(s) || s.includes(ms);
+    const bate = ms === s || contemServico(ms, s) || contemServico(s, ms);
     if (!bate) return false;
     if (v && normalizar(m.veiculo) && normalizar(m.veiculo) !== v) return false;
     return true;
   });
-  return candidatas.sort((a, b) => (a.iso < b.iso ? 1 : -1))[0];
+  return candidatas.sort((a, b) => {
+    const exata = Number(normalizar(b.servico) === s) - Number(normalizar(a.servico) === s);
+    return exata || b.iso.localeCompare(a.iso);
+  })[0];
+}
+
+/** Uma única decisão para o formulário: reconhecer o gasto e aproveitar o plano. */
+export function reconhecerManutencaoDespesa(
+  lista: Manutencao[],
+  categoria: string,
+  descricao: string,
+  veiculo?: string,
+): { servico: string; ativa?: Manutencao } | undefined {
+  const ativa = acharManutencaoAtiva(lista, descricao, veiculo)
+    ?? acharManutencaoAtiva(lista, categoria, veiculo);
+  if (!ativa && !ehCategoriaManutencao(categoria) && !ehCategoriaManutencao(descricao)) {
+    return undefined;
+  }
+  const servico = ativa?.servico
+    ?? (ehCategoriaManutencao(descricao) ? descricao.trim() : categoria.trim());
+  return { servico, ativa };
 }
