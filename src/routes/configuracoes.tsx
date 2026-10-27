@@ -178,6 +178,8 @@ function ConfiguracoesPage() {
         ))}
       </div>
 
+      <PreferenciasApp />
+
       <SectionCard title="Meus dados" description="Nome, contato e meta semanal de faturamento">
         <form className="grid gap-4 sm:grid-cols-2" onSubmit={enviarPerfil}>
           <div className="flex flex-col gap-1.5">
