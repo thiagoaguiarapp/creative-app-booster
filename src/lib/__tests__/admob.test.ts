@@ -61,3 +61,30 @@ describe("intersticial", () => {
     expect(deveMostrarIntersticial(3, 8 * 60_000, 10 * 60_000)).toBe(false);
   });
 });
+
+describe("banner enquanto uma lista de opções está aberta", () => {
+  beforeEach(() => {
+    vi.stubGlobal("window", {});
+    mocks.showBanner.mockClear();
+    mocks.removeBanner.mockClear();
+  });
+
+  it("tira o banner da tela ao abrir e devolve ao fechar", async () => {
+    await mostrarBanner();
+    pausarBanner();
+    await esperaUmPouco();
+    expect(mocks.removeBanner).toHaveBeenCalled();
+    retomarBanner();
+    await esperaUmPouco();
+    expect(mocks.showBanner).toHaveBeenCalledTimes(2);
+  });
+
+  it("não mostra o banner ao fechar se ele nunca foi exibido", async () => {
+    await esconderBanner();
+    mocks.showBanner.mockClear();
+    pausarBanner();
+    retomarBanner();
+    await esperaUmPouco();
+    expect(mocks.showBanner).not.toHaveBeenCalled();
+  });
+});
