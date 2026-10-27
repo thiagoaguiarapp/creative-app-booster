@@ -34,10 +34,10 @@ export function lerPreferencias(): Preferencias {
 export function aplicarPreferencias(p: Preferencias) {
   if (typeof document === "undefined") return;
   const html = document.documentElement;
-  html.dataset.cor = p.cor;
-  html.dataset.tema = p.tema;
-  html.dataset.fonte = p.fonte;
-  html.dataset.privacidade = p.privacidade ? "on" : "off";
+  html.dataset["cor"] = p.cor;
+  html.dataset["tema"] = p.tema;
+  html.dataset["fonte"] = p.fonte;
+  html.dataset["privacidade"] = p.privacidade ? "on" : "off";
 }
 
 export function salvarPreferencias(p: Preferencias) {
