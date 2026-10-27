@@ -34,6 +34,8 @@
 - [x] Instalar Capacitor (`@capacitor/core`, `@capacitor/cli`, `@capacitor/android`) e `@capacitor-community/admob`.
 - [x] Criar `capacitor.config.ts` (appId `br.com.rotacontrolapp.app`).
 - [x] Banner AdMob inferior exibido apenas para usuários Free (`src/components/ad-banner-mobile.tsx`).
+- [x] Banner sai da tela enquanto uma lista de opções está aberta, para não cobrir "Forma de pagamento" (`src/lib/admob.ts`, `src/components/ui/select.tsx`).
+
 - [ ] Gerar a pasta nativa `android/` na máquina local (requer Android SDK — ver abaixo).
 - [ ] Trocar os IDs de teste do AdMob pelos IDs reais dos blocos de anúncio.
 - [ ] Ativar o interstitial para o plano Free (funções já prontas em `src/lib/admob.ts`).
