@@ -18,6 +18,11 @@ export const ALTURA_BANNER = 60;
 
 let inicializado = false;
 let bannerVisivel = false;
+/** Verdadeiro quando o banner deve ficar na tela (usuário Free, app nativo, tela montada). */
+let bannerAtivo = false;
+/** Camadas abertas (menus suspensos, seletores) que precisam do rodapé livre. */
+let camadasAbertas = 0;
+
 
 /** Verdadeiro apenas dentro do app nativo (Android/iOS). */
 export async function ehAppNativo(): Promise<boolean> {
