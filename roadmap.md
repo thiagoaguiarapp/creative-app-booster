@@ -35,6 +35,8 @@
 - [x] Criar `capacitor.config.ts` (appId `br.com.rotacontrolapp.app`).
 - [x] Banner AdMob inferior exibido apenas para usuários Free (`src/components/ad-banner-mobile.tsx`).
 - [x] Banner sai da tela enquanto uma lista de opções está aberta, para não cobrir "Forma de pagamento" (`src/lib/admob.ts`, `src/components/ui/select.tsx`).
+- [x] Criado `public/app-ads.txt` com a conta AdMob; servido em `nocorre.rotacontrolapp.com.br/app-ads.txt` depois de publicar (teste `app-ads-txt.test.ts`).
+- [ ] Colocar o mesmo `app-ads.txt` no domínio cadastrado como site do desenvolvedor na Play Console (hoje `rotacontrolapp.com.br`, fora deste projeto) ou trocar o site do desenvolvedor para `https://nocorre.rotacontrolapp.com.br`.
 
 - [ ] Gerar a pasta nativa `android/` na máquina local (requer Android SDK — ver abaixo).
 - [ ] Trocar os IDs de teste do AdMob pelos IDs reais dos blocos de anúncio.
