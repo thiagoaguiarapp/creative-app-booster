@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
   Line,
@@ -440,33 +442,34 @@ function RelatorioPage() {
   ) : null;
 
   const evolucao = (
-    <SectionCard title="Evolução" description={`Faturamento, custos e lucro ${quando}`}>
+    <SectionCard title="Evolução" description={`Faturamento x custos ${quando}`}>
       {r.porMes.length < 1 ? (
         <p className="text-sm text-muted-foreground">Sem dados no período.</p>
       ) : (
         <div className="h-64 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <BarChart
               data={r.serie.map((m) => ({
                 mes: m.rotulo,
                 Faturamento: Math.round(m.fat * 100) / 100,
                 Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
-                Lucro: Math.round(m.lucro * 100) / 100,
               }))}
-              margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+              margin={{ top: 8, right: 4, left: -16, bottom: 0 }}
+              barGap={2}
+              barCategoryGap="20%"
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
               <Tooltip
+                cursor={{ fill: "var(--muted)", opacity: 0.4 }}
                 formatter={(v: number) => brl(v)}
                 contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
               />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="Faturamento" stroke="var(--primary)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Custos" stroke="var(--destructive)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Lucro" stroke="var(--success, var(--chart-2))" strokeWidth={2} dot={false} />
-            </LineChart>
+              <Legend wrapperStyle={{ fontSize: 12 }} iconType="circle" />
+              <Bar dataKey="Faturamento" fill="var(--success, var(--chart-2))" radius={[6, 6, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="Custos" fill="var(--destructive)" radius={[6, 6, 0, 0]} maxBarSize={24} />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}
@@ -585,10 +588,10 @@ function RelatorioPage() {
         <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
             <CardClicavel onAbrir={() => setDetalhe("faturamento")}>
-              <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
+              <StatCard label="Faturamento" value={brl(r.faturamento)} hint={`${r.qtd.ganhos} ganhos`} icon={CircleDollarSign} tone="success" />
             </CardClicavel>
             <CardClicavel onAbrir={() => setDetalhe("custos")}>
-              <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+              <StatCard label="Custo total" value={brl(r.custos)} hint="Tudo que saiu" icon={Receipt} tone="destructive" />
             </CardClicavel>
             <div className="col-span-2 sm:col-span-1">
               <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
@@ -602,11 +605,9 @@ function RelatorioPage() {
               <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
             </CardClicavel>
             <CardClicavel onAbrir={() => setDetalhe("manutencao")}>
-              <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+              <StatCard label="Manutenção" value={brl(r.manutencao)} hint={`${r.qtd.manut} serviços`} icon={Wrench} />
             </CardClicavel>
           </div>
-
-          {evolucao}
 
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
@@ -658,6 +659,8 @@ function RelatorioPage() {
               </Table>
             </div>
           </SectionCard>
+
+          {evolucao}
         </TabsContent>
 
         <TabsContent value="despesa" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
@@ -799,7 +802,7 @@ function CardClicavel({ children, onAbrir }: { children: ReactNode; onAbrir: () 
       type="button"
       onClick={onAbrir}
       aria-label="Ver de onde vem este valor"
-      className="group relative min-w-0 text-left transition-transform active:scale-[0.98]"
+      className="group relative h-full min-w-0 text-left transition-transform active:scale-[0.98]"
     >
       {children}
       <span className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/70 group-hover:text-primary sm:text-[10px]">
