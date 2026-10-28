@@ -46,7 +46,7 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="panel p-3 sm:p-5">
+    <div className="panel flex h-full min-h-[104px] flex-col p-3 sm:min-h-[140px] sm:p-5">
       <div className="flex items-start justify-between gap-2">
         <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:text-xs">
           {label}
@@ -56,7 +56,7 @@ export function StatCard({
       <p className={cn("num mt-1 font-display text-xl font-semibold sm:mt-3 sm:text-3xl", toneClass)}>
         {value}
       </p>
-      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground sm:mt-1 sm:text-xs">{hint}</p>}
+      <p className="mt-auto truncate pr-14 pt-0.5 text-[10px] text-muted-foreground sm:pt-1 sm:text-xs">{hint ?? "\u00a0"}</p>
     </div>
   );
 }

@@ -588,10 +588,10 @@ function RelatorioPage() {
         <TabsContent value="geral" className="mt-3 flex flex-col gap-3 sm:gap-4 lg:gap-6">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
             <CardClicavel onAbrir={() => setDetalhe("faturamento")}>
-              <StatCard label="Faturamento" value={brl(r.faturamento)} icon={CircleDollarSign} tone="success" />
+              <StatCard label="Faturamento" value={brl(r.faturamento)} hint={`${r.qtd.ganhos} ganhos`} icon={CircleDollarSign} tone="success" />
             </CardClicavel>
             <CardClicavel onAbrir={() => setDetalhe("custos")}>
-              <StatCard label="Custo total" value={brl(r.custos)} hint="Combustível + despesas + manutenção" icon={Receipt} tone="destructive" />
+              <StatCard label="Custo total" value={brl(r.custos)} hint="Tudo que saiu" icon={Receipt} tone="destructive" />
             </CardClicavel>
             <div className="col-span-2 sm:col-span-1">
               <StatCard label="Lucro líquido" value={brl(r.lucro)} hint={`Margem de ${margem.toFixed(1)}%`} icon={TrendingUp} tone={r.lucro >= 0 ? "success" : "destructive"} />
@@ -605,11 +605,9 @@ function RelatorioPage() {
               <StatCard label="Combustível" value={brl(r.combustivel)} hint={`${r.km ? brl(r.combustivel / r.km) : brl(0)} por km`} icon={Fuel} tone="warning" />
             </CardClicavel>
             <CardClicavel onAbrir={() => setDetalhe("manutencao")}>
-              <StatCard label="Manutenção" value={brl(r.manutencao)} icon={Wrench} />
+              <StatCard label="Manutenção" value={brl(r.manutencao)} hint={`${r.qtd.manut} serviços`} icon={Wrench} />
             </CardClicavel>
           </div>
-
-          {evolucao}
 
           <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
             <SectionCard title="Faturamento por plataforma">
@@ -661,6 +659,8 @@ function RelatorioPage() {
               </Table>
             </div>
           </SectionCard>
+
+          {evolucao}
         </TabsContent>
 
         <TabsContent value="despesa" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
@@ -802,7 +802,7 @@ function CardClicavel({ children, onAbrir }: { children: ReactNode; onAbrir: () 
       type="button"
       onClick={onAbrir}
       aria-label="Ver de onde vem este valor"
-      className="group relative min-w-0 text-left transition-transform active:scale-[0.98]"
+      className="group relative h-full min-w-0 text-left transition-transform active:scale-[0.98]"
     >
       {children}
       <span className="pointer-events-none absolute bottom-2 right-2 flex items-center gap-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground/70 group-hover:text-primary sm:text-[10px]">
