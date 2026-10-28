@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
   Line,
@@ -440,33 +442,34 @@ function RelatorioPage() {
   ) : null;
 
   const evolucao = (
-    <SectionCard title="Evolução" description={`Faturamento, custos e lucro ${quando}`}>
+    <SectionCard title="Evolução" description={`Faturamento x custos ${quando}`}>
       {r.porMes.length < 1 ? (
         <p className="text-sm text-muted-foreground">Sem dados no período.</p>
       ) : (
         <div className="h-64 w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <BarChart
               data={r.serie.map((m) => ({
                 mes: m.rotulo,
                 Faturamento: Math.round(m.fat * 100) / 100,
                 Custos: Math.round((m.comb + m.desp + m.manut) * 100) / 100,
-                Lucro: Math.round(m.lucro * 100) / 100,
               }))}
-              margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+              margin={{ top: 8, right: 4, left: -16, bottom: 0 }}
+              barGap={2}
+              barCategoryGap="20%"
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis dataKey="mes" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
               <Tooltip
+                cursor={{ fill: "var(--muted)", opacity: 0.4 }}
                 formatter={(v: number) => brl(v)}
                 contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--popover-foreground)" }}
               />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="Faturamento" stroke="var(--primary)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Custos" stroke="var(--destructive)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="Lucro" stroke="var(--success, var(--chart-2))" strokeWidth={2} dot={false} />
-            </LineChart>
+              <Legend wrapperStyle={{ fontSize: 12 }} iconType="circle" />
+              <Bar dataKey="Faturamento" fill="var(--success, var(--chart-2))" radius={[6, 6, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="Custos" fill="var(--destructive)" radius={[6, 6, 0, 0]} maxBarSize={24} />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}
