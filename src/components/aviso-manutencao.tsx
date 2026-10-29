@@ -42,6 +42,10 @@ export function AvisoManutencao() {
             body: p.vencido
               ? `${p.veiculo} passou ${p.km.toLocaleString("pt-BR")} km do prazo. Agende o serviço.`
               : `${p.veiculo}: faltam ${p.km.toLocaleString("pt-BR")} km.`,
+            // Logo do app na barra de status e no corpo da notificação.
+            smallIcon: "ic_stat_nocorre",
+            largeIcon: "ic_large_nocorre",
+            iconColor: "#FB8106",
           })),
         });
         for (const p of novos) enviados[p.chave] = hoje;

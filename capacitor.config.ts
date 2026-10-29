@@ -16,6 +16,12 @@ const config: CapacitorConfig = {
       // Em produção, troque pelos IDs reais do painel do AdMob.
       initializeForTesting: true,
     },
+    LocalNotifications: {
+      // Sem isto, o Android mostra um símbolo genérico (exclamação) na barra
+      // de status. Os desenhos estão em android/app/src/main/res/drawable-*.
+      smallIcon: "ic_stat_nocorre",
+      iconColor: "#FB8106",
+    },
   },
 };
 
