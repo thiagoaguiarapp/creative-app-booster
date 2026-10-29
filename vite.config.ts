@@ -21,6 +21,12 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
+        // O htmlparser2 10+ importa `entities/decode`; o `entities` fixado em 4.5.0 só
+        // expõe `entities/lib/decode.js`. Sem estes dois apelidos o build quebra com
+        // "Could not load node_modules/entities/decode" quando o npm instala um
+        // htmlparser2 mais novo que o bun.lock.
+        "entities/decode": path.resolve(import.meta.dirname, "node_modules/entities/lib/esm/decode.js"),
+        "entities/escape": path.resolve(import.meta.dirname, "node_modules/entities/lib/esm/escape.js"),
         "entities/lib/decode.js": path.resolve(import.meta.dirname, "node_modules/entities/lib/decode.js"),
         "entities/lib/encode.js": path.resolve(import.meta.dirname, "node_modules/entities/lib/encode.js"),
         entities: path.resolve(import.meta.dirname, "node_modules/entities"),
