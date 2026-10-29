@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowUpCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -71,7 +71,11 @@ export function AvisoAtualizacao() {
       className="fixed inset-x-0 z-50 p-3 bottom-[calc(var(--altura-banner-ads,0px)+4.5rem)] md:bottom-[var(--altura-banner-ads,0px)]"
     >
       <div className="mx-auto flex w-full max-w-md items-start gap-3 rounded-xl border border-border bg-card p-4 shadow-lg">
-        <ArrowUpCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+        <img
+          src="/icon-192-v2.png"
+          alt=""
+          className="mt-0.5 size-7 shrink-0 rounded-lg"
+        />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">
             Nova versão disponível ({VERSAO_NATIVA_MAIS_RECENTE_NOME})
