@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 // importa `entities/decode`, mas o `entities` do projeto (4.5.0) só expõe
 // `entities/lib/decode.js`. O apelido em vite.config.ts resolve esse caminho; se ele
 // for removido, o build falha com "Could not load node_modules/entities/decode".
-// eslint-disable-next-line import/no-unresolved
 import * as decode from "entities/decode";
 
 describe("resolução de entities/decode no build", () => {
