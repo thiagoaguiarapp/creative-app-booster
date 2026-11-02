@@ -77,6 +77,7 @@ export async function verificarTokenAdmin(request: Request, secret: string | und
   const encoder = new TextEncoder();
   const [a, b] = await Promise.all([token, secret].map(async (value) =>
     new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(value)))));
+  if (!a || !b) return 401;
   let diferenca = 0;
   for (let i = 0; i < 32; i++) diferenca |= (a[i] ?? 0) ^ (b[i] ?? 0);
   return diferenca === 0 ? null : 401;

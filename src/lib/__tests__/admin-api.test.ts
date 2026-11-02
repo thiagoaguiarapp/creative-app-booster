@@ -79,7 +79,7 @@ describe("administração via portal", () => {
       body: JSON.stringify({ userId: ID, acao: "premium", motivo: "Concessão solicitada" }),
     }), true);
     expect(response.status).toBe(200);
-    expect(atualizacao.user_metadata).toEqual({ nome: "Exemplo", is_premium: true });
-    expect(atualizacao.app_metadata.ultima_acao_admin.motivo).toBe("Concessão solicitada");
+    expect(atualizacao["user_metadata"]).toEqual({ nome: "Exemplo", is_premium: true });
+    expect(atualizacao["app_metadata"].ultima_acao_admin.motivo).toBe("Concessão solicitada");
   });
 });
