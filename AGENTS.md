@@ -9,6 +9,9 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+- Administrative screens live only in the Rota Control portal; No Corre exposes token-authenticated server APIs, with aggregate-only responses under `/api/public/admin` and personal data exclusively under `/api/admin`, because the public prefix must never return PII. Preserve shared category reads for ordinary users.
+- The admin API uses only `MOTOCA_*` runtime secrets against the existing account backend; Cloud activation does not migrate user accounts. Shared tokens stay server-side, all mutations require a reason, and the last administrative action is recorded in protected app metadata.
+
 - Reuse `RepassesContent` in the Repasses route and Financeiro tab, with an optional shared date interval, to preserve a single implementation of reconciliation and editing actions.
 - Keep expense-to-maintenance recognition and existing-plan selection in `manutencao-link.ts` so the form and tests share the same normalized matching rules.
 - Build the unified receivables list with `conciliacaoRecebimentos` and existing FIFO allocation so platform rows, summary totals, and settlement defaults share one calculation.

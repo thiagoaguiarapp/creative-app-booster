@@ -271,7 +271,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SidebarProvider>
         <div className="flex min-h-screen w-full max-w-full overflow-x-hidden">
-          <AppSidebar email={usuario.email} isAdmin={usuario.isAdmin === true} />
+          <AppSidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <header
               className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/80 px-4 pb-2 backdrop-blur md:h-14 md:pb-0 md:!pt-0"
