@@ -39,8 +39,10 @@ import { Route as TourRouteImport } from './routes/tour'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
+import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as TestajuntoPrivacidadeRouteImport } from './routes/testajunto.privacidade'
+import { Route as ApiPublicAdminRouteImport } from './routes/api/public/admin'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -193,6 +195,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiAdminRoute = ApiAdminRouteImport.update({
+  id: '/api/admin',
+  path: '/api/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -201,6 +208,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 const TestajuntoPrivacidadeRoute = TestajuntoPrivacidadeRouteImport.update({
   id: '/testajunto/privacidade',
   path: '/testajunto/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAdminRoute = ApiPublicAdminRouteImport.update({
+  id: '/api/public/admin',
+  path: '/api/public/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LovableEmailTransactionalPreviewRoute =
@@ -240,9 +252,11 @@ export interface FileRoutesByFullPath {
   '/tour': typeof TourRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/admin': typeof ApiAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/admin': typeof ApiPublicAdminRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -274,9 +288,11 @@ export interface FileRoutesByTo {
   '/tour': typeof TourRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/admin': typeof ApiAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
   '/admin': typeof AdminIndexRoute
+  '/api/public/admin': typeof ApiPublicAdminRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -310,9 +326,11 @@ export interface FileRoutesById {
   '/tour': typeof TourRoute
   '/admin/assinaturas': typeof AdminAssinaturasRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/api/admin': typeof ApiAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
   '/admin/': typeof AdminIndexRoute
+  '/api/public/admin': typeof ApiPublicAdminRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -347,9 +365,11 @@ export interface FileRouteTypes {
     | '/tour'
     | '/admin/assinaturas'
     | '/admin/usuarios'
+    | '/api/admin'
     | '/blog/$slug'
     | '/testajunto/privacidade'
     | '/admin/'
+    | '/api/public/admin'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -381,9 +401,11 @@ export interface FileRouteTypes {
     | '/tour'
     | '/admin/assinaturas'
     | '/admin/usuarios'
+    | '/api/admin'
     | '/blog/$slug'
     | '/testajunto/privacidade'
     | '/admin'
+    | '/api/public/admin'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -416,9 +438,11 @@ export interface FileRouteTypes {
     | '/tour'
     | '/admin/assinaturas'
     | '/admin/usuarios'
+    | '/api/admin'
     | '/blog/$slug'
     | '/testajunto/privacidade'
     | '/admin/'
+    | '/api/public/admin'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -450,7 +474,9 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
   TourRoute: typeof TourRoute
+  ApiAdminRoute: typeof ApiAdminRoute
   TestajuntoPrivacidadeRoute: typeof TestajuntoPrivacidadeRoute
+  ApiPublicAdminRoute: typeof ApiPublicAdminRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -666,6 +692,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsuariosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/admin': {
+      id: '/api/admin'
+      path: '/api/admin'
+      fullPath: '/api/admin'
+      preLoaderRoute: typeof ApiAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/$slug': {
       id: '/blog/$slug'
       path: '/$slug'
@@ -678,6 +711,13 @@ declare module '@tanstack/react-router' {
       path: '/testajunto/privacidade'
       fullPath: '/testajunto/privacidade'
       preLoaderRoute: typeof TestajuntoPrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/admin': {
+      id: '/api/public/admin'
+      path: '/api/public/admin'
+      fullPath: '/api/public/admin'
+      preLoaderRoute: typeof ApiPublicAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/transactional/preview': {
@@ -742,7 +782,9 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
   TourRoute: TourRoute,
+  ApiAdminRoute: ApiAdminRoute,
   TestajuntoPrivacidadeRoute: TestajuntoPrivacidadeRoute,
+  ApiPublicAdminRoute: ApiPublicAdminRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

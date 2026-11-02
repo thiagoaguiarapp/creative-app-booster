@@ -1,24 +1,22 @@
 /** Funções administrativas (somente para usuários com role "admin"). */
-import { exigirUsuario } from "./auth.server";
-
-const SUPABASE_URL_PADRAO = "https://yxzwqgbtcwrtpnmfvyxe.supabase.co";
-const SUPABASE_SERVICE_PADRAO =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4endxZ2J0Y3dydHBubWZ2eXhlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjIyMjA2MywiZXhwIjoyMTAxNzk4NDYzfQ.TtGLUGN7PapdPZcLUOMo78PcfRObRL4U6s3Mbp3u7Nw";
 
 function baseUrl(): string {
-  const u = process.env["MOTOCA_SUPABASE_URL"] ?? SUPABASE_URL_PADRAO;
+  const u = process.env["MOTOCA_SUPABASE_URL"];
+  if (!u) throw new Error("Serviço administrativo não configurado.");
   return u.replace(/\/$/, "");
 }
 
 function servico(): string {
-  return process.env["MOTOCA_SUPABASE_SERVICE_ROLE_KEY"] ?? SUPABASE_SERVICE_PADRAO;
+  const k = process.env["MOTOCA_SUPABASE_SERVICE_ROLE_KEY"];
+  if (!k) throw new Error("Serviço administrativo não configurado.");
+  return k;
 }
 
 function cabecalhos(extra?: Record<string, string>): Record<string, string> {
   const k = servico();
   return {
     apikey: k,
-    Authorization: `Bearer ${k}`,
+    ...(k.startsWith("sb_") ? {} : { Authorization: `Bearer ${k}` }),
     "Content-Type": "application/json",
     ...extra,
   };
@@ -36,45 +34,16 @@ export const CATEGORIAS_VAZIAS: CategoriasPadrao = {
   servicos: [],
 };
 
-export type UsuarioAdmin = {
-  id: string;
-  email: string;
-  nome: string;
-  criadoEm: string;
-  ultimoAcesso: string;
-  confirmado: boolean;
-  premium: boolean;
-  role: string;
-  bloqueado: boolean;
-};
-
-export type ResumoAdmin = {
-  usuarios: UsuarioAdmin[];
-  totalUsuarios: number;
-  totalLancamentos: number;
-  cadastrosMes: number;
-  ativos7d: number;
-  premium: number;
-  porTabela: { nome: string; total: number }[];
-  categorias: CategoriasPadrao;
-};
-
 /** Lê a role do usuário na tabela profiles. */
 export async function roleDe(userId: string): Promise<string> {
   const res = await fetch(
     `${baseUrl()}/rest/v1/profiles?select=role&id=eq.${encodeURIComponent(userId)}`,
     { headers: cabecalhos() },
   );
-  if (!res.ok) return "";
-  const linhas = (await res.json().catch(() => [])) as { role?: unknown }[];
+  if (!res.ok) throw new Error("Não foi possível verificar as permissões.");
+  const linhas = (await res.json()) as { role?: unknown }[];
+  if (!Array.isArray(linhas)) throw new Error("Resposta de permissões inválida.");
   return String(linhas[0]?.role ?? "").trim().toLowerCase();
-}
-
-export async function exigirAdmin(): Promise<{ id: string; email: string }> {
-  const usuario = await exigirUsuario();
-  const role = await roleDe(usuario.id);
-  if (role !== "admin") throw new Error("Acesso restrito ao administrador.");
-  return { id: usuario.id, email: usuario.email };
 }
 
 type UsuarioAuth = {
@@ -87,40 +56,6 @@ type UsuarioAuth = {
   user_metadata?: Record<string, unknown>;
   banned_until?: string | null;
 };
-
-async function listarAuthUsers(): Promise<UsuarioAuth[]> {
-  const todos: UsuarioAuth[] = [];
-  for (let pagina = 1; pagina <= 20; pagina++) {
-    const res = await fetch(
-      `${baseUrl()}/auth/v1/admin/users?page=${pagina}&per_page=200`,
-      { headers: cabecalhos() },
-    );
-    if (!res.ok) break;
-    const dados = (await res.json()) as { users?: UsuarioAuth[] };
-    const lote = dados.users ?? [];
-    todos.push(...lote);
-    if (lote.length < 200) break;
-  }
-  return todos;
-}
-
-async function contar(tabela: string): Promise<number> {
-  const res = await fetch(
-    `${baseUrl()}/rest/v1/${encodeURIComponent(tabela)}?select=ID`,
-    { headers: cabecalhos({ Prefer: "count=exact", Range: "0-0" }) },
-  );
-  const range = res.headers.get("content-range") ?? "";
-  const total = Number(range.split("/")[1]);
-  return Number.isFinite(total) ? total : 0;
-}
-
-const TABELAS_LANCAMENTO = [
-  { nome: "Ganhos diários", tabela: "DIARIO" },
-  { nome: "Abastecimentos", tabela: "CONTROLE COMBUSTIVEL" },
-  { nome: "Despesas", tabela: "DESPESAS" },
-  { nome: "Repasses", tabela: "REPASSE" },
-  { nome: "Manutenções", tabela: "MANUTENCAO" },
-];
 
 /** Categorias padrão ficam guardadas no perfil do administrador. */
 async function idDoAdmin(): Promise<string | null> {
@@ -169,99 +104,3 @@ export async function lerCategorias(): Promise<CategoriasPadrao> {
   return normalizarCategorias(meta["categorias_padrao"]);
 }
 
-export async function salvarCategorias(bruto: unknown): Promise<CategoriasPadrao> {
-  const admin = await exigirAdmin();
-  const categorias = normalizarCategorias(bruto);
-  const meta = await metadataDe(admin.id);
-  const res = await fetch(`${baseUrl()}/auth/v1/admin/users/${admin.id}`, {
-    method: "PUT",
-    headers: cabecalhos(),
-    body: JSON.stringify({ user_metadata: { ...meta, categorias_padrao: categorias } }),
-  });
-  if (!res.ok) throw new Error("Não foi possível salvar as categorias.");
-  return categorias;
-}
-
-export async function resumoAdmin(): Promise<ResumoAdmin> {
-  await exigirAdmin();
-  const [usuariosAuth, contagens, categorias] = await Promise.all([
-    listarAuthUsers(),
-    Promise.all(TABELAS_LANCAMENTO.map((t) => contar(t.tabela))),
-    lerCategorias(),
-  ]);
-
-  const roles = new Map<string, string>();
-  const resPerfis = await fetch(`${baseUrl()}/rest/v1/profiles?select=id,role`, {
-    headers: cabecalhos(),
-  });
-  if (resPerfis.ok) {
-    const linhas = (await resPerfis.json().catch(() => [])) as { id?: string; role?: string }[];
-    for (const l of linhas) if (l.id) roles.set(l.id, String(l.role ?? "").toLowerCase());
-  }
-
-  const usuarios: UsuarioAdmin[] = usuariosAuth.map((u) => ({
-    id: u.id,
-    email: u.email ?? "",
-    nome: String((u.user_metadata ?? {})["nome"] ?? "").trim(),
-    criadoEm: u.created_at ?? "",
-    ultimoAcesso: u.last_sign_in_at ?? "",
-    confirmado: Boolean(u.email_confirmed_at ?? u.confirmed_at),
-    premium: (u.user_metadata ?? {})["is_premium"] === true,
-    role: roles.get(u.id) || "user",
-    bloqueado: !!u.banned_until && new Date(u.banned_until).getTime() > Date.now(),
-  }));
-  usuarios.sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
-
-  const porTabela = TABELAS_LANCAMENTO.map((t, i) => ({
-    nome: t.nome,
-    total: contagens[i] ?? 0,
-  }));
-
-  const agora = new Date();
-  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString();
-  const seteDias = new Date(agora.getTime() - 7 * 864e5).toISOString();
-  return {
-    usuarios,
-    cadastrosMes: usuarios.filter((u) => u.criadoEm >= inicioMes).length,
-    ativos7d: usuarios.filter((u) => u.ultimoAcesso >= seteDias).length,
-    premium: usuarios.filter((u) => u.premium).length,
-    totalUsuarios: usuarios.length,
-    totalLancamentos: porTabela.reduce((s, t) => s + t.total, 0),
-    porTabela,
-    categorias,
-  };
-}
-
-/* ------------------------- Ações de suporte ------------------------- */
-
-export type AcaoUsuario = "premium" | "removerPremium" | "bloquear" | "desbloquear" | "recuperarSenha";
-
-export async function acaoUsuario(userId: string, acao: AcaoUsuario): Promise<void> {
-  const admin = await exigirAdmin();
-  if (admin.id === userId && (acao === "bloquear" || acao === "removerPremium")) {
-    throw new Error("Você não pode aplicar essa ação na sua própria conta.");
-  }
-  const res = await fetch(`${baseUrl()}/auth/v1/admin/users/${userId}`, { headers: cabecalhos() });
-  if (!res.ok) throw new Error("Usuário não encontrado.");
-  const u = (await res.json()) as UsuarioAuth;
-
-  if (acao === "recuperarSenha") {
-    if (!u.email) throw new Error("Usuário sem e-mail.");
-    const { recuperarSenha } = await import("./auth.server");
-    await recuperarSenha(u.email, "");
-    return;
-  }
-
-  let corpo: Record<string, unknown>;
-  if (acao === "premium" || acao === "removerPremium") {
-    corpo = { user_metadata: { ...(u.user_metadata ?? {}), is_premium: acao === "premium" } };
-  } else {
-    corpo = { ban_duration: acao === "bloquear" ? "876000h" : "none" };
-  }
-  const r = await fetch(`${baseUrl()}/auth/v1/admin/users/${userId}`, {
-    method: "PUT",
-    headers: cabecalhos(),
-    body: JSON.stringify(corpo),
-  });
-  if (!r.ok) throw new Error("Não foi possível aplicar a ação.");
-}
