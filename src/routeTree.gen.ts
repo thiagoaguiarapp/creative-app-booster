@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AbastecimentoRouteImport } from './routes/abastecimento'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CalculadoraRouteImport } from './routes/calculadora'
@@ -36,9 +35,6 @@ import { Route as ResumoSemanaRouteImport } from './routes/resumo-semana'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as TourRouteImport } from './routes/tour'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AdminAssinaturasRouteImport } from './routes/admin.assinaturas'
-import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as TestajuntoPrivacidadeRouteImport } from './routes/testajunto.privacidade'
@@ -53,11 +49,6 @@ const IndexRoute = IndexRouteImport.update({
 const AbastecimentoRoute = AbastecimentoRouteImport.update({
   id: '/abastecimento',
   path: '/abastecimento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -180,21 +171,6 @@ const TourRoute = TourRouteImport.update({
   path: '/tour',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAssinaturasRoute = AdminAssinaturasRouteImport.update({
-  id: '/assinaturas',
-  path: '/assinaturas',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
-  id: '/usuarios',
-  path: '/usuarios',
-  getParentRoute: () => AdminRoute,
-} as any)
 const ApiAdminRoute = ApiAdminRouteImport.update({
   id: '/api/admin',
   path: '/api/admin',
@@ -225,7 +201,6 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
   '/calculadora': typeof CalculadoraRoute
@@ -250,12 +225,9 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/tour': typeof TourRoute
-  '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
   '/api/admin': typeof ApiAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
-  '/admin/': typeof AdminIndexRoute
   '/api/public/admin': typeof ApiPublicAdminRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -286,12 +258,9 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/tour': typeof TourRoute
-  '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
   '/api/admin': typeof ApiAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
-  '/admin': typeof AdminIndexRoute
   '/api/public/admin': typeof ApiPublicAdminRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -299,7 +268,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/abastecimento': typeof AbastecimentoRoute
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
   '/calculadora': typeof CalculadoraRoute
@@ -324,12 +292,9 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/tour': typeof TourRoute
-  '/admin/assinaturas': typeof AdminAssinaturasRoute
-  '/admin/usuarios': typeof AdminUsuariosRoute
   '/api/admin': typeof ApiAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/testajunto/privacidade': typeof TestajuntoPrivacidadeRoute
-  '/admin/': typeof AdminIndexRoute
   '/api/public/admin': typeof ApiPublicAdminRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -338,7 +303,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/abastecimento'
-    | '/admin'
     | '/auth'
     | '/blog'
     | '/calculadora'
@@ -363,12 +327,9 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/tour'
-    | '/admin/assinaturas'
-    | '/admin/usuarios'
     | '/api/admin'
     | '/blog/$slug'
     | '/testajunto/privacidade'
-    | '/admin/'
     | '/api/public/admin'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
@@ -399,19 +360,15 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/tour'
-    | '/admin/assinaturas'
-    | '/admin/usuarios'
     | '/api/admin'
     | '/blog/$slug'
     | '/testajunto/privacidade'
-    | '/admin'
     | '/api/public/admin'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
     | '/abastecimento'
-    | '/admin'
     | '/auth'
     | '/blog'
     | '/calculadora'
@@ -436,12 +393,9 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/tour'
-    | '/admin/assinaturas'
-    | '/admin/usuarios'
     | '/api/admin'
     | '/blog/$slug'
     | '/testajunto/privacidade'
-    | '/admin/'
     | '/api/public/admin'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -449,7 +403,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AbastecimentoRoute: typeof AbastecimentoRoute
-  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   BlogRoute: typeof BlogRouteWithChildren
   CalculadoraRoute: typeof CalculadoraRoute
@@ -494,13 +447,6 @@ declare module '@tanstack/react-router' {
       path: '/abastecimento'
       fullPath: '/abastecimento'
       preLoaderRoute: typeof AbastecimentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -671,27 +617,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TourRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/assinaturas': {
-      id: '/admin/assinaturas'
-      path: '/assinaturas'
-      fullPath: '/admin/assinaturas'
-      preLoaderRoute: typeof AdminAssinaturasRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/usuarios': {
-      id: '/admin/usuarios'
-      path: '/usuarios'
-      fullPath: '/admin/usuarios'
-      preLoaderRoute: typeof AdminUsuariosRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/api/admin': {
       id: '/api/admin'
       path: '/api/admin'
@@ -730,20 +655,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AdminRouteChildren {
-  AdminAssinaturasRoute: typeof AdminAssinaturasRoute
-  AdminUsuariosRoute: typeof AdminUsuariosRoute
-  AdminIndexRoute: typeof AdminIndexRoute
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminAssinaturasRoute: AdminAssinaturasRoute,
-  AdminUsuariosRoute: AdminUsuariosRoute,
-  AdminIndexRoute: AdminIndexRoute,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
-
 interface BlogRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
 }
@@ -757,7 +668,6 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AbastecimentoRoute: AbastecimentoRoute,
-  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   BlogRoute: BlogRouteWithChildren,
   CalculadoraRoute: CalculadoraRoute,
