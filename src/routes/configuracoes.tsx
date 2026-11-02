@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Bike, ChevronRight, Crown, Fuel, LogOut, Plus, Receipt, Shield, Star, Trash2, User, Wallet, Wrench } from "lucide-react";
+import { Bike, ChevronRight, Crown, Fuel, LogOut, Plus, Receipt, Star, Trash2, User, Wallet, Wrench } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -163,7 +163,6 @@ function ConfiguracoesPage() {
       <div className="panel divide-y divide-border p-1">
         {[
           { to: "/premium", label: "Seja Premium", icon: Crown, destaque: true },
-          ...(usuario?.isAdmin ? [{ to: "/admin", label: "Administração", icon: Shield, destaque: true }] : []),
           { to: "/abastecimento", label: "Abastecimento", icon: Fuel },
           { to: "/despesas", label: "Despesas", icon: Receipt },
           { to: "/manutencao", label: "Manutenção", icon: Wrench },

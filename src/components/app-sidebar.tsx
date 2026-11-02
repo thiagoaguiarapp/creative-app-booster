@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Crown, Fuel, Home, ListChecks, PackageCheck, Receipt, Settings, Shield, Wallet, Wrench } from "lucide-react";
+import { BarChart3, Crown, Fuel, Home, ListChecks, PackageCheck, Receipt, Settings, Wallet, Wrench } from "lucide-react";
 import { useEffect } from "react";
 
 import {
@@ -28,7 +28,7 @@ const items = [
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },
 ];
 
-export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
+export function AppSidebar() {
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
@@ -95,20 +95,6 @@ export function AppSidebar({ isAdmin }: { email?: string; isAdmin?: boolean }) {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {isAdmin && (
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={currentPath === "/admin"}
-                tooltip="Painel do administrador"
-              >
-                <Link to="/admin" onClick={fecharNoCelular} className="flex items-center gap-2">
-                  <Shield className="size-4 text-primary" />
-                  <span>Administração</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
