@@ -1,5 +1,10 @@
 # Roadmap — Rota Control
 
+## Administração centralizada
+- [ ] Criar conexão administrativa protegida, resumo público sem dados pessoais e ações com motivo obrigatório.
+- [ ] Remover telas e chamadas administrativas internas do app, preservando categorias.
+- [ ] Configurar token compartilhado e verificar conexão; integração no portal depende do outro projeto.
+
 ## Reconhecimento de manutenção na despesa
 - [x] Ampliar reconhecimento pela categoria e descrição, ignorando acentos e maiúsculas, reutilizando planos existentes; 27 testes passaram.
 - [ ] Conferir despesa → manutenção com dados reais (sem sessão autenticada disponível no ambiente).
