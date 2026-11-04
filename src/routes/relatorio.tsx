@@ -52,7 +52,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { montaDespesasUnificadas } from "@/lib/despesas-unificadas";
 import { paresDuplicados } from "@/lib/fechamento";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { brl } from "@/lib/sheets-types";
+import { brl, type Manutencao } from "@/lib/sheets-types";
+import { ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/relatorio")({
@@ -220,8 +221,18 @@ function RelatorioPage() {
     const duplicadas = new Set(
       paresDuplicados(data.despesas, data.manutencoes).map((p) => p.manutencao.row),
     );
-    const despesasCusto = despesas;
-    const manutCusto = manut.filter((m) => !duplicadas.has(m.row));
+    // despesas de oficina/peças/óleo contam no card Manutenção, não em Despesas
+    const ehManut = (d: { categoria: string; descricao: string }) =>
+      ehCategoriaManutencao(d.categoria) || ehCategoriaManutencao(d.descricao);
+    const despesasCusto = despesas.filter((d) => !ehManut(d));
+    const manutDespesas: Manutencao[] = data.despesas
+      .filter((d) => semVeic && ok("manutencao") && periodo(d.iso) && ehManut(d) && casa(d.categoria, d.descricao, d.pagamento))
+      .map((d) => ({
+        id: d.id, row: `despesa-${d.row}`, veiculo: "", data: d.data, iso: d.iso,
+        servico: d.descricao || d.categoria, kmTroca: 0, validadeKm: 0, valor: d.valor,
+        observacao: d.categoria, pagamento: d.pagamento,
+      }));
+    const manutCusto = [...manut.filter((m) => !duplicadas.has(m.row)), ...manutDespesas];
     const outras = despesasCusto.reduce((s, d) => s + d.valor, 0);
     const manutencao = manutCusto.reduce((s, m) => s + m.valor, 0);
     const custos = combustivel + outras + manutencao;
@@ -278,7 +289,7 @@ function RelatorioPage() {
       faturamento, corridas, recebido, combustivel, litros, km, outras,
       manutencao, custos, lucro, porPlataforma, porCategoria, porMes, serie, diario,
       listas: { ganhos, abast, despesas: despesasCusto, repasses, manut: manutCusto },
-      qtd: { ganhos: ganhos.length, abast: abast.length, despesas: despesas.length, repasses: repasses.length, manut: manut.length },
+      qtd: { ganhos: ganhos.length, abast: abast.length, despesas: despesasCusto.length, repasses: repasses.length, manut: manutCusto.length },
     };
   }, [data, de, ate, busca, tipo, veiculo]);
 
