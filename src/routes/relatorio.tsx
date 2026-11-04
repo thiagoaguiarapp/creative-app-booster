@@ -56,6 +56,7 @@ import { painelQueryOptions } from "@/lib/painel-query";
 import { brl, type Manutencao } from "@/lib/sheets-types";
 import { ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { cn } from "@/lib/utils";
+import { conciliacaoRecebimentos } from "@/lib/conciliacao";
 
 export const Route = createFileRoute("/relatorio")({
   head: () => ({
@@ -798,14 +799,29 @@ function RelatorioPage() {
             };
             const porApp = agrupa((x) => x.aplicativo);
             const porForma = agrupa((x) => x.forma);
+            const pendentes = conciliacaoRecebimentos(
+              data.ganhos,
+              data.repasses,
+              (i) => (de || ate ? dentro(i) : true),
+              de || null,
+            ).filter((a) => a.pendente > 0.009);
+            const aReceber = pendentes.reduce((s, a) => s + a.pendente, 0);
             return (
               <>
                 <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
                   <StatCard label="Total recebido" value={brl(r.recebido)} icon={HandCoins} tone="success" />
                   <StatCard label="Taxas descontadas" value={brl(taxas)} icon={Receipt} tone="warning" />
                   <StatCard label="Faturado no período" value={brl(r.faturamento)} icon={TrendingUp} />
-                  <StatCard label="Ainda a receber" value={brl(Math.max(0, r.faturamento - r.recebido))} hint={`${reps.length} recebimentos`} icon={CircleDollarSign} />
+                  <StatCard label="Ainda a receber" value={brl(aReceber)} hint={pendentes.length ? `${pendentes.length} aplicativo(s) em aberto` : "Tudo recebido"} icon={CircleDollarSign} />
                 </div>
+                {pendentes.length > 0 && (
+                  <TabelaLista
+                    titulo="Ainda a receber por aplicativo"
+                    colunas={["Aplicativo", "Do período", "De antes"]}
+                    linhas={pendentes.map((a) => ({ id: `pend-${a.app}`, celulas: [a.app, brl(a.pendenteMes), brl(a.restanteAnterior)], valor: a.pendente }))}
+                    total={aReceber}
+                  />
+                )}
                 <TabelaLista
                   titulo="De quem recebi"
                   colunas={["Aplicativo / origem", "Qtd.", "Taxas"]}
