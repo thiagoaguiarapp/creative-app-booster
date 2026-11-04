@@ -8,6 +8,7 @@ import {
   Download,
   Fuel,
   Gauge,
+  HandCoins,
   Lock,
   Printer,
   Receipt,
@@ -582,6 +583,7 @@ function RelatorioPage() {
             <TabsTrigger value="despesa" className="text-xs">Despesa{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
             <TabsTrigger value="manutencao" className="text-xs">Manutenção{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
             <TabsTrigger value="abastecimento" className="text-xs">Abastecimento{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
+            <TabsTrigger value="recebimentos" className="text-xs">Recebimentos{!premium && <Crown className="ml-1 size-3 text-primary" />}</TabsTrigger>
           </TabsList>
         </div>
 
@@ -590,7 +592,7 @@ function RelatorioPage() {
             <Crown className="size-8 text-primary" />
             <p className="font-semibold">Recurso Premium</p>
             <p className="text-sm text-muted-foreground">
-              Veja o detalhamento de despesas, manutenção e abastecimento, com gráficos, médias e listas completas.
+              Veja o detalhamento de despesas, manutenção, abastecimento e recebimentos, com gráficos, médias e listas completas.
             </p>
             <Button asChild><Link to="/premium">Desbloquear Premium</Link></Button>
           </div>
@@ -778,6 +780,59 @@ function RelatorioPage() {
               }))}
             total={r.combustivel}
           />
+        </TabsContent>
+
+        <TabsContent value="recebimentos" className={cn("mt-3 flex flex-col gap-3 sm:gap-4", !premium && "hidden")}>
+          {(() => {
+            const reps = r.listas.repasses;
+            const taxas = reps.reduce((s, x) => s + (x.taxa || 0), 0);
+            const agrupa = (chave: (x: (typeof reps)[number]) => string) => {
+              const m = new Map<string, { qtd: number; valor: number; taxa: number }>();
+              for (const x of reps) {
+                const k = chave(x) || "Não informado";
+                const g = m.get(k) ?? { qtd: 0, valor: 0, taxa: 0 };
+                g.qtd += 1; g.valor += x.valor; g.taxa += x.taxa || 0;
+                m.set(k, g);
+              }
+              return [...m.entries()].sort((a, b) => b[1].valor - a[1].valor);
+            };
+            const porApp = agrupa((x) => x.aplicativo);
+            const porForma = agrupa((x) => x.forma);
+            return (
+              <>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
+                  <StatCard label="Total recebido" value={brl(r.recebido)} icon={HandCoins} tone="success" />
+                  <StatCard label="Taxas descontadas" value={brl(taxas)} icon={Receipt} tone="warning" />
+                  <StatCard label="Faturado no período" value={brl(r.faturamento)} icon={TrendingUp} />
+                  <StatCard label="Ainda a receber" value={brl(Math.max(0, r.faturamento - r.recebido))} hint={`${reps.length} recebimentos`} icon={CircleDollarSign} />
+                </div>
+                <TabelaLista
+                  titulo="De quem recebi"
+                  colunas={["Aplicativo / origem", "Qtd.", "Taxas"]}
+                  linhas={porApp.map(([nome, g]) => ({ id: `app-${nome}`, celulas: [nome, String(g.qtd), brl(g.taxa)], valor: g.valor }))}
+                  total={r.recebido}
+                />
+                <TabelaLista
+                  titulo="Como recebi"
+                  colunas={["Forma de recebimento", "Qtd.", "Taxas"]}
+                  linhas={porForma.map(([nome, g]) => ({ id: `forma-${nome}`, celulas: [nome, String(g.qtd), brl(g.taxa)], valor: g.valor }))}
+                  total={r.recebido}
+                />
+                <TabelaLista
+                  titulo="Recebimentos do período"
+                  colunas={["Data", "De quem", "Como", "Taxa"]}
+                  linhas={[...reps]
+                    .sort((a, b) => b.iso.localeCompare(a.iso))
+                    .map((x) => ({
+                      id: x.id,
+                      celulas: [x.data, x.aplicativo || "—", x.forma || "—", x.taxa ? brl(x.taxa) : "—"],
+                      valor: x.valor,
+                    }))}
+                  total={r.recebido}
+                />
+              </>
+            );
+          })()}
         </TabsContent>
       </Tabs>
 
