@@ -330,6 +330,46 @@ function RelatorioPage() {
     URL.revokeObjectURL(url);
   };
 
+  const baixarPdf = async () => {
+    const [{ jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
+    const doc = new jsPDF();
+    const fmt = (s: string) => (s ? s.split("-").reverse().join("/") : "");
+    doc.setFontSize(16);
+    doc.text("Relatório No Corre", 14, 18);
+    doc.setFontSize(10);
+    doc.text(`Período: ${fmt(de) || "início"} a ${fmt(ate) || "hoje"}`, 14, 25);
+    autoTable(doc, {
+      startY: 30,
+      head: [["Indicador", "Valor"]],
+      body: [
+        ["Faturamento", brl(r.faturamento)],
+        ["Recebido (repasses)", brl(r.recebido)],
+        ["Combustível", brl(r.combustivel)],
+        ["Despesas", brl(r.outras)],
+        ["Manutenção", brl(r.manutencao)],
+        ["Custo total", brl(r.custos)],
+        ["Lucro líquido", brl(r.lucro)],
+        ["Corridas", String(r.corridas)],
+        ["KM rodados", String(r.km)],
+        ["Litros", r.litros.toFixed(2)],
+      ],
+      headStyles: { fillColor: [251, 129, 6] },
+    });
+    if (r.porMes.length) {
+      autoTable(doc, {
+        head: [["Mês", "Faturamento", "Combustível", "Despesas", "Manutenção", "Lucro"]],
+        body: r.porMes.map((m) => [
+          rotuloMes(m.mes), brl(m.fat), brl(m.comb), brl(m.desp), brl(m.manut), brl(m.lucro),
+        ]),
+        headStyles: { fillColor: [251, 129, 6] },
+      });
+    }
+    doc.save(`relatorio-${de || "inicio"}-${ate || "hoje"}.pdf`);
+  };
+
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
 
   // Lançamentos que formam o valor de cada card da aba Geral.
@@ -503,6 +543,9 @@ function RelatorioPage() {
               <>
                 <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
                   <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={baixarPdf} className="px-2 sm:px-3">
+                  <Download className="size-4" /> <span className="hidden sm:inline">PDF</span>
                 </Button>
                 <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
                   <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
