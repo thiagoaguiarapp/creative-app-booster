@@ -52,7 +52,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { montaDespesasUnificadas } from "@/lib/despesas-unificadas";
 import { paresDuplicados } from "@/lib/fechamento";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { brl } from "@/lib/sheets-types";
+import { brl, type Manutencao } from "@/lib/sheets-types";
+import { ehCategoriaManutencao } from "@/lib/manutencao-link";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/relatorio")({
