@@ -3,6 +3,7 @@ import type { Tipo } from "./entry-schema";
 import { dataValida, paraNumeroBr } from "./numero";
 import {
   aplicaBaixa,
+  cartaoDe,
   dataPago as leDataPago,
   limpaDescricao,
   marcaCartao,
@@ -236,6 +237,40 @@ async function editarParcela(
 
 
 
+/**
+ * observação da manutenção editada: texto do usuário + marcas do crédito
+ * ("[parcelas N]", "[primeira dd/mm/aaaa]", "[cartao X]", "[pago ...]").
+ * Quando a edição não traz a forma de pagamento (ex.: "atualizar troca"),
+ * as marcas que já existiam são preservadas.
+ */
+export function observacaoManutencao(obsAtual: string, valores: Record<string, string>): string {
+  const texto = limpaDescricao(
+    valores["observacao"] !== undefined ? txt(valores["observacao"]) : obsAtual,
+  );
+  const marcas: string[] = [];
+  const baixa = leDataPago(obsAtual);
+  if (valores["pagamento"] === undefined) {
+    const parcelas = /\[parcelas \d+\]/i.exec(obsAtual);
+    const primeira = /\[primeira \d{2}\/\d{2}\/\d{4}\]/i.exec(obsAtual);
+    const cartao = marcaCartao(cartaoDe(obsAtual));
+    if (parcelas) marcas.push(parcelas[0]);
+    if (primeira) marcas.push(primeira[0]);
+    if (cartao) marcas.push(cartao);
+    if (baixa) marcas.push(marcaPago(baixa));
+  } else if (/credito|crédito/i.test(txt(valores["pagamento"]))) {
+    const parcelas = /parcelado/i.test(txt(valores["pagamento"]))
+      ? Math.max(1, Math.trunc(Number(valores["parcelas"] ?? "1")) || 1)
+      : 1;
+    const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
+    if (parcelas > 1) marcas.push(`[parcelas ${parcelas}]`);
+    if (primeira) marcas.push(`[primeira ${paraBr(primeira)}]`);
+    const cartao = marcaCartao(valores["cartao"] ?? "");
+    if (cartao) marcas.push(cartao);
+    if (baixa) marcas.push(marcaPago(baixa));
+  }
+  return [texto, ...marcas].filter(Boolean).join(" ").trim();
+}
+
 export async function salvarLancamento(
   tipo: Tipo,
   valores: Record<string, string>,
@@ -271,6 +306,13 @@ export async function salvarLancamento(
       const baixa = leDataPago(postoAtual);
       if (baixa) postoNovo = `${postoNovo} ${marcaPago(baixa)}`.trim();
       linha["POSTO"] = postoNovo.trim();
+    }
+    if (tipo === "manutencao") {
+      const { selectAll } = await import("./db.server");
+      const linhas = await selectAll(TABELAS.manutencao, userId);
+      const atual = linhas.find((l) => txt(l["ID"]) === txt(row));
+      const obsAtual = txt(atual?.["OBSERVAÇÃO"] ?? atual?.["OBSERVACAO"] ?? atual?.["OBS"] ?? "");
+      linha["OBSERVAÇÃO"] = observacaoManutencao(obsAtual, valores);
     }
     await atualizar(mapa.tabela, row, linha, userId);
     return;
@@ -357,8 +399,19 @@ export async function baixarPagamento(
   const { selectAll } = await import("./db.server");
   const marca = dataPago ? paraBr(dataPago) : null;
 
-  const m = /^(despesa|abastecimento)-(.+)$/.exec(txt(chave));
-  const origem = m?.[1] as "despesa" | "abastecimento" | undefined;
+  const m = /^(despesa|abastecimento|manutencao)-(.+)$/.exec(txt(chave));
+  const origem = m?.[1] as "despesa" | "abastecimento" | "manutencao" | undefined;
+
+  if (origem === "manutencao") {
+    // manutenção no crédito: a marca da baixa fica na OBSERVAÇÃO
+    const rowManut = txt(m![2]);
+    const manutencoes = await selectAll(TABELAS.manutencao, userId);
+    const manut = manutencoes.find((l) => txt(l["ID"]) === rowManut);
+    if (!manut) throw new Error("Não encontrei essa conta para dar baixa. Atualize a tela e tente de novo.");
+    const atual = txt(manut["OBSERVAÇÃO"] ?? manut["OBSERVACAO"] ?? manut["OBS"] ?? "");
+    await atualizar(TABELAS.manutencao, rowManut, { "OBSERVAÇÃO": aplicaBaixa(atual, marca) }, userId);
+    return;
+  }
   // abastecimento parcelado gera ids virtuais "abastecimento-<row>-<n>"; a baixa é na linha inteira
   const row = (m ? txt(m[2]) : txt(chave)).replace(/-\d{1,2}$/, (s) =>
     origem === "abastecimento" ? "" : s,
