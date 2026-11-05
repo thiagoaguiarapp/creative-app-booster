@@ -34,7 +34,7 @@ export function pagamentosCaixa(data: PainelData): Pagamento[] {
     id: p.id, row: p.row, origem: "Manutenção", data: p.data, iso: p.iso,
     dataPagamento: p.data, isoPagamento: p.iso, descricao: p.descricao,
     categoria: p.categoria, forma: p.forma, valor: p.valor,
-    pago: p.forma !== "Crédito", dataPago: "",
+    pago: p.forma !== "Crédito", dataPago: "", cartao: "",
   }))];
 }
 export type MovimentoCaixa = { id: string; iso: string; descricao: string; forma: string; entrada: number; saida: number; saldo: number };

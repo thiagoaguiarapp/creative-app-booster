@@ -6,7 +6,7 @@ export type Campo = {
   tipo: "text" | "date" | "number" | "money" | "select" | "checkbox";
   obrigatorio?: boolean;
   /** lista de sugestões (menu suspenso) alimentada pelos dados da planilha */
-  sugestoes?: "plataforma" | "forma" | "veiculo" | "servico" | "combustivel" | "posto";
+  sugestoes?: "plataforma" | "forma" | "veiculo" | "servico" | "combustivel" | "posto" | "cartao";
   /** opções fixas para tipo "select" */
   opcoes?: string[];
   /** só exibe o campo quando outro campo tem um dos valores listados */
@@ -44,6 +44,13 @@ export const camposPagamento = (opcoes?: { parcelamento?: boolean }): Campo[] =>
     opcoes: opcoes?.parcelamento === false
       ? FORMAS_PAGAMENTO.filter((f) => f !== "Crédito parcelado")
       : FORMAS_PAGAMENTO,
+  },
+  {
+    key: "cartao",
+    label: "Cartão (opcional)",
+    tipo: "text",
+    sugestoes: "cartao",
+    somenteSe: { key: "pagamento", valores: ["Crédito à vista", "Crédito parcelado"] },
   },
   ...(opcoes?.parcelamento === false
     ? []

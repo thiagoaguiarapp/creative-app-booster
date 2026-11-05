@@ -60,6 +60,7 @@ import { acharManutencaoAtiva, reconhecerManutencaoDespesa } from "@/lib/manuten
 import { dataValida, emReais, paraNumeroBr } from "@/lib/numero";
 import {
   isoCompra,
+  cartaoDe,
   limpaDescricao,
   semMarcaParcela,
   totalParcelas,
@@ -132,6 +133,7 @@ function valoresIniciais(
     }
     const primeira = String(registro["primeiraParcela"] ?? "");
     if (primeira) out["dataPrimeiraParcela"] = primeira;
+    out["cartao"] = String(registro["cartao"] ?? "");
   }
 
   // despesa no crédito: os campos de parcela vêm das marcas internas do lançamento
@@ -145,6 +147,7 @@ function valoresIniciais(
     const total = totalParcelas(descricao);
     if (total > 1) out["parcelas"] = String(total);
     out["descricao"] = semMarcaParcela(limpaDescricao(descricao));
+    out["cartao"] = cartaoDe(descricao);
   }
 
   // repasse: a caixa de taxa vem marcada quando o lançamento já tem taxa salva
@@ -244,6 +247,18 @@ function usePostos(): string[] {
   return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+/** apelidos de cartão já usados, para o usuário escolher sem digitar de novo */
+function useCartoes(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const nomes = new Set<string>();
+  for (const a of data?.abastecimentos ?? []) if (a.cartao) nomes.add(a.cartao);
+  for (const d of data?.despesas ?? []) {
+    const c = cartaoDe(d.descricao);
+    if (c) nomes.add(c);
+  }
+  return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
 function useInvalidarPainel() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ["painel"] });
@@ -288,6 +303,7 @@ function FormularioDialog({
   const formas = useFormas();
   const categorias = useCategorias();
   const postos = usePostos();
+  const cartoes = useCartoes();
   const servicos = useServicos();
   const [servicoOutro, setServicoOutro] = useState(false);
   const [veiculoOutro, setVeiculoOutro] = useState(false);
@@ -371,7 +387,7 @@ function FormularioDialog({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const CAMPOS_OCULTOS_SEM_PAGAMENTO = ["pagamento", "parcelas", "dataPrimeiraParcela", "valor"];
+  const CAMPOS_OCULTOS_SEM_PAGAMENTO = ["pagamento", "cartao", "parcelas", "dataPrimeiraParcela", "valor"];
   const visivel = (campo: (typeof CAMPOS)[Tipo][number]) => {
     if (semPagamento && CAMPOS_OCULTOS_SEM_PAGAMENTO.includes(campo.key)) return false;
     return !campo.somenteSe || campo.somenteSe.valores.includes(valores[campo.somenteSe.key] ?? "");
@@ -552,7 +568,7 @@ function FormularioDialog({
                       ...atual,
                       [campo.key]: v,
                       ...(campo.key === "pagamento" && !/crédito/i.test(v)
-                        ? { parcelas: "", dataPrimeiraParcela: "" }
+                        ? { parcelas: "", dataPrimeiraParcela: "", cartao: "" }
                         : {}),
                       ...(campo.key === "pagamento" && /crédito/i.test(v) && !atual["dataPrimeiraParcela"]
                         ? { dataPrimeiraParcela: atual["data"] ?? "" }
@@ -615,7 +631,9 @@ function FormularioDialog({
                           ? categorias.combustiveis
                           : campo.sugestoes === "posto"
                             ? postos
-                            : plataformas
+                            : campo.sugestoes === "cartao"
+                              ? cartoes
+                              : plataformas
                   ).map((nome) => (
                     <option key={nome} value={nome} />
                   ))}

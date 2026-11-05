@@ -22,6 +22,8 @@ export type Pagamento = {
   pago: boolean;
   /** data em que a baixa foi registrada (dd/mm/aaaa) */
   dataPago: string;
+  /** apelido do cartão de crédito em maiúsculas ("" quando não informado) */
+  cartao: string;
 };
 
 /** categoria usada nas retiradas pessoais (salário) */
@@ -64,6 +66,26 @@ const MARCA_PAGO = /\s*\[pago (\d{2}\/\d{2}\/\d{4})\]/i;
 const MARCA_PARCELAS = /\s*\[parcelas (\d+)\]/i;
 const MARCA_PRIMEIRA = /\s*\[primeira (\d{2}\/\d{2}\/\d{4})\]/i;
 
+/** apelido do cartão de crédito: "[cartao NUBANK]" */
+const MARCA_CARTAO = /\s*\[cartao ([^\]]{1,40})\]/i;
+
+/** limpa e padroniza o apelido digitado (maiúsculas, sem colchetes, até 40 letras) */
+export function normalizaCartao(nome: string): string {
+  return (nome ?? "").replace(/[\[\]·]/g, " ").replace(/\s+/g, " ").trim().slice(0, 40).toUpperCase();
+}
+
+/** monta a marca "[cartao NOME]" ("" sem apelido) */
+export function marcaCartao(nome: string): string {
+  const n = normalizaCartao(nome);
+  return n ? `[cartao ${n}]` : "";
+}
+
+/** apelido do cartão lido da marca ("" quando não houver) */
+export function cartaoDe(texto: string): string {
+  const m = MARCA_CARTAO.exec(texto ?? "");
+  return m ? normalizaCartao(m[1]!) : "";
+}
+
 /** monta a marca "[compra dd/mm/aaaa]" */
 export function marcaCompra(dataBr: string): string {
   return `[compra ${dataBr}]`;
@@ -87,6 +109,7 @@ export function limpaDescricao(descricao: string): string {
     .replace(MARCA_PAGO, "")
     .replace(MARCA_PARCELAS, "")
     .replace(MARCA_PRIMEIRA, "")
+    .replace(MARCA_CARTAO, "")
     .trim();
 }
 
@@ -112,6 +135,14 @@ export function dataPago(descricao: string): string {
 export function isoCompra(descricao: string, isoLinha: string): string {
   const m = MARCA_COMPRA.exec(descricao ?? "");
   return m ? paraIso(m[1]!) || isoLinha : isoLinha;
+}
+
+/**
+ * mês em que a despesa conta: parcela de crédito parcelado conta no vencimento;
+ * qualquer outra conta na data da compra (marca "[compra ...]" ou a própria linha).
+ */
+export function competenciaDespesa(descricao: string, isoLinha: string): string {
+  return totalParcelas(descricao) > 1 ? isoLinha : isoCompra(descricao, isoLinha);
 }
 
 /** marca de parcela "(2/6)" na observação */
@@ -177,6 +208,7 @@ export function montaPagamentos(
         valor: d.valor,
         pago: forma !== "Crédito" || baixa !== "",
         dataPago: baixa,
+        cartao: forma === "Crédito" ? cartaoDe(d.descricao) : "",
       };
     }),
     ...abastecimentos.flatMap((a) => {
@@ -206,6 +238,7 @@ export function montaPagamentos(
           // a baixa do abastecimento é única: quita todas as parcelas de uma vez
           pago: forma !== "Crédito" || baixa !== "",
           dataPago: baixa,
+          cartao: forma === "Crédito" ? (a.cartao ?? "") : "",
         };
       });
     }),
@@ -262,4 +295,33 @@ export function rotuloMes(mes: string) {
     "Jul", "Ago", "Set", "Out", "Nov", "Dez",
   ];
   return `${nomes[Number(m) - 1] ?? m}/${ano}`;
+}
+
+
+export type Fatura = {
+  /** chave estável: cartão + vencimento */
+  chave: string;
+  cartao: string;
+  isoVencimento: string;
+  total: number;
+  itens: Pagamento[];
+};
+
+/**
+ * agrupa as contas de crédito em aberto por cartão e data de vencimento:
+ * cada grupo é uma fatura que pode ser paga inteira de uma vez.
+ */
+export function agruparFaturas(abertos: Pagamento[]): Fatura[] {
+  const mapa = new Map<string, Fatura>();
+  for (const p of abertos) {
+    if (p.forma !== "Crédito" || p.pago) continue;
+    const chave = `${p.cartao}|${p.isoPagamento}`;
+    const f = mapa.get(chave) ?? { chave, cartao: p.cartao, isoVencimento: p.isoPagamento, total: 0, itens: [] };
+    f.total = Math.round((f.total + p.valor) * 100) / 100;
+    f.itens.push(p);
+    mapa.set(chave, f);
+  }
+  return Array.from(mapa.values()).sort(
+    (a, b) => a.isoVencimento.localeCompare(b.isoVencimento) || a.cartao.localeCompare(b.cartao),
+  );
 }

@@ -1,4 +1,4 @@
-import { isoCompra } from "./pagamentos";
+import { cartaoDe, competenciaDespesa } from "./pagamentos";
 import { dataBr, isoDate, num, selectAll, txt, type Linha } from "./db.server";
 import { dataPago, limpaDescricao, parcelasAbastecimento, primeiraParcelaIso } from "./pagamentos";
 import type { PainelData } from "./sheets-types";
@@ -129,6 +129,7 @@ async function carregar(userId: string): Promise<PainelData> {
         dataPago: baixaAbastecimento,
         parcelas: parcelasCredito,
         primeiraParcela,
+        cartao: cartaoDe(postoOriginal),
       };
     })
     .sort(byIsoDesc);
@@ -136,10 +137,11 @@ async function carregar(userId: string): Promise<PainelData> {
   const despesas = rDesp
     .filter((l) => txt(campo(l, "DATA", "Data")) !== "")
     .map((l) => {
-      // crédito: a linha guarda o vencimento; a despesa conta na data da compra
+      // crédito: a linha guarda o vencimento. À vista no cartão conta na data da compra;
+      // parcelado conta cada parcela no mês do seu vencimento (o que sai do bolso no mês).
       const vencimentoIso = isoDate(campo(l, "DATA", "Data"));
       const obs = txt(campo(l, "OBS", "OBSERVAÇÃO", "DESCRICAO"));
-      const iso = isoCompra(obs, vencimentoIso);
+      const iso = competenciaDespesa(obs, vencimentoIso);
       return {
       id: idDe(l),
       row: idDe(l),

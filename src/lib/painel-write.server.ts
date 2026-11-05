@@ -5,6 +5,7 @@ import {
   aplicaBaixa,
   dataPago as leDataPago,
   limpaDescricao,
+  marcaCartao,
   marcaCompra,
   marcaPago,
   numeroParcela,
@@ -128,6 +129,8 @@ function montaLinha(tipo: Tipo, valores: Record<string, string>): Linha {
       const primeira = txt(valores["dataPrimeiraParcela"] ?? "");
       if (parcelas > 1) partes.push(`[parcelas ${parcelas}]`);
       if (primeira) partes.push(`[primeira ${paraBr(primeira)}]`);
+      const cartao = marcaCartao(valores["cartao"] ?? "");
+      if (cartao) partes.push(cartao);
     }
     valores = {
       ...valores,
@@ -177,6 +180,7 @@ async function gravarDespesa(valores: Record<string, string>, userId: string): P
       descricaoBase,
       parcelas > 1 ? `(${i + 1}/${parcelas})` : "",
       marcaCompra(paraBr(dataCompra)),
+      marcaCartao(valores["cartao"] ?? ""),
     ].filter(Boolean);
     await inserir(
       mapa.tabela,
@@ -216,6 +220,7 @@ async function editarParcela(
     base,
     total > 1 ? `(${numero}/${total})` : "",
     dataCompra ? marcaCompra(paraBr(dataCompra)) : "",
+    marcaCartao(valores["cartao"] ?? ""),
     baixa ? marcaPago(baixa) : "",
   ]
     .filter(Boolean)
@@ -290,6 +295,7 @@ export async function salvarLancamento(
           pagamento: forma,
           parcelas: valores["parcelas"] ?? "",
           dataPrimeiraParcela: valores["dataPrimeiraParcela"] ?? "",
+          cartao: valores["cartao"] ?? "",
         },
         userId,
       );

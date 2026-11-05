@@ -6,7 +6,7 @@ import type { Pagamento } from "../pagamentos";
 const p = (o: Partial<Pagamento>): Pagamento => ({
   id: "x", row: "1", origem: "Despesa", data: "", iso: "2026-10-01", dataPagamento: "",
   isoPagamento: "2026-10-01", descricao: "", categoria: "", forma: "Pix", valor: 10,
-  pago: true, dataPago: "", ...o,
+  pago: true, dataPago: "", cartao: "", ...o,
 });
 
 describe("contas a pagar", () => {
