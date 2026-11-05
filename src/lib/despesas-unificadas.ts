@@ -70,10 +70,12 @@ function itemAbastecimento(a: Abastecimento): ItemDespesa {
     iso: a.iso,
     data: a.data,
     compraIso: a.iso,
-    vencimento: a.data,
+    vencimento: a.primeiraParcela
+      ? a.primeiraParcela.split("-").reverse().join("/")
+      : a.data,
     valor: a.valorPago,
-    categoria: "Combustível",
-    descricao: [a.combustivel, a.posto].filter(Boolean).join(" · "),
+    categoria: a.combustivel || "Combustível",
+    descricao: "",
     pagamento: a.pagamento,
     pagoEm: a.dataPago,
     forma: normalizaForma(a.pagamento),
