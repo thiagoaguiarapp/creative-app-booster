@@ -80,7 +80,6 @@ function itemAbastecimento(a: Abastecimento): ItemDespesa {
     pagoEm: a.dataPago,
     forma: normalizaForma(a.pagamento),
     extras: [
-      { rotulo: "Combustível", valor: a.combustivel || "—" },
       { rotulo: "Posto", valor: a.posto || "—" },
       { rotulo: "Litros", valor: a.litros ? `${a.litros} L` : "—" },
       { rotulo: "Odômetro", valor: a.odometro ? `${a.odometro} km` : "—" },
@@ -107,7 +106,6 @@ function itemManutencao(m: Manutencao): ItemDespesa {
     forma: m.pagamento ? normalizaForma(m.pagamento) : "Outros",
     extras: [
       { rotulo: "Veículo", valor: m.veiculo || "—" },
-      { rotulo: "Serviço", valor: m.servico || "—" },
       { rotulo: "Km da troca", valor: m.kmTroca ? `${m.kmTroca} km` : "—" },
       { rotulo: "Validade", valor: m.validadeKm ? `${m.validadeKm} km` : "—" },
     ],
