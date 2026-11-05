@@ -1,219 +1,115 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Banknote, CreditCard, Crown, Landmark, QrCode, Wallet } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Check, Crown, Pencil, Wallet, CalendarClock, TrendingUp, HandCoins } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
-
-import { PageHeader } from "@/components/shell";
+import { PageHeader, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { cardsPorForma, filtrarPagamentosPeriodo } from "@/lib/contas-pagar";
-import { isoLocal, type PeriodoEntregas } from "@/lib/entregas-filtro";
-import { baixarPagamentoFn } from "@/lib/painel.functions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { calcularCaixa, type ConfiguracaoCaixa } from "@/lib/fluxo-caixa";
+import { baixarContaCaixaFn, salvarCaixaFn } from "@/lib/fluxo-caixa.functions";
+import { isoLocal } from "@/lib/entregas-filtro";
+import { paraNumeroBr } from "@/lib/numero";
 import { painelQueryOptions } from "@/lib/painel-query";
-import { montaPagamentos, type Forma } from "@/lib/pagamentos";
+import { type Pagamento } from "@/lib/pagamentos";
 import { brl } from "@/lib/sheets-types";
 import { cn } from "@/lib/utils";
 
+const dataBr = (iso: string) => iso.split("-").reverse().join("/");
 export const Route = createFileRoute("/contas-a-pagar")({
-  head: () => ({
-    meta: [
-      { title: "Contas a pagar — No Corre" },
-      { name: "description", content: "Seus gastos por forma de pagamento: cartão, Pix, débito e dinheiro." },
-      { property: "og:title", content: "Contas a pagar — No Corre" },
-      { property: "og:description", content: "Seus gastos por forma de pagamento: cartão, Pix, débito e dinheiro." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  loader: ({ context }) => {
-    context.queryClient.ensureQueryData(painelQueryOptions());
-  },
-  errorComponent: ({ error }) => (
-    <div role="alert" className="p-6 text-sm text-destructive">{(error as Error).message}</div>
-  ),
+  head: () => ({ meta: [
+    { title: "Contas a pagar e fluxo de caixa — No Corre" },
+    { name: "description", content: "Controle Premium de entradas, saídas, vencimentos e saldo acumulado com data de início e saldo inicial." },
+    { property: "og:title", content: "Contas a pagar e fluxo de caixa — No Corre" },
+    { property: "og:description", content: "Acompanhe pagamentos, recebimentos e seu saldo desde o início do controle." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: ContasPage,
 });
-
-const PERIODOS: [PeriodoEntregas, string][] = [
-  ["hoje", "Hoje"],
-  ["semana", "Semana"],
-  ["mes", "Mês"],
-  ["tudo", "Tudo"],
-  ["personalizado", "Personalizado"],
-];
-
-const ICONES: Record<Forma, typeof Wallet> = {
-  Crédito: CreditCard,
-  Pix: QrCode,
-  Débito: Landmark,
-  Dinheiro: Banknote,
-  Outros: Wallet,
-};
-
 function ContasPage() {
-  const context = useRouteContext({ from: "__root__" });
-  const premium = context.usuario?.isPremium ?? false;
-
-  if (!premium) {
-    return (
-      <div className="mx-auto w-full max-w-3xl space-y-4">
-        <PageHeader title="Contas a pagar" subtitle="Seus gastos por forma de pagamento." />
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center">
-          <Crown className="size-8 text-primary" />
-          <p className="font-semibold">Recurso Premium</p>
-          <p className="text-sm text-muted-foreground">
-            Veja quanto gastou no cartão, Pix, débito e dinheiro, acompanhe os vencimentos do cartão e dê baixa na fatura.
-          </p>
-          <Button asChild><Link to="/premium">Desbloquear Premium</Link></Button>
-        </div>
-      </div>
-    );
-  }
-  return <ContasPremium />;
+  const { usuario } = useRouteContext({ from: "__root__" });
+  if (!usuario?.isPremium) return <div className="mx-auto max-w-3xl space-y-5"><PageHeader title="Contas a pagar" subtitle="Fluxo de caixa" /><div className="flex flex-col items-center gap-3 py-10 text-center"><Crown className="size-8 text-primary" /><h2 className="font-semibold">Recurso Premium</h2><Button asChild><Link to="/premium">Desbloquear Premium</Link></Button></div></div>;
+  return <ContasPremium config={usuario.caixa ?? null} />;
 }
-
-function ContasPremium() {
+function ContasPremium({ config }: { config: ConfiguracaoCaixa | null }) {
   const { data } = useSuspenseQuery(painelQueryOptions());
-  const [periodo, setPeriodo] = useState<PeriodoEntregas>("mes");
-  const [de, setDe] = useState(() => isoLocal(new Date()));
-  const [ate, setAte] = useState(() => isoLocal(new Date()));
-  const [aberta, setAberta] = useState<Forma | null>(null);
-
-  const todos = useMemo(() => montaPagamentos(data.despesas, data.abastecimentos), [data]);
-  const lista = useMemo(
-    () => filtrarPagamentosPeriodo(todos, { periodo, de, ate }),
-    [todos, periodo, de, ate],
-  );
-  const cards = cardsPorForma(lista);
-  const total = lista.reduce((s, p) => s + p.valor, 0);
-  const itens = aberta ? lista.filter((p) => p.forma === aberta) : [];
-
-  const chip = (ativo: boolean) =>
-    cn(
-      "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-      ativo ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground",
-    );
-
-  return (
-    <div className="mx-auto w-full max-w-3xl min-w-0 space-y-4">
-      <PageHeader title="Contas a pagar" subtitle="Seus gastos por forma de pagamento." />
-
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {PERIODOS.map(([p, r]) => (
-          <button key={p} type="button" className={chip(periodo === p)} onClick={() => setPeriodo(p)}>{r}</button>
-        ))}
-      </div>
-      {periodo === "personalizado" && (
-        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-3">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="cp-de" className="text-xs text-muted-foreground">Do dia</Label>
-            <Input id="cp-de" type="date" value={de} onChange={(e) => setDe(e.target.value)} className="h-9 w-40 text-sm" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="cp-ate" className="text-xs text-muted-foreground">Até o dia</Label>
-            <Input id="cp-ate" type="date" value={ate} onChange={(e) => setAte(e.target.value)} className="h-9 w-40 text-sm" />
-          </div>
-        </div>
-      )}
-
-      <div className="rounded-xl border border-border bg-primary/10 p-3">
-        <p className="text-[11px] text-muted-foreground">Total gasto no período</p>
-        <p className="text-2xl font-semibold tracking-tight">{brl(total)}</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {cards.map((c) => {
-          const Icone = ICONES[c.forma];
-          return (
-            <button
-              key={c.forma}
-              type="button"
-              onClick={() => setAberta(c.forma)}
-              className="flex min-w-0 flex-col gap-1 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-primary/50 active:bg-accent"
-            >
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Icone className="size-4 text-primary" /> {c.forma === "Crédito" ? "Cartão (crédito)" : c.forma}
-              </span>
-              <span className="truncate text-lg font-semibold">{brl(c.total)}</span>
-              <span className="text-[11px] text-muted-foreground">{c.quantidade} lançamento(s)</span>
-              {c.forma === "Crédito" && c.emAberto > 0.009 && (
-                <span className="text-[11px] font-medium text-destructive">Em aberto: {brl(c.emAberto)}</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-      <p className="text-xs text-muted-foreground">
-        Cartão é filtrado pela data de vencimento; Pix, débito e dinheiro pela data da compra.
-      </p>
-
-      <Sheet open={aberta !== null} onOpenChange={(o) => !o && setAberta(null)}>
-        <SheetContent
-          side="bottom"
-          className="flex max-h-[85dvh] flex-col gap-3 rounded-t-2xl px-4 pt-3"
-          style={{ bottom: "var(--altura-banner-ads, 0px)", paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
-        >
-          <SheetHeader className="text-left">
-            <SheetTitle>{aberta === "Crédito" ? "Cartão (crédito)" : aberta}</SheetTitle>
-            <SheetDescription>{itens.length} lançamento(s) · {brl(itens.reduce((s, p) => s + p.valor, 0))}</SheetDescription>
-          </SheetHeader>
-          <div className="grid gap-2 overflow-y-auto">
-            {itens.length === 0 && <p className="text-sm text-muted-foreground">Nada neste período.</p>}
-            {itens.map((p) => <ItemConta key={p.id} p={p} />)}
-          </div>
-        </SheetContent>
-      </Sheet>
+  const router = useRouter();
+  const salvar = useServerFn(salvarCaixaFn);
+  const hoje = isoLocal(new Date());
+  const [mes, setMes] = useState(hoje.slice(0, 7));
+  const [ajustando, setAjustando] = useState(false);
+  const [inicio, setInicio] = useState(config?.inicio ?? `${hoje.slice(0, 7)}-01`);
+  const [saldo, setSaldo] = useState(String(config?.saldoInicial ?? 0).replace(".", ","));
+  const [salvando, setSalvando] = useState(false);
+  const [aba, setAba] = useState("pendentes");
+  const [filtro, setFiltro] = useState("todas");
+  const de = `${mes}-01`;
+  const [ano, numeroMes] = mes.split("-").map(Number);
+  const ate = isoLocal(new Date(ano ?? 2026, numeroMes ?? 1, 0));
+  const caixa = useMemo(() => config ? calcularCaixa(data, config, de, ate, hoje) : null, [data, config, de, ate, hoje]);
+  async function persistir(nova: ConfiguracaoCaixa) {
+    setSalvando(true);
+    try { await salvar({ data: nova }); await router.invalidate(); toast.success("Controle salvo."); setAjustando(false); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível salvar."); }
+    finally { setSalvando(false); }
+  }
+  const formulario = <form className="grid gap-4" onSubmit={(e) => { e.preventDefault(); void persistir({ inicio, saldoInicial: paraNumeroBr(saldo), historicas: config?.historicas ?? [] }); }}>
+    <div className="grid gap-1.5"><Label htmlFor="caixa-inicio">Data de início do controle</Label><Input required id="caixa-inicio" type="date" max={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} /></div>
+    <div className="grid gap-1.5"><Label htmlFor="caixa-saldo">Saldo inicial (R$)</Label><Input required id="caixa-saldo" inputMode="decimal" value={saldo} onChange={(e) => setSaldo(e.target.value)} /><p className="text-xs text-muted-foreground">Valor disponível antes dos movimentos da data de início. Pode ser negativo.</p></div>
+    <p className="text-sm text-muted-foreground">Seu histórico continua salvo. Contas vencidas antes dessa data ficam separadas, sem entrar automaticamente no saldo ou nas pendências.</p>
+    {config && <p className="text-xs text-warning">Alterar a data ou o saldo inicial recalcula todo o controle, sem excluir lançamentos.</p>}
+    <Button disabled={salvando} type="submit">{salvando ? "Salvando…" : config ? "Salvar ajustes" : "Iniciar controle"}</Button>
+  </form>;
+  if (!config || !caixa) return <div className="mx-auto max-w-3xl space-y-6"><PageHeader title="Contas a pagar" subtitle="Fluxo de caixa · Premium" /><section className="max-w-lg space-y-5 border-t border-border pt-5"><h2 className="text-lg font-semibold">Início do controle</h2>{formulario}</section></div>;
+  const pagas = caixa.contas.filter((p) => p.pago && (p.forma === "Crédito" ? p.dataPago.split("/").reverse().join("-") : p.iso) >= de && (p.forma === "Crédito" ? p.dataPago.split("/").reverse().join("-") : p.iso) <= ate);
+  const lista = (aba === "pendentes" ? caixa.abertos : pagas).filter((p) => filtro === "todas" || p.forma === filtro);
+  return <div className="mx-auto w-full max-w-5xl min-w-0 space-y-5">
+    <PageHeader title="Contas a pagar" subtitle="Fluxo de caixa · Premium" />
+    <section className="flex flex-wrap items-center justify-between gap-3 border-y border-border py-3">
+      <div><p className="text-sm font-medium">Desde {dataBr(config.inicio)}</p><p className="text-xs text-muted-foreground">Saldo inicial {brl(config.saldoInicial)}</p></div>
+      <Button size="sm" variant="outline" onClick={() => { setInicio(config.inicio); setSaldo(String(config.saldoInicial).replace(".", ",")); setAjustando(true); }}><Pencil className="size-3.5" />Ajustar</Button>
+    </section>
+    <div className="flex flex-wrap items-center gap-3"><Label htmlFor="caixa-mes">Período</Label><Input id="caixa-mes" type="month" className="w-44" min={config.inicio.slice(0, 7)} max={hoje.slice(0, 7)} value={mes} onChange={(e) => { if (e.target.value) setMes(e.target.value); }} /></div>
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <StatCard label="Entradas do mês" value={brl(caixa.entradas)} icon={ArrowDownLeft} tone="success" />
+      <StatCard label="Saídas do mês" value={brl(caixa.saidas)} icon={ArrowUpRight} tone="destructive" />
+      <StatCard label="Saldo do mês" value={brl(caixa.saldoPeriodo)} icon={TrendingUp} tone={caixa.saldoPeriodo < 0 ? "destructive" : "success"} />
+      <StatCard label="Saldo acumulado" value={brl(caixa.saldoAcumulado)} icon={Wallet} hint={`Até ${dataBr(ate < hoje ? ate : hoje)}`} />
     </div>
-  );
+    <section className="space-y-3 border-b border-border pb-4"><h2 className="font-semibold">Evolução do saldo</h2><div className="h-52 w-full min-w-0"><ResponsiveContainer width="100%" height="100%"><AreaChart data={caixa.evolucao} margin={{ left: 0, right: 12, top: 12, bottom: 0 }}><CartesianGrid stroke="var(--border)" vertical={false} /><XAxis dataKey="dia" tickFormatter={(v: string) => dataBr(v).slice(0, 5)} stroke="var(--muted-foreground)" fontSize={11} /><YAxis stroke="var(--muted-foreground)" fontSize={11} width={65} /><Tooltip formatter={(v) => [brl(Number(v)), "Saldo"]} labelFormatter={(v) => dataBr(String(v))} contentStyle={{ background: "var(--card)", borderColor: "var(--border)", color: "var(--foreground)" }} /><Area type="stepAfter" dataKey="saldo" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.12} /></AreaChart></ResponsiveContainer></div></section>
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-3"><StatCard label="Contas em aberto" value={brl(caixa.aPagar)} icon={CalendarClock} tone="warning" /><StatCard label="Ainda a receber" value={brl(caixa.aReceber)} icon={HandCoins} /><StatCard label="Saldo previsto" value={brl(caixa.previsto)} icon={Wallet} hint="Saldo + a receber − contas abertas" /></div>
+    <Tabs defaultValue="contas"><TabsList className="w-full"><TabsTrigger className="flex-1" value="contas">Contas a pagar</TabsTrigger><TabsTrigger className="flex-1" value="extrato">Extrato do mês</TabsTrigger></TabsList>
+      <TabsContent value="contas" className="space-y-4">
+        <div className="flex flex-wrap gap-2"><Button size="sm" variant={aba === "pendentes" ? "default" : "outline"} onClick={() => setAba("pendentes")}>Em aberto ({caixa.abertos.length})</Button><Button size="sm" variant={aba === "pagas" ? "default" : "outline"} onClick={() => setAba("pagas")}>Pagas no mês ({pagas.length})</Button></div>
+        {aba === "pagas" && <div className="flex flex-wrap gap-2">{["todas", "Crédito", "Pix", "Débito", "Dinheiro", "Outros"].map((forma) => <Button key={forma} size="sm" variant={filtro === forma ? "secondary" : "ghost"} onClick={() => setFiltro(forma)}>{forma === "todas" ? "Todas" : forma}</Button>)}</div>}
+        <div className="divide-y divide-border">{lista.length ? lista.map((p) => <ItemConta key={p.id} p={p} inicio={config.inicio} />) : <p className="py-6 text-sm text-muted-foreground">Nenhuma conta {aba === "pendentes" ? "em aberto" : "paga neste mês"}.</p>}</div>
+        {caixa.historicas.length > 0 && <details className="border-t border-border pt-4"><summary className="cursor-pointer text-sm font-medium">Contas anteriores fora do controle ({caixa.historicas.length})</summary><p className="my-3 text-xs text-muted-foreground">Inclua somente o que ainda precisa pagar. O histórico não foi alterado.</p>{caixa.historicas.map((p) => <div key={p.id} className="flex items-center justify-between gap-3 border-b border-border py-3"><div className="min-w-0"><p className="text-sm">{p.descricao}</p><p className="text-xs text-muted-foreground">Vence {p.dataPagamento} · {brl(p.valor)}</p></div><Button size="sm" variant="outline" disabled={salvando} onClick={() => void persistir({ ...config, historicas: [...config.historicas, p.id] })}>Incluir</Button></div>)}</details>}
+      </TabsContent>
+      <TabsContent value="extrato"><div className="divide-y divide-border">{caixa.movimentos.length ? caixa.movimentos.map((m) => <div key={m.id} className="flex justify-between gap-3 py-3"><div className="min-w-0"><p className="text-sm font-medium">{m.descricao}</p><p className="text-xs text-muted-foreground">{dataBr(m.iso)} · {m.forma}</p></div><div className="shrink-0 text-right"><p className={cn("text-sm font-semibold", m.entrada ? "text-success" : "text-destructive")}>{m.entrada ? "+" : "−"}{brl(m.entrada || m.saida)}</p><p className="text-xs text-muted-foreground">Saldo {brl(m.saldo)}</p></div></div>) : <p className="py-6 text-sm text-muted-foreground">Nenhuma movimentação neste mês.</p>}</div></TabsContent>
+    </Tabs>
+    <Sheet open={ajustando} onOpenChange={setAjustando}><SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto pb-[calc(1rem+var(--altura-banner-ads,0px))]"><SheetHeader><SheetTitle>Ajustar início do controle</SheetTitle><SheetDescription>Data de início e saldo disponível.</SheetDescription></SheetHeader><div className="mx-auto mt-5 max-w-lg">{formulario}</div></SheetContent></Sheet>
+  </div>;
 }
-
-function ItemConta({ p }: { p: ReturnType<typeof montaPagamentos>[number] }) {
-  const baixar = useServerFn(baixarPagamentoFn);
+function ItemConta({ p, inicio }: { p: Pagamento; inicio: string }) {
+  const baixar = useServerFn(baixarContaCaixaFn);
   const qc = useQueryClient();
+  const hoje = isoLocal(new Date());
+  const [aberta, setAberta] = useState(false);
+  const [dataPago, setDataPago] = useState(hoje);
   const [salvando, setSalvando] = useState(false);
   const credito = p.forma === "Crédito";
-  const hoje = isoLocal(new Date());
-  const vencida = credito && !p.pago && p.isoPagamento < hoje;
-
-  const alternar = async () => {
+  async function confirmar() {
     setSalvando(true);
-    try {
-      await baixar({ data: { rows: [p.id], dataPago: p.pago ? null : hoje } });
-      await qc.invalidateQueries({ queryKey: ["painel"] });
-      toast.success(p.pago ? "Baixa desfeita." : "Pagamento baixado.");
-    } catch (e) {
-      toast.error((e as Error).message || "Não foi possível salvar.");
-    } finally {
-      setSalvando(false);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{p.descricao || p.categoria || p.origem}</p>
-        <p className="text-xs text-muted-foreground">
-          Compra {p.data}
-          {credito && ` · Vence ${p.dataPagamento}`}
-        </p>
-        {credito && (
-          <p className={cn("text-xs font-medium", p.pago ? "text-primary" : vencida ? "text-destructive" : "text-muted-foreground")}>
-            {p.pago ? `Pago${p.dataPago ? ` em ${p.dataPago}` : ""}` : vencida ? "Vencida" : "Pendente"}
-          </p>
-        )}
-      </div>
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <span className="text-sm font-semibold">{brl(p.valor)}</span>
-        {credito && (
-          <Button size="sm" variant={p.pago ? "ghost" : "default"} disabled={salvando} onClick={alternar}>
-            {salvando ? "..." : p.pago ? "Desfazer" : "Dar baixa"}
-          </Button>
-        )}
-      </div>
-    </div>
-  );
+    try { await baixar({ data: { id: p.id, dataPago: p.pago ? null : dataPago } }); await qc.invalidateQueries({ queryKey: ["painel"] }); toast.success(p.pago ? "Baixa desfeita." : "Pagamento registrado."); setAberta(false); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível salvar."); }
+    finally { setSalvando(false); }
+  }
+  return <div className="flex flex-wrap items-center gap-3 py-3"><div className="min-w-0 flex-1"><p className="text-sm font-medium">{p.descricao || p.categoria}</p><p className="text-xs text-muted-foreground">Compra {p.data}{credito ? ` · Vence ${p.dataPagamento}` : ` · ${p.forma}`}</p><p className={cn("text-xs", p.pago ? "text-success" : p.isoPagamento < hoje ? "text-destructive" : "text-warning")}>{p.pago ? p.dataPago ? `Pago em ${p.dataPago}` : "Quitado" : p.isoPagamento < hoje ? "Vencida" : "Pendente"}</p></div><div className="flex shrink-0 flex-col items-end gap-1"><span className="text-sm font-semibold">{brl(p.valor)}</span>{credito && p.origem !== "Manutenção" ? <Button size="sm" variant={p.pago ? "ghost" : "default"} onClick={() => setAberta(true)}>{p.pago ? "Desfazer" : "Dar baixa"}</Button> : credito ? <Button size="sm" variant="outline" asChild><Link to="/despesas">Editar despesa</Link></Button> : <Check className="size-4 text-success" />}</div>
+    <Sheet open={aberta} onOpenChange={setAberta}><SheetContent side="bottom" className="pb-[calc(1rem+var(--altura-banner-ads,0px))]"><SheetHeader><SheetTitle>{p.pago ? "Desfazer pagamento" : "Dar baixa"}</SheetTitle><SheetDescription>{p.descricao} · {brl(p.valor)}</SheetDescription></SheetHeader><div className="mx-auto mt-5 grid max-w-lg gap-4">{p.origem === "Abastecimento" && <p className="text-sm text-warning">A baixa deste abastecimento quita todas as parcelas juntas.</p>}{!p.pago && <div className="grid gap-2"><Label htmlFor={`baixa-${p.id}`}>Data do pagamento</Label><Input id={`baixa-${p.id}`} type="date" min={inicio} max={hoje} value={dataPago} onChange={(e) => setDataPago(e.target.value)} /></div>}<Button disabled={salvando} onClick={() => void confirmar()}>{salvando ? "Salvando…" : p.pago ? "Desfazer baixa" : "Confirmar pagamento"}</Button></div></SheetContent></Sheet>
+  </div>;
 }
