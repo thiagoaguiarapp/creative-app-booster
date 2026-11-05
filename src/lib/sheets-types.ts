@@ -75,6 +75,14 @@ export type Manutencao = {
   observacao: string;
   /** forma de pagamento (coluna CONDIÇÃO DE PAGAMENTO); "" quando não informada */
   pagamento: string;
+  /** crédito: vencimento (aaaa-mm-dd) lido da marca "[primeira ...]"; "" quando não houver */
+  primeiraParcela?: string;
+  /** crédito: total de parcelas (1 quando não houver marca) */
+  parcelas?: number;
+  /** crédito: apelido do cartão */
+  cartao?: string;
+  /** crédito: data da baixa dd/mm/aaaa ("" em aberto) */
+  dataPago?: string;
 };
 
 export type PainelData = {

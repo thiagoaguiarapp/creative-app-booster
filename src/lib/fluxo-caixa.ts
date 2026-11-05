@@ -2,7 +2,7 @@ import { z } from "zod";
 import { conciliacaoRecebimentos } from "./conciliacao";
 import { montaDespesasUnificadas } from "./despesas-unificadas";
 import { montaPagamentos, type Pagamento } from "./pagamentos";
-import type { PainelData } from "./sheets-types";
+import type { Manutencao, PainelData } from "./sheets-types";
 
 export function dataIsoValida(iso: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
@@ -30,12 +30,16 @@ export function isoDaBaixa(br: string) {
 export function pagamentosCaixa(data: PainelData): Pagamento[] {
   const base = montaPagamentos(data.despesas, data.abastecimentos);
   const manutencoes = montaDespesasUnificadas(data).filter((p) => p.tipo === "manutencao");
-  return [...base, ...manutencoes.map((p): Pagamento => ({
-    id: p.id, row: p.row, origem: "Manutenção", data: p.data, iso: p.iso,
-    dataPagamento: p.data, isoPagamento: p.iso, descricao: p.descricao,
-    categoria: p.categoria, forma: p.forma, valor: p.valor,
-    pago: p.forma !== "Crédito", dataPago: "", cartao: "",
-  }))];
+  return [...base, ...manutencoes.map((p): Pagamento => {
+    const m = p.bruto as unknown as Manutencao;
+    const isoPagamento = m.primeiraParcela || p.iso;
+    return {
+      id: p.id, row: p.row, origem: "Manutenção", data: p.data, iso: p.iso,
+      dataPagamento: isoPagamento.split("-").reverse().join("/"), isoPagamento,
+      descricao: p.descricao, categoria: p.categoria, forma: p.forma, valor: p.valor,
+      pago: p.forma !== "Crédito" || !!p.pagoEm, dataPago: p.pagoEm, cartao: m.cartao ?? "",
+    };
+  })];
 }
 export type MovimentoCaixa = { id: string; iso: string; descricao: string; forma: string; entrada: number; saida: number; saldo: number };
 const centavos = (n: number) => Math.round(n * 100) / 100;

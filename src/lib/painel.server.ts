@@ -173,9 +173,16 @@ async function carregar(userId: string): Promise<PainelData> {
 
   const manutencoes = rManut
     .filter((l) => txt(campo(l, "SERVIÇO", "SERVICO")) !== "")
-    .map((l) => ({
+    .map((l) => {
+      // crédito: vencimento, parcelas, cartão e baixa ficam como marcas na OBSERVAÇÃO
+      const obsBruta = txt(campo(l, "OBSERVAÇÃO", "OBSERVACAO", "OBS"));
+      return {
       id: idDe(l),
       row: idDe(l),
+      primeiraParcela: primeiraParcelaIso(obsBruta),
+      parcelas: parcelasAbastecimento(obsBruta),
+      cartao: cartaoDe(obsBruta),
+      dataPago: dataPago(obsBruta),
       veiculo: normalizar(campo(l, "VEICULO", "VEÍCULO")) || "—",
       data: dataBr(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
       iso: isoDate(campo(l, "DATA MANUTENÇÃO", "DATA MANUTENCAO", "DATA")),
@@ -183,9 +190,10 @@ async function carregar(userId: string): Promise<PainelData> {
       kmTroca: num(campo(l, "KM TROCA")),
       validadeKm: num(campo(l, "VALIDADE (KM)", "VALIDADE KM")),
       valor: num(campo(l, "VALOR GASTO", "VALOR")),
-      observacao: txt(campo(l, "OBSERVAÇÃO", "OBSERVACAO", "OBS")),
+      observacao: limpaDescricao(obsBruta),
       pagamento: normalizar(campo(l, "CONDIÇÃO DE PAGAMENTO", "CONDICAO DE PAGAMENTO")),
-    }))
+      };
+    })
     .sort(byIsoDesc);
 
   const odometroAtual = Math.max(

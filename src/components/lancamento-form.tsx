@@ -123,7 +123,12 @@ function valoresIniciais(
   }
 
   // abastecimento no crédito: parcelas e 1º vencimento vêm das marcas lidas do POSTO
-  if (tipo === "abastecimento" && registro && /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))) {
+  // manutenção no crédito: idem, com as marcas lidas da OBSERVAÇÃO
+  if (
+    (tipo === "abastecimento" || tipo === "manutencao") &&
+    registro &&
+    /cr[eé]dito/i.test(String(registro["pagamento"] ?? ""))
+  ) {
     const total = Math.max(1, Number(registro["parcelas"]) || 1);
     if (total > 1) {
       out["pagamento"] = "Crédito parcelado";
