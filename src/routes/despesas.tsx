@@ -71,15 +71,18 @@ function LinhaDespesa({
       }
       detalhes={
         <>
-          <Detalhe rotulo="Origem" valor={d.origem} />
           <Detalhe rotulo="Categoria" valor={d.categoria} />
-          {d.descricao && <Detalhe rotulo="Descrição" valor={semMarcaParcela(d.descricao)} />}
+          {d.descricao &&
+            semMarcaParcela(d.descricao).trim().toLowerCase() !==
+              d.categoria.trim().toLowerCase() && (
+              <Detalhe rotulo="Descrição" valor={semMarcaParcela(d.descricao)} />
+            )}
           {d.extras.map((e) => (
             <Detalhe key={e.rotulo} rotulo={e.rotulo} valor={e.valor} />
           ))}
           {d.pagamento && <Detalhe rotulo="Pagamento" valor={d.pagamento} />}
           <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
-          <Detalhe rotulo="Vencimento" valor={d.vencimento} />
+          {credito && <Detalhe rotulo="Vencimento" valor={d.vencimento} />}
           {parcelas > 1 && (
             <Detalhe rotulo="Parcela" valor={`${numeroParcela(d.descricao)}/${parcelas}`} />
           )}

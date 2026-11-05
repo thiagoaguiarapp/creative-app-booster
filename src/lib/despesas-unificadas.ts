@@ -70,15 +70,16 @@ function itemAbastecimento(a: Abastecimento): ItemDespesa {
     iso: a.iso,
     data: a.data,
     compraIso: a.iso,
-    vencimento: a.data,
+    vencimento: a.primeiraParcela
+      ? a.primeiraParcela.split("-").reverse().join("/")
+      : a.data,
     valor: a.valorPago,
-    categoria: "Combustível",
-    descricao: [a.combustivel, a.posto].filter(Boolean).join(" · "),
+    categoria: a.combustivel || "Combustível",
+    descricao: "",
     pagamento: a.pagamento,
     pagoEm: a.dataPago,
     forma: normalizaForma(a.pagamento),
     extras: [
-      { rotulo: "Combustível", valor: a.combustivel || "—" },
       { rotulo: "Posto", valor: a.posto || "—" },
       { rotulo: "Litros", valor: a.litros ? `${a.litros} L` : "—" },
       { rotulo: "Odômetro", valor: a.odometro ? `${a.odometro} km` : "—" },
@@ -105,7 +106,6 @@ function itemManutencao(m: Manutencao): ItemDespesa {
     forma: m.pagamento ? normalizaForma(m.pagamento) : "Outros",
     extras: [
       { rotulo: "Veículo", valor: m.veiculo || "—" },
-      { rotulo: "Serviço", valor: m.servico || "—" },
       { rotulo: "Km da troca", valor: m.kmTroca ? `${m.kmTroca} km` : "—" },
       { rotulo: "Validade", valor: m.validadeKm ? `${m.validadeKm} km` : "—" },
     ],
