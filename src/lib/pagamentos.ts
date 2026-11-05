@@ -7,7 +7,7 @@ export const FORMAS: Forma[] = ["Dinheiro", "Pix", "Débito", "Crédito", "Outro
 export type Pagamento = {
   id: string;
   row: string;
-  origem: "Despesa" | "Abastecimento";
+  origem: "Despesa" | "Abastecimento" | "Manutenção";
   /** data da compra (competência) */
   data: string;
   iso: string;

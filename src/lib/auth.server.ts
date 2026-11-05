@@ -1,5 +1,6 @@
 /** Autenticação via Supabase Auth (REST), com sessão em cookies httpOnly. */
 import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
+import { lerConfiguracaoCaixa, type ConfiguracaoCaixa } from "./fluxo-caixa";
 
 const ACCESS = "motoca_at";
 const REFRESH = "motoca_rt";
@@ -39,6 +40,7 @@ export type Usuario = {
   veiculos: Veiculo[];
   plataformas: string[];
   onboardingOk: boolean;
+  caixa?: ConfiguracaoCaixa | null;
 };
 
 type Tokens = { access_token?: string; refresh_token?: string };
@@ -101,6 +103,7 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     veiculos: normalizarVeiculos(meta["veiculos"]),
     plataformas: normalizarPlataformas(meta["plataformas"]),
     onboardingOk: meta["onboardingOk"] === true,
+    caixa: lerConfiguracaoCaixa(meta["caixa"]),
   };
 }
 
@@ -173,6 +176,7 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
         veiculos: atual.veiculos,
         plataformas: atual.plataformas,
         onboardingOk: atual.onboardingOk,
+        caixa: atual.caixa,
         ...mudancas,
       },
     }),
@@ -186,6 +190,12 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
 
 export async function salvarPerfil(nome: string, telefone: string): Promise<Usuario> {
   return atualizarMetadata({ nome, telefone });
+}
+
+export async function salvarConfiguracaoCaixa(config: ConfiguracaoCaixa): Promise<ConfiguracaoCaixa> {
+  const salvo = await atualizarMetadata({ caixa: config });
+  if (!salvo.caixa) throw new Error("Não foi possível salvar o início do controle.");
+  return salvo.caixa;
 }
 
 export async function salvarMetaSemanal(valor: number): Promise<number> {
