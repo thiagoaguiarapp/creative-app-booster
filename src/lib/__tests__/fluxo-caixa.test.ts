@@ -61,4 +61,16 @@ describe("Controle de caixa Premium", () => {
     expect(r.saidas).toBe(0);
     expect(r.saldoAcumulado).toBe(400);
   });
+  it("baixa de conta antiga após o início entra como saída real", () => {
+    const data = painel({ despesas: [despesa({ iso: "2026-05-01", pagamento: "Crédito", vencimentoIso: "2026-05-30", descricao: "Óleo [pago 04/11/2026]" })] });
+    expect(calcular(data).saidas).toBe(42);
+    expect(calcular(data).aPagar).toBe(0);
+  });
+  it("abastecimento parcelado quitado sai uma única vez pelo valor total", () => {
+    const data = painel({ abastecimentos: [{ id: "a", row: "a", data: "04/11/2026", iso: "2026-11-04", posto: "Posto", combustivel: "Gasolina", veiculo: "Moto", odometro: 100, litros: 10, precoLitro: 10, kmRodado: 100, kmPorLitro: 10, custoKm: 1, desconto: 0, valorPago: 100, pagamento: "Crédito", dataPago: "05/11/2026", parcelas: 3, primeiraParcela: "2026-12-06" }] });
+    const r = calcular(data);
+    expect(r.saidas).toBe(100);
+    expect(r.saldoAcumulado).toBe(400);
+    expect(r.aPagar).toBe(0);
+  });
 });
