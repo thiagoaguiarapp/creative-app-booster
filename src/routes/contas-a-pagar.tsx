@@ -110,7 +110,7 @@ function ItemConta({ p, inicio, totalBaixa }: { p: Pagamento; inicio: string; to
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível salvar."); }
     finally { setSalvando(false); }
   }
-  return <div className="flex flex-wrap items-center gap-3 py-3"><div className="min-w-0 flex-1"><p className="text-sm font-medium">{p.descricao || p.categoria}</p><p className="text-xs text-muted-foreground">Compra {p.data}{credito ? ` · Vence ${p.dataPagamento}` : ` · ${p.forma}`}</p><p className={cn("text-xs", p.pago ? "text-success" : p.isoPagamento < hoje ? "text-destructive" : "text-warning")}>{p.pago ? p.dataPago ? `Pago em ${p.dataPago}` : "Quitado" : p.isoPagamento < hoje ? "Vencida" : "Pendente"}</p></div><div className="flex shrink-0 flex-col items-end gap-1"><span className="text-sm font-semibold">{brl(p.valor)}</span>{credito && p.origem !== "Manutenção" ? <Button size="sm" variant={p.pago ? "ghost" : "default"} onClick={() => setAberta(true)}>{p.pago ? "Desfazer" : "Dar baixa"}</Button> : credito ? <Button size="sm" variant="outline" asChild><Link to="/despesas">Editar despesa</Link></Button> : <Check className="size-4 text-success" />}</div>
+  return <div className="flex flex-wrap items-center gap-3 py-3"><div className="min-w-0 flex-1"><p className="text-sm font-medium">{p.descricao || p.categoria}</p><p className="text-xs text-muted-foreground">Compra {p.data}{credito ? ` · Vence ${p.dataPagamento}` : ` · ${p.forma}`}</p><p className={cn("text-xs", p.pago ? "text-success" : p.isoPagamento < hoje ? "text-destructive" : "text-warning")}>{p.pago ? p.dataPago ? `Pago em ${p.dataPago}` : "Quitado" : p.isoPagamento < hoje ? "Vencida" : "Pendente"}</p></div><div className="flex shrink-0 flex-col items-end gap-1"><span className="text-sm font-semibold">{brl(p.valor)}</span>{credito ? <Button size="sm" variant={p.pago ? "ghost" : "default"} onClick={() => setAberta(true)}>{p.pago ? "Desfazer" : "Dar baixa"}</Button> : <Check className="size-4 text-success" />}</div>
     <Sheet open={aberta} onOpenChange={setAberta}><SheetContent side="bottom" className="pb-[calc(1rem+var(--altura-banner-ads,0px))]"><SheetHeader><SheetTitle>{p.pago ? "Desfazer pagamento" : "Dar baixa"}</SheetTitle><SheetDescription>{p.descricao} · {brl(totalBaixa)}</SheetDescription></SheetHeader><div className="mx-auto mt-5 grid max-w-lg gap-4">{p.origem === "Abastecimento" && <p className="text-sm text-warning">A baixa deste abastecimento quita todas as parcelas juntas: {brl(totalBaixa)}.</p>}{!p.pago && <div className="grid gap-2"><Label htmlFor={`baixa-${p.id}`}>Data do pagamento</Label><Input id={`baixa-${p.id}`} type="date" min={inicio} max={hoje} value={dataPago} onChange={(e) => setDataPago(e.target.value)} /></div>}<Button disabled={salvando} onClick={() => void confirmar()}>{salvando ? "Salvando…" : p.pago ? "Desfazer baixa" : "Confirmar pagamento"}</Button></div></SheetContent></Sheet>
   </div>;
 }
@@ -128,7 +128,7 @@ function FaturaCard({ fatura, inicio }: { fatura: Fatura; inicio: string }) {
   const [confirmando, setConfirmando] = useState<Pagamento[] | null>(null);
   const [dataPago, setDataPago] = useState(hoje);
   const [salvando, setSalvando] = useState(false);
-  const pagaveis = fatura.itens.filter((p) => p.origem !== "Manutenção");
+  const pagaveis = fatura.itens;
   const vencida = fatura.isoVencimento < hoje;
   const escolhidas = pagaveis.filter((p) => selecionadas.includes(p.id));
   // parcelas irmãs de abastecimento parcelado saem juntas na mesma baixa
@@ -163,7 +163,7 @@ function FaturaCard({ fatura, inicio }: { fatura: Fatura; inicio: string }) {
     {aberta && <div className="border-t border-border px-4">
       {pagaveis.length > 1 && <label className="flex items-center gap-2 py-3 text-sm"><input type="checkbox" className="size-4 accent-primary" checked={escolhidas.length === pagaveis.length} onChange={(e) => setSelecionadas(e.target.checked ? pagaveis.map((p) => p.id) : [])} />Selecionar todas</label>}
       <div className="divide-y divide-border">{fatura.itens.map((p) => {
-        const pagavel = p.origem !== "Manutenção";
+        const pagavel = true;
         return <div key={p.id} className="flex items-center gap-3 py-3">
           {pagavel ? <input type="checkbox" aria-label={`Selecionar ${p.descricao}`} className="size-4 shrink-0 accent-primary" checked={selecionadas.includes(p.id)} onChange={(e) => setSelecionadas((atual) => e.target.checked ? [...atual, p.id] : atual.filter((id) => id !== p.id))} /> : <span className="size-4 shrink-0" />}
           <div className="min-w-0 flex-1"><p className="truncate text-sm">{p.descricao || p.categoria}</p><p className="text-xs text-muted-foreground">Compra {p.data}</p></div>

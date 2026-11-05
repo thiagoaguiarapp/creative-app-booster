@@ -26,7 +26,7 @@ export const baixarContaCaixaFn = createServerFn({ method: "POST" })
     if (data.dataPago && (data.dataPago < usuario.caixa.inicio || data.dataPago > hoje)) throw new Error("O pagamento deve estar entre o início do controle e hoje.");
     const painel = await loadPainelData(usuario.id);
     const p = pagamentosCaixa(painel).find((p) => p.id === data.id);
-    if (!p || p.forma !== "Crédito" || p.origem === "Manutenção") throw new Error("Esta conta não permite baixa aqui; edite o lançamento em Despesas.");
+    if (!p || p.forma !== "Crédito") throw new Error("Esta conta não permite baixa aqui; edite o lançamento em Despesas.");
     if (p.isoPagamento < usuario.caixa.inicio && !usuario.caixa.historicas.includes(p.id)) throw new Error("Inclua esta conta antiga no controle antes de dar baixa.");
     await baixarPagamento(p.id, usuario.id, data.dataPago);
     invalidarPainelCache(usuario.id);
@@ -53,7 +53,7 @@ export const baixarFaturaCaixaFn = createServerFn({ method: "POST" })
     let total = 0;
     for (const id of data.ids) {
       const p = todos.get(id);
-      if (!p || p.forma !== "Crédito" || p.pago || p.origem === "Manutenção") continue;
+      if (!p || p.forma !== "Crédito" || p.pago) continue;
       if (p.isoPagamento < caixa.inicio && !caixa.historicas.includes(p.id)) continue;
       const linha = `${p.origem}-${p.row}`;
       if (feitos.has(linha)) continue;
