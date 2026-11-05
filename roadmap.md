@@ -1,5 +1,11 @@
 # Roadmap — Rota Control
 
+## Controle de caixa Premium
+- [x] Salvar data de início e saldo inicial na conta existente, preservando histórico e separando contas antigas com inclusão opcional.
+- [x] Implementar entradas, saídas, saldo acumulado, evolução, extrato e contas com confirmação da data de baixa.
+- [x] Validar regras: 23 testes passaram e compilação sem erros; abertura sem sessão direciona ao login sem erros.
+- [ ] Conferir configuração, baixa e leitura dos valores na conta Premium real — sem sessão disponível para o backend externo; verificação autenticada não realizada.
+
 ## Administração centralizada
 - [x] Criar conexão administrativa protegida, resumo público sem dados pessoais e ações com motivo obrigatório; testes e GET real autenticado passaram.
 - [x] Remover telas e chamadas administrativas internas do app, preservando categorias.
