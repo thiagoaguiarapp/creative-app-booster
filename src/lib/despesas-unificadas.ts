@@ -1,4 +1,5 @@
 import { paresDuplicados } from "./fechamento";
+import { ehCategoriaManutencao } from "./manutencao-link";
 import {
   dataPago,
   isoCompra,
@@ -41,7 +42,7 @@ function itemDespesa(d: Despesa): ItemDespesa {
   return {
     id: `despesa-${d.row}`,
     row: d.row,
-    origem: "Despesa",
+    origem: ehCategoriaManutencao(d.categoria) ? "Manutenção" : "Despesa",
     tipo: "despesa",
     iso: d.iso,
     data: d.data,
