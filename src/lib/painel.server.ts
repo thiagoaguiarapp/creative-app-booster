@@ -1,4 +1,4 @@
-import { isoCompra } from "./pagamentos";
+import { cartaoDe, competenciaDespesa } from "./pagamentos";
 import { dataBr, isoDate, num, selectAll, txt, type Linha } from "./db.server";
 import { dataPago, limpaDescricao, parcelasAbastecimento, primeiraParcelaIso } from "./pagamentos";
 import type { PainelData } from "./sheets-types";

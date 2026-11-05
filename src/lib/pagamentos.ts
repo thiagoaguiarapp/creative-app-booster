@@ -137,6 +137,14 @@ export function isoCompra(descricao: string, isoLinha: string): string {
   return m ? paraIso(m[1]!) || isoLinha : isoLinha;
 }
 
+/**
+ * mês em que a despesa conta: parcela de crédito parcelado conta no vencimento;
+ * qualquer outra conta na data da compra (marca "[compra ...]" ou a própria linha).
+ */
+export function competenciaDespesa(descricao: string, isoLinha: string): string {
+  return totalParcelas(descricao) > 1 ? isoLinha : isoCompra(descricao, isoLinha);
+}
+
 /** marca de parcela "(2/6)" na observação */
 const MARCA_PARCELA = /\s*\((\d+)\s*\/\s*(\d+)\)/;
 
