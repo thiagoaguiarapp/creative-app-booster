@@ -32,6 +32,8 @@ export type Abastecimento = {
   parcelas: number;
   /** vencimento da 1ª parcela em iso (aaaa-mm-dd; "" quando não houver) */
   primeiraParcela: string;
+  /** apelido do cartão de crédito ("" quando não informado) */
+  cartao?: string;
 };
 
 export type Despesa = {
