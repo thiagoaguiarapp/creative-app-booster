@@ -97,12 +97,14 @@ function itemManutencao(m: Manutencao): ItemDespesa {
     iso: m.iso,
     data: m.data,
     compraIso: m.iso,
-    vencimento: m.data,
+    vencimento: m.primeiraParcela
+      ? m.primeiraParcela.split("-").reverse().join("/")
+      : m.data,
     valor: m.valor,
     categoria: m.servico || "Manutenção",
     descricao: m.observacao || m.servico,
     pagamento: m.pagamento ?? "",
-    pagoEm: "",
+    pagoEm: m.dataPago ?? "",
     forma: m.pagamento ? normalizaForma(m.pagamento) : "Outros",
     extras: [
       { rotulo: "Veículo", valor: m.veiculo || "—" },
