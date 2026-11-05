@@ -43,10 +43,10 @@ function LinhaDespesa({
       celulas={
         <>
           <TableCell className="num">
-            {d.data}
-            {credito && d.extras.find((e) => e.rotulo === "Vencimento") && (
+            {paraBr(d.compraIso)}
+            {credito && d.vencimento !== paraBr(d.compraIso) && (
               <span className="block text-xs text-muted-foreground">
-                vence {d.extras.find((e) => e.rotulo === "Vencimento")?.valor}
+                vence {d.vencimento}
               </span>
             )}
           </TableCell>
@@ -79,7 +79,7 @@ function LinhaDespesa({
           ))}
           {d.pagamento && <Detalhe rotulo="Pagamento" valor={d.pagamento} />}
           <Detalhe rotulo="Data da compra" valor={paraBr(d.compraIso)} />
-          <Detalhe rotulo="Vencimento" valor={d.data} />
+          <Detalhe rotulo="Vencimento" valor={d.vencimento} />
           {parcelas > 1 && (
             <Detalhe rotulo="Parcela" valor={`${numeroParcela(d.descricao)}/${parcelas}`} />
           )}

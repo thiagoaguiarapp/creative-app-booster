@@ -25,6 +25,8 @@ export type ItemDespesa = {
   data: string;
   /** data da compra (igual a iso fora do crédito parcelado) */
   compraIso: string;
+  /** vencimento real (fatura no crédito), dd/mm/aaaa */
+  vencimento: string;
   valor: number;
   categoria: string;
   descricao: string;
@@ -47,14 +49,14 @@ function itemDespesa(d: Despesa): ItemDespesa {
     iso: d.iso,
     data: d.data,
     compraIso: isoCompra(d.descricao, d.iso),
+    vencimento: d.vencimento || d.data,
     valor: d.valor,
     categoria: d.categoria,
     descricao: limpaDescricao(d.descricao),
     pagamento: d.pagamento,
     pagoEm: dataPago(d.descricao),
     forma: normalizaForma(d.pagamento),
-    extras:
-      d.vencimento && d.vencimentoIso !== d.iso ? [{ rotulo: "Vencimento", valor: d.vencimento }] : [],
+    extras: [],
     bruto: d as unknown as Record<string, unknown> & { row: string },
   };
 }
@@ -68,6 +70,7 @@ function itemAbastecimento(a: Abastecimento): ItemDespesa {
     iso: a.iso,
     data: a.data,
     compraIso: a.iso,
+    vencimento: a.data,
     valor: a.valorPago,
     categoria: "Combustível",
     descricao: [a.combustivel, a.posto].filter(Boolean).join(" · "),
@@ -93,6 +96,7 @@ function itemManutencao(m: Manutencao): ItemDespesa {
     iso: m.iso,
     data: m.data,
     compraIso: m.iso,
+    vencimento: m.data,
     valor: m.valor,
     categoria: m.servico || "Manutenção",
     descricao: m.observacao || m.servico,
