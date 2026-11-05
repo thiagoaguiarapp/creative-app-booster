@@ -41,7 +41,7 @@ export type MovimentoCaixa = { id: string; iso: string; descricao: string; forma
 const centavos = (n: number) => Math.round(n * 100) / 100;
 export function calcularCaixa(data: PainelData, config: ConfiguracaoCaixa, de: string, ate: string, hoje: string) {
   const todos = pagamentosCaixa(data);
-  const pertence = (p: Pagamento) => (p.forma === "Crédito" ? p.isoPagamento : p.iso) >= config.inicio || config.historicas.includes(p.id);
+  const pertence = (p: Pagamento) => (p.forma === "Crédito" ? p.isoPagamento : p.iso) >= config.inicio || config.historicas.includes(p.id) || (p.pago && isoDaBaixa(p.dataPago) >= config.inicio);
   const contas = todos.filter(pertence);
   const historicas = todos.filter((p) => p.forma === "Crédito" && !p.pago && !pertence(p));
   const abertos = contas.filter((p) => p.forma === "Crédito" && !p.pago).sort((a, b) => a.isoPagamento.localeCompare(b.isoPagamento));

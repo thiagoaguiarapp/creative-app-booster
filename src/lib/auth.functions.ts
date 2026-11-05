@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { ConfiguracaoCaixa } from "./fluxo-caixa";
 
 export type SessaoUsuario = {
   id: string;
@@ -18,6 +19,7 @@ export type SessaoUsuario = {
   }[];
   plataformas: string[];
   onboardingOk: boolean;
+  caixa?: ConfiguracaoCaixa | null;
 } | null;
 
 export const salvarVeiculosFn = createServerFn({ method: "POST" })
