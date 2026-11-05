@@ -537,7 +537,7 @@ function RelatorioPage() {
         action={
           <div className="flex gap-2 print:hidden">
             <Button variant="outline" size="sm" asChild className="px-2 sm:px-3">
-              <Link to="/contas-a-pagar">Contas a pagar</Link>
+              <Link to="/contas-a-pagar">Fluxo de caixa</Link>
             </Button>
             {premium && (
               <>

@@ -23,9 +23,9 @@ import { cn } from "@/lib/utils";
 const dataBr = (iso: string) => iso.split("-").reverse().join("/");
 export const Route = createFileRoute("/contas-a-pagar")({
   head: () => ({ meta: [
-    { title: "Contas a pagar e fluxo de caixa — No Corre" },
+    { title: "Fluxo de caixa — No Corre" },
     { name: "description", content: "Controle Premium de entradas, saídas, vencimentos e saldo acumulado com data de início e saldo inicial." },
-    { property: "og:title", content: "Contas a pagar e fluxo de caixa — No Corre" },
+    { property: "og:title", content: "Fluxo de caixa — No Corre" },
     { property: "og:description", content: "Acompanhe pagamentos, recebimentos e seu saldo desde o início do controle." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/contas-a-pagar")({
 });
 function ContasPage() {
   const { usuario } = useRouteContext({ from: "__root__" });
-  if (!usuario?.isPremium) return <div className="mx-auto max-w-3xl space-y-5"><PageHeader title="Contas a pagar" subtitle="Fluxo de caixa" /><div className="flex flex-col items-center gap-3 py-10 text-center"><Crown className="size-8 text-primary" /><h2 className="font-semibold">Recurso Premium</h2><Button asChild><Link to="/premium">Desbloquear Premium</Link></Button></div></div>;
+  if (!usuario?.isPremium) return <div className="mx-auto max-w-3xl space-y-5"><PageHeader title="Fluxo de caixa" subtitle="Premium" /><div className="flex flex-col items-center gap-3 py-10 text-center"><Crown className="size-8 text-primary" /><h2 className="font-semibold">Recurso Premium</h2><Button asChild><Link to="/premium">Desbloquear Premium</Link></Button></div></div>;
   return <ContasPremium config={usuario.caixa ?? null} />;
 }
 function ContasPremium({ config }: { config: ConfiguracaoCaixa | null }) {
@@ -65,11 +65,11 @@ function ContasPremium({ config }: { config: ConfiguracaoCaixa | null }) {
     {config && <p className="text-xs text-warning">Alterar a data ou o saldo inicial recalcula todo o controle, sem excluir lançamentos.</p>}
     <Button disabled={salvando} type="submit">{salvando ? "Salvando…" : config ? "Salvar ajustes" : "Iniciar controle"}</Button>
   </form>;
-  if (!config || !caixa) return <div className="mx-auto max-w-3xl space-y-6"><PageHeader title="Contas a pagar" subtitle="Fluxo de caixa · Premium" /><section className="max-w-lg space-y-5 border-t border-border pt-5"><h2 className="text-lg font-semibold">Início do controle</h2>{formulario}</section></div>;
+  if (!config || !caixa) return <div className="mx-auto max-w-3xl space-y-6"><PageHeader title="Fluxo de caixa" subtitle="Entradas, saídas e faturas · Premium" /><section className="max-w-lg space-y-5 border-t border-border pt-5"><h2 className="text-lg font-semibold">Início do controle</h2>{formulario}</section></div>;
   const pagas = caixa.contas.filter((p) => p.pago && (p.forma === "Crédito" ? p.dataPago.split("/").reverse().join("-") : p.iso) >= de && (p.forma === "Crédito" ? p.dataPago.split("/").reverse().join("-") : p.iso) <= ate);
   const lista = (aba === "pendentes" ? caixa.abertos : pagas.filter((p) => filtro === "todas" || p.forma === filtro));
   return <div className="mx-auto w-full max-w-5xl min-w-0 space-y-5">
-    <PageHeader title="Contas a pagar" subtitle="Fluxo de caixa · Premium" />
+    <PageHeader title="Fluxo de caixa" subtitle="Entradas, saídas e faturas · Premium" />
     <section className="flex flex-wrap items-center justify-between gap-3 border-y border-border py-3">
       <div><p className="text-sm font-medium">Desde {dataBr(config.inicio)}</p><p className="text-xs text-muted-foreground">Saldo inicial {brl(config.saldoInicial)}</p></div>
       <Button size="sm" variant="outline" onClick={() => { setInicio(config.inicio); setSaldo(String(config.saldoInicial).replace(".", ",")); setAjustando(true); }}><Pencil className="size-3.5" />Ajustar</Button>

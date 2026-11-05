@@ -165,6 +165,7 @@ function ConfiguracoesPage() {
           { to: "/premium", label: "Seja Premium", icon: Crown, destaque: true },
           { to: "/abastecimento", label: "Abastecimento", icon: Fuel },
           { to: "/despesas", label: "Despesas", icon: Receipt },
+          { to: "/contas-a-pagar", label: "Fluxo de caixa", icon: Wallet },
           { to: "/manutencao", label: "Manutenção", icon: Wrench },
           { to: "/repasses", label: "Recebimento / Repasse", icon: Wallet },
           { to: "/lancamentos", label: "Todos os lançamentos", icon: Receipt },

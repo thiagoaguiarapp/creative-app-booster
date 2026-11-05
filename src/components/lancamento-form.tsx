@@ -830,7 +830,7 @@ function ListaTiposRapidos({
           onClick={onFechar}
           className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium hover:bg-accent/50"
         >
-          <CreditCard className="size-4 text-primary" /> Contas a pagar
+          <CreditCard className="size-4 text-primary" /> Fluxo de caixa
         </Link>
       </div>
     </div>
