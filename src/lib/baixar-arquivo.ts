@@ -17,7 +17,11 @@ export async function baixarArquivo(blob: Blob, nome: string): Promise<void> {
       directory: Directory.Cache,
       recursive: true,
     });
-    await Share.share({ title: nome, url: uri });
+    try {
+      await Share.share({ title: nome, url: uri });
+    } catch {
+      // usuário fechou a folha de compartilhamento sem salvar
+    }
     return;
   }
   const url = URL.createObjectURL(blob);
