@@ -30,6 +30,7 @@ import {
 } from "recharts";
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { baixarArquivo } from "@/lib/baixar-arquivo";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -296,7 +297,7 @@ function RelatorioPage() {
   }, [data, de, ate, busca, tipo, veiculo]);
 
 
-  const baixarCsv = () => {
+  const baixarCsv = async () => {
     const linhas: string[][] = [
       ["Relatório No Corre", `${de || "início"} a ${ate || "hoje"}`],
       ...(busca || tipo !== "todos" || veiculo
@@ -322,12 +323,8 @@ function RelatorioPage() {
       ]),
     ];
     const csv = linhas.map((l) => l.join(";")).join("\n");
-    const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `relatorio-${de || "inicio"}-${ate || "hoje"}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    await baixarArquivo(blob, `relatorio-${de || "inicio"}-${ate || "hoje"}.csv`);
   };
 
   const baixarPdf = async () => {
@@ -367,7 +364,8 @@ function RelatorioPage() {
         headStyles: { fillColor: [251, 129, 6] },
       });
     }
-    doc.save(`relatorio-${de || "inicio"}-${ate || "hoje"}.pdf`);
+    const blob = doc.output("blob");
+    await baixarArquivo(blob, `relatorio-${de || "inicio"}-${ate || "hoje"}.pdf`);
   };
 
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
@@ -542,10 +540,10 @@ function RelatorioPage() {
             {premium && (
               <>
                 <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
-                  <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
+                  <Download className="size-4" /> CSV
                 </Button>
                 <Button variant="outline" size="sm" onClick={baixarPdf} className="px-2 sm:px-3">
-                  <Download className="size-4" /> <span className="hidden sm:inline">PDF</span>
+                  <Download className="size-4" /> PDF
                 </Button>
                 <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
                   <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
