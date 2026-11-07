@@ -322,12 +322,8 @@ function RelatorioPage() {
       ]),
     ];
     const csv = linhas.map((l) => l.join(";")).join("\n");
-    const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `relatorio-${de || "inicio"}-${ate || "hoje"}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    await baixarArquivo(blob, `relatorio-${de || "inicio"}-${ate || "hoje"}.csv`);
   };
 
   const baixarPdf = async () => {
@@ -367,7 +363,8 @@ function RelatorioPage() {
         headStyles: { fillColor: [251, 129, 6] },
       });
     }
-    doc.save(`relatorio-${de || "inicio"}-${ate || "hoje"}.pdf`);
+    const blob = doc.output("blob");
+    await baixarArquivo(blob, `relatorio-${de || "inicio"}-${ate || "hoje"}.pdf`);
   };
 
   const margem = r.faturamento ? (r.lucro / r.faturamento) * 100 : 0;
