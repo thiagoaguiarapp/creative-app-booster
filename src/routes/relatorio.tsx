@@ -30,6 +30,7 @@ import {
 } from "recharts";
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { baixarArquivo } from "@/lib/baixar-arquivo";
 import { PageHeader, SectionCard, StatCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -539,10 +540,10 @@ function RelatorioPage() {
             {premium && (
               <>
                 <Button variant="outline" size="sm" onClick={baixarCsv} className="px-2 sm:px-3">
-                  <Download className="size-4" /> <span className="hidden sm:inline">CSV</span>
+                  <Download className="size-4" /> CSV
                 </Button>
                 <Button variant="outline" size="sm" onClick={baixarPdf} className="px-2 sm:px-3">
-                  <Download className="size-4" /> <span className="hidden sm:inline">PDF</span>
+                  <Download className="size-4" /> PDF
                 </Button>
                 <Button size="sm" onClick={() => window.print()} className="px-2 sm:px-3">
                   <Printer className="size-4" /> <span className="hidden sm:inline">Imprimir</span>
