@@ -1,5 +1,5 @@
 import { ehCategoriaManutencao } from "./manutencao-link";
-import { montaPagamentos, type Pagamento } from "./pagamentos";
+import { isoCompra, limpaDescricao, montaPagamentos, totalParcelas, type Pagamento } from "./pagamentos";
 import type { Despesa, Manutencao, PainelData } from "./sheets-types";
 
 export type ParDuplicado = {
