@@ -39,6 +39,33 @@ export function paresDuplicados(
     usadas.add(m.row);
     pares.push({ despesa: d, manutencao: m });
   }
+
+  // compra parcelada: as parcelas (1/6, 2/6...) somadas equivalem ao registro único
+  // da manutenção. O custo vale pelas parcelas, cada uma no mês do seu vencimento.
+  const pareadas = new Set(pares.map((p) => p.despesa.row));
+  const grupos = new Map<string, { despesa: Despesa; total: number; compra: string }>();
+  for (const d of despesas) {
+    if (pareadas.has(d.row) || d.valor <= 0 || totalParcelas(d.descricao) <= 1) continue;
+    if (!ehCategoriaManutencao(d.categoria) && !ehCategoriaManutencao(d.descricao)) continue;
+    const compra = isoCompra(d.descricao, d.vencimentoIso || d.iso);
+    const base = limpaDescricao(d.descricao).replace(/\s*\(\d+\s*\/\s*\d+\)/g, "").trim().toUpperCase();
+    const chave = `${d.categoria.toUpperCase()}|${base}|${compra}|${totalParcelas(d.descricao)}`;
+    const g = grupos.get(chave);
+    if (g) g.total += d.valor;
+    else grupos.set(chave, { despesa: d, total: d.valor, compra });
+  }
+  for (const g of grupos.values()) {
+    const m = manutencoes.find(
+      (x) =>
+        !usadas.has(x.row) &&
+        x.valor > 0 &&
+        Math.abs(x.valor - g.total) < 0.5 &&
+        diasEntre(x.iso, g.compra) <= 3,
+    );
+    if (!m) continue;
+    usadas.add(m.row);
+    pares.push({ despesa: g.despesa, manutencao: m });
+  }
   return pares;
 }
 
