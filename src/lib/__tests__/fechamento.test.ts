@@ -72,6 +72,18 @@ describe("paresDuplicados", () => {
     expect(pares).toHaveLength(1);
   });
 
+  it("manutenção de R$ 284 parcelada em 6x conta só pelas parcelas", () => {
+    const parcelas = [47.35, 47.33, 47.33, 47.33, 47.33, 47.33].map((v, i) =>
+      despesa({
+        id: `p${i}`, row: `p${i}`, categoria: "PNEU MOTO", valor: v,
+        descricao: `PNEU MICHELIN (${i + 1}/6) [compra 14/10/2026]`,
+        iso: `2026-${String(11 + i).padStart(2, "0")}-06`.replace("2026-13", "2027-01").replace("2026-14", "2027-02").replace("2026-15", "2027-03").replace("2026-16", "2027-04"),
+      }),
+    );
+    const pares = paresDuplicados(parcelas, [manutencao({ row: "m1", valor: 284, iso: "2026-10-14", data: "14/10/2026" })]);
+    expect(pares.map((p) => p.manutencao.row)).toEqual(["m1"]);
+  });
+
   it("não marca valores diferentes como duplicados", () => {
     const pares = paresDuplicados(
       [despesa({ categoria: "MANUTENÇÃO", valor: 250 })],
