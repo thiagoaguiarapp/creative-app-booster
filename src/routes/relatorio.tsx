@@ -296,7 +296,7 @@ function RelatorioPage() {
   }, [data, de, ate, busca, tipo, veiculo]);
 
 
-  const baixarCsv = () => {
+  const baixarCsv = async () => {
     const linhas: string[][] = [
       ["Relatório No Corre", `${de || "início"} a ${ate || "hoje"}`],
       ...(busca || tipo !== "todos" || veiculo
