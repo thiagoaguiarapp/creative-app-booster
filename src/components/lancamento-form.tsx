@@ -255,13 +255,28 @@ function usePostos(): string[] {
 /** apelidos de cartão já usados, para o usuário escolher sem digitar de novo */
 function useCartoes(): string[] {
   const { data } = useQuery(painelQueryOptions());
-  const nomes = new Set<string>();
-  for (const a of data?.abastecimentos ?? []) if (a.cartao) nomes.add(a.cartao);
+  const nomes = new Map<string, string>();
+  const add = (c?: string) => {
+    const t = c?.trim();
+    if (t && !nomes.has(normalizaTexto(t))) nomes.set(normalizaTexto(t), t);
+  };
+  for (const a of data?.abastecimentos ?? []) add(a.cartao);
+  for (const m of data?.manutencoes ?? []) add(m.cartao);
+  for (const d of data?.despesas ?? []) add(cartaoDe(d.descricao) ?? undefined);
+  return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+/** categorias de despesa já usadas (sem duplicar por acento/maiúscula) */
+function useCategoriasDespesa(): string[] {
+  const { data } = useQuery(painelQueryOptions());
+  const nomes = new Map<string, string>();
   for (const d of data?.despesas ?? []) {
-    const c = cartaoDe(d.descricao);
-    if (c) nomes.add(c);
+    const t = d.categoria?.trim();
+    if (!t || t === "—") continue;
+    const k = normalizaTexto(t);
+    if (!nomes.has(k)) nomes.set(k, t);
   }
-  return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
 function useInvalidarPainel() {
@@ -312,6 +327,20 @@ function FormularioDialog({
   const servicos = useServicos();
   const [servicoOutro, setServicoOutro] = useState(false);
   const [veiculoOutro, setVeiculoOutro] = useState(false);
+  const categoriasDespesa = useCategoriasDespesa();
+  const [digitando, setDigitando] = useState<Record<string, boolean>>({});
+  const listaEscolha = (key: string): string[] | null =>
+    key === "cartao" ? cartoes : key === "categoria" && tipo === "despesa" ? categoriasDespesa : null;
+  /** ao digitar um nome que já existe (ignorando acento/maiúscula), usa o já cadastrado */
+  const unificarNome = (key: string) => {
+    const lista = listaEscolha(key);
+    if (!lista) return;
+    setValores((v) => {
+      const atual = (v[key] ?? "").trim();
+      const igual = lista.find((n) => normalizaTexto(n) === normalizaTexto(atual));
+      return { ...v, [key]: igual ?? atual };
+    });
+  };
   const invalidar = useInvalidarPainel();
   const { data: painel } = useQuery(painelQueryOptions());
 
@@ -512,6 +541,38 @@ function FormularioDialog({
                     <SelectItem value="__outro__">+ Novo veículo (digitar)…</SelectItem>
                   </SelectContent>
                 </Select>
+              ) : (listaEscolha(campo.key)?.length ?? 0) > 0 && !digitando[campo.key] ? (
+                <Select
+                  value={valores[campo.key] ?? ""}
+                  onValueChange={(v) => {
+                    if (v === "__outro__") {
+                      setDigitando((d) => ({ ...d, [campo.key]: true }));
+                      setValores((atual) => ({ ...atual, [campo.key]: "" }));
+                      return;
+                    }
+                    setValores((atual) => ({ ...atual, [campo.key]: v }));
+                  }}
+                >
+                  <SelectTrigger id={campo.key} className="h-12 text-base sm:h-9 sm:text-sm">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(() => {
+                      const lista = listaEscolha(campo.key) ?? [];
+                      const atual = valores[campo.key] ?? "";
+                      return atual && !lista.some((n) => normalizaTexto(n) === normalizaTexto(atual))
+                        ? [atual, ...lista]
+                        : lista;
+                    })().map((nome) => (
+                      <SelectItem key={nome} value={nome}>
+                        {nome}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__outro__">
+                      {campo.key === "cartao" ? "+ Novo cartão (digitar)…" : "+ Nova categoria (digitar)…"}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               ) : campo.key === "servico" && tipo === "manutencao" && !servicoOutro ? (
                 <Select
                   value={valores[campo.key] ?? ""}
@@ -600,7 +661,8 @@ function FormularioDialog({
                   inputMode={campo.tipo === "money" || campo.tipo === "number" ? "decimal" : undefined}
                   maxLength={campo.tipo === "text" ? 120 : campo.tipo === "date" ? undefined : 15}
                   placeholder={campo.tipo === "money" ? "0,00" : undefined}
-                  list={campo.sugestoes ? `sugestoes-${campo.key}` : undefined}
+                  list={campo.sugestoes && !listaEscolha(campo.key) ? `sugestoes-${campo.key}` : undefined}
+                  onBlur={() => unificarNome(campo.key)}
                   value={valores[campo.key] ?? ""}
                   onChange={(e) => {
                     const bruto = e.target.value;
@@ -624,7 +686,7 @@ function FormularioDialog({
                 />
 
               )}
-              {campo.sugestoes && (
+              {campo.sugestoes && !listaEscolha(campo.key) && (
                 <datalist id={`sugestoes-${campo.key}`}>
                   {(campo.sugestoes === "forma"
                     ? formas
