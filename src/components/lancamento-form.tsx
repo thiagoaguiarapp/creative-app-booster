@@ -68,6 +68,7 @@ import {
 import { painelQueryOptions } from "@/lib/painel-query";
 import { categoriasQueryOptions } from "@/lib/categorias-query";
 import { excluirLancamentoFn, salvarLancamentoFn } from "@/lib/painel.functions";
+import { AssistenteDespesa } from "@/components/assistente-despesa";
 
 
 function normalizaTexto(texto: string) {
@@ -508,6 +509,16 @@ function FormularioDialog({
 
         <form onSubmit={enviar} className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           <div className="grid gap-5 px-5 py-6 sm:grid-cols-2 sm:gap-4 sm:px-6">
+          {tipo === "despesa" && !row ? (
+            <AssistenteDespesa
+              categoriasExistentes={categoriasDespesa}
+              valorAtual={valores["valor"] ?? ""}
+              onAplicar={(s) => {
+                setDigitando((d) => ({ ...d, categoria: !categoriasDespesa.includes(s.categoria) }));
+                setValores((v) => ({ ...v, categoria: s.categoria, descricao: s.descricao, valor: s.valor }));
+              }}
+            />
+          ) : null}
           {CAMPOS[tipo].filter(visivel).map((campo) => (
             <div key={campo.key} className="flex min-w-0 flex-col gap-2 sm:gap-1.5">
               <Label htmlFor={campo.key} className="text-sm sm:text-xs">{campo.label}</Label>
