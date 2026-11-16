@@ -126,7 +126,7 @@ const ROTULO_TIPO: Record<TipoFiltro, string> = {
   abastecimento: "Combustível",
   despesa: "Despesas",
   manutencao: "Manutenção",
-  repasse: "Repasses",
+  repasse: "Recebimentos",
 };
 const ABA_DO_TIPO: Record<Exclude<TipoFiltro, "todos">, string> = {
   ganho: "geral",
@@ -306,7 +306,7 @@ function RelatorioPage() {
       [],
       ["Indicador", "Valor"],
       ["Faturamento", r.faturamento.toFixed(2)],
-      ["Recebido (repasses)", r.recebido.toFixed(2)],
+      ["Recebido (recebimentos)", r.recebido.toFixed(2)],
       ["Combustível", r.combustivel.toFixed(2)],
       ["Despesas", r.outras.toFixed(2)],
       ["Manutenção", r.manutencao.toFixed(2)],
@@ -343,7 +343,7 @@ function RelatorioPage() {
       head: [["Indicador", "Valor"]],
       body: [
         ["Faturamento", brl(r.faturamento)],
-        ["Recebido (repasses)", brl(r.recebido)],
+        ["Recebido (recebimentos)", brl(r.recebido)],
         ["Combustível", brl(r.combustivel)],
         ["Despesas", brl(r.outras)],
         ["Manutenção", brl(r.manutencao)],
@@ -591,7 +591,7 @@ function RelatorioPage() {
             </div>
             <p className="text-[10px] text-muted-foreground sm:text-xs">
               {r.qtd.ganhos} ganhos · {r.qtd.abast} abastecimentos · {r.qtd.despesas} despesas ·{" "}
-              {r.qtd.repasses} repasses · {r.qtd.manut} manutenções
+              {r.qtd.repasses} recebimentos · {r.qtd.manut} manutenções
             </p>
           </div>
         </div>

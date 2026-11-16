@@ -125,7 +125,7 @@ export function RepassesContent({ intervalo }: { intervalo?: { de: string; ate: 
   return (
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-4 sm:gap-6">
       {!intervalo && <PageHeader
-        title="Recebimento / Repasse"
+        title="Recebimentos"
         subtitle="O que cada aplicativo ainda tem que te pagar"
       />}
 

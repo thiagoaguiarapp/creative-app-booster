@@ -8,7 +8,7 @@ const paginas = [
   { title: "Início", short: "Início", url: "/inicio", icon: Home },
   { title: "Abastecimento", short: "Abastec.", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", short: "Despesas", url: "/despesas", icon: Receipt },
-  { title: "Recebimento / Repasse", short: "Repasse", url: "/repasses", icon: Wallet },
+  { title: "Recebimentos", short: "Recebim.", url: "/repasses", icon: Wallet },
   { title: "Manutenção", short: "Manut.", url: "/manutencao", icon: Wrench },
   { title: "Relatório", short: "Relatório", url: "/relatorio", icon: BarChart3 },
   { title: "Todos os lançamentos", short: "Todos", url: "/lancamentos", icon: ListChecks },

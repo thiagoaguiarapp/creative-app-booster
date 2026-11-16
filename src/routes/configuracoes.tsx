@@ -167,7 +167,7 @@ function ConfiguracoesPage() {
           { to: "/despesas", label: "Despesas", icon: Receipt },
           { to: "/contas-a-pagar", label: "Fluxo de caixa", icon: Wallet },
           { to: "/manutencao", label: "Manutenção", icon: Wrench },
-          { to: "/repasses", label: "Recebimento / Repasse", icon: Wallet },
+          { to: "/repasses", label: "Recebimentos", icon: Wallet },
           { to: "/lancamentos", label: "Todos os lançamentos", icon: Receipt },
         ].map((i) => (
           <Link key={i.to} to={i.to} className="flex items-center gap-3 px-3 py-3 text-sm">

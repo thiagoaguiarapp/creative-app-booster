@@ -108,7 +108,7 @@ const atalhosRapidos: AtalhoRapido[] = [
   { to: "/abastecimento", label: "Abastecer", icon: Fuel },
   { to: "/manutencao", label: "Manutenção", icon: Wrench },
   { to: "/despesas", label: "Lançar despesa", icon: Receipt },
-  { to: "/repasses", label: "Adiantamento", label2: "Repasse", icon: HandCoins },
+  { to: "/repasses", label: "Adiantamento", label2: "Recebimento", icon: HandCoins },
 ];
 
 
@@ -461,7 +461,7 @@ function infoLancamento(item: LancamentoHoje) {
     case "despesa":
       return { Icone: Receipt, positivo: false, titulo: item.data.categoria || "Despesa", sub: limpaDescricao(item.data.descricao) || item.data.pagamento || "—", valor: item.data.valor };
     case "repasse":
-      return { Icone: HandCoins, positivo: true, titulo: `Repasse ${item.data.aplicativo}`, sub: item.data.forma || "—", valor: item.data.valor };
+      return { Icone: HandCoins, positivo: true, titulo: `Recebimento ${item.data.aplicativo}`, sub: item.data.forma || "—", valor: item.data.valor };
   }
 }
 

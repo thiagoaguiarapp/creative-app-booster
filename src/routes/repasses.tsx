@@ -5,17 +5,17 @@ import { painelQueryOptions } from "@/lib/painel-query";
 export const Route = createFileRoute("/repasses")({
   head: () => ({
     meta: [
-      { title: "Recebimento e repasse — No Corre" },
+      { title: "Recebimentos — No Corre" },
       {
         name: "description",
-        content: "Acompanhe os repasses das plataformas por aplicativo, forma de recebimento e data.",
+        content: "Acompanhe os recebimentos das plataformas por aplicativo, forma de recebimento e data.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { property: "og:title", content: "Recebimento e repasse — No Corre" },
+      { property: "og:title", content: "Recebimentos — No Corre" },
       {
         property: "og:description",
-        content: "Repasses das plataformas por aplicativo, forma de recebimento e data.",
+        content: "Recebimentos das plataformas por aplicativo, forma de recebimento e data.",
       },
     ],
   }),

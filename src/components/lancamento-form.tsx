@@ -798,7 +798,7 @@ const ROTULOS_NOVO: Record<Tipo, string> = {
   ganho: "Lançar ganho",
   abastecimento: "Lançar abastecimento",
   despesa: "Lançar despesa",
-  repasse: "Lançar repasse",
+  repasse: "Lançar recebimento",
   manutencao: "Lançar manutenção",
 };
 
@@ -860,7 +860,7 @@ const TIPOS_RAPIDOS: ItemRapido[] = [
   { id: "ganho", tipo: "ganho", rotulo: "Ganho diário", desc: "Corridas e faturamento", icone: Bike },
   { id: "abastecimento", tipo: "abastecimento", rotulo: "Abastecimento", desc: "Litros e odômetro", icone: Fuel },
   { id: "despesa", tipo: "despesa", rotulo: "Despesa", desc: "Custos operacionais", icone: Receipt },
-  { id: "repasse", tipo: "repasse", rotulo: "Repasse / recebimento", desc: "Valores recebidos", icone: Wallet },
+  { id: "repasse", tipo: "repasse", rotulo: "Recebimento", desc: "Valores recebidos", icone: Wallet },
   { id: "manutencao", tipo: "manutencao", rotulo: "Manutenção", desc: "Serviços e trocas", icone: Wrench },
 ];
 

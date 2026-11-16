@@ -23,7 +23,7 @@ const items = [
   { title: "Abastecimento", url: "/abastecimento", icon: Fuel },
   { title: "Despesas", url: "/despesas", icon: Receipt },
   { title: "Fluxo de caixa", url: "/contas-a-pagar", icon: Wallet },
-  { title: "Recebimento / Repasse", url: "/repasses", icon: Wallet },
+  { title: "Recebimentos", url: "/repasses", icon: Wallet },
   { title: "Manutenção", url: "/manutencao", icon: Wrench },
   { title: "Relatórios", url: "/relatorio", icon: BarChart3 },
   { title: "Todos os lançamentos", url: "/lancamentos", icon: ListChecks },

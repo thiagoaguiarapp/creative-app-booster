@@ -76,7 +76,7 @@ const TIPOS: { tipo: Tipo | "todos"; rotulo: string }[] = [
   { tipo: "ganho", rotulo: "Faturamento" },
   { tipo: "abastecimento", rotulo: "Abastecimento" },
   { tipo: "despesa", rotulo: "Despesas" },
-  { tipo: "repasse", rotulo: "Repasses" },
+  { tipo: "repasse", rotulo: "Recebimentos" },
   { tipo: "manutencao", rotulo: "Manutenção" },
 ];
 
@@ -151,7 +151,7 @@ function LancamentosPage() {
       ...data.repasses.map((r) => ({
         key: `repasse-${r.row}`,
         tipo: "repasse" as Tipo,
-        rotulo: "Repasse",
+        rotulo: "Recebimento",
         data: r.data,
         iso: r.iso,
         titulo: r.aplicativo,
