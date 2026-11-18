@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { AtalhoPaginas } from "@/components/atalho-paginas";
+import { MeusCadastros } from "@/components/meus-cadastros";
 import { PreferenciasApp } from "@/components/preferencias-app";
 import { PageHeader, SectionCard } from "@/components/shell";
 import { Button } from "@/components/ui/button";
@@ -309,6 +310,8 @@ function ConfiguracoesPage() {
           </div>
         </div>
       </SectionCard>
+
+      <MeusCadastros />
 
       <SectionCard title="Conta" description={`Conectado como ${usuario?.email ?? ""}`}>
         <Button
