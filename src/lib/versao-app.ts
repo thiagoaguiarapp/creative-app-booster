@@ -3,10 +3,10 @@
 // aparelhos com versão antiga recebam o aviso de atualização.
 
 /** versionCode publicado atualmente na Play Store (android/app/build.gradle). */
-export const VERSAO_NATIVA_MAIS_RECENTE = 14;
+export const VERSAO_NATIVA_MAIS_RECENTE = 15;
 
 /** versionName exibido para o usuário. */
-export const VERSAO_NATIVA_MAIS_RECENTE_NOME = "1.0.13";
+export const VERSAO_NATIVA_MAIS_RECENTE_NOME = "1.0.14";
 
 /**
  * Versão mínima aceita. Aparelhos abaixo disso veem um aviso obrigatório
