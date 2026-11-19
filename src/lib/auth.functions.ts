@@ -18,9 +18,21 @@ export type SessaoUsuario = {
     padrao: boolean;
   }[];
   plataformas: string[];
+  cartoes?: string[];
+  categorias?: string[];
   onboardingOk: boolean;
   caixa?: ConfiguracaoCaixa | null;
 } | null;
+
+export const salvarCadastrosFn = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: { cartoes?: string[]; categorias?: string[]; plataformas?: string[] }) => input,
+  )
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { salvarCadastros } = await import("./auth.server");
+    await salvarCadastros(data);
+    return { ok: true };
+  });
 
 export const salvarVeiculosFn = createServerFn({ method: "POST" })
   .inputValidator((input: { veiculos: unknown }) => input)

@@ -39,6 +39,8 @@ export type Usuario = {
   isAdmin?: boolean;
   veiculos: Veiculo[];
   plataformas: string[];
+  cartoes: string[];
+  categorias: string[];
   onboardingOk: boolean;
   caixa?: ConfiguracaoCaixa | null;
 };
@@ -102,12 +104,14 @@ function extrairUsuario(dados: Record<string, unknown>): Usuario | null {
     isPremium: meta["is_premium"] === true,
     veiculos: normalizarVeiculos(meta["veiculos"]),
     plataformas: normalizarPlataformas(meta["plataformas"]),
+    cartoes: normalizarPlataformas(meta["cartoes"], 50),
+    categorias: normalizarPlataformas(meta["categorias"], 50),
     onboardingOk: meta["onboardingOk"] === true,
     caixa: lerConfiguracaoCaixa(meta["caixa"]),
   };
 }
 
-export function normalizarPlataformas(bruto: unknown): string[] {
+export function normalizarPlataformas(bruto: unknown, limite = 15): string[] {
   if (!Array.isArray(bruto)) return [];
   const vistos = new Set<string>();
   const lista: string[] = [];
@@ -118,7 +122,7 @@ export function normalizarPlataformas(bruto: unknown): string[] {
     vistos.add(chave);
     lista.push(nome);
   }
-  return lista.slice(0, 15);
+  return lista.slice(0, limite);
 }
 
 export function normalizarVeiculos(bruto: unknown): Veiculo[] {
@@ -175,6 +179,8 @@ async function atualizarMetadata(mudancas: Record<string, unknown>): Promise<Usu
         is_premium: atual.isPremium,
         veiculos: atual.veiculos,
         plataformas: atual.plataformas,
+        cartoes: atual.cartoes,
+        categorias: atual.categorias,
         onboardingOk: atual.onboardingOk,
         caixa: atual.caixa,
         ...mudancas,
@@ -362,4 +368,17 @@ export async function redefinirSenha(accessToken: string, senha: string): Promis
   const dados = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) throw new Error(traduzir(String(dados["msg"] ?? dados["message"] ?? ""), res.status));
   gravarSessao(dados as Tokens);
+}
+
+/** nomes cadastrados à mão (cartões, categorias de despesa e aplicativos) */
+export async function salvarCadastros(mudancas: {
+  cartoes?: unknown;
+  categorias?: unknown;
+  plataformas?: unknown;
+}): Promise<void> {
+  const dados: Record<string, string[]> = {};
+  for (const k of ["cartoes", "categorias", "plataformas"] as const) {
+    if (mudancas[k] !== undefined) dados[k] = normalizarPlataformas(mudancas[k], k === "plataformas" ? 15 : 50);
+  }
+  await atualizarMetadata(dados);
 }

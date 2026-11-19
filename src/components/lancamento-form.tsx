@@ -189,7 +189,8 @@ function useCategorias() {
 function usePlataformas(tipo: Tipo): string[] {
   const { data } = useQuery(painelQueryOptions());
   const categorias = useCategorias();
-  const nomes = new Set<string>(categorias.plataformas);
+  const ctx = useRouteContext({ from: "__root__" });
+  const nomes = new Set<string>([...categorias.plataformas, ...(ctx.usuario?.plataformas ?? [])]);
   for (const g of data?.ganhos ?? []) if (g.plataforma?.trim()) nomes.add(g.plataforma.trim());
   for (const r of data?.repasses ?? []) if (r.aplicativo?.trim()) nomes.add(r.aplicativo.trim());
   if (tipo === "ganho") for (const e of EXTRAS_SUGERIDOS) nomes.add(e);
@@ -256,6 +257,7 @@ function usePostos(): string[] {
 /** apelidos de cartão já usados, para o usuário escolher sem digitar de novo */
 function useCartoes(): string[] {
   const { data } = useQuery(painelQueryOptions());
+  const ctx = useRouteContext({ from: "__root__" });
   const nomes = new Map<string, string>();
   const add = (c?: string) => {
     const t = c?.trim();
@@ -264,15 +266,21 @@ function useCartoes(): string[] {
   for (const a of data?.abastecimentos ?? []) add(a.cartao);
   for (const m of data?.manutencoes ?? []) add(m.cartao);
   for (const d of data?.despesas ?? []) add(cartaoDe(d.descricao) ?? undefined);
+  for (const c of ctx.usuario?.cartoes ?? []) add(c);
   return Array.from(nomes.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
 /** categorias de despesa já usadas (sem duplicar por acento/maiúscula) */
 function useCategoriasDespesa(): string[] {
   const { data } = useQuery(painelQueryOptions());
+  const ctx = useRouteContext({ from: "__root__" });
   const nomes = new Map<string, string>();
-  for (const d of data?.despesas ?? []) {
-    const t = d.categoria?.trim();
+  const todas = [
+    ...(data?.despesas ?? []).map((d) => d.categoria),
+    ...(ctx.usuario?.categorias ?? []),
+  ];
+  for (const bruto of todas) {
+    const t = bruto?.trim();
     if (!t || t === "—") continue;
     const k = normalizaTexto(t);
     if (!nomes.has(k)) nomes.set(k, t);
